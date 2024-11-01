@@ -221,3 +221,6 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,intellij+all,macos,windows,gradle,java
+
+# application-profile
+application-secret.yml
