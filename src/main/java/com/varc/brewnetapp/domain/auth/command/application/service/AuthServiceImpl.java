@@ -1,7 +1,6 @@
 package com.varc.brewnetapp.domain.auth.command.application.service;
 
 import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
-import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpResponseDto;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.Member;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.MemberRole;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.RoleType;
@@ -13,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashSet;
 
 @Slf4j
 @Service
@@ -41,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public SignUpResponseDto signUp(SignUpRequestDto signUpRequestDto) {
+    public void signUp(SignUpRequestDto signUpRequestDto) {
         signUpRequestDto.setPassword(bCryptPasswordEncoder.encode(signUpRequestDto.getPassword()));
 
         Member member = memberAuthRepository.save(modelMapper.map(signUpRequestDto, Member.class));
@@ -51,7 +48,6 @@ public class AuthServiceImpl implements AuthService {
         memberRole.setRoleCode(RoleType.COMPANY_STAFF.getRoleId());
         roleAuthRepository.save(memberRole);
 
-        return null;
     }
 
 }
