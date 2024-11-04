@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.varc.brewnetapp.domain.auth.query.mapper.AuthenticationMapper">
+    <resultMap id="memberWithDistinctRolesMap" type="com.varc.brewnetapp.domain.auth.query.vo.MemberVO">
+        <id property="memberCode" column="MEMBER_CODE"/>
+        <result property="id" column="ID"/>
+        <result property="password" column="PASSWORD"/>
+        <result property="name" column="MEMBER_NAME"/>
+        <result property="nickname" column="NICKNAME"/>
+        <collection property="roleVOSet" ofType="com.varc.brewnetapp.domain.auth.query.vo.RoleVO">
+            <result property="role" column="ROLE"/>
+        </collection>
+    </resultMap>
+    <select id="selectMemberByIdWithAuthorities" resultMap="memberWithDistinctRolesMap" parameterType="string">
+        SELECT
+               M.MEMBER_CODE
+             , M.ID
+             , M.PASSWORD
+             , M.NAME AS MEMBER_NAME
+             , M.NICKNAME
+             , R.ROLE
+          FROM tbl_member M
+         INNER JOIN tbl_member_role MR
+            ON (M.MEMBER_CODE = MR.MEMBER_CODE)
+         INNER JOIN tbl_role R
+            ON (MR.ROLE_CODE = R.ROLE_CODE)
+         WHERE M.ID = #{ id }
+         GROUP BY R.ROLE
+    </select>
+</mapper>

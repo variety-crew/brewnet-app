@@ -23,13 +23,18 @@ public class ProviderManager implements AuthenticationManager {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        providerList.forEach(provider -> {
+        for (AuthenticationProvider provider : providerList) {
             if (provider.supports(authentication.getClass())) {
-                provider.authenticate(authentication);
+                log.debug("Authenticating provider: {}", provider.getClass());
+                Authentication result = provider.authenticate(authentication);
+                if (result != null && result.isAuthenticated()) {
+                    log.debug("Successfully authenticated provider: {}", provider.getClass());
+                    return result; // 인증 성공 시 반환
+                }
             }
-        });
+        }
 
-        // 인증 실패 예와
+        // 인증 실패 예외
         throw new NotAuthenticatedException("Adequate provider not found");
     }
 }

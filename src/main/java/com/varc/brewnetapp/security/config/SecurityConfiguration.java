@@ -1,5 +1,8 @@
 package com.varc.brewnetapp.security.config;
 
+import com.varc.brewnetapp.security.filter.DaoAuthenticationFilter;
+import com.varc.brewnetapp.security.filter.JwtAccessTokenFilter;
+import com.varc.brewnetapp.security.provider.ProviderManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,19 +12,26 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-    private final AuthenticationManager providerManager;
-
+    private final ProviderManager providerManager;
+    private final JwtAccessTokenFilter jwtAccessTokenFilter;
+    private final DaoAuthenticationFilter daoAuthenticationFilter;
 
     @Autowired
     public SecurityConfiguration(
-            AuthenticationManager providerManager
+            ProviderManager providerManager,
+            JwtAccessTokenFilter jwtAccessTokenFilter,
+            DaoAuthenticationFilter daoAuthenticationFilter
     ) {
         this.providerManager = providerManager;
+        this.jwtAccessTokenFilter = jwtAccessTokenFilter;
+        this.daoAuthenticationFilter = daoAuthenticationFilter;
+        this.daoAuthenticationFilter.setFilterProcessesUrl("/api/v1/auth/login");
     }
 
     @Bean
@@ -40,7 +50,9 @@ public class SecurityConfiguration {
                         .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
                         .anyRequest().authenticated()
                 )
-//                .addFilter()
+                .addFilterBefore(jwtAccessTokenFilter, UsernamePasswordAuthenticationFilter.class)
+//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilter(daoAuthenticationFilter)
         ;
         return http.build();
     }

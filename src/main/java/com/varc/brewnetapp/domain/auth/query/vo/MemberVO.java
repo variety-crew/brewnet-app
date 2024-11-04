@@ -2,7 +2,7 @@ package com.varc.brewnetapp.domain.auth.query.vo;
 
 import lombok.*;
 
-import java.util.List;
+import java.util.HashSet;
 
 @Getter
 @Setter
@@ -15,5 +15,5 @@ public class MemberVO {
     private String password;
     private String name;
     private String nickname;
-    private List<RoleVO> roleVOList;
+    private HashSet<RoleVO> roleVOSet;
 }
