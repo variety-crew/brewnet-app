@@ -1,12 +1,14 @@
 package com.varc.brewnetapp.security.domain;
 
 import lombok.Getter;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
 @Getter
+@ToString
 public class CustomUser implements UserDetails {
     private final int memberCode;
     private final String username;  // id

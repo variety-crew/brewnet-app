@@ -27,7 +27,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
+        log.debug("loadUserByUsername");
         MemberVO loginMember = authenticationMapper.selectMemberByIdWithAuthorities(loginId);
+        log.debug("loginMember: {}", loginMember);
 
         if (loginMember == null) {
             throw new UsernameNotFoundException(loginId);

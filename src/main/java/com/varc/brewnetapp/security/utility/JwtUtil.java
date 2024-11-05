@@ -129,7 +129,7 @@ public class JwtUtil {
                                 )
                         )
                 )
-                .signWith(SignatureAlgorithm.HS512, environment.getProperty("token.secret"))
+                .signWith(key)
                 .compact();
     }
 

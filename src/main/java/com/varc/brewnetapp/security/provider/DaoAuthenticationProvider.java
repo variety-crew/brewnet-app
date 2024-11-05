@@ -3,6 +3,7 @@ package com.varc.brewnetapp.security.provider;
 import com.varc.brewnetapp.domain.auth.query.service.AuthService;
 import com.varc.brewnetapp.security.service.RefreshTokenService;
 import com.varc.brewnetapp.security.utility.JwtUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,17 +21,20 @@ public class DaoAuthenticationProvider implements AuthenticationProvider {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RefreshTokenService refreshTokenService;
     private final JwtUtil jwtUtil;
+    private final HttpServletResponse response;
 
     public DaoAuthenticationProvider(
             AuthService authService,
             BCryptPasswordEncoder bCryptPasswordEncoder,
             RefreshTokenService refreshTokenService,
-            JwtUtil jwtUtil
+            JwtUtil jwtUtil,
+            HttpServletResponse response
     ) {
         this.authService = authService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.refreshTokenService = refreshTokenService;
         this.jwtUtil = jwtUtil;
+        this.response = response;
     }
 
     @Override
@@ -44,8 +48,14 @@ public class DaoAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("Bad credentials");
         } else {
             Authentication authenticationResult = new UsernamePasswordAuthenticationToken(savedUser, savedUser.getPassword(), savedUser.getAuthorities());
+
             String refreshToken = jwtUtil.generateRefreshToken(authenticationResult);
+            String accessToken = jwtUtil.generateAccessToken(authenticationResult);
+
             refreshTokenService.saveRefreshToken(loginId, refreshToken);
+            response.setHeader("Authorization", "Bearer " + accessToken);
+            response.setHeader("Refresh-Token", refreshToken);
+
             return authenticationResult;
         }
 
