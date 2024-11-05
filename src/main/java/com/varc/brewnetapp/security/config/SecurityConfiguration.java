@@ -3,6 +3,7 @@ package com.varc.brewnetapp.security.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.varc.brewnetapp.security.filter.DaoAuthenticationFilter;
 import com.varc.brewnetapp.security.filter.JwtAccessTokenFilter;
+import com.varc.brewnetapp.security.filter.JwtRefreshTokenFilter;
 import com.varc.brewnetapp.security.provider.ProviderManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -45,6 +46,7 @@ public class SecurityConfiguration {
                         .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(new JwtRefreshTokenFilter(providerManager, objectMapper), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAccessTokenFilter(providerManager), UsernamePasswordAuthenticationFilter.class)
                 .addFilter(new DaoAuthenticationFilter(providerManager, objectMapper))
         ;
