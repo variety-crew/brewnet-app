@@ -1,11 +1,11 @@
 package com.varc.brewnetapp.domain.auth.command.application.service;
 
 import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
-import com.varc.brewnetapp.domain.auth.command.domain.aggregate.Member;
-import com.varc.brewnetapp.domain.auth.command.domain.aggregate.MemberRole;
-import com.varc.brewnetapp.domain.auth.command.domain.aggregate.RoleType;
 import com.varc.brewnetapp.domain.auth.command.domain.repository.MemberAuthRepository;
 import com.varc.brewnetapp.domain.auth.command.domain.repository.RoleAuthRepository;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.Member;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.MemberRole;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.RoleType;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
 
         MemberRole memberRole = new MemberRole();
         memberRole.setMemberCode(member.getMemberCode());
-        memberRole.setRoleCode(RoleType.COMPANY_STAFF.getRoleId());
+        memberRole.setRoleCode(RoleType.GENERAL_ADMIN.getRoleId());
         roleAuthRepository.save(memberRole);
 
     }
