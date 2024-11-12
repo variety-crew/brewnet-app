@@ -32,8 +32,6 @@ public class MemberController {
     public void logout(@RequestHeader("Authorization") String accessToken) {
         String token = accessToken.replace("Bearer ", "");
         String loginId = jwtUtil.getLoginId(token);
-        log.info(loginId);
-        log.info("컨트롤러도착");
-//        memberService.logout(loginId);
+        memberService.logout(loginId);
     }
 }
