@@ -4,9 +4,9 @@ server:
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: ${MARIADB_URL:jdbc:mariadb://localhost:3306/brewnet}
-    username: ${MARIADB_USERNAME:user}
-    password: ${MARIADB_PASSWORD:password}
+    url: ${MARIADB_URL:jdbc:mariadb://localhost:3307/brewnet}
+    username: ${MARIADB_USERNAME:root}
+    password: ${MARIADB_PASSWORD:7189}
 
   jpa:
     generate-ddl: false

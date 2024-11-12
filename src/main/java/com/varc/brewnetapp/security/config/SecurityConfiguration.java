@@ -49,8 +49,8 @@ public class SecurityConfiguration {
                 )
                 .addFilterBefore(new JwtRefreshTokenFilter(providerManager, objectMapper), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAccessTokenFilter(providerManager), UsernamePasswordAuthenticationFilter.class)
-                .addFilter(new DaoAuthenticationFilter(providerManager, objectMapper))
-        ;
+                .addFilter(new DaoAuthenticationFilter(providerManager, objectMapper));
+
         return http.build();
     }
 
