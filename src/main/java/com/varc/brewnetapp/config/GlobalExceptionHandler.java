@@ -19,15 +19,5 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(new ResponseMessage<>(400, e.getMessage(), null));
     }
-
-    // 401: 지정한 리소스에 대한 권한이 없다
-    @ExceptionHandler({
-        JwtException.class
-    })
-    public ResponseEntity<ResponseMessage<Object>> handleInvalidUserException(Exception e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(new ResponseMessage<>(401, e.getMessage(), null));
-    }
-
 }
 
