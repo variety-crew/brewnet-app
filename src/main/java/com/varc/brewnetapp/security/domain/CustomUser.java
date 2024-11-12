@@ -14,7 +14,6 @@ public class CustomUser implements UserDetails {
     private final String username;  // id
     private final String password;
     private final String name;
-    private final String nickname;
     private final Collection<? extends GrantedAuthority> authorities;
 
     public CustomUser(
@@ -22,7 +21,6 @@ public class CustomUser implements UserDetails {
             String username,
             String password,
             String name,
-            String nickname,
             Collection<? extends GrantedAuthority> authorities
     ) {
         super();
@@ -30,7 +28,6 @@ public class CustomUser implements UserDetails {
         this.username = username;
         this.password = password;
         this.name = name;
-        this.nickname = nickname;
         this.authorities = authorities;
     }
 }
