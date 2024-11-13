@@ -8,7 +8,6 @@
         <result property="id" column="ID"/>
         <result property="password" column="PASSWORD"/>
         <result property="name" column="MEMBER_NAME"/>
-        <result property="nickname" column="NICKNAME"/>
         <collection property="roleVOSet" ofType="com.varc.brewnetapp.domain.auth.query.vo.RoleVO">
             <result property="role" column="ROLE"/>
         </collection>
@@ -19,7 +18,6 @@
              , M.ID
              , M.PASSWORD
              , M.NAME AS MEMBER_NAME
-             , M.NICKNAME
              , R.ROLE
           FROM tbl_member M
          INNER JOIN tbl_member_role MR

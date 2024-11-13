@@ -14,6 +14,5 @@ public class MemberVO {
     private String id;
     private String password;
     private String name;
-    private String nickname;
     private HashSet<RoleVO> roleVOSet;
 }
