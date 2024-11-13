@@ -4,5 +4,7 @@ public enum PositionName {
     STAFF,
     ASSISTANT_MANAGER,
     MANAGER,
-    CEO
+    CEO;
+
+
 }
