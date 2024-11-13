@@ -1,11 +1,6 @@
 package com.varc.brewnetapp.domain.auth.command.application.dto;
 
-import com.varc.brewnetapp.domain.member.command.domain.aggregate.Position;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.PositionName;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import java.time.LocalDateTime;
 import lombok.*;
 
 @Getter
@@ -20,4 +15,5 @@ public class SignUpRequestDto {
     private String email;
     private String contact;
     private PositionName positionName;
+    private String FranchiseName;
 }

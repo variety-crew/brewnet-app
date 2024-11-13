@@ -1,4 +1,4 @@
-package com.varc.brewnetapp.domain.member.command.domain.aggregate;
+package com.varc.brewnetapp.domain.member.command.domain.aggregate.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -51,7 +51,7 @@ public class Member {
     @Column(nullable = false)
     private Boolean active;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "position_code")
     private Position position;
 }

@@ -1,5 +1,6 @@
-package com.varc.brewnetapp.domain.auth.command.domain.aggregate;
+package com.varc.brewnetapp.domain.auth.command.domain.aggregate.entity;
 
+import com.varc.brewnetapp.domain.auth.command.domain.aggregate.RoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

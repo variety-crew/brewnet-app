@@ -1,9 +1,13 @@
-package com.varc.brewnetapp.domain.auth.command.domain.aggregate;
+package com.varc.brewnetapp.domain.auth.command.domain.aggregate.entity;
 
+import com.varc.brewnetapp.domain.auth.command.domain.aggregate.MemberRolePK;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -32,4 +36,12 @@ public class MemberRole {
 
     @Column(nullable = false)
     private Boolean active;
+
+    @ManyToOne
+    @JoinColumn(name = "member_code")
+    private Member member;
+
+    @ManyToOne
+    @JoinColumn(name = "role_code")
+    private Role role;
 }
