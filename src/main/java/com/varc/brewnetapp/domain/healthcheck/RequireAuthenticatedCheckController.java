@@ -12,4 +12,9 @@ public class RequireAuthenticatedCheckController {
     public String check() {
         return "Authenticated";
     }
+
+    @GetMapping("/master")
+    public String checkMaster() {
+        return "Master Authorized";
+    }
 }
