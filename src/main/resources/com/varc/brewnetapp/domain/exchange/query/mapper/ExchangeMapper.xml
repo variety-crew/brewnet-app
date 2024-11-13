@@ -40,6 +40,16 @@
                     select="selectExchangeDetailImageBy" column="exchange_code"/>
     </resultMap>
 
+    <resultMap id="exchangeHistoryListResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryVO">
+        <id property="exchangeStockHistoryCode" column="exchange_stock_history_code"/>
+        <result property="status" column="status"/>
+        <result property="manager" column="manager"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="confirmed" column="confirmed"/>
+        <result property="exchangeCode" column="exchange_code"/>
+        <result property="exchangeManager" column="exchange_manager"/>
+    </resultMap>
+
     <select id="selectExchangeListCnt" resultType="int">
         SELECT
               COUNT(*)
@@ -120,5 +130,28 @@
               JOIN tbl_sub_category C ON B.category_code = C.sub_category_code
               JOIN tbl_super_category D ON C.super_category_code = D.super_category_code
         WHERE A.exchange_code = #{ exchangeCode };
+    </select>
+
+    <select id="selectExchangeHistoryListCnt" resultType="int">
+        SELECT
+              count(*)
+         FROM tbl_exchange_stock_history A
+              JOIN tbl_exchange B ON A.exchange_code = B.exchange_code
+              JOIN tbl_member C ON B.member_code = C.member_code;
+    </select>
+
+    <select id="selectExchangeHistoryList" resultMap="exchangeHistoryListResultMap">
+        SELECT
+              A.exchange_stock_history_code
+            , A.status
+            , A.manager
+            , A.created_at
+            , A.confirmed
+            , A.exchange_code
+            , C.name AS exchange_manager
+         FROM tbl_exchange_stock_history A
+              JOIN tbl_exchange B ON A.exchange_code = B.exchange_code
+              JOIN tbl_member C ON B.member_code = C.member_code
+        LIMIT #{ offset }, #{ pageSize };
     </select>
 </mapper>

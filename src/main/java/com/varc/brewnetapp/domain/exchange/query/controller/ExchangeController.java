@@ -2,7 +2,7 @@ package com.varc.brewnetapp.domain.exchange.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailResponseVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailVO;
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryResponseVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListResponseVO;
 import com.varc.brewnetapp.domain.exchange.query.service.ExchangeServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,6 +40,15 @@ public class ExchangeController {
     public ResponseEntity<ResponseMessage<ExchangeDetailResponseVO>> findExchangeBy(@PathVariable("exchangeCode") Integer exchangeCode) {
 
         ExchangeDetailResponseVO result = exchangeService.findExchangeDetailBy(exchangeCode);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 상세성공", result));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 상세조회 성공", result));
+    }
+
+    @PostMapping("/history")
+    @Operation(summary = "[본사] 타부서 교환 처리 내역 확인 API")
+    public ResponseEntity<ResponseMessage<Page<ExchangeHistoryResponseVO>>> findExchangeHistoryList(@RequestParam Map<String, Object> paramMap,
+                                                                                                    @PageableDefault(value = 3) Pageable page) {
+
+        Page<ExchangeHistoryResponseVO> result = exchangeService.findExchangeHistoryList(paramMap, page);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환 처리 내역 확인 성공", result));
     }
 }

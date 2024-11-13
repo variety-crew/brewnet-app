@@ -1,9 +1,6 @@
 package com.varc.brewnetapp.domain.exchange.query.service;
 
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailResponseVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListResponseVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO;
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.*;
 import com.varc.brewnetapp.domain.exchange.query.mapper.ExchangeMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +35,7 @@ public class ExchangeServiceImpl {
         List<ExchangeListResponseVO> exchangeListResponseList = new ArrayList<>();
 
         for (ExchangeListVO exchange : exchangeList) {
-            ExchangeListResponseVO exchangeRequestVO = new ExchangeListResponseVO(
+            ExchangeListResponseVO exchangeResponse = new ExchangeListResponseVO(
                     exchange.getExchangeCode(),
                     exchange.getFranchiseName(),
                     exchange.getItemName(),
@@ -49,7 +46,7 @@ public class ExchangeServiceImpl {
                     exchange.getApproved().getKrName() // enum에서 한글로 변환
             );
 
-            exchangeListResponseList.add(exchangeRequestVO);
+            exchangeListResponseList.add(exchangeResponse);
         }
 
         // 전체 데이터 개수 조회
@@ -60,18 +57,49 @@ public class ExchangeServiceImpl {
     }
 
     public ExchangeDetailResponseVO findExchangeDetailBy(Integer exchangeCode) {
-        ExchangeDetailVO exchangeDetailVO = exchangeMapper.selectExchangeDetailBy(exchangeCode);
+        ExchangeDetailVO exchangeDetail = exchangeMapper.selectExchangeDetailBy(exchangeCode);
 
-        ExchangeDetailResponseVO exchangeDetailResponseVO = new ExchangeDetailResponseVO(
-                exchangeDetailVO.getCreatedAt(),
-                exchangeDetailVO.getFranchiseName(),
-                exchangeDetailVO.getReason(),
-                exchangeDetailVO.getMemberName(),
-                exchangeDetailVO.getComment(),
-                exchangeDetailVO.getExchangeItemList() != null ? exchangeDetailVO.getExchangeItemList() : new ArrayList<>(),
-                exchangeDetailVO.getExchangeImageList() != null ? exchangeDetailVO.getExchangeImageList() : new ArrayList<>(),
-                exchangeDetailVO.getExplanation());
+        ExchangeDetailResponseVO exchangeDetailResponse = new ExchangeDetailResponseVO(
+                exchangeDetail.getCreatedAt(),
+                exchangeDetail.getFranchiseName(),
+                exchangeDetail.getReason(),
+                exchangeDetail.getMemberName(),
+                exchangeDetail.getComment(),
+                exchangeDetail.getExchangeItemList() != null ? exchangeDetail.getExchangeItemList() : new ArrayList<>(),
+                exchangeDetail.getExchangeImageList() != null ? exchangeDetail.getExchangeImageList() : new ArrayList<>(),
+                exchangeDetail.getExplanation());
 
-        return exchangeDetailResponseVO;
+        return exchangeDetailResponse;
+    }
+
+    public Page<ExchangeHistoryResponseVO> findExchangeHistoryList(Map<String, Object> paramMap, Pageable page) {
+        // 페이징 정보 추가
+        paramMap.put("offset", page.getOffset());
+        paramMap.put("pageSize", page.getPageSize());
+
+        // DB에서 교환 목록 조회
+        List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectExchangeHistoryList(paramMap);
+
+        List<ExchangeHistoryResponseVO> exchangeHistoryResponseList = new ArrayList<>();
+
+        for (ExchangeHistoryVO exchange : exchangeHistoryList) {
+            ExchangeHistoryResponseVO exchangeResponse = new ExchangeHistoryResponseVO(
+                    exchange.getExchangeStockHistoryCode(),
+                    exchange.getStatus().getKrName(),
+                    exchange.getManager(),
+                    exchange.getCreatedAt(),
+                    exchange.getConfirmed().getKrName(),
+                    exchange.getExchangeCode(),
+                    exchange.getExchangeManager()
+            );
+
+            exchangeHistoryResponseList.add(exchangeResponse);
+        }
+
+        // 전체 데이터 개수 조회
+        int count = exchangeMapper.selectExchangeHistoryListCnt(paramMap);
+
+        // PageImpl 객체로 감싸서 반환
+        return new PageImpl<>(exchangeHistoryResponseList, page, count);
     }
 }
