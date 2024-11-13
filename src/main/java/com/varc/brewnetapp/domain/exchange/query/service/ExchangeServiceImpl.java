@@ -42,19 +42,7 @@ public class ExchangeServiceImpl {
     }
 
     public ExchangeDetailVO findExchangeDetailBy(Integer exchangeCode) {
-
-
-        List<ExchangeItemVO> exchangeItemVOList = exchangeMapper.selectExchangeDetailItemBy(exchangeCode);
-        log.info("ExchangeServiceImple findExchangeDetailBy - exchangeItemVOList:{}", exchangeItemVOList);
-
         ExchangeDetailVO exchangeDetailVO = exchangeMapper.selectExchangeDetailBy(exchangeCode);
         return exchangeDetailVO;
-
-        // DTO vs. VO
-        // 언제써야하는지
-
-//        return new ExchangeDetailVO(exchangeDetailDto.getCreatedAt(), exchangeDetailDto.getFranchiseName(),
-//                exchangeDetailDto.getReason(), exchangeDetailDto.getMemberName(), exchangeDetailDto.getComment(),
-//                exchangeDetailDto.getExchangeItemList(), exchangeDetailDto.getImageList(), exchangeDetailDto.getExplanation());
     }
 }
