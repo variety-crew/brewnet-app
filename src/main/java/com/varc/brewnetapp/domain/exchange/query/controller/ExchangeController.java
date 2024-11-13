@@ -1,8 +1,9 @@
 package com.varc.brewnetapp.domain.exchange.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailResponseVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO;
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListResponseVO;
 import com.varc.brewnetapp.domain.exchange.query.service.ExchangeServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +14,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController("ExchangeControllerQuery")
@@ -27,20 +26,20 @@ public class ExchangeController {
 
     @PostMapping("")
     @Operation(summary = "[본사] 교환요청 목록 조회 API")
-    public ResponseEntity<ResponseMessage<Page<ExchangeListVO>>> findExchangeList(
+    public ResponseEntity<ResponseMessage<Page<ExchangeListResponseVO>>> findExchangeList(
             @RequestParam Map<String, Object> paramMap,
             @PageableDefault(value = 3) Pageable page) {
 
         // 페이지네이션
-        Page<ExchangeListVO> result = exchangeService.findExchangeList(paramMap, page);
+        Page<ExchangeListResponseVO> result = exchangeService.findExchangeList(paramMap, page);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 목록 조회 성공", result));
     }
 
     @PostMapping("/{exchangeCode}")
     @Operation(summary = "[본사] 교환요청 상세조회 API")
-    public ResponseEntity<ResponseMessage<Object>> findExchangeBy(@PathVariable("exchangeCode") Integer exchangeCode) {
+    public ResponseEntity<ResponseMessage<ExchangeDetailResponseVO>> findExchangeBy(@PathVariable("exchangeCode") Integer exchangeCode) {
 
-        ExchangeDetailVO result = exchangeService.findExchangeDetailBy(exchangeCode);
+        ExchangeDetailResponseVO result = exchangeService.findExchangeDetailBy(exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 상세성공", result));
     }
 }
