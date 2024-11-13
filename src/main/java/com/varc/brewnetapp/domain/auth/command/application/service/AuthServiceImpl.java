@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
 
         MemberRole memberRole = new MemberRole();
         memberRole.setMemberCode(member.getMemberCode());
-        memberRole.setRoleCode(RoleType.GENERAL_ADMIN.getRoleId());
+        memberRole.setRoleCode(1);
         roleAuthRepository.save(memberRole);
 
     }
