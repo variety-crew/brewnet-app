@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.auth.command.application.service;
 
+import com.varc.brewnetapp.domain.auth.command.application.dto.ChangePwRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
 import com.varc.brewnetapp.domain.auth.command.domain.repository.MemberAuthRepository;
 import com.varc.brewnetapp.domain.auth.command.domain.repository.RoleAuthRepository;
@@ -9,6 +10,7 @@ import com.varc.brewnetapp.domain.member.command.domain.aggregate.Position;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.domain.member.command.domain.repository.PositionRepository;
 import com.varc.brewnetapp.exception.DuplicateException;
+import com.varc.brewnetapp.exception.InvalidMemberException;
 import com.varc.brewnetapp.security.service.RefreshTokenService;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
@@ -73,6 +75,19 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void logout(String loginId) {
         refreshTokenService.deleteRefreshToken(loginId);
+    }
+
+    @Override
+    @Transactional
+    public boolean changePassword(ChangePwRequestDTO changePwRequestDTO) {
+        Member member = memberRepository.findById(changePwRequestDTO.getLoginId()).orElse(null);
+
+        if(member == null)
+            throw new InvalidMemberException("비밀번호를 변경하려는 사용자가 존재하지 않습니다");
+
+        String bcryptPw = bCryptPasswordEncoder.encode(changePwRequestDTO.getPassword());
+        member.setPassword(bcryptPw);
+        return memberRepository.save(member).getPassword().equals(bcryptPw);
     }
 
 }

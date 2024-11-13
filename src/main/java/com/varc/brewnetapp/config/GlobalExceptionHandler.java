@@ -4,6 +4,7 @@ import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.exception.DuplicateException;
 import com.varc.brewnetapp.exception.InvalidEmailCodeException;
 import com.varc.brewnetapp.exception.InvalidEmailException;
+import com.varc.brewnetapp.exception.InvalidMemberException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
         DuplicateException.class,
         InvalidEmailCodeException.class,
-        InvalidEmailException.class
+        InvalidEmailException.class,
+        InvalidMemberException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

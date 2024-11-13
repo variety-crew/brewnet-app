@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.auth.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.auth.command.application.dto.ChangePwRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.ConfirmEmailRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SendEmailRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
@@ -18,6 +19,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.MailSendException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +42,7 @@ public class AuthController {
 
     // 회원가입
     @PostMapping("sign-up")
+    @Operation(summary = "회원가입 API")
     public ResponseEntity<ResponseMessage<Object>> signup(@RequestBody SignUpRequestDto signupRequestDto) {
         authService.signUp(signupRequestDto);
 
@@ -47,6 +50,7 @@ public class AuthController {
     }
 
     @DeleteMapping("/logout")
+    @Operation(summary = "로그아웃 API")
     public ResponseEntity<ResponseMessage<Object>> logout(@RequestHeader("Authorization") String accessToken) {
         String token = accessToken.replace("Bearer ", "");
         String loginId = jwtUtil.getLoginId(token);
@@ -56,8 +60,8 @@ public class AuthController {
 
     @PostMapping("/send-email")
     @Operation(summary = "인증 이메일 발송 API")
-    public ResponseEntity<ResponseMessage<Object>> sendEmail(@RequestBody SendEmailRequestDTO sendEmailRequestDTO) throws MessagingException, UnsupportedEncodingException {
-
+    public ResponseEntity<ResponseMessage<Object>> sendEmail(@RequestBody SendEmailRequestDTO sendEmailRequestDTO)
+                                                             throws MessagingException, UnsupportedEncodingException {
         try {
             emailService.sendSimpleMessage(sendEmailRequestDTO);
             return ResponseEntity.ok(new ResponseMessage<>(200, "인증 이메일 발송에 성공했습니다", null));
@@ -69,12 +73,19 @@ public class AuthController {
     @PostMapping("/confirm-email")
     @Operation(summary = "인증 이메일 검증 API")
     public ResponseEntity<ResponseMessage<Object>> confirmEmail(@RequestBody ConfirmEmailRequestDTO confirmEmailRequestDTO) {
-
-        boolean result = emailService.findEmailCode(confirmEmailRequestDTO);
-        if (result) {
+        if (emailService.findEmailCode(confirmEmailRequestDTO))
             return ResponseEntity.ok(new ResponseMessage<>(200, "이메일 인증에 성공했습니다", null));
-        } else {
+        else
             throw new InvalidEmailCodeException("이메일 인증에 실패했습니다");
+    }
+
+    @PutMapping("/pw")
+    @Operation(summary = "비밀번호 변경 API")
+    public ResponseEntity<ResponseMessage<Object>> changePassword(@RequestBody ChangePwRequestDTO changePwRequestDTO) {
+        if (authService.changePassword(changePwRequestDTO)) {
+            return ResponseEntity.ok(new ResponseMessage<>(200, "비밀번호 변경에 성공했습니다", null));
+        } else {
+            throw new InvalidEmailCodeException("비밀번호 변경에 실패했습니다");
         }
     }
 }
