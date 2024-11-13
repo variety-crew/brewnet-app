@@ -5,11 +5,9 @@ import com.varc.brewnetapp.domain.exchange.enums.ExchangeReason;
 import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
 import lombok.*;
 
-@NoArgsConstructor
 @AllArgsConstructor
-@Setter
+@NoArgsConstructor
 @Getter
-@ToString
 public class ExchangeListVO {
     private int exchangeCode;           // 교환번호
     private String franchiseName;       // 교환요청지점

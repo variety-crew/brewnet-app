@@ -1,5 +1,8 @@
 package com.varc.brewnetapp.domain.exchange.query.service;
 
+import com.varc.brewnetapp.domain.exchange.query.aggregate.dto.ExchangeDetailDto;
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailVO;
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeItemVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO;
 import com.varc.brewnetapp.domain.exchange.query.mapper.ExchangeMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +26,7 @@ public class ExchangeServiceImpl {
         this.exchangeMapper = exchangeMapper;
     }
 
-    public Page<ExchangeListVO>  findExchangeList(Map<String, Object> paramMap, Pageable page) {
+    public Page<ExchangeListVO> findExchangeList(Map<String, Object> paramMap, Pageable page) {
         // 페이징 정보 추가
         paramMap.put("offset", page.getOffset());
         paramMap.put("pageSize", page.getPageSize());
@@ -38,4 +41,20 @@ public class ExchangeServiceImpl {
         return new PageImpl<>(exchangeList, page, count);
     }
 
+    public ExchangeDetailVO findExchangeDetailBy(Integer exchangeCode) {
+
+
+        List<ExchangeItemVO> exchangeItemVOList = exchangeMapper.selectExchangeDetailItemBy(exchangeCode);
+        log.info("ExchangeServiceImple findExchangeDetailBy - exchangeItemVOList:{}", exchangeItemVOList);
+
+        ExchangeDetailVO exchangeDetailVO = exchangeMapper.selectExchangeDetailBy(exchangeCode);
+        return exchangeDetailVO;
+
+        // DTO vs. VO
+        // 언제써야하는지
+
+//        return new ExchangeDetailVO(exchangeDetailDto.getCreatedAt(), exchangeDetailDto.getFranchiseName(),
+//                exchangeDetailDto.getReason(), exchangeDetailDto.getMemberName(), exchangeDetailDto.getComment(),
+//                exchangeDetailDto.getExchangeItemList(), exchangeDetailDto.getImageList(), exchangeDetailDto.getExplanation());
+    }
 }
