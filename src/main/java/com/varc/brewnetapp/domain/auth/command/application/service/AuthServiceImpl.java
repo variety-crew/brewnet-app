@@ -1,7 +1,9 @@
 package com.varc.brewnetapp.domain.auth.command.application.service;
 
 import com.varc.brewnetapp.domain.auth.command.application.dto.ChangePwRequestDTO;
+import com.varc.brewnetapp.domain.auth.command.application.dto.GrantAuthRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
+import com.varc.brewnetapp.domain.auth.command.domain.aggregate.MemberRolePK;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.RoleType;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.entity.MemberRole;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.entity.Role;
@@ -69,10 +71,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void signUp(SignUpRequestDto signUpRequestDto) {
-        Member existMember = memberRepository.findById(signUpRequestDto.getId()).orElse(null);
-
-        if(existMember != null)
+        Member existId = memberRepository.findById(signUpRequestDto.getId()).orElse(null);
+        if(existId != null)
             throw new DuplicateException("로그인 아이디가 이미 존재합니다");
+
+        Member existEmail = memberRepository.findByEmail(signUpRequestDto.getEmail()).orElse(null);
+        if(existEmail != null)
+            throw new DuplicateException("이메일이 이미 존재합니다");
 
         signUpRequestDto.setPassword(bCryptPasswordEncoder.encode(signUpRequestDto.getPassword()));
         Member member = modelMapper.map(signUpRequestDto, Member.class);
@@ -105,7 +110,7 @@ public class AuthServiceImpl implements AuthService {
 
             franchiseMemberRepository.save(franchiseMember);
 
-            Role role = roleRepository.findByRole(RoleType.ROLE_FRANCHISE);
+            Role role = roleRepository.findByRole(RoleType.ROLE_FRANCHISE).orElse(null);
 
             MemberRole memberRole = MemberRole.builder()
                 .memberCode(member.getMemberCode())
@@ -136,6 +141,31 @@ public class AuthServiceImpl implements AuthService {
         String bcryptPw = bCryptPasswordEncoder.encode(changePwRequestDTO.getPassword());
         member.setPassword(bcryptPw);
         return memberRepository.save(member).getPassword().equals(bcryptPw);
+    }
+
+    @Override
+    @Transactional
+    public void grantAuth(GrantAuthRequestDTO grantAuthRequestDTO) {
+        Member member = memberRepository.findById(grantAuthRequestDTO.getLoginId()).orElse(null);
+
+        if(member == null)
+            throw new InvalidDataException("잘못된 로그인 아이디입니다");
+
+        Role role = roleRepository.findByRole(RoleType.valueOf(grantAuthRequestDTO.getAuthName())).orElse(null);
+
+        if(role == null)
+            throw new InvalidDataException("잘못된 권한 값입니다");
+
+        MemberRolePK memberRolePK = new MemberRolePK(member.getMemberCode(), role.getRoleCode());
+        MemberRole existMemberRole = memberRoleRepository.findById(memberRolePK).orElse(null);
+
+        if(existMemberRole != null)
+            throw new InvalidDataException("이미 해당 권한이 있는 사용자입니다");
+
+        memberRoleRepository.save(MemberRole.builder()
+            .memberCode(member.getMemberCode()).roleCode(role.getRoleCode())
+            .createdAt(LocalDateTime.now()).active(true).build());
+
     }
 
 }

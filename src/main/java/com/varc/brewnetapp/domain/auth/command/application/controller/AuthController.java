@@ -3,6 +3,7 @@ package com.varc.brewnetapp.domain.auth.command.application.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.auth.command.application.dto.ChangePwRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.ConfirmEmailRequestDTO;
+import com.varc.brewnetapp.domain.auth.command.application.dto.GrantAuthRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SendEmailRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
 import com.varc.brewnetapp.domain.auth.command.application.service.AuthService;
@@ -40,7 +41,7 @@ public class AuthController {
         this.emailService = emailService;
     }
 
-    // 회원가입
+    // 회원가입 마스터 권한
     @PostMapping("sign-up")
     @Operation(summary = "회원가입 API")
     public ResponseEntity<ResponseMessage<Object>> signup(@RequestBody SignUpRequestDto signupRequestDto) {
@@ -49,7 +50,8 @@ public class AuthController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "회원 가입 성공", null));
     }
 
-    @DeleteMapping("/logout")
+    // 토큰 필요, 권한자만
+    @PostMapping("/logout")
     @Operation(summary = "로그아웃 API")
     public ResponseEntity<ResponseMessage<Object>> logout(@RequestHeader("Authorization") String accessToken) {
         String token = accessToken.replace("Bearer ", "");
@@ -58,6 +60,7 @@ public class AuthController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "로그아웃 성공", null));
     }
 
+    // 아무나
     @PostMapping("/send-email")
     @Operation(summary = "인증 이메일 발송 API")
     public ResponseEntity<ResponseMessage<Object>> sendEmail(@RequestBody SendEmailRequestDTO sendEmailRequestDTO)
@@ -70,6 +73,7 @@ public class AuthController {
         }
     }
 
+    // 아무나
     @PostMapping("/confirm-email")
     @Operation(summary = "인증 이메일 검증 API")
     public ResponseEntity<ResponseMessage<Object>> confirmEmail(@RequestBody ConfirmEmailRequestDTO confirmEmailRequestDTO) {
@@ -79,6 +83,7 @@ public class AuthController {
             throw new InvalidEmailCodeException("이메일 인증에 실패했습니다");
     }
 
+    // 아무나
     @PutMapping("/pw")
     @Operation(summary = "비밀번호 변경 API")
     public ResponseEntity<ResponseMessage<Object>> changePassword(@RequestBody ChangePwRequestDTO changePwRequestDTO) {
@@ -88,4 +93,17 @@ public class AuthController {
             throw new InvalidEmailCodeException("비밀번호 변경에 실패했습니다");
         }
     }
+
+    //마스터만
+    @PostMapping("member")
+    @Operation(summary = "회원 별 권한 부여 API")
+    public ResponseEntity<ResponseMessage<Object>> grantAuth(@RequestBody GrantAuthRequestDTO grantAuthRequestDTO){
+        authService.grantAuth(grantAuthRequestDTO);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "권한 부여 성공", null));
+    }
+    
+
+    
+
 }
