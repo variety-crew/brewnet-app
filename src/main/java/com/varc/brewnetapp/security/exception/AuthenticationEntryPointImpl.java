@@ -28,12 +28,10 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        log.debug("authException: {}", authException);
-        String errorMessage = getErrorMessage(authException);
 
         ResponseMessage<String> responseMessage = new ResponseMessage<>(
                 STATUS_CODE_401,
-                errorMessage,
+                "token not authenticated",
                 null
         );
 
@@ -43,23 +41,8 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
         response.setCharacterEncoding("UTF-8");
 
         // ResponseMessage 객체를 JSON으로 변환 후 응답에 작성
-        String jsonResponse = objectMapper.writeValueAsString(responseMessage);
-        response.getWriter().write(jsonResponse);
-    }
-
-    private static String getErrorMessage(AuthenticationException authException) {
-        String errorMessage;
-        Throwable cause = authException.getCause();
-
-        if (cause instanceof SecurityException || cause instanceof MalformedJwtException) { // jwt 유효성 통과 실패
-            errorMessage = "invalid token";
-        } else if (cause instanceof ExpiredJwtException) { // jwt 토큰 만료
-            errorMessage = "token expired";
-        } else if (cause instanceof UnsupportedJwtException) { // 지원하지 않는 jwt 토큰
-            errorMessage = "unsupported token";
-        } else {    // 예기치못한 에러
-            errorMessage = "unexpected error during authentication";
-        }
-        return errorMessage;
+        response.getWriter().write(
+                objectMapper.writeValueAsString(responseMessage)
+        );
     }
 }

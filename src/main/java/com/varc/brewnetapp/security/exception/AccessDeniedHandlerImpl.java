@@ -13,6 +13,7 @@ import java.io.IOException;
 
 @Component
 public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
+    private static final int STATUS_CODE_403 = HttpServletResponse.SC_FORBIDDEN;
     private final ObjectMapper objectMapper;
 
     @Autowired
@@ -24,13 +25,13 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
 
         ResponseMessage<String> responseMessage = new ResponseMessage<>(
-                HttpServletResponse.SC_FORBIDDEN,
+                STATUS_CODE_403,
                 "lack of authorizations",
                 null
         );
 
         // 응답 헤더 및 상태 코드 설정
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setStatus(STATUS_CODE_403);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
