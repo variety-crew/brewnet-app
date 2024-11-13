@@ -70,6 +70,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public void logout(String loginId) {
         refreshTokenService.deleteRefreshToken(loginId);
     }
