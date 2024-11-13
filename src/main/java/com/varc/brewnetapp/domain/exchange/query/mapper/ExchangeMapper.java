@@ -11,8 +11,14 @@ import java.util.Map;
 @Mapper
 public interface ExchangeMapper {
     int selectExchangeListCnt(Map<String, Object> paramMap);
+
     List<ExchangeListVO> selectExchangeList(Map<String, Object> paramMap);
+
+    List<ExchangeListVO> selectSearchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
+
     ExchangeDetailVO selectExchangeDetailBy(int exchangeCode);
+
     int selectExchangeHistoryListCnt(Map<String, Object> paramMap);
+
     List<ExchangeHistoryVO> selectExchangeHistoryList(Map<String, Object> paramMap);
 }

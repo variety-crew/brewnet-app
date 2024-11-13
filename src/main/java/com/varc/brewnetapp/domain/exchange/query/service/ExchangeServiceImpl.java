@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Service("ExchangeServiceQuery")
 @Slf4j
-public class ExchangeServiceImpl {
+public class ExchangeServiceImpl implements ExchangeService{
 
     private final ExchangeMapper exchangeMapper;
 
@@ -24,6 +24,7 @@ public class ExchangeServiceImpl {
         this.exchangeMapper = exchangeMapper;
     }
 
+    @Override
     public Page<ExchangeListResponseVO> findExchangeList(Map<String, Object> paramMap, Pageable page) {
         // 페이징 정보 추가
         paramMap.put("offset", page.getOffset());
@@ -56,6 +57,43 @@ public class ExchangeServiceImpl {
         return new PageImpl<>(exchangeListResponseList, page, count);
     }
 
+    @Override
+    public Page<ExchangeListResponseVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page) {
+        // 페이징 정보 추가
+        long offset = page.getOffset();
+        long pageSize = page.getPageSize();
+//        paramMap.put("offset", page.getOffset());
+//        paramMap.put("pageSize", page.getPageSize());
+//        log.info("페이징 정보 추가");
+
+        // DB에서 교환 목록 조회
+        List<ExchangeListVO> exchangeList = exchangeMapper.selectSearchExchangeList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
+
+        List<ExchangeListResponseVO> exchangeListResponseList = new ArrayList<>();
+
+        for (ExchangeListVO exchange : exchangeList) {
+            ExchangeListResponseVO exchangeResponse = new ExchangeListResponseVO(
+                    exchange.getExchangeCode(),
+                    exchange.getFranchiseName(),
+                    exchange.getItemName(),
+                    exchange.getReason().getKrName(), // enum에서 한글로 변환
+                    exchange.getMemberCode(),
+                    exchange.getCreatedAt(),
+                    exchange.getStatus().getKrName(), // enum에서 한글로 변환
+                    exchange.getApproved().getKrName() // enum에서 한글로 변환
+            );
+
+            exchangeListResponseList.add(exchangeResponse);
+        }
+
+        // 전체 데이터 개수 조회
+        int count = exchangeMapper.selectExchangeListCnt(paramMap);
+
+        // PageImpl 객체로 감싸서 반환
+        return new PageImpl<>(exchangeListResponseList, page, count);
+    }
+
+    @Override
     public ExchangeDetailResponseVO findExchangeDetailBy(Integer exchangeCode) {
         ExchangeDetailVO exchangeDetail = exchangeMapper.selectExchangeDetailBy(exchangeCode);
 
@@ -72,6 +110,7 @@ public class ExchangeServiceImpl {
         return exchangeDetailResponse;
     }
 
+    @Override
     public Page<ExchangeHistoryResponseVO> findExchangeHistoryList(Map<String, Object> paramMap, Pageable page) {
         // 페이징 정보 추가
         paramMap.put("offset", page.getOffset());
@@ -102,4 +141,5 @@ public class ExchangeServiceImpl {
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(exchangeHistoryResponseList, page, count);
     }
+
 }
