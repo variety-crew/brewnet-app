@@ -1,6 +1,6 @@
 package com.varc.brewnetapp.domain.auth.command.application.dto;
 
-import com.varc.brewnetapp.domain.member.command.domain.aggregate.RoleType;
+import com.varc.brewnetapp.domain.auth.command.domain.aggregate.RoleType;
 import lombok.*;
 
 import java.util.HashSet;

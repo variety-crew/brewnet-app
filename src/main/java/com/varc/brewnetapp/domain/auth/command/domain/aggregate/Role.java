@@ -1,9 +1,12 @@
-package com.varc.brewnetapp.domain.member.command.domain.aggregate;
+package com.varc.brewnetapp.domain.auth.command.domain.aggregate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -12,20 +15,20 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "tbl_member_role")
-@IdClass(MemberRolePK.class)
+@Table(name = "tbl_role")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberRole {
-    @Id
-    @Column(name = "member_code")
-    private int memberCode;
+public class Role {
 
     @Id
-    @Column(name = "role_code")
-    private int roleCode;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer roleCode;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RoleType role;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

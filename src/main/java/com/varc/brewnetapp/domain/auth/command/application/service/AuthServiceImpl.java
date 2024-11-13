@@ -4,8 +4,8 @@ import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
 import com.varc.brewnetapp.domain.auth.command.domain.repository.MemberAuthRepository;
 import com.varc.brewnetapp.domain.auth.command.domain.repository.RoleAuthRepository;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.Member;
-import com.varc.brewnetapp.domain.member.command.domain.aggregate.MemberRole;
-import com.varc.brewnetapp.domain.member.command.domain.aggregate.RoleType;
+import com.varc.brewnetapp.domain.auth.command.domain.aggregate.MemberRole;
+import com.varc.brewnetapp.security.service.RefreshTokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,21 +19,25 @@ public class AuthServiceImpl implements AuthService {
 
     private final MemberAuthRepository memberAuthRepository;
     private final RoleAuthRepository roleAuthRepository;
+    private final RefreshTokenService refreshTokenService;
 
     private final ModelMapper modelMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
 
     @Autowired
     public AuthServiceImpl(
             MemberAuthRepository memberAuthRepository,
             RoleAuthRepository roleAuthRepository,
             ModelMapper modelMapper,
-            BCryptPasswordEncoder bCryptPasswordEncoder
+            BCryptPasswordEncoder bCryptPasswordEncoder,
+            RefreshTokenService refreshTokenService
     ) {
         this.memberAuthRepository = memberAuthRepository;
         this.roleAuthRepository = roleAuthRepository;
         this.modelMapper = modelMapper;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Override
@@ -48,6 +52,11 @@ public class AuthServiceImpl implements AuthService {
         memberRole.setRoleCode(1);
         roleAuthRepository.save(memberRole);
 
+    }
+
+    @Override
+    public void logout(String loginId) {
+        refreshTokenService.deleteRefreshToken(loginId);
     }
 
 }

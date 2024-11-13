@@ -20,25 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
-    private final JwtUtil jwtUtil;
 
     @Autowired
-    public MemberController(MemberService memberService, JwtUtil jwtUtil) {
+    public MemberController(MemberService memberService) {
         this.memberService = memberService;
-        this.jwtUtil = jwtUtil;
     }
 
-    // 회원가입
-    @DeleteMapping("/logout")
-    public void logout(@RequestHeader("Authorization") String accessToken) {
-        log.debug("컨트롤러당도함!");
-        String token = accessToken.replace("Bearer ", "");
-        String loginId = jwtUtil.getLoginId(token);
-        memberService.logout(loginId);
-    }
 
-    @GetMapping("/health")
-    public void health() {
-        log.debug("컨트롤러당도함!");
-    }
+
 }
