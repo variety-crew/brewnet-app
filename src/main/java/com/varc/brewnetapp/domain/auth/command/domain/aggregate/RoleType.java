@@ -4,11 +4,11 @@ import lombok.Getter;
 
 @Getter
 public enum RoleType {
-    MASTER("ROLE_MASTER", 1)
-    , GENERAL_ADMIN("ROLE_GENERAL_ADMIN", 2)
-    , RESPONSIBLE_ADMIN("ROLE_RESPONSIBLE_ADMIN", 3)
-    , FRANCHISE("ROLE_FRANCHISE", 4)
-    , DELIVERY("ROLE_DELIVERY", 5);
+    ROLE_MASTER("ROLE_MASTER", 1)
+    , ROLE_GENERAL_ADMIN("ROLE_GENERAL_ADMIN", 2)
+    , ROLE_RESPONSIBLE_ADMIN("ROLE_RESPONSIBLE_ADMIN", 3)
+    , ROLE_FRANCHISE("ROLE_FRANCHISE", 4)
+    , ROLE_DELIVERY("ROLE_DELIVERY", 5);
 
     private final String type;
     private final int roleId;

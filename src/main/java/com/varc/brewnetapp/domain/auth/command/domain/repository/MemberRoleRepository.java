@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RoleAuthRepository extends JpaRepository<MemberRole, MemberRolePK> {
+public interface MemberRoleRepository extends JpaRepository<MemberRole, MemberRolePK> {
 }

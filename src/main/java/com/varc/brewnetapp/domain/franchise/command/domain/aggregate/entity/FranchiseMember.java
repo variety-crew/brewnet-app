@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,9 +16,9 @@ import lombok.Setter;
 @Table(name = "tbl_franchise_member")
 @IdClass(FranchiseMemberId.class)
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class FranchiseMember {
 
     @Id
@@ -33,14 +34,5 @@ public class FranchiseMember {
 
     @Column(name = "active", nullable = false)
     private Boolean active;
-
-    // Foreign key 관계 설정
-    @ManyToOne
-    @JoinColumn(name = "member_code")
-    private Member member;
-
-    @ManyToOne
-    @JoinColumn(name = "franchise_code")
-    private Franchise franchise;
 
 }

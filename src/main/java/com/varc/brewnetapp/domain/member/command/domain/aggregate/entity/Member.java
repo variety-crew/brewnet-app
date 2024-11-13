@@ -51,7 +51,7 @@ public class Member {
     @Column(nullable = false)
     private Boolean active;
 
-    @ManyToOne
-    @JoinColumn(name = "position_code")
-    private Position position;
+    @Column
+    private Integer positionCode;
+
 }

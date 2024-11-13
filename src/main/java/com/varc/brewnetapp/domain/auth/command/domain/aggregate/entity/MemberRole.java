@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +20,7 @@ import lombok.Setter;
 @Table(name = "tbl_member_role")
 @IdClass(MemberRolePK.class)
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberRole {
@@ -37,11 +38,4 @@ public class MemberRole {
     @Column(nullable = false)
     private Boolean active;
 
-    @ManyToOne
-    @JoinColumn(name = "member_code")
-    private Member member;
-
-    @ManyToOne
-    @JoinColumn(name = "role_code")
-    private Role role;
 }
