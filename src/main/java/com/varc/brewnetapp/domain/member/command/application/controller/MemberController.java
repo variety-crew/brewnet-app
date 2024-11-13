@@ -6,6 +6,7 @@ import com.varc.brewnetapp.security.utility.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,8 +31,14 @@ public class MemberController {
     // 회원가입
     @DeleteMapping("/logout")
     public void logout(@RequestHeader("Authorization") String accessToken) {
+        log.debug("컨트롤러당도함!");
         String token = accessToken.replace("Bearer ", "");
         String loginId = jwtUtil.getLoginId(token);
         memberService.logout(loginId);
+    }
+
+    @GetMapping("/health")
+    public void health() {
+        log.debug("컨트롤러당도함!");
     }
 }

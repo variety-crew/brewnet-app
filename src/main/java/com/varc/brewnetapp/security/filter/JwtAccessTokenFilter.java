@@ -37,6 +37,7 @@ public class JwtAccessTokenFilter extends OncePerRequestFilter {
                     new JwtAuthenticationAccessToken(authorizationHeader.replace("Bearer ", ""))
             );
         }
+        log.debug("access token 필터 끝");
         filterChain.doFilter(request, response);
 
     }
