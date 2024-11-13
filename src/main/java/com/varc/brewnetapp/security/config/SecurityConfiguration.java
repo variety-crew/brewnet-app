@@ -50,9 +50,11 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/check/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/api/v1/require-auth/**")).hasRole("")
                         .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
+
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/require-auth/master")).hasRole("MASTER")
+
                         .anyRequest().authenticated()
                 )
 
@@ -61,8 +63,8 @@ public class SecurityConfiguration {
                         .accessDeniedHandler(accessDeniedHandler)           // 403 FORBIDDEN
                 )
 
-                .addFilterBefore(new JwtRefreshTokenFilter(providerManager, objectMapper), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAccessTokenFilter(providerManager), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtRefreshTokenFilter(providerManager, objectMapper), UsernamePasswordAuthenticationFilter.class)
                 .addFilter(new DaoAuthenticationFilter(providerManager, objectMapper));
 
         return http.build();
