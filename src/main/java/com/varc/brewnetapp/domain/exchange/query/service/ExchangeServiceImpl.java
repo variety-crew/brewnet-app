@@ -62,9 +62,6 @@ public class ExchangeServiceImpl implements ExchangeService{
         // 페이징 정보 추가
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
-//        paramMap.put("offset", page.getOffset());
-//        paramMap.put("pageSize", page.getPageSize());
-//        log.info("페이징 정보 추가");
 
         // DB에서 교환 목록 조회
         List<ExchangeListVO> exchangeList = exchangeMapper.selectSearchExchangeList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
@@ -118,6 +115,38 @@ public class ExchangeServiceImpl implements ExchangeService{
 
         // DB에서 교환 목록 조회
         List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectExchangeHistoryList(paramMap);
+
+        List<ExchangeHistoryResponseVO> exchangeHistoryResponseList = new ArrayList<>();
+
+        for (ExchangeHistoryVO exchange : exchangeHistoryList) {
+            ExchangeHistoryResponseVO exchangeResponse = new ExchangeHistoryResponseVO(
+                    exchange.getExchangeStockHistoryCode(),
+                    exchange.getStatus().getKrName(),
+                    exchange.getManager(),
+                    exchange.getCreatedAt(),
+                    exchange.getConfirmed().getKrName(),
+                    exchange.getExchangeCode(),
+                    exchange.getExchangeManager()
+            );
+
+            exchangeHistoryResponseList.add(exchangeResponse);
+        }
+
+        // 전체 데이터 개수 조회
+        int count = exchangeMapper.selectExchangeHistoryListCnt(paramMap);
+
+        // PageImpl 객체로 감싸서 반환
+        return new PageImpl<>(exchangeHistoryResponseList, page, count);
+    }
+
+    @Override
+    public Page<ExchangeHistoryResponseVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page) {
+        // 페이징 정보 추가
+        long offset = page.getOffset();
+        long pageSize = page.getPageSize();
+
+        // DB에서 교환 목록 조회
+        List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectSearchExchangeHistoryList (searchFilter, searchWord, startDate, endDate, offset, pageSize);
 
         List<ExchangeHistoryResponseVO> exchangeHistoryResponseList = new ArrayList<>();
 

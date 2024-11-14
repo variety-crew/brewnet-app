@@ -67,6 +67,24 @@ public class ExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환처리내역 목록조회 성공", result));
     }
 
+    @PostMapping("/history/search")
+    @Operation(summary = "[본사] 타부서 교환처리내역 목록 검색 API",
+            description = "searchFilter에 들어갈 수 있는 값은 code(처리번호), manager(처리담당자), exchangeCode(교환번호), exchangeManager(교환담당자) 4가지<br>" +
+                    "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
+                    "4가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
+    public ResponseEntity<ResponseMessage<Page<ExchangeHistoryResponseVO>>> searchExchangeHistoryList(
+            @RequestParam(required = false) String searchFilter,
+            @RequestParam(required = false) String searchWord,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam Map<String, Object> paramMap,
+            @PageableDefault(value = 10) Pageable page) {
+
+        Page<ExchangeHistoryResponseVO> result = exchangeService.searchExchangeHistoryList(searchFilter, searchWord, startDate, endDate, paramMap, page);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 목록 검색 성공", result));
+    }
+
     @PostMapping("/history/{code}")
     @Operation(summary = "[본사] 타부서 교환처리내역 상세조회 API")
     public ResponseEntity<ResponseMessage<ExchangeHistoryDetailResponseVO>> findExchangeHistoryBy(@PathVariable("code") Integer exchangeStockHistoryCode) {

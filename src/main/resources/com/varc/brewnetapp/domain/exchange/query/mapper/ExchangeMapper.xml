@@ -77,6 +77,15 @@
         <result property="restockQuantity" column="restock_quantity"/>
     </resultMap>
 
+
+
+    <!-- ========== Query ========== -->
+
+
+
+    <!-- ===== Query 1. 교환내역 ===== -->
+
+    <!-- 교환내역 목록조회 페이지네이션용 cnt 쿼리 -->
     <select id="selectExchangeListCnt" resultType="int">
         SELECT
               COUNT(*)
@@ -95,6 +104,7 @@
           AND G.created_at = latest_status.max_created_at;
     </select>
 
+    <!-- 교환내역 목록조회 쿼리 -->
     <select id="selectExchangeList" resultMap="exchangeListResultMap">
         SELECT
               A.exchange_code
@@ -122,6 +132,7 @@
         LIMIT #{ offset }, #{ pageSize };
     </select>
 
+    <!-- 교환내역 검색 쿼리 -->
     <select id="selectSearchExchangeList" resultMap="exchangeListResultMap">
         SELECT
               A.exchange_code
@@ -165,6 +176,7 @@
         LIMIT #{ offset }, #{ pageSize };
     </select>
 
+    <!-- 교환내역 상세조회 쿼리 -->
     <select id="selectExchangeDetailBy" resultMap="exchangeDetailResultMap">
         SELECT
               A.exchange_code
@@ -181,6 +193,7 @@
         WHERE A.exchange_code = #{ exchangeCode };
     </select>
 
+    <!-- 교환내역 상세조회 - 이미지 목록 조회 쿼리 -->
     <select id="selectExchangeDetailImageBy" resultType="string">
         SELECT
               A.image_url
@@ -188,6 +201,7 @@
         WHERE A.exchange_code = #{ exchangeCode };
     </select>
 
+    <!-- 교환내역 상세조회 - 물품 목록 조회 쿼리 -->
     <select id="selectExchangeDetailItemBy" resultMap="exchangeDetailItemResultMap">
         SELECT
               B.item_unique_code
@@ -202,6 +216,11 @@
         WHERE A.exchange_code = #{ exchangeCode };
     </select>
 
+
+
+    <!-- ===== Query 2. 타부서 교환처리완료내역 ===== -->
+
+    <!--  타부서 교환처리완료내역 목록조회용 cnt 쿼리 -->
     <select id="selectExchangeHistoryListCnt" resultType="int">
         SELECT
               count(*)
@@ -210,6 +229,7 @@
               JOIN tbl_member C ON B.member_code = C.member_code;
     </select>
 
+    <!-- 타부서 교환처리완료내역 목록조회 쿼리 -->
     <select id="selectExchangeHistoryList" resultMap="exchangeHistoryListResultMap">
         SELECT
               A.exchange_stock_history_code
@@ -222,6 +242,41 @@
          FROM tbl_exchange_stock_history A
               JOIN tbl_exchange B ON A.exchange_code = B.exchange_code
               JOIN tbl_member C ON B.member_code = C.member_code
+        LIMIT #{ offset }, #{ pageSize };
+    </select>
+
+    <!-- 타부서 교환처리완료내역 검색 쿼리 -->
+    <select id="selectSearchExchangeHistoryList" resultMap="exchangeHistoryListResultMap">
+        SELECT
+              A.exchange_stock_history_code
+            , A.status
+            , A.manager
+            , A.created_at
+            , A.confirmed
+            , A.exchange_code
+            , C.name AS exchange_manager
+         FROM tbl_exchange_stock_history A
+              JOIN tbl_exchange B ON A.exchange_code = B.exchange_code
+              JOIN tbl_member C ON B.member_code = C.member_code
+        <where>
+            <choose>
+                <when test="searchFilter == 'code'">
+                    AND CAST(A.exchange_stock_history_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'manager'">
+                    AND A.manager LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'exchangeCode'">
+                    AND CAST(A.exchange_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'exchangeManager'">
+                    AND C.name LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+            </choose>
+            <if test="startDate != null and endDate != null">
+                AND A.created_at BETWEEN #{ startDate } AND CONCAT(#{ endDate }, ' 23:59:59')
+            </if>
+        </where>
         LIMIT #{ offset }, #{ pageSize };
     </select>
 

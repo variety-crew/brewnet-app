@@ -11,5 +11,6 @@ public interface ExchangeService {
     Page<ExchangeListResponseVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page);
     ExchangeDetailResponseVO findExchangeDetailBy(Integer exchangeCode);
     Page<ExchangeHistoryResponseVO> findExchangeHistoryList(Map<String, Object> paramMap, Pageable page);
+    Page<ExchangeHistoryResponseVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page);
     ExchangeHistoryDetailResponseVO findExchangeHistoryDetailBy(Integer exchangeStockHistoryCode);
 }

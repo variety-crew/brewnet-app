@@ -23,5 +23,7 @@ public interface ExchangeMapper {
 
     List<ExchangeHistoryVO> selectExchangeHistoryList(Map<String, Object> paramMap);
 
+    List<ExchangeHistoryVO> selectSearchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
+
     ExchangeHistoryDetailVO selectExchangeHistoryDetailBy(int exchangeStockHistoryCode);
 }
