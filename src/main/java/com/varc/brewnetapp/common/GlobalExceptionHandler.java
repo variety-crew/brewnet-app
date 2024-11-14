@@ -1,6 +1,5 @@
-package com.varc.brewnetapp.config;
+package com.varc.brewnetapp.common;
 
-import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.exception.DuplicateException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

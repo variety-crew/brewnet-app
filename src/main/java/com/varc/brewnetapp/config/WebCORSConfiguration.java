@@ -14,12 +14,12 @@ public class WebCORSConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.addAllowedOrigin("*");
-        configuration.setAllowedMethods(
+        configuration.setAllowedOrigins(
                 List.of(
                         "http://localhost:5173"
                 )
         );
+        configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("*"));
 
