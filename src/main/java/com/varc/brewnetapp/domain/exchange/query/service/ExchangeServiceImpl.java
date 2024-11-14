@@ -142,4 +142,20 @@ public class ExchangeServiceImpl implements ExchangeService{
         return new PageImpl<>(exchangeHistoryResponseList, page, count);
     }
 
+    @Override
+    public ExchangeHistoryDetailResponseVO findExchangeHistoryDetailBy(Integer exchangeStockHistoryCode) {
+        ExchangeHistoryDetailVO exchangeHistoryDetail = exchangeMapper.selectExchangeHistoryDetailBy(exchangeStockHistoryCode);
+
+        ExchangeHistoryDetailResponseVO exchangeHistoryDetailResponse = new ExchangeHistoryDetailResponseVO(
+                exchangeHistoryDetail.getExchangeCreatedAt(),
+                exchangeHistoryDetail.getFranchiseName(),
+                exchangeHistoryDetail.getReason().getKrName(),
+                exchangeHistoryDetail.getExchangeManager(),
+                exchangeHistoryDetail.getComment(),
+                exchangeHistoryDetail.getCreatedAt(),
+                exchangeHistoryDetail.getStatus().getKrName(),
+                exchangeHistoryDetail.getManager(),
+                exchangeHistoryDetail.getExchangeHistoryItemList() != null ? exchangeHistoryDetail.getExchangeHistoryItemList() : new ArrayList<>());
+        return exchangeHistoryDetailResponse;
+    }
 }

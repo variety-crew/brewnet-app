@@ -1,9 +1,7 @@
 package com.varc.brewnetapp.domain.exchange.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailResponseVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryResponseVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListResponseVO;
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.*;
 import com.varc.brewnetapp.domain.exchange.query.service.ExchangeServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -53,20 +51,27 @@ public class ExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 목록 검색 성공", result));
     }
 
-    @PostMapping("/{exchangeCode}")
+    @PostMapping("/{code}")
     @Operation(summary = "[본사] 교환요청 상세조회 API")
-    public ResponseEntity<ResponseMessage<ExchangeDetailResponseVO>> findExchangeBy(@PathVariable("exchangeCode") Integer exchangeCode) {
+    public ResponseEntity<ResponseMessage<ExchangeDetailResponseVO>> findExchangeBy(@PathVariable("code") Integer exchangeCode) {
 
         ExchangeDetailResponseVO result = exchangeService.findExchangeDetailBy(exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 상세조회 성공", result));
     }
 
     @PostMapping("/history")
-    @Operation(summary = "[본사] 타부서 교환 처리 내역 확인 API")
+    @Operation(summary = "[본사] 타부서 교환처리내역 목록 조회 API")
     public ResponseEntity<ResponseMessage<Page<ExchangeHistoryResponseVO>>> findExchangeHistoryList(@RequestParam Map<String, Object> paramMap,
                                                                                                     @PageableDefault(value = 10) Pageable page) {
-
         Page<ExchangeHistoryResponseVO> result = exchangeService.findExchangeHistoryList(paramMap, page);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환 처리 내역 확인 성공", result));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환처리내역 목록조회 성공", result));
+    }
+
+    @PostMapping("/history/{code}")
+    @Operation(summary = "[본사] 타부서 교환처리내역 상세조회 API")
+    public ResponseEntity<ResponseMessage<ExchangeHistoryDetailResponseVO>> findExchangeHistoryBy(@PathVariable("code") Integer exchangeStockHistoryCode) {
+
+        ExchangeHistoryDetailResponseVO result = exchangeService.findExchangeHistoryDetailBy(exchangeStockHistoryCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환처리내역 상세조회 성공", result));
     }
 }

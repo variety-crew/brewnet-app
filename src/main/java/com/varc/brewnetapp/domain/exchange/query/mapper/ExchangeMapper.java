@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.exchange.query.mapper;
 
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailVO;
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryDetailVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -21,4 +22,6 @@ public interface ExchangeMapper {
     int selectExchangeHistoryListCnt(Map<String, Object> paramMap);
 
     List<ExchangeHistoryVO> selectExchangeHistoryList(Map<String, Object> paramMap);
+
+    ExchangeHistoryDetailVO selectExchangeHistoryDetailBy(int exchangeStockHistoryCode);
 }
