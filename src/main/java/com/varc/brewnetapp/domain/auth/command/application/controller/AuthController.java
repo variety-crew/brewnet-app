@@ -31,13 +31,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/v1/auth")
 public class AuthController {
     private final AuthService authService;
-    private final JwtUtil jwtUtil;
     private final EmailService emailService;
 
     @Autowired
-    public AuthController(AuthService authService, JwtUtil jwtUtil, EmailService emailService) {
+    public AuthController(AuthService authService, EmailService emailService) {
         this.authService = authService;
-        this.jwtUtil = jwtUtil;
         this.emailService = emailService;
     }
 
@@ -54,9 +52,7 @@ public class AuthController {
     @PostMapping("/logout")
     @Operation(summary = "로그아웃 API")
     public ResponseEntity<ResponseMessage<Object>> logout(@RequestHeader("Authorization") String accessToken) {
-        String token = accessToken.replace("Bearer ", "");
-        String loginId = jwtUtil.getLoginId(token);
-        authService.logout(loginId);
+        authService.logout(accessToken);
         return ResponseEntity.ok(new ResponseMessage<>(200, "로그아웃 성공", null));
     }
 
@@ -97,8 +93,20 @@ public class AuthController {
     //마스터만
     @PostMapping("member")
     @Operation(summary = "회원 별 권한 부여 API")
-    public ResponseEntity<ResponseMessage<Object>> grantAuth(@RequestBody GrantAuthRequestDTO grantAuthRequestDTO){
-        authService.grantAuth(grantAuthRequestDTO);
+    public ResponseEntity<ResponseMessage<Object>> grantAuth(@RequestHeader("Authorization") String accessToken,
+                                                             @RequestBody GrantAuthRequestDTO grantAuthRequestDTO){
+        authService.grantAuth(accessToken, grantAuthRequestDTO);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "권한 부여 성공", null));
+    }
+
+    @DeleteMapping("member")
+    @Operation(summary = "회원 삭제 API")
+    public ResponseEntity<ResponseMessage<Object>> deleteMember(@RequestHeader("Authorization") String accessToken,
+                                                                @RequestBody String deleteMemberId){
+
+
+        authService.deleteMember(accessToken, deleteMemberId);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "권한 부여 성공", null));
     }

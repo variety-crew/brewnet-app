@@ -15,16 +15,21 @@ import com.varc.brewnetapp.domain.franchise.command.domain.repository.FranchiseM
 import com.varc.brewnetapp.domain.franchise.command.domain.repository.FranchiseRepository;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.PositionName;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
-import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Position;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.domain.member.command.domain.repository.PositionRepository;
 import com.varc.brewnetapp.exception.DuplicateException;
 import com.varc.brewnetapp.exception.InvalidDataException;
+import com.varc.brewnetapp.exception.UnauthorizedAccessException;
 import com.varc.brewnetapp.security.service.RefreshTokenService;
+import com.varc.brewnetapp.security.utility.JwtUtil;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +48,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final ModelMapper modelMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JwtUtil jwtUtil;
 
 
     @Autowired
@@ -55,7 +61,8 @@ public class AuthServiceImpl implements AuthService {
             PositionRepository positionRepository,
             FranchiseRepository franchiseRepository,
             FranchiseMemberRepository franchiseMemberRepository,
-            RoleRepository roleRepository
+            RoleRepository roleRepository,
+            JwtUtil jwtUtil
     ) {
         this.memberRepository = memberRepository;
         this.memberRoleRepository = memberRoleRepository;
@@ -66,6 +73,7 @@ public class AuthServiceImpl implements AuthService {
         this.franchiseRepository = franchiseRepository;
         this.franchiseMemberRepository = franchiseMemberRepository;
         this.roleRepository = roleRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -126,7 +134,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void logout(String loginId) {
+    public void logout(String accessToken) {
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
         refreshTokenService.deleteRefreshToken(loginId);
     }
 
@@ -145,27 +154,48 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void grantAuth(GrantAuthRequestDTO grantAuthRequestDTO) {
-        Member member = memberRepository.findById(grantAuthRequestDTO.getLoginId()).orElse(null);
+    public void grantAuth(String accessToken, GrantAuthRequestDTO grantAuthRequestDTO) {
+        Authentication authentication = jwtUtil.getAuthentication(accessToken.replace("Bearer ", ""));
 
-        if(member == null)
-            throw new InvalidDataException("잘못된 로그인 아이디입니다");
+        // 권한을 리스트 형태로 가져옴
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
-        Role role = roleRepository.findByRole(RoleType.valueOf(grantAuthRequestDTO.getAuthName())).orElse(null);
+        if (authorities.stream().anyMatch(auth -> "ROLE_MASTER".equals(auth.getAuthority()))) {
+            Member member = memberRepository.findById(grantAuthRequestDTO.getLoginId()).orElse(null);
 
-        if(role == null)
-            throw new InvalidDataException("잘못된 권한 값입니다");
+            if(member == null)
+                throw new InvalidDataException("잘못된 로그인 아이디입니다");
 
-        MemberRolePK memberRolePK = new MemberRolePK(member.getMemberCode(), role.getRoleCode());
-        MemberRole existMemberRole = memberRoleRepository.findById(memberRolePK).orElse(null);
+            Role role = roleRepository.findByRole(RoleType.valueOf(grantAuthRequestDTO.getAuthName())).orElse(null);
 
-        if(existMemberRole != null)
-            throw new InvalidDataException("이미 해당 권한이 있는 사용자입니다");
+            if(role == null)
+                throw new InvalidDataException("잘못된 권한 값입니다");
 
-        memberRoleRepository.save(MemberRole.builder()
-            .memberCode(member.getMemberCode()).roleCode(role.getRoleCode())
-            .createdAt(LocalDateTime.now()).active(true).build());
+            MemberRolePK memberRolePK = new MemberRolePK(member.getMemberCode(), role.getRoleCode());
+            MemberRole existMemberRole = memberRoleRepository.findById(memberRolePK).orElse(null);
 
+            if(existMemberRole != null)
+                throw new InvalidDataException("이미 해당 권한이 있는 사용자입니다");
+
+            memberRoleRepository.save(MemberRole.builder()
+                .memberCode(member.getMemberCode()).roleCode(role.getRoleCode())
+                .createdAt(LocalDateTime.now()).active(true).build());
+        } else
+            throw new UnauthorizedAccessException("마스터 권한이 없는 사용자입니다");
+
+    }
+
+    @Override
+    public void deleteMember(String accessToken, String deleteMemberId) {
+        Authentication authentication = jwtUtil.getAuthentication(accessToken.replace("Bearer ", ""));
+
+        // 권한을 리스트 형태로 가져옴
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+
+        if (authorities.stream().anyMatch(auth -> "ROLE_MASTER".equals(auth.getAuthority()))) {
+
+        } else
+            throw new UnauthorizedAccessException("마스터 권한이 없는 사용자입니다");
     }
 
 }

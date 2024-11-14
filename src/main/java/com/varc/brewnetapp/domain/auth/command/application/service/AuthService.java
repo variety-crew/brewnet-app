@@ -7,9 +7,11 @@ import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
 public interface AuthService {
     void signUp(SignUpRequestDto signupRequestDto);
 
-    void logout(String loginId);
+    void logout(String accessToken);
 
     boolean changePassword(ChangePwRequestDTO changePwRequestDTO);
 
-    void grantAuth(GrantAuthRequestDTO grantAuthRequestDTO);
+    void grantAuth(String accessToken, GrantAuthRequestDTO grantAuthRequestDTO);
+
+    void deleteMember(String accessToken, String deleteMemberId);
 }
