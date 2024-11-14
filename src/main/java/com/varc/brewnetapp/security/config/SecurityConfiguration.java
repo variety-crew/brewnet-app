@@ -47,6 +47,8 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 비활성화
                 .formLogin(AbstractHttpConfigurer::disable)
 
+                .cors(corsConfig -> corsConfig.getClass())
+
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/check/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
