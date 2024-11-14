@@ -7,7 +7,9 @@ public enum ExchangeStatus {
     PICKED("수거완료"),
     SHIPPING("배송중"),
     SHIPPED("배송완료"),
-    COMPLETED("교환완료");
+    COMPLETED("교환완료"),
+    CANCEL("교환취소"),
+    RETURN("교환반려");
 
     private String krName;
 
