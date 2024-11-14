@@ -1,17 +1,15 @@
 package com.varc.brewnetapp.domain.exchange.query.aggregate.vo;
 
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeHistoryStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class ExchangeHistoryDetailResponseVO {
+public class ExchangeHistoryDetailResVO {
     private String exchangeCreatedAt;       // 교환요청일자
     private String franchiseName;           // 교환요청지점
     private String reason;                  // 교환사유

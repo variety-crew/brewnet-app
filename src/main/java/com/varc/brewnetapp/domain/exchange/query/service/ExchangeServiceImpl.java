@@ -25,7 +25,7 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     @Override
-    public Page<ExchangeListResponseVO> findExchangeList(Map<String, Object> paramMap, Pageable page) {
+    public Page<ExchangeListResVO> findExchangeList(Map<String, Object> paramMap, Pageable page) {
         // 페이징 정보 추가
         paramMap.put("offset", page.getOffset());
         paramMap.put("pageSize", page.getPageSize());
@@ -33,10 +33,10 @@ public class ExchangeServiceImpl implements ExchangeService{
         // DB에서 교환 목록 조회
         List<ExchangeListVO> exchangeList = exchangeMapper.selectExchangeList(paramMap);
 
-        List<ExchangeListResponseVO> exchangeListResponseList = new ArrayList<>();
+        List<ExchangeListResVO> exchangeListResponseList = new ArrayList<>();
 
         for (ExchangeListVO exchange : exchangeList) {
-            ExchangeListResponseVO exchangeResponse = new ExchangeListResponseVO(
+            ExchangeListResVO exchangeResponse = new ExchangeListResVO(
                     exchange.getExchangeCode(),
                     exchange.getFranchiseName(),
                     exchange.getItemName(),
@@ -58,7 +58,7 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     @Override
-    public Page<ExchangeListResponseVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page) {
+    public Page<ExchangeListResVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page) {
         // 페이징 정보 추가
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
@@ -66,10 +66,10 @@ public class ExchangeServiceImpl implements ExchangeService{
         // DB에서 교환 목록 조회
         List<ExchangeListVO> exchangeList = exchangeMapper.selectSearchExchangeList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
 
-        List<ExchangeListResponseVO> exchangeListResponseList = new ArrayList<>();
+        List<ExchangeListResVO> exchangeListResponseList = new ArrayList<>();
 
         for (ExchangeListVO exchange : exchangeList) {
-            ExchangeListResponseVO exchangeResponse = new ExchangeListResponseVO(
+            ExchangeListResVO exchangeResponse = new ExchangeListResVO(
                     exchange.getExchangeCode(),
                     exchange.getFranchiseName(),
                     exchange.getItemName(),
@@ -91,10 +91,10 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     @Override
-    public ExchangeDetailResponseVO findExchangeDetailBy(Integer exchangeCode) {
+    public ExchangeDetailResVO findExchangeDetailBy(Integer exchangeCode) {
         ExchangeDetailVO exchangeDetail = exchangeMapper.selectExchangeDetailBy(exchangeCode);
 
-        ExchangeDetailResponseVO exchangeDetailResponse = new ExchangeDetailResponseVO(
+        ExchangeDetailResVO exchangeDetailResponse = new ExchangeDetailResVO(
                 exchangeDetail.getCreatedAt(),
                 exchangeDetail.getFranchiseName(),
                 exchangeDetail.getReason(),
@@ -108,7 +108,7 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     @Override
-    public Page<ExchangeHistoryResponseVO> findExchangeHistoryList(Map<String, Object> paramMap, Pageable page) {
+    public Page<ExchangeHistoryResVO> findExchangeHistoryList(Map<String, Object> paramMap, Pageable page) {
         // 페이징 정보 추가
         paramMap.put("offset", page.getOffset());
         paramMap.put("pageSize", page.getPageSize());
@@ -116,10 +116,10 @@ public class ExchangeServiceImpl implements ExchangeService{
         // DB에서 교환 목록 조회
         List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectExchangeHistoryList(paramMap);
 
-        List<ExchangeHistoryResponseVO> exchangeHistoryResponseList = new ArrayList<>();
+        List<ExchangeHistoryResVO> exchangeHistoryResponseList = new ArrayList<>();
 
         for (ExchangeHistoryVO exchange : exchangeHistoryList) {
-            ExchangeHistoryResponseVO exchangeResponse = new ExchangeHistoryResponseVO(
+            ExchangeHistoryResVO exchangeResponse = new ExchangeHistoryResVO(
                     exchange.getExchangeStockHistoryCode(),
                     exchange.getStatus().getKrName(),
                     exchange.getManager(),
@@ -140,7 +140,7 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     @Override
-    public Page<ExchangeHistoryResponseVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page) {
+    public Page<ExchangeHistoryResVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page) {
         // 페이징 정보 추가
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
@@ -148,10 +148,10 @@ public class ExchangeServiceImpl implements ExchangeService{
         // DB에서 교환 목록 조회
         List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectSearchExchangeHistoryList (searchFilter, searchWord, startDate, endDate, offset, pageSize);
 
-        List<ExchangeHistoryResponseVO> exchangeHistoryResponseList = new ArrayList<>();
+        List<ExchangeHistoryResVO> exchangeHistoryResponseList = new ArrayList<>();
 
         for (ExchangeHistoryVO exchange : exchangeHistoryList) {
-            ExchangeHistoryResponseVO exchangeResponse = new ExchangeHistoryResponseVO(
+            ExchangeHistoryResVO exchangeResponse = new ExchangeHistoryResVO(
                     exchange.getExchangeStockHistoryCode(),
                     exchange.getStatus().getKrName(),
                     exchange.getManager(),
@@ -172,10 +172,10 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     @Override
-    public ExchangeHistoryDetailResponseVO findExchangeHistoryDetailBy(Integer exchangeStockHistoryCode) {
+    public ExchangeHistoryDetailResVO findExchangeHistoryDetailBy(Integer exchangeStockHistoryCode) {
         ExchangeHistoryDetailVO exchangeHistoryDetail = exchangeMapper.selectExchangeHistoryDetailBy(exchangeStockHistoryCode);
 
-        ExchangeHistoryDetailResponseVO exchangeHistoryDetailResponse = new ExchangeHistoryDetailResponseVO(
+        ExchangeHistoryDetailResVO exchangeHistoryDetailResponse = new ExchangeHistoryDetailResVO(
                 exchangeHistoryDetail.getExchangeCreatedAt(),
                 exchangeHistoryDetail.getFranchiseName(),
                 exchangeHistoryDetail.getReason().getKrName(),

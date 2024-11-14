@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class ExchangeHistoryResponseVO {
+public class ExchangeHistoryResVO {
     private int exchangeStockHistoryCode;
     private String status;
     private String manager;

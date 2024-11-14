@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class ExchangeListResponseVO {
+public class ExchangeListResVO {
     private int exchangeCode;           // 교환번호
     private String franchiseName;       // 교환요청지점
     private String itemName;            // 교환품목명

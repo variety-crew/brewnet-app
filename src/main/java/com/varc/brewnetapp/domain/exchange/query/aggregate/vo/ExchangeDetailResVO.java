@@ -9,7 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class ExchangeDetailResponseVO {
+public class ExchangeDetailResVO {
     private String createdAt;                       // 교환요청일자
     private String franchiseName;                   // 교환요청 지점명
     private String reason;                          // 교환사유
