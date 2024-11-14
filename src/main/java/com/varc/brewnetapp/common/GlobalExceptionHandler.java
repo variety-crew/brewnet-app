@@ -19,6 +19,7 @@ public class GlobalExceptionHandler {
     // 400: 잘못된 요청 예외 처리
     @ExceptionHandler({
         DuplicateException.class,
+        DuplicateException.class,
         InvalidEmailCodeException.class,
         InvalidEmailException.class,
         InvalidDataException.class,
