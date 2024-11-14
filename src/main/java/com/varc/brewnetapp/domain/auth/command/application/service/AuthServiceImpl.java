@@ -2,6 +2,7 @@ package com.varc.brewnetapp.domain.auth.command.application.service;
 
 import com.varc.brewnetapp.domain.auth.command.application.dto.ChangePwRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.GrantAuthRequestDTO;
+import com.varc.brewnetapp.domain.auth.command.application.dto.LoginIdRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.MemberRolePK;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.RoleType;
@@ -19,6 +20,7 @@ import com.varc.brewnetapp.domain.member.command.domain.repository.MemberReposit
 import com.varc.brewnetapp.domain.member.command.domain.repository.PositionRepository;
 import com.varc.brewnetapp.exception.DuplicateException;
 import com.varc.brewnetapp.exception.InvalidDataException;
+import com.varc.brewnetapp.exception.MemberNotFoundException;
 import com.varc.brewnetapp.exception.UnauthorizedAccessException;
 import com.varc.brewnetapp.security.service.RefreshTokenService;
 import com.varc.brewnetapp.security.utility.JwtUtil;
@@ -96,7 +98,7 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidDataException("회원가입 시, 가맹점과 직급이 한꺼번에 설정될 수 없습니다");
         else if(signUpRequestDto.getPositionName() != null){
             member.setPositionCode(positionRepository.findByName
-                (PositionName.valueOf(signUpRequestDto.getPositionName())).orElse(null)
+                (PositionName.valueOf(signUpRequestDto.getPositionName())).orElseThrow(() -> new InvalidDataException("직급이 없습니다"))
                 .getPositionCode());
 
             memberRepository.save(member);
@@ -104,10 +106,8 @@ public class AuthServiceImpl implements AuthService {
         else if(signUpRequestDto.getFranchiseName() != null){
             memberRepository.save(member);
 
-            Franchise franchise = franchiseRepository.findByFranchiseName(signUpRequestDto.getFranchiseName()).orElse(null);
-
-            if(franchise == null)
-                throw new InvalidDataException("잘못된 가맹점 이름을 입력했습니다");
+            Franchise franchise = franchiseRepository.findByFranchiseName(signUpRequestDto.getFranchiseName())
+                .orElseThrow(() -> new InvalidDataException("잘못된 가맹점 이름을 입력했습니다"));
 
             FranchiseMember franchiseMember = FranchiseMember.builder()
                                                              .memberCode(member.getMemberCode())
@@ -142,9 +142,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public boolean changePassword(ChangePwRequestDTO changePwRequestDTO) {
-        Member member = memberRepository.findById(changePwRequestDTO.getLoginId()).orElse(null);
+        Member member = memberRepository.findById(changePwRequestDTO.getLoginId())
+            .orElseThrow(() -> new MemberNotFoundException("비밀번호를 변경하려는 사용자가 존재하지 않습니다"));
 
-        if(member == null)
+        if(!member.getActive())
             throw new InvalidDataException("비밀번호를 변경하려는 사용자가 존재하지 않습니다");
 
         String bcryptPw = bCryptPasswordEncoder.encode(changePwRequestDTO.getPassword());
@@ -161,15 +162,14 @@ public class AuthServiceImpl implements AuthService {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
         if (authorities.stream().anyMatch(auth -> "ROLE_MASTER".equals(auth.getAuthority()))) {
-            Member member = memberRepository.findById(grantAuthRequestDTO.getLoginId()).orElse(null);
+            Member member = memberRepository.findById(grantAuthRequestDTO.getLoginId())
+                .orElseThrow(() -> new MemberNotFoundException("권한을 부여하려는 회원이 없습니다"));
 
-            if(member == null)
-                throw new InvalidDataException("잘못된 로그인 아이디입니다");
+            if(!member.getActive())
+                throw new InvalidDataException("권한을 부여하려는 회원이 없습니다");
 
-            Role role = roleRepository.findByRole(RoleType.valueOf(grantAuthRequestDTO.getAuthName())).orElse(null);
-
-            if(role == null)
-                throw new InvalidDataException("잘못된 권한 값입니다");
+            Role role = roleRepository.findByRole(RoleType.valueOf(grantAuthRequestDTO.getAuthName()))
+                .orElseThrow(() -> new InvalidDataException("잘못된 권한 값입니다"));
 
             MemberRolePK memberRolePK = new MemberRolePK(member.getMemberCode(), role.getRoleCode());
             MemberRole existMemberRole = memberRoleRepository.findById(memberRolePK).orElse(null);
@@ -186,14 +186,22 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void deleteMember(String accessToken, String deleteMemberId) {
+    @Transactional
+    public void deleteMember(String accessToken, LoginIdRequestDTO loginIdRequestDTO) {
         Authentication authentication = jwtUtil.getAuthentication(accessToken.replace("Bearer ", ""));
 
         // 권한을 리스트 형태로 가져옴
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
         if (authorities.stream().anyMatch(auth -> "ROLE_MASTER".equals(auth.getAuthority()))) {
+            Member member = memberRepository.findById(loginIdRequestDTO.getLoginId())
+                .orElseThrow(() -> new MemberNotFoundException("삭제하려는 회원이 없습니다"));
 
+            if(!member.getActive())
+                throw new InvalidDataException("삭제하려는 회원이 없습니다");
+
+            member.setActive(false);
+            memberRepository.save(member);
         } else
             throw new UnauthorizedAccessException("마스터 권한이 없는 사용자입니다");
     }

@@ -2,6 +2,7 @@ package com.varc.brewnetapp.domain.auth.command.application.service;
 
 import com.varc.brewnetapp.domain.auth.command.application.dto.ChangePwRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.GrantAuthRequestDTO;
+import com.varc.brewnetapp.domain.auth.command.application.dto.LoginIdRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
 
 public interface AuthService {
@@ -13,5 +14,5 @@ public interface AuthService {
 
     void grantAuth(String accessToken, GrantAuthRequestDTO grantAuthRequestDTO);
 
-    void deleteMember(String accessToken, String deleteMemberId);
+    void deleteMember(String accessToken, LoginIdRequestDTO loginIdRequestDTO);
 }

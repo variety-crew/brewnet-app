@@ -4,6 +4,7 @@ import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.auth.command.application.dto.ChangePwRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.ConfirmEmailRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.GrantAuthRequestDTO;
+import com.varc.brewnetapp.domain.auth.command.application.dto.LoginIdRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SendEmailRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
 import com.varc.brewnetapp.domain.auth.command.application.service.AuthService;
@@ -101,14 +102,13 @@ public class AuthController {
     }
 
     @DeleteMapping("member")
-    @Operation(summary = "회원 삭제 API")
+    @Operation(summary = "회원 계정 비활성화 API")
     public ResponseEntity<ResponseMessage<Object>> deleteMember(@RequestHeader("Authorization") String accessToken,
-                                                                @RequestBody String deleteMemberId){
+                                                                @RequestBody LoginIdRequestDTO loginIdRequestDTO){
 
+        authService.deleteMember(accessToken, loginIdRequestDTO);
 
-        authService.deleteMember(accessToken, deleteMemberId);
-
-        return ResponseEntity.ok(new ResponseMessage<>(200, "권한 부여 성공", null));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "계정 삭제 완료", null));
     }
     
 
