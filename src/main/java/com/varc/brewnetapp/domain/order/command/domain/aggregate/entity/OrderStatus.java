@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum OrderStatus {
     REQUESTED("REQUESTED"),
-    CANCELLED("CANCELLED"),
+    CANCELED("CANCELLED"),
     APPROVED("APPROVED"),
     REJECTED("REJECTED"),
     SHIPPING("SHIPPING"),

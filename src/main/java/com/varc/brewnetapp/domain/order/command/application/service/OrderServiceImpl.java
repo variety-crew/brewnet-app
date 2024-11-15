@@ -82,6 +82,34 @@ public class OrderServiceImpl implements OrderService {
         );
     }
 
+    // 주문 요청 취소
+    @Transactional
+    @Override
+    public void cancelOrderRequest(Integer orderCode) {
+        Order order = orderRepository.findById(orderCode).orElseThrow(IllegalArgumentException::new);
+        log.debug("exist order: {}", order);
+
+        // TODO: validate that order processed with headquater's policy
+        order.orderRequestCancel();
+
+        log.debug("order cancelled: {}", order);
+
+        updateOrderStatusTo(orderCode, OrderStatus.CANCELED);
+        log.debug("order history updated: {}", orderStatusHistoryRepository);
+    }
+
+    // 주문 상태 변화
+    @Transactional
+    public void updateOrderStatusTo(int orderCode, OrderStatus newOrderStatus) {
+        orderStatusHistoryRepository.save(
+                OrderStatusHistory.builder()
+                        .orderCode(orderCode)
+                        .status(newOrderStatus)
+                        .createdAt(LocalDateTime.now())
+                        .active(true)
+                        .build()
+        );
+    }
 
     // 주문 합계 구하기
     private int getOrderTotalSum(List<OrderItemDTO> requestedOrderItemDTOList) {
@@ -98,18 +126,5 @@ public class OrderServiceImpl implements OrderService {
             totalSum += itemPrice *quantity;
         }
         return totalSum;
-    }
-
-    // 주문 상태 변화
-    @Transactional
-    public void updateOrderStatusTo(int orderCode, OrderStatus newOrderStatus) {
-        orderStatusHistoryRepository.save(
-                OrderStatusHistory.builder()
-                        .orderCode(orderCode)
-                        .status(newOrderStatus)
-                        .createdAt(LocalDateTime.now())
-                        .active(true)
-                        .build()
-        );
     }
 }

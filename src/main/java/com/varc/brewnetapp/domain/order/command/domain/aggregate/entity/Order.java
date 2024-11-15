@@ -45,4 +45,8 @@ public class Order {
 
     @Column(name = "delivery_code", nullable = true)
     private Integer deliveryCode;
+
+    public void orderRequestCancel() {
+        this.active = false;
+    }
 }
