@@ -4,7 +4,7 @@ package com.varc.brewnetapp.domain.exchange.enums;
 public enum ExchangeConfirmed {
     UNREAD("안읽음"),
     READ("읽음"),
-    CONFIRM("처리완료");
+    CONFIRMED("처리완료");
 
     private String krName;
 

@@ -18,14 +18,14 @@ public class ExchangeApprover {
     @EmbeddedId
     private ExchangeApproverId exchangeApproverId;  // (복합키) 회원코드, 교환코드
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "approved", nullable = false)
     private ExchangeApproval approved;              // 승인여부
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = true)
     private String createdAt;                       // 결재일시
 
-    @Column(name = "comment", nullable = false)
+    @Column(name = "comment", nullable = true)
     private String comment;                         // 비고사항
 
     @Column(name = "active", nullable = false)

@@ -1,6 +1,9 @@
 package com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity;
 
+import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExMember;
+import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrder;
 import com.varc.brewnetapp.domain.exchange.enums.ExchangeApproval;
+import com.varc.brewnetapp.domain.exchange.enums.ExchangeDraftApproval;
 import com.varc.brewnetapp.domain.exchange.enums.ExchangeReason;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,35 +22,42 @@ public class Exchange {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int exchangeCode;           // 교환코드
 
-    @Column(name = "comment", nullable = false)
-    private String comment;             // 비고사항
+    @Column(name = "comment", nullable = true)
+    private String comment;             // 첨언
 
     @Column(name = "created_at", nullable = false)
     private String createdAt;           // 생성일시
 
     @Column(name = "active", nullable = false)
-    private boolean active;             // 활성화 여부
+    private boolean active;             // 활성화
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "reason", nullable = false)
     private ExchangeReason reason;      // 교환사유
 
     @Column(name = "explanation", nullable = false)
     private String explanation;         // 교환사유설명
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "approved", nullable = false)
     private ExchangeApproval approved;  // 교환결재승인
 
-    @Column(name = "order_code", nullable = false)
-    private int orderCode;              // 주문코드
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_code", nullable = false)
+    private ExOrder order;              // 주문
 
-    @Column(name = "approval_line_code", nullable = false)
-    private int approvalLineCode;       // 결재라인코드
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_code", nullable = true)
+    private ExMember memberCode;        // 교환 기안자
 
-    @Column(name = "member_code", nullable = false)
-    private int memberCode;             // 교환담당자
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_code", nullable = true)
+    private ExMember deliveryCode;      // 배송기사
 
-    @Column(name = "delivery_code", nullable = false)
-    private int deliveryCode;           // 배송기사
+    @Enumerated(EnumType.STRING)
+    @Column(name = "drafter_approved", nullable = true)
+    private ExchangeDraftApproval drafter_approved;     // 기안자의 교환 승인 여부
+
+    @Column(name = "sum_price", nullable = false)
+    private int sum_price;              // 교환 금액 합계
 }

@@ -15,9 +15,9 @@ public class ExchangeStatusHistory {
     @Id
     @Column(name = "exchange_status_history_code")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int exchangeStatusHistoryCode;      // 교환코드
+    private int exchangeStatusHistoryCode;      // 교환 상태 이력 코드
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ExchangeStatus status;              // 교환상태
 
@@ -27,6 +27,7 @@ public class ExchangeStatusHistory {
     @Column(name = "active", nullable = false)
     private boolean active;                     // 활성화 여부
 
-    @Column(name = "exchange_code", nullable = false)
-    private int exchangeCode;                   // 교환코드
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exchange_code", nullable = false)
+    private Exchange exchange;                   // 교환코드
 }

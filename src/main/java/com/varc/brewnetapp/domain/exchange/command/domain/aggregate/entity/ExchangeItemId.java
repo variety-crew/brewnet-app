@@ -6,14 +6,14 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-// 교환 별 결재자들 복합키
+// 교환 별 상품(tbl_exchange_item) 복합키
 @Data
 @Embeddable
-class ExchangeApproverId implements Serializable {
-
-    @Column(name="member_code")
-    private int memberCode;
+public class ExchangeItemId implements Serializable {
 
     @Column(name="exchange_code")
-    private int exchangeCode;
+    private int exchangeCode;       // 교환코드
+
+    @Column(name="item_code")
+    private int itemCode;           // 상품코드
 }
