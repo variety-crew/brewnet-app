@@ -1,10 +1,13 @@
 package com.varc.brewnetapp.domain.order.command.domain.aggregate.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.ToString;
-import org.joda.time.DateTime;
+import lombok.*;
 
+import java.time.LocalDateTime;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Entity(name = "tbl_order")
 @ToString
@@ -14,19 +17,32 @@ public class Order {
     @Column(name = "order_code")
     private Integer orderCode;
 
-    @Column(name = "comment")
+    @Column(name = "comment", nullable = true)
     private String comment;
 
-    @Column(name = "created_at")
-    private DateTime createdAt;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
-    @Column(name = "active")
-    private boolean active;
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
 
-    @Column(name = "approved")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "approved", nullable = false)
     private OrderApprovalStatus approved;
 
-    @Column(name = "drafter_approved")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "drafter_approved", nullable = true)
     private ApprovalType approvalType;
 
+    @Column(name = "sum_price", nullable = false)
+    private int sumPrice;
+
+    @Column(name = "franchise_code", nullable = false)
+    private int franchiseCode;
+
+    @Column(name = "member_code", nullable = true)
+    private Integer memberCode;
+
+    @Column(name = "delivery_code", nullable = true)
+    private Integer deliveryCode;
 }

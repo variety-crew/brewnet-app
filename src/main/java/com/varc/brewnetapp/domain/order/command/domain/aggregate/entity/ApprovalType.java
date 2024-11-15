@@ -1,5 +1,8 @@
 package com.varc.brewnetapp.domain.order.command.domain.aggregate.entity;
 
+import lombok.Getter;
+
+@Getter
 public enum ApprovalType {
     APPROVE("APPROVE"),
     REJECT("REJECT");
@@ -10,7 +13,4 @@ public enum ApprovalType {
         this.type = type;
     }
 
-    public String getType() {
-        return type;
-    }
 }

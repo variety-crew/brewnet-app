@@ -1,7 +1,10 @@
 package com.varc.brewnetapp.domain.order.command.application.service;
 
+import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderItemDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
+
+import java.util.List;
 
 public interface OrderService {
 
@@ -9,5 +12,6 @@ public interface OrderService {
     OrderRequestResponseDTO orderRequestByFranchise(OrderRequestDTO orderRequestRequestDTO);
 
     // 주문별 품목 생성
-//    void addItemsPerOrder(ItemsPerOrderDTO orderRequestRequestDTO);
+    void addItemsPerOrder(int orderCode, List<OrderItemDTO> orderRequestRequestDTO);
+
 }

@@ -5,10 +5,14 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum OrderApprovalStatus {
-    UNCONFIRMED("UNCONFIRMED"),
+public enum OrderStatus {
+    REQUESTED("REQUESTED"),
+    CANCELLED("CANCELLED"),
     APPROVED("APPROVED"),
-    REJECTED("REJECTED");
+    REJECTED("REJECTED"),
+    SHIPPING("SHIPPING"),
+    SHIPPED("SHIPPED")
+    ;
 
     private final String status;
 }
