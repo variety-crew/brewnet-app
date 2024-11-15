@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.varc.brewnetapp.domain.purchase.query.mapper.PurchaseMapper">
+
+    <resultMap id="letterOfPurchaseResultMap" type="com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDTO">
+        <id property="purchaseCode" column="LETTER_OF_PURCHASE_CODE"/>
+        <result property="approved" column="APPROVED"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="sumPrice" column="SUM_PRICE"/>
+        <result property="memberName" column="MEMBER_NAME"/>
+        <result property="approvedAt" column="APPROVED_AT"/>
+        <result property="storageName" column="STORAGE_NAME"/>
+        <result property="correspondentName" column="CORRESPONDENT_NAME"/>
+    </resultMap>
+
+    <select id="searchLettersOfPurchase"
+            parameterType="com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria"
+            resultMap="letterOfPurchaseResultMap">
+        SELECT
+               P.LETTER_OF_PURCHASE_CODE,
+               P.APPROVED,
+               P.CREATED_AT,
+               P.SUM_PRICE,
+               M.NAME AS MEMBER_NAME,
+               A.APPROVED_AT,
+               S.NAME AS STORAGE_NAME,
+               C.NAME AS CORRESPONDENT_NAME
+          FROM TBL_LETTER_OF_PURCHASE P
+          JOIN TBL_LETTER_OF_PURCHASE_APPROVER A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
+          JOIN TBL_STORAGE S ON P.STORAGE_CODE = S.STORAGE_CODE
+          JOIN TBL_MEMBER M ON P.MEMBER_CODE = M.MEMBER_CODE
+          JOIN TBL_CORRESPONDENT C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+        <where>
+            P.ACTIVE = TRUE
+            <if test="purchaseCode != null">
+                AND P.LETTER_OF_PURCHASE_CODE = #{purchaseCode}
+            </if>
+            <if test="memberName != null">
+                AND M.NAME LIKE CONCAT('%', #{memberName}, '%')
+            </if>
+            <if test="correspondentName != null">
+                AND C.NAME LIKE CONCAT('%', #{correspondentName}, '%')
+            </if>
+            <if test="storageName != null">
+                AND S.NAME LIKE CONCAT('%', #{storageName}, '%')
+            </if>
+            <if test="startDate != null and endDate != null">
+                AND DATE(P.CREATED_AT) BETWEEN #{startDate} AND #{endDate}
+            </if>
+        </where>
+         ORDER BY P.LETTER_OF_PURCHASE_CODE DESC;
+    </select>
+</mapper>
