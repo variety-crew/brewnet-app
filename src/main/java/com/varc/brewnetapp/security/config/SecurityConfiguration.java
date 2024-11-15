@@ -53,6 +53,10 @@ public class SecurityConfiguration {
                         .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
 
+                        // 가맹점
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/order/**")).hasAnyRole("FRANCHISE")
+
+                        // 마스터
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/require-auth/master")).hasRole("MASTER")
 
                         .anyRequest().authenticated()
