@@ -119,7 +119,10 @@
                     select="selectExchangeDetailImageBy" column="exchange_code"/>
     </resultMap>
 
-
+    <resultMap id="franExchangeStatusResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.FranExchangeStatusVO">
+        <result property="status" column="status"/>
+        <result property="processedAt" column="processed_at"/>
+    </resultMap>
 
     <!-- ========== Query ========== -->
 
@@ -436,5 +439,14 @@
          FROM tbl_exchange_item A
               JOIN tbl_item B ON A.item_code = B.item_code
         WHERE A.exchange_code = #{ exchangeCode };
+    </select>
+
+    <!-- 가맹점 교환내역 상태조회 쿼리 -->
+    <select id="selectFranExchangeStatusBy" resultMap="franExchangeStatusResultMap">
+        SELECT
+              A.status
+            , A.created_at AS processed_at
+         FROM tbl_exchange_status_history A
+        WHERE A.exchange_code = #{ exchangeCode }
     </select>
 </mapper>

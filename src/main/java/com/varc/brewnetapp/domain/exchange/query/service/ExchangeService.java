@@ -4,6 +4,7 @@ import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ExchangeService {
@@ -20,4 +21,8 @@ public interface ExchangeService {
     ExchangeHistoryDetailVO findExchangeHistoryDetailBy(Integer exchangeStockHistoryCode);
 
     Page<FranExchangeListVO> findFranExchangeList(int franchiseCode, Map<String, Object> paramMap, Pageable page);
+
+    FranExchangeDetailVO franFranExchangeDetailBy(int exchangeCode);
+
+    List<FranExchangeStatusVO> findFranExchangeStatusBy(int exchangeCode);
 }

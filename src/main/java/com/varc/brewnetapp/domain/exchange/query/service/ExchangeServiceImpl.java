@@ -117,8 +117,15 @@ public class ExchangeServiceImpl implements ExchangeService{
         return new PageImpl<>(franExchangeList, page, count);
     }
 
-    public FranExchangeDetailVO franFranExchangeDetailBy(Integer exchangeCode) {
+    @Override
+    public FranExchangeDetailVO franFranExchangeDetailBy(int exchangeCode) {
         FranExchangeDetailVO franExchangeDetail = exchangeMapper.selectFranExchangeDetailBy(exchangeCode);
         return franExchangeDetail;
+    }
+
+    @Override
+    public List<FranExchangeStatusVO> findFranExchangeStatusBy(int exchangeCode) {
+        List<FranExchangeStatusVO> franExchangeStatus = exchangeMapper.selectFranExchangeStatusBy(exchangeCode);
+        return franExchangeStatus;
     }
 }

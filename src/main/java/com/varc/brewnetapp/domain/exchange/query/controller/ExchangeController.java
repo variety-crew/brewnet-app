@@ -12,6 +12,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController("ExchangeControllerQuery")
@@ -105,12 +106,19 @@ public class ExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 목록조회 성공", result));
     }
 
-    // code -> access token 정보로 수정 필요
     @GetMapping("/franchise/{code}")
     @Operation(summary = "[가맹점] 교환요청 상세조회 API")
     public ResponseEntity<ResponseMessage<FranExchangeDetailVO>> findFranExchangeDetail(@PathVariable("code") Integer exchangeCode) {
 
         FranExchangeDetailVO result = exchangeService.franFranExchangeDetailBy(exchangeCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 상세조회 성공", result));
+    }
+
+    @GetMapping("/franchise/status/{code}")
+    @Operation(summary = "[가맹점] 교환요청 상세조회 - 교환상태조회 API")
+    public ResponseEntity<ResponseMessage<List<FranExchangeStatusVO>>> findFranExchangeStatus(@PathVariable("code") Integer exchangeCode) {
+
+        List<FranExchangeStatusVO> result = exchangeService.findFranExchangeStatusBy(exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 상세조회 성공", result));
     }
 }
