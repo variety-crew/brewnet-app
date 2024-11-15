@@ -117,6 +117,21 @@ public class ExchangeServiceImpl implements ExchangeService{
         return new PageImpl<>(franExchangeList, page, count);
     }
 
+    public Page<FranExchangeListVO> searchFranExchangeList(int franchiseCode, String searchFilter, String searchWord, String startDate, String endDate, Pageable page) {
+        // 페이징 정보 추가
+        long offset = page.getOffset();
+        long pageSize = page.getPageSize();
+
+        // DB에서 교환 목록 조회
+        List<FranExchangeListVO> franExchangeList = exchangeMapper.selectSearchFranExchangeList(franchiseCode, searchFilter, searchWord, startDate, endDate, offset, pageSize);
+
+        // 전체 데이터 개수 조회
+        int count = exchangeMapper.selectFranExchangeListCnt(franchiseCode);
+
+        // PageImpl 객체로 감싸서 반환
+        return new PageImpl<>(franExchangeList, page, count);
+    }
+
     @Override
     public FranExchangeDetailVO franFranExchangeDetailBy(int exchangeCode) {
         FranExchangeDetailVO franExchangeDetail = exchangeMapper.selectFranExchangeDetailBy(exchangeCode);

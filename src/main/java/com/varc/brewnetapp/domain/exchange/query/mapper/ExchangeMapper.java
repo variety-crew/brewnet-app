@@ -28,6 +28,8 @@ public interface ExchangeMapper {
 
     List<FranExchangeListVO> selectFranExchangeList(int franchiseCode, long offset, long pageSize);
 
+    List<FranExchangeListVO> selectSearchFranExchangeList(int franchiseCode, String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
+
     FranExchangeDetailVO selectFranExchangeDetailBy(int exchangeCode);
 
     List<FranExchangeStatusVO> selectFranExchangeStatusBy(int exchangeCode);
