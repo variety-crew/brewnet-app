@@ -10,7 +10,7 @@ import java.util.Map;
 public interface ExchangeMapper {
     int selectExchangeListCnt();
 
-    List<ExchangeListVO> selectExchangeList(Map<String, Object> paramMap);
+    List<ExchangeListVO> selectExchangeList(long offset, long pageSize);
 
     List<ExchangeListVO> selectSearchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 
@@ -18,7 +18,7 @@ public interface ExchangeMapper {
 
     int selectExchangeHistoryListCnt();
 
-    List<ExchangeHistoryVO> selectExchangeHistoryList(Map<String, Object> paramMap);
+    List<ExchangeHistoryVO> selectExchangeHistoryList(long offset, long pageSize);
 
     List<ExchangeHistoryVO> selectSearchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 

@@ -57,7 +57,7 @@
     <resultMap id="exchangeHistoryDetailResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryDetailVO">
         <id property="exchangeStockHistoryCode" column="exchange_stock_history_code"/>
         <result property="exchangeCreatedAt" column="exchange_created_at"/>
-        <result property="franchiseName" column="manager"/>
+        <result property="franchiseName" column="franchise_name"/>
         <result property="reason" column="reason"/>
         <result property="exchangeManager" column="exchange_manager"/>
         <result property="comment" column="comment"/>
@@ -106,7 +106,6 @@
         <result property="createdAt" column="created_at"/>
         <result property="status" column="status"/>
         <result property="orderCode" column="orderCode"/>
-<!--        <result property="totalSumPrice" column="totalSumPrice"/>-->
         <result property="reason" column="reason"/>
         <result property="explanation" column="explanation"/>
 

@@ -21,4 +21,5 @@ public class FranExchangeDetailVO {
     private String reason;                              // 교환사유
     private String explanation;                         // 교환 상세사유
     private List<String> exchangeImageList;             // 교환 이미지 리스트
+    private List<FranExchangeItemVO> exchangeItemList;  // 교환 이미지 리스트
 }

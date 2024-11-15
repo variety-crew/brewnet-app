@@ -25,13 +25,13 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     @Override
-    public Page<ExchangeListVO> findExchangeList(Map<String, Object> paramMap, Pageable page) {
+    public Page<ExchangeListVO> findExchangeList(Pageable page) {
         // 페이징 정보 추가
-        paramMap.put("offset", page.getOffset());
-        paramMap.put("pageSize", page.getPageSize());
+        long offset = page.getOffset();
+        long pageSize = page.getPageSize();
 
         // DB에서 교환 목록 조회
-        List<ExchangeListVO> exchangeList = exchangeMapper.selectExchangeList(paramMap);
+        List<ExchangeListVO> exchangeList = exchangeMapper.selectExchangeList(offset, pageSize);
 
         // 전체 데이터 개수 조회
         int count = exchangeMapper.selectExchangeListCnt();
@@ -41,7 +41,7 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     @Override
-    public Page<ExchangeListVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page) {
+    public Page<ExchangeListVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page) {
         // 페이징 정보 추가
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
@@ -64,13 +64,13 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     @Override
-    public Page<ExchangeHistoryVO> findExchangeHistoryList(Map<String, Object> paramMap, Pageable page) {
+    public Page<ExchangeHistoryVO> findExchangeHistoryList(Pageable page) {
         // 페이징 정보 추가
-        paramMap.put("offset", page.getOffset());
-        paramMap.put("pageSize", page.getPageSize());
+        long offset = page.getOffset();
+        long pageSize = page.getPageSize();
 
         // DB에서 교환 목록 조회
-        List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectExchangeHistoryList(paramMap);
+        List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectExchangeHistoryList(offset, pageSize);
 
         // 전체 데이터 개수 조회
         int count = exchangeMapper.selectExchangeHistoryListCnt();
@@ -80,7 +80,7 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     @Override
-    public Page<ExchangeHistoryVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page) {
+    public Page<ExchangeHistoryVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page) {
         // 페이징 정보 추가
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
@@ -102,7 +102,7 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     @Override
-    public Page<FranExchangeListVO> findFranExchangeList(int franchiseCode, Map<String, Object> paramMap, Pageable page) {
+    public Page<FranExchangeListVO> findFranExchangeList(int franchiseCode, Pageable page) {
         // 페이징 정보 추가
         long offset = page.getOffset();
         long pageSize = page.getPageSize();

@@ -26,11 +26,10 @@ public class ExchangeController {
     @GetMapping("")
     @Operation(summary = "[본사] 교환요청 목록 조회 API")
     public ResponseEntity<ResponseMessage<Page<ExchangeListVO>>> findExchangeList(
-            @RequestParam Map<String, Object> paramMap,
             @PageableDefault(value = 10) Pageable page) {
 
         // 페이지네이션
-        Page<ExchangeListVO> result = exchangeService.findExchangeList(paramMap, page);
+        Page<ExchangeListVO> result = exchangeService.findExchangeList(page);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 목록 조회 성공", result));
     }
 
@@ -44,10 +43,9 @@ public class ExchangeController {
             @RequestParam(required = false) String searchWord,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
-            @RequestParam Map<String, Object> paramMap,
             @PageableDefault(value = 10) Pageable page) {
 
-        Page<ExchangeListVO> result = exchangeService.searchExchangeList(searchFilter, searchWord, startDate, endDate, paramMap, page);
+        Page<ExchangeListVO> result = exchangeService.searchExchangeList(searchFilter, searchWord, startDate, endDate, page);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 목록 검색 성공", result));
     }
@@ -62,9 +60,8 @@ public class ExchangeController {
 
     @GetMapping("/history")
     @Operation(summary = "[본사] 타부서 교환처리내역 목록 조회 API")
-    public ResponseEntity<ResponseMessage<Page<ExchangeHistoryVO>>> findExchangeHistoryList(@RequestParam Map<String, Object> paramMap,
-                                                                                               @PageableDefault(value = 10) Pageable page) {
-        Page<ExchangeHistoryVO> result = exchangeService.findExchangeHistoryList(paramMap, page);
+    public ResponseEntity<ResponseMessage<Page<ExchangeHistoryVO>>> findExchangeHistoryList(@PageableDefault(value = 10) Pageable page) {
+        Page<ExchangeHistoryVO> result = exchangeService.findExchangeHistoryList(page);
         return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환처리내역 목록조회 성공", result));
     }
 
@@ -78,10 +75,9 @@ public class ExchangeController {
             @RequestParam(required = false) String searchWord,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
-            @RequestParam Map<String, Object> paramMap,
             @PageableDefault(value = 10) Pageable page) {
 
-        Page<ExchangeHistoryVO> result = exchangeService.searchExchangeHistoryList(searchFilter, searchWord, startDate, endDate, paramMap, page);
+        Page<ExchangeHistoryVO> result = exchangeService.searchExchangeHistoryList(searchFilter, searchWord, startDate, endDate, page);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 목록 검색 성공", result));
     }
@@ -99,10 +95,9 @@ public class ExchangeController {
     @GetMapping("/franchise/list/{code}")
     @Operation(summary = "[가맹점] 교환요청 목록조회 API")
     public ResponseEntity<ResponseMessage<Page<FranExchangeListVO>>> findFranExchangeList(@PathVariable("code") Integer franchiseCode,
-                                                                                          @RequestParam Map<String, Object> paramMap,
                                                                                           @PageableDefault(value = 10) Pageable page) {
 
-        Page<FranExchangeListVO> result = exchangeService.findFranExchangeList(franchiseCode, paramMap, page);
+        Page<FranExchangeListVO> result = exchangeService.findFranExchangeList(franchiseCode, page);
         return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 목록조회 성공", result));
     }
 
