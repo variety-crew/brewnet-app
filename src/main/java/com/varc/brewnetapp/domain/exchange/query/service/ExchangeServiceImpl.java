@@ -25,7 +25,7 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     @Override
-    public Page<ExchangeListResVO> findExchangeList(Map<String, Object> paramMap, Pageable page) {
+    public Page<ExchangeListVO> findExchangeList(Map<String, Object> paramMap, Pageable page) {
         // 페이징 정보 추가
         paramMap.put("offset", page.getOffset());
         paramMap.put("pageSize", page.getPageSize());
@@ -33,32 +33,15 @@ public class ExchangeServiceImpl implements ExchangeService{
         // DB에서 교환 목록 조회
         List<ExchangeListVO> exchangeList = exchangeMapper.selectExchangeList(paramMap);
 
-        List<ExchangeListResVO> exchangeListResponseList = new ArrayList<>();
-
-        for (ExchangeListVO exchange : exchangeList) {
-            ExchangeListResVO exchangeResponse = new ExchangeListResVO(
-                    exchange.getExchangeCode(),
-                    exchange.getFranchiseName(),
-                    exchange.getItemName(),
-                    exchange.getReason().getKrName(), // enum에서 한글로 변환
-                    exchange.getMemberCode(),
-                    exchange.getCreatedAt(),
-                    exchange.getStatus().getKrName(), // enum에서 한글로 변환
-                    exchange.getApproved().getKrName() // enum에서 한글로 변환
-            );
-
-            exchangeListResponseList.add(exchangeResponse);
-        }
-
         // 전체 데이터 개수 조회
         int count = exchangeMapper.selectExchangeListCnt();
 
         // PageImpl 객체로 감싸서 반환
-        return new PageImpl<>(exchangeListResponseList, page, count);
+        return new PageImpl<>(exchangeList, page, count);
     }
 
     @Override
-    public Page<ExchangeListResVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page) {
+    public Page<ExchangeListVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page) {
         // 페이징 정보 추가
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
@@ -66,49 +49,22 @@ public class ExchangeServiceImpl implements ExchangeService{
         // DB에서 교환 목록 조회
         List<ExchangeListVO> exchangeList = exchangeMapper.selectSearchExchangeList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
 
-        List<ExchangeListResVO> exchangeListResponseList = new ArrayList<>();
-
-        for (ExchangeListVO exchange : exchangeList) {
-            ExchangeListResVO exchangeResponse = new ExchangeListResVO(
-                    exchange.getExchangeCode(),
-                    exchange.getFranchiseName(),
-                    exchange.getItemName(),
-                    exchange.getReason().getKrName(), // enum에서 한글로 변환
-                    exchange.getMemberCode(),
-                    exchange.getCreatedAt(),
-                    exchange.getStatus().getKrName(), // enum에서 한글로 변환
-                    exchange.getApproved().getKrName() // enum에서 한글로 변환
-            );
-
-            exchangeListResponseList.add(exchangeResponse);
-        }
 
         // 전체 데이터 개수 조회
         int count = exchangeMapper.selectExchangeListCnt();
 
         // PageImpl 객체로 감싸서 반환
-        return new PageImpl<>(exchangeListResponseList, page, count);
+        return new PageImpl<>(exchangeList, page, count);
     }
 
     @Override
-    public ExchangeDetailResVO findExchangeDetailBy(Integer exchangeCode) {
+    public ExchangeDetailVO findExchangeDetailBy(Integer exchangeCode) {
         ExchangeDetailVO exchangeDetail = exchangeMapper.selectExchangeDetailBy(exchangeCode);
-
-        ExchangeDetailResVO exchangeDetailResponse = new ExchangeDetailResVO(
-                exchangeDetail.getCreatedAt(),
-                exchangeDetail.getFranchiseName(),
-                exchangeDetail.getReason(),
-                exchangeDetail.getMemberName(),
-                exchangeDetail.getComment(),
-                exchangeDetail.getExchangeItemList() != null ? exchangeDetail.getExchangeItemList() : new ArrayList<>(),
-                exchangeDetail.getExchangeImageList() != null ? exchangeDetail.getExchangeImageList() : new ArrayList<>(),
-                exchangeDetail.getExplanation());
-
-        return exchangeDetailResponse;
+        return exchangeDetail;
     }
 
     @Override
-    public Page<ExchangeHistoryResVO> findExchangeHistoryList(Map<String, Object> paramMap, Pageable page) {
+    public Page<ExchangeHistoryVO> findExchangeHistoryList(Map<String, Object> paramMap, Pageable page) {
         // 페이징 정보 추가
         paramMap.put("offset", page.getOffset());
         paramMap.put("pageSize", page.getPageSize());
@@ -116,31 +72,15 @@ public class ExchangeServiceImpl implements ExchangeService{
         // DB에서 교환 목록 조회
         List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectExchangeHistoryList(paramMap);
 
-        List<ExchangeHistoryResVO> exchangeHistoryResponseList = new ArrayList<>();
-
-        for (ExchangeHistoryVO exchange : exchangeHistoryList) {
-            ExchangeHistoryResVO exchangeResponse = new ExchangeHistoryResVO(
-                    exchange.getExchangeStockHistoryCode(),
-                    exchange.getStatus().getKrName(),
-                    exchange.getManager(),
-                    exchange.getCreatedAt(),
-                    exchange.getConfirmed().getKrName(),
-                    exchange.getExchangeCode(),
-                    exchange.getExchangeManager()
-            );
-
-            exchangeHistoryResponseList.add(exchangeResponse);
-        }
-
         // 전체 데이터 개수 조회
         int count = exchangeMapper.selectExchangeHistoryListCnt();
 
         // PageImpl 객체로 감싸서 반환
-        return new PageImpl<>(exchangeHistoryResponseList, page, count);
+        return new PageImpl<>(exchangeHistoryList, page, count);
     }
 
     @Override
-    public Page<ExchangeHistoryResVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page) {
+    public Page<ExchangeHistoryVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page) {
         // 페이징 정보 추가
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
@@ -148,48 +88,21 @@ public class ExchangeServiceImpl implements ExchangeService{
         // DB에서 교환 목록 조회
         List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectSearchExchangeHistoryList (searchFilter, searchWord, startDate, endDate, offset, pageSize);
 
-        List<ExchangeHistoryResVO> exchangeHistoryResponseList = new ArrayList<>();
-
-        for (ExchangeHistoryVO exchange : exchangeHistoryList) {
-            ExchangeHistoryResVO exchangeResponse = new ExchangeHistoryResVO(
-                    exchange.getExchangeStockHistoryCode(),
-                    exchange.getStatus().getKrName(),
-                    exchange.getManager(),
-                    exchange.getCreatedAt(),
-                    exchange.getConfirmed().getKrName(),
-                    exchange.getExchangeCode(),
-                    exchange.getExchangeManager()
-            );
-
-            exchangeHistoryResponseList.add(exchangeResponse);
-        }
-
         // 전체 데이터 개수 조회
         int count = exchangeMapper.selectExchangeHistoryListCnt();
 
         // PageImpl 객체로 감싸서 반환
-        return new PageImpl<>(exchangeHistoryResponseList, page, count);
+        return new PageImpl<>(exchangeHistoryList, page, count);
     }
 
     @Override
-    public ExchangeHistoryDetailResVO findExchangeHistoryDetailBy(Integer exchangeStockHistoryCode) {
+    public ExchangeHistoryDetailVO findExchangeHistoryDetailBy(Integer exchangeStockHistoryCode) {
         ExchangeHistoryDetailVO exchangeHistoryDetail = exchangeMapper.selectExchangeHistoryDetailBy(exchangeStockHistoryCode);
-
-        ExchangeHistoryDetailResVO exchangeHistoryDetailResponse = new ExchangeHistoryDetailResVO(
-                exchangeHistoryDetail.getExchangeCreatedAt(),
-                exchangeHistoryDetail.getFranchiseName(),
-                exchangeHistoryDetail.getReason().getKrName(),
-                exchangeHistoryDetail.getExchangeManager(),
-                exchangeHistoryDetail.getComment(),
-                exchangeHistoryDetail.getCreatedAt(),
-                exchangeHistoryDetail.getStatus().getKrName(),
-                exchangeHistoryDetail.getManager(),
-                exchangeHistoryDetail.getExchangeHistoryItemList() != null ? exchangeHistoryDetail.getExchangeHistoryItemList() : new ArrayList<>());
-        return exchangeHistoryDetailResponse;
+        return exchangeHistoryDetail;
     }
 
     @Override
-    public Page<FranExchangeListResVO> findFranExchangeList(int franchiseCode, Map<String, Object> paramMap, Pageable page) {
+    public Page<FranExchangeListVO> findFranExchangeList(int franchiseCode, Map<String, Object> paramMap, Pageable page) {
         // 페이징 정보 추가
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
@@ -197,27 +110,15 @@ public class ExchangeServiceImpl implements ExchangeService{
         // DB에서 교환 목록 조회
         List<FranExchangeListVO> franExchangeList = exchangeMapper.selectFranExchangeList(franchiseCode, offset, pageSize);
 
-        List<FranExchangeListResVO> franExchangeListResponseList = new ArrayList<>();
-
-        for (FranExchangeListVO exchange : franExchangeList) {
-            FranExchangeListResVO exchangeResponse = new FranExchangeListResVO(
-                    exchange.getExchangeCode(),
-                    exchange.getStatus().getKrName(),
-                    exchange.getOrderCode(),
-                    exchange.getItemName(),
-                    exchange.getSumPrice(),
-                    exchange.getCreatedAt(),
-                    exchange.getCompletedAt()
-            );
-
-            franExchangeListResponseList.add(exchangeResponse);
-        }
-
         // 전체 데이터 개수 조회
         int count = exchangeMapper.selectFranExchangeListCnt(franchiseCode);
 
         // PageImpl 객체로 감싸서 반환
-        return new PageImpl<>(franExchangeListResponseList, page, count);
+        return new PageImpl<>(franExchangeList, page, count);
     }
 
+    public FranExchangeDetailVO franFranExchangeDetailBy(Integer exchangeCode) {
+        FranExchangeDetailVO franExchangeDetail = exchangeMapper.selectFranExchangeDetailBy(exchangeCode);
+        return franExchangeDetail;
+    }
 }

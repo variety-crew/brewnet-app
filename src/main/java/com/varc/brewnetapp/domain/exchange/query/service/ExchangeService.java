@@ -7,17 +7,17 @@ import org.springframework.data.domain.Pageable;
 import java.util.Map;
 
 public interface ExchangeService {
-    Page<ExchangeListResVO> findExchangeList(Map<String, Object> paramMap, Pageable page);
+    Page<ExchangeListVO> findExchangeList(Map<String, Object> paramMap, Pageable page);
 
-    Page<ExchangeListResVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page);
+    Page<ExchangeListVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page);
 
-    ExchangeDetailResVO findExchangeDetailBy(Integer exchangeCode);
+    ExchangeDetailVO findExchangeDetailBy(Integer exchangeCode);
 
-    Page<ExchangeHistoryResVO> findExchangeHistoryList(Map<String, Object> paramMap, Pageable page);
+    Page<ExchangeHistoryVO> findExchangeHistoryList(Map<String, Object> paramMap, Pageable page);
 
-    Page<ExchangeHistoryResVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page);
+    Page<ExchangeHistoryVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page);
 
-    ExchangeHistoryDetailResVO findExchangeHistoryDetailBy(Integer exchangeStockHistoryCode);
+    ExchangeHistoryDetailVO findExchangeHistoryDetailBy(Integer exchangeStockHistoryCode);
 
-    Page<FranExchangeListResVO> findFranExchangeList(int franchiseCode, Map<String, Object> paramMap, Pageable page);
+    Page<FranExchangeListVO> findFranExchangeList(int franchiseCode, Map<String, Object> paramMap, Pageable page);
 }

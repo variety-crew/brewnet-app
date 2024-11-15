@@ -27,5 +27,5 @@ public interface ExchangeMapper {
     int selectFranExchangeListCnt(int franchiseCode);
 
     List<FranExchangeListVO> selectFranExchangeList(int franchiseCode, long offset, long pageSize);
-
+    FranExchangeDetailVO selectFranExchangeDetailBy(int exchangeCode);
 }
