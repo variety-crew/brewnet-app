@@ -47,9 +47,43 @@
                 AND S.NAME LIKE CONCAT('%', #{storageName}, '%')
             </if>
             <if test="startDate != null and endDate != null">
-                AND DATE(P.CREATED_AT) BETWEEN #{startDate} AND #{endDate}
+                AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
+                    AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
             </if>
         </where>
-         ORDER BY P.LETTER_OF_PURCHASE_CODE DESC;
+         ORDER BY P.LETTER_OF_PURCHASE_CODE DESC
+         LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="getTotalPurchaseCount"
+            parameterType="com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria"
+            resultType="int">
+        SELECT
+               COUNT(P.LETTER_OF_PURCHASE_CODE)
+          FROM TBL_LETTER_OF_PURCHASE P
+          JOIN TBL_LETTER_OF_PURCHASE_APPROVER A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
+          JOIN TBL_STORAGE S ON P.STORAGE_CODE = S.STORAGE_CODE
+          JOIN TBL_MEMBER M ON P.MEMBER_CODE = M.MEMBER_CODE
+          JOIN TBL_CORRESPONDENT C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+        <where>
+            P.ACTIVE = TRUE
+            <if test="purchaseCode != null">
+                AND P.LETTER_OF_PURCHASE_CODE = #{purchaseCode}
+            </if>
+            <if test="memberName != null">
+                AND M.NAME LIKE CONCAT('%', #{memberName}, '%')
+            </if>
+            <if test="correspondentName != null">
+                AND C.NAME LIKE CONCAT('%', #{correspondentName}, '%')
+            </if>
+            <if test="storageName != null">
+                AND S.NAME LIKE CONCAT('%', #{storageName}, '%')
+            </if>
+            <if test="startDate != null and endDate != null">
+                AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
+                AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+            </if>
+        </where>
+         ORDER BY P.LETTER_OF_PURCHASE_CODE DESC
     </select>
 </mapper>

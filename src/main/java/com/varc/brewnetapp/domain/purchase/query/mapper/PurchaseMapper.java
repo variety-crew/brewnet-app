@@ -10,4 +10,6 @@ import java.util.List;
 public interface PurchaseMapper {
 
     List<LetterOfPurchaseDTO> searchLettersOfPurchase(SearchPurchaseCriteria criteria);
+
+    int getTotalPurchaseCount(SearchPurchaseCriteria criteria);
 }

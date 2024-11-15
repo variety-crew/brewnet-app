@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.purchase.query.service;
 
+import com.varc.brewnetapp.domain.purchase.common.PageResponse;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria;
 import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDTO;
 import com.varc.brewnetapp.domain.purchase.query.mapper.PurchaseMapper;
@@ -7,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,8 +22,39 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<LetterOfPurchaseDTO> selectLettersOfPurchase(SearchPurchaseCriteria criteria) {
+    public PageResponse<List<LetterOfPurchaseDTO>> selectLettersOfPurchase(Integer purchaseCode,
+                                                                           String memberName,
+                                                                           String correspondentName,
+                                                                           String storageName,
+                                                                           String startDate,
+                                                                           String endDate,
+                                                                           int pageNumber,
+                                                                           int pageSize) {
+
+        SearchPurchaseCriteria criteria = new SearchPurchaseCriteria();
+        criteria.setPurchaseCode(purchaseCode);
+        criteria.setMemberName(memberName);
+        criteria.setCorrespondentName(correspondentName);
+        criteria.setStorageName(storageName);
+        criteria.setStartDate(startDate);
+        criteria.setEndDate(endDate);
+        criteria.setPageNumber(pageNumber);
+        criteria.setPageSize(pageSize);
+
+        int offset = (pageNumber - 1) * pageSize;
+        criteria.setOffset(offset);
+
+        if (criteria.getStartDate() != null && criteria.getEndDate() == null) {
+            throw new IllegalArgumentException("종료일을 입력해 주세요.");
+        } else if (criteria.getStartDate() == null && criteria.getEndDate() != null) {
+            throw new IllegalArgumentException("시작일을 입력해 주세요.");
+        }
+
         List<LetterOfPurchaseDTO> lettersOfPurchase = purchaseMapper.searchLettersOfPurchase(criteria);
-        return lettersOfPurchase;
+        int totalCount = purchaseMapper.getTotalPurchaseCount(criteria);
+        PageResponse<List<LetterOfPurchaseDTO>> response = new PageResponse<>(
+                                                            lettersOfPurchase, pageNumber, pageSize, totalCount);
+
+        return response;
     }
 }
