@@ -93,5 +93,13 @@ public class ExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환처리내역 상세조회 성공", result));
     }
 
+    @GetMapping("/franchise/{code}")
+    @Operation(summary = "[가맹점] 교환요청 목록조회 API")
+    public ResponseEntity<ResponseMessage<Page<FranExchangeListResVO>>> findFranExchangeList(@PathVariable("code") Integer franchiseCode,
+                                                                                          @RequestParam Map<String, Object> paramMap,
+                                                                                          @PageableDefault(value = 10) Pageable page) {
 
+        Page<FranExchangeListResVO> result = exchangeService.findFranExchangeList(franchiseCode, paramMap, page);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 목록조회 성공", result));
+    }
 }

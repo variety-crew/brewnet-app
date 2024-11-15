@@ -1,9 +1,6 @@
 package com.varc.brewnetapp.domain.exchange.query.mapper;
 
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryDetailVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO;
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -11,7 +8,7 @@ import java.util.Map;
 
 @Mapper
 public interface ExchangeMapper {
-    int selectExchangeListCnt(Map<String, Object> paramMap);
+    int selectExchangeListCnt();
 
     List<ExchangeListVO> selectExchangeList(Map<String, Object> paramMap);
 
@@ -19,11 +16,16 @@ public interface ExchangeMapper {
 
     ExchangeDetailVO selectExchangeDetailBy(int exchangeCode);
 
-    int selectExchangeHistoryListCnt(Map<String, Object> paramMap);
+    int selectExchangeHistoryListCnt();
 
     List<ExchangeHistoryVO> selectExchangeHistoryList(Map<String, Object> paramMap);
 
     List<ExchangeHistoryVO> selectSearchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 
     ExchangeHistoryDetailVO selectExchangeHistoryDetailBy(int exchangeStockHistoryCode);
+
+    int selectFranExchangeListCnt(int franchiseCode);
+
+    List<FranExchangeListVO> selectFranExchangeList(int franchiseCode, long offset, long pageSize);
+
 }

@@ -8,9 +8,16 @@ import java.util.Map;
 
 public interface ExchangeService {
     Page<ExchangeListResVO> findExchangeList(Map<String, Object> paramMap, Pageable page);
+
     Page<ExchangeListResVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page);
+
     ExchangeDetailResVO findExchangeDetailBy(Integer exchangeCode);
+
     Page<ExchangeHistoryResVO> findExchangeHistoryList(Map<String, Object> paramMap, Pageable page);
+
     Page<ExchangeHistoryResVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Map<String, Object> paramMap, Pageable page);
+
     ExchangeHistoryDetailResVO findExchangeHistoryDetailBy(Integer exchangeStockHistoryCode);
+
+    Page<FranExchangeListResVO> findFranExchangeList(int franchiseCode, Map<String, Object> paramMap, Pageable page);
 }

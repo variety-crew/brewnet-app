@@ -3,6 +3,9 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.varc.brewnetapp.domain.exchange.query.mapper.ExchangeMapper">
+
+    <!-- ========== resultMap ========== -->
+
     <resultMap id="exchangeListResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO">
         <result property="exchangeCode" column="exchange_code"/>
         <result property="franchiseName" column="franchise_name"/>
@@ -77,11 +80,18 @@
         <result property="restockQuantity" column="restock_quantity"/>
     </resultMap>
 
+    <resultMap id="franExchangeListResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.FranExchangeListVO">
+        <result property="exchangeCode" column="exchange_code"/>
+        <result property="status" column="status"/>
+        <result property="orderCode" column="order_code"/>
+        <result property="itemName" column="item_name"/>
+        <result property="sumPrice" column="sum_price"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="completedAt" column="completed_at"/>
+    </resultMap>
 
 
     <!-- ========== Query ========== -->
-
-
 
     <!-- ===== Query 1. 교환내역 ===== -->
 
@@ -313,6 +323,54 @@
               JOIN tbl_sub_category C ON B.category_code = C.sub_category_code
               JOIN tbl_super_category D ON C.super_category_code = D.super_category_code
         WHERE A.exchange_stock_history_code = #{ exchangeStockHistoryCode };
+    </select>
+
+    <!-- ===== Query 3. 가맹점 교환내역 ===== -->
+
+    <!--  가맹점 교환내역 조회 cnt 쿼리 -->
+    <select id="selectFranExchangeListCnt" resultType="int">
+        SELECT
+            count(*)
+        FROM tbl_exchange A
+              JOIN tbl_exchange_status_history B ON A.exchange_code = B.exchange_code
+              JOIN (
+                     SELECT exchange_code, MAX(created_at) AS max_created_at
+                     FROM tbl_exchange_status_history
+                     GROUP BY exchange_code
+                   ) latest_status ON B.exchange_code = latest_status.exchange_code
+              AND B.created_at = latest_status.max_created_at
+              JOIN tbl_order C ON A.order_code = C.order_code
+              JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
+              JOIN tbl_item E ON D.item_code = E.item_code
+              JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
+        WHERE F.franchise_code = #{ franchiseCode };
+    </select>
+
+    <!--  가맹점 교환내역 조회 쿼리 -->
+    <select id="selectFranExchangeList" resultMap="franExchangeListResultMap">
+        SELECT
+              A.exchange_code
+            , B.status
+            , C.order_code
+            , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
+            , A.sum_price
+            , A.created_at
+            , CASE WHEN B.status = 'COMPLETED' THEN B.created_at ELSE NULL END AS completed_at
+        FROM tbl_exchange A
+              JOIN tbl_exchange_status_history B ON A.exchange_code = B.exchange_code
+              JOIN (
+                     SELECT exchange_code, MAX(created_at) AS max_created_at
+                     FROM tbl_exchange_status_history
+                     GROUP BY exchange_code
+                   ) latest_status ON B.exchange_code = latest_status.exchange_code
+              AND B.created_at = latest_status.max_created_at
+              JOIN tbl_order C ON A.order_code = C.order_code
+              JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
+              JOIN tbl_item E ON D.item_code = E.item_code
+              JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
+        WHERE F.franchise_code = #{ franchiseCode }
+        GROUP BY A.exchange_code
+        LIMIT #{ offset }, #{ pageSize };
     </select>
 
 </mapper>
