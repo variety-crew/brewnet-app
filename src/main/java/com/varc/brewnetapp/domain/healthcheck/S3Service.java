@@ -17,7 +17,7 @@ public class S3Service {
 
     private final AmazonS3 amazonS3;
     private final String bucketName;
-    private final static String bucketFolder = "brewnetapp";
+    private static final String BUCKET_FOLDER = "brewnetapp";
 
     @Autowired
     public S3Service(String bucketName, AmazonS3 amazonS3) {
@@ -26,7 +26,7 @@ public class S3Service {
     }
 
     public String upload(MultipartFile file) throws IOException {
-        String fileName = bucketFolder + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String fileName = BUCKET_FOLDER + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
         String fileURL = "https://" + bucketName + ".s3.amazonaws.com/" + fileName;
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(file.getContentType());
