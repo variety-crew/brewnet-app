@@ -54,10 +54,16 @@ public class SecurityConfiguration {
                         .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
 
                         // 가맹점
-                        .requestMatchers(new AntPathRequestMatcher("/api/v1/order/**")).hasAnyRole("FRANCHISE")
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/franchise/**")).hasRole("FRANCHISE")
+
+                        // 본사
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/hq/**")).hasAnyRole("GENERAL_ADMIN", "RESPONSIBLE_ADMIN")
 
                         // 마스터
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/require-auth/master")).hasRole("MASTER")
+
+                        // 마스터
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/delivery")).hasAnyRole("MASTER", "DELIVERY")
 
                         .anyRequest().authenticated()
                 )
