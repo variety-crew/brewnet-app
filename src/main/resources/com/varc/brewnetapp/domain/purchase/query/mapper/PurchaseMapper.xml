@@ -14,6 +14,32 @@
         <result property="storageName" column="STORAGE_NAME"/>
         <result property="correspondentName" column="CORRESPONDENT_NAME"/>
     </resultMap>
+    
+    <resultMap id="letterOfPurchaseDetailResultMap"
+               type="com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDetailDTO">
+        <id property="letterOfPurchaseCode" column="LETTER_OF_PURCHASE_CODE"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="Active" column="ACTIVE"/>
+        <result property="allApproved" column="ALL_APPROVED"/>
+        <result property="memberComment" column="MEMBER_COMMENT"/>
+        <result property="correspondentCode" column="CORRESPONDENT_CODE"/>
+        <result property="correspondentName" column="CORRESPONDENT_NAME"/>
+        <result property="memberCode" column="MEMBER_CODE"/>
+        <result property="memberName" column="MEMBER_NAME"/>
+        <result property="approverApproved" column="APPROVER_APPROVED"/>
+        <result property="approverComment" column="APPROVER_COMMENT"/>
+        <result property="sumPrice" column="SUM_PRICE"/>
+        <result property="storageCode" column="STORAGE_CODE"/>
+        <result property="storageName" column="STORAGE_NAME"/>
+        <collection property="items" ofType="com.varc.brewnetapp.domain.purchase.query.dto.PurchaseItemDTO">
+            <id property="letterOfPurchaseCode" column="ITEM_PURCHASE_CODE"/>
+            <id property="itemCode" column="ITEM_CODE"/>
+            <result property="itemName" column="ITEM_NAME"/>
+            <result property="itemUniqueCode" column="ITEM_UNIQUE_CODE"/>
+            <result property="purchasePrice" column="PURCHASE_PRICE"/>
+            <result property="quantity" column="QUANTITY"/>
+        </collection>
+    </resultMap>
 
     <select id="searchLettersOfPurchase"
             parameterType="com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria"
@@ -85,5 +111,41 @@
             </if>
         </where>
          ORDER BY P.LETTER_OF_PURCHASE_CODE DESC
+    </select>
+
+    <select id="selectLetterOfPurchaseByPurchaseCode"
+            parameterType="int"
+            resultMap="letterOfPurchaseDetailResultMap">
+        SELECT
+               P.LETTER_OF_PURCHASE_CODE,
+               P.CREATED_AT,
+               P.ACTIVE,
+               P.APPROVED AS ALL_APPROVED,
+               P.COMMENT AS MEMBER_COMMENT,
+               P.CORRESPONDENT_CODE,
+               C.NAME AS CORRESPONDENT_NAME,
+               P.MEMBER_CODE,
+               M.NAME AS MEMBER_NAME,
+               A.APPROVED AS APPROVER_APPROVED,
+               A.COMMENT AS APPROVER_COMMENT,
+               P.SUM_PRICE,
+               S.STORAGE_CODE,
+               S.NAME AS STORAGE_NAME,
+               I.LETTER_OF_PURCHASE_CODE AS ITEM_PURCHASE_CODE,
+               I.ITEM_CODE,
+               T.NAME AS ITEM_NAME,
+               T.ITEM_UNIQUE_CODE,
+               T.PURCHASE_PRICE,
+               I.QUANTITY
+          FROM TBL_LETTER_OF_PURCHASE P
+          JOIN TBL_LETTER_OF_PURCHASE_APPROVER A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
+          JOIN TBL_STORAGE S ON P.STORAGE_CODE = S.STORAGE_CODE
+          JOIN TBL_MEMBER M ON P.MEMBER_CODE = M.MEMBER_CODE
+          JOIN TBL_CORRESPONDENT C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+          JOIN TBL_LETTER_OF_PURCHASE_ITEM I ON P.LETTER_OF_PURCHASE_CODE = I.LETTER_OF_PURCHASE_CODE
+          JOIN TBL_ITEM T ON I.ITEM_CODE = T.ITEM_CODE
+        <where>
+            P.LETTER_OF_PURCHASE_CODE = #{letterOfPurchaseCode}
+        </where>
     </select>
 </mapper>
