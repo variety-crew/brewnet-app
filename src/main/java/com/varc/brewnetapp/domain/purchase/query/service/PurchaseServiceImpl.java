@@ -4,6 +4,7 @@ import com.varc.brewnetapp.domain.purchase.common.PageResponse;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria;
 import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDTO;
 import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDetailDTO;
+import com.varc.brewnetapp.domain.purchase.query.dto.PurchaseApprovalLineDTO;
 import com.varc.brewnetapp.domain.purchase.query.mapper.PurchaseMapper;
 import com.varc.brewnetapp.exception.DuplicateException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,5 +72,21 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (!letterOfPurchase.getActive()) throw new DuplicateException("삭제된 발주 내역 입니다.");
 
         return letterOfPurchase;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PurchaseApprovalLineDTO selectApprovalLineOfOnePurchase(int letterOfPurchaseCode) {
+
+        LetterOfPurchaseDetailDTO purchase = purchaseMapper
+                                            .selectLetterOfPurchaseByPurchaseCode(letterOfPurchaseCode);
+
+        if (purchase == null) throw new DuplicateException("존재하지 않는 발주 내역 입니다.");
+        if (!purchase.getActive()) throw new DuplicateException("삭제된 발주 내역 입니다.");
+
+        PurchaseApprovalLineDTO approvalOfPurchase = purchaseMapper
+                                                    .selectApprovalLineByPurchaseCode(letterOfPurchaseCode);
+
+        return approvalOfPurchase;
     }
 }

@@ -4,6 +4,8 @@ import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria;
 import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDetailDTO;
+import com.varc.brewnetapp.domain.purchase.query.dto.PurchaseApprovalLineDTO;
+import com.varc.brewnetapp.domain.purchase.query.dto.PurchaseApproverDTO;
 import com.varc.brewnetapp.domain.purchase.query.service.PurchaseService;
 import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +30,7 @@ public class PurchaseController {
     }
 
     @GetMapping("")
-    @Operation(summary = "발주(구매품의서) 목록 조회 API")
+    @Operation(summary = "발주 내역(구매품의서) 목록 조회 API")
     public ResponseEntity<ResponseMessage<PageResponse<List<LetterOfPurchaseDTO>>>> selectLettersOfPurchase(
                                             @RequestParam(required = false) Integer purchaseCode,
                                             @RequestParam(required = false) String memberName,
@@ -47,12 +49,22 @@ public class PurchaseController {
     }
 
     @GetMapping("/{letterOfPurchaseCode}")
-    @Operation(summary = "발주(구매품의서) 상세 조회 API")
+    @Operation(summary = "발주 내역(구매품의서) 상세 조회 API")
     public ResponseEntity<ResponseMessage<LetterOfPurchaseDetailDTO>> selectOneLetterOfPurchase(
                                                                     @PathVariable int letterOfPurchaseCode) {
 
         LetterOfPurchaseDetailDTO purchase = purchaseService.selectOneLetterOfPurchase(letterOfPurchaseCode);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "발주 내역 상세 조회 성공", purchase));
+    }
+
+    @GetMapping("/{letterOfPurchaseCode}/approval-line")
+    @Operation(summary = "발주 내역(구매품의서)의 결재라인 조회 API")
+    public ResponseEntity<ResponseMessage<PurchaseApprovalLineDTO>> selectApprovalLineOfPurchase(
+                                                                @PathVariable int letterOfPurchaseCode) {
+
+        PurchaseApprovalLineDTO approvalLine = purchaseService.selectApprovalLineOfOnePurchase(letterOfPurchaseCode);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "발주 내역의 결재라인 조회 성공", approvalLine));
     }
 }

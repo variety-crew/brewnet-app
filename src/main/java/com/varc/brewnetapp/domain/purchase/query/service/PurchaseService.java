@@ -3,6 +3,7 @@ package com.varc.brewnetapp.domain.purchase.query.service;
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
 import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDTO;
 import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDetailDTO;
+import com.varc.brewnetapp.domain.purchase.query.dto.PurchaseApprovalLineDTO;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface PurchaseService {
                                                                     int pageSize);
 
     LetterOfPurchaseDetailDTO selectOneLetterOfPurchase(int letterOfPurchaseCode);
+
+    PurchaseApprovalLineDTO selectApprovalLineOfOnePurchase(int letterOfPurchaseCode);
 }

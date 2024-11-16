@@ -41,6 +41,22 @@
         </collection>
     </resultMap>
 
+    <resultMap id="approvalLineOfPurchaseResultMap"
+               type="com.varc.brewnetapp.domain.purchase.query.dto.PurchaseApprovalLineDTO">
+        <id property="letterOfPurchaseCode" column="LETTER_OF_PURCHASE_CODE"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="memberName" column="MEMBER_NAME"/>
+        <collection property="approvers" ofType="com.varc.brewnetapp.domain.purchase.query.dto.PurchaseApproverDTO">
+            <id property="letterOfPurchaseCode" column="PURCHASE_CODE"/>
+            <id property="approverCode" column="APPROVER_CODE"/>
+            <result property="approved" column="APPROVED"/>
+            <result property="approvedAt" column="APPROVED_AT"/>
+            <result property="approverName" column="APPROVER_NAME"/>
+            <result property="positionName" column="POSITION_NAME"/>
+        </collection>
+    </resultMap>
+
+    <!-- 발주 내역(구매품의서) 목록 조회 및 검색 -->
     <select id="searchLettersOfPurchase"
             parameterType="com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria"
             resultMap="letterOfPurchaseResultMap">
@@ -81,6 +97,7 @@
          LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
+    <!-- 페이지네이션을 위한 발주 내역(구매품의서) 총 개수 -->
     <select id="getTotalPurchaseCount"
             parameterType="com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria"
             resultType="int">
@@ -113,6 +130,7 @@
          ORDER BY P.LETTER_OF_PURCHASE_CODE DESC
     </select>
 
+    <!-- 하나의 발주 내역(구매품의서) 상세 조회 -->
     <select id="selectLetterOfPurchaseByPurchaseCode"
             parameterType="int"
             resultMap="letterOfPurchaseDetailResultMap">
@@ -147,5 +165,30 @@
         <where>
             P.LETTER_OF_PURCHASE_CODE = #{letterOfPurchaseCode}
         </where>
+    </select>
+
+    <!-- 하나의 발주 내역(구매품의서)의 결재라인 조회 -->
+    <select id="selectApprovalLineByPurchaseCode"
+            parameterType="int"
+            resultMap="approvalLineOfPurchaseResultMap">
+        SELECT
+               P.LETTER_OF_PURCHASE_CODE,
+               P.CREATED_AT,
+               M.NAME AS MEMBER_NAME,
+               A.LETTER_OF_PURCHASE_CODE AS PURCHASE_CODE,
+               A.MEMBER_CODE AS APPROVER_CODE,
+               A.APPROVED,
+               A.APPROVED_AT,
+               B.NAME AS APPROVER_NAME,
+               O.NAME AS POSITION_NAME
+          FROM TBL_LETTER_OF_PURCHASE P
+          JOIN TBL_MEMBER M ON P.MEMBER_CODE = M.MEMBER_CODE
+          JOIN TBL_LETTER_OF_PURCHASE_APPROVER A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
+          JOIN TBL_MEMBER B ON A.MEMBER_CODE = B.MEMBER_CODE
+          JOIN TBL_POSITION O ON B.POSITION_CODE = O.POSITION_CODE
+        <where>
+            P.LETTER_OF_PURCHASE_CODE = #{letterOfPurchaseCode}
+        </where>
+        ORDER BY A.APPROVED_AT ASC
     </select>
 </mapper>
