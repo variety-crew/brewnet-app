@@ -12,7 +12,7 @@ import java.util.Objects;
 @Data
 @EqualsAndHashCode
 @Embeddable
-class ExchangeApproverCode implements Serializable {
+public class ExchangeApproverCode implements Serializable {
 
     @Column(name="member_code")
     private int memberCode;

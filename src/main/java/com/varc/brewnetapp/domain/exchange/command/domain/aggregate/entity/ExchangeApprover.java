@@ -15,7 +15,7 @@ import lombok.*;
 public class ExchangeApprover {
 
     @EmbeddedId
-    private ExchangeApproverCode exchangeApproverId;  // (복합키) 회원코드, 교환코드
+    private ExchangeApproverCode exchangeApproverCode;  // (복합키) 회원코드, 교환코드
 
     @Enumerated(EnumType.STRING)
     @Column(name = "approved", nullable = false)
