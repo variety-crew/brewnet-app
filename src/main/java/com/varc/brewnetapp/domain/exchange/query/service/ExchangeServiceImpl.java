@@ -146,10 +146,20 @@ public class ExchangeServiceImpl implements ExchangeService{
         return franExchangeStatus;
     }
 
+    /* 교환코드로 가장 최근 교환상태(status) 1개를 조회하는 메서드 */
+    // 교환취소 시, 해당 교환요청의 상태가 REQUESTED인지 조회하기 위해 사용 (컨트롤러 X)
     @Override
     public ExchangeStatus findExchangeLatestStatus(int exchangeCode) {
         ExchangeStatus latestStatus = exchangeMapper.selectExchangeLatestStatusBy(exchangeCode)
                 .orElseThrow(() -> new ExchangeNotFoundException("교환 상태를 찾을 수 없습니다."));
         return latestStatus;
+    }
+
+    /* 교환코드로 결재상황 리스트를 조회하기 위해 사용하는 메서드 */
+    // (본사)교환상세보기 페이지 - '결재진행상황' 버튼 클릭 시 사용
+    @Override
+    public List<ExchangeApproverVO> findExchangeApprover(int exchangeCode) {
+        List<ExchangeApproverVO> exchangeApproverList = exchangeMapper.selectExchangeApproverBy(exchangeCode);
+        return exchangeApproverList;
     }
 }

@@ -37,4 +37,6 @@ public interface ExchangeMapper {
     List<FranExchangeStatusVO> selectFranExchangeStatusBy(int exchangeCode);
 
     Optional<ExchangeStatus> selectExchangeLatestStatusBy(int exchangeCode);
+
+    List<ExchangeApproverVO> selectExchangeApproverBy(int exchangeCode);
 }

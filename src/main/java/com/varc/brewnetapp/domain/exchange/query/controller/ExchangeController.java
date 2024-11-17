@@ -136,4 +136,12 @@ public class ExchangeController {
         List<FranExchangeStatusVO> result = exchangeService.findFranExchangeStatusBy(exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 상세조회 성공", result));
     }
+
+    @GetMapping("/approver/{code}")
+    @Operation(summary = "[본사] 교환요청 상세조회 - 결재진행상태 API")
+    public ResponseEntity<ResponseMessage<List<ExchangeApproverVO>>> findExchangeApprover(@PathVariable("code") Integer exchangeCode) {
+
+        List<ExchangeApproverVO> result = exchangeService.findExchangeApprover(exchangeCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재진행상태 조회 성공", result));
+    }
 }

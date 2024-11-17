@@ -28,4 +28,6 @@ public interface ExchangeService {
     List<FranExchangeStatusVO> findFranExchangeStatusBy(int exchangeCode);
 
     ExchangeStatus findExchangeLatestStatus(int exchangeCode);
+
+    List<ExchangeApproverVO> findExchangeApprover(int exchangeCode);
 }

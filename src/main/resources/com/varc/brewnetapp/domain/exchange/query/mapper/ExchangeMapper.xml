@@ -118,10 +118,21 @@
                     select="selectExchangeDetailImageBy" column="exchange_code"/>
     </resultMap>
 
+    <!-- 가맹점 교환요청 상태조회 ResultMap -->
     <resultMap id="franExchangeStatusResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.FranExchangeStatusVO">
         <result property="status" column="status"/>
         <result property="processedAt" column="processed_at"/>
     </resultMap>
+
+    <!-- 본사 교환 결재진행상황 조회 ResultMap -->
+    <resultMap id="exchangeApproverResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeApproverVO">
+        <result property="approverName" column="approver_name"/>
+        <result property="position" column="position"/>
+        <result property="approval" column="approval"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+
 
     <!-- ========== Query ========== -->
 
@@ -494,6 +505,7 @@
     <!-- ===== Query 4. 기타 쿼리 ===== -->
 
     <!-- 교환코드로 가장 최근 교환상태(status) 1개를 조회하는 쿼리 -->
+    <!-- 교환취소 시, 해당 교환요청의 상태가 REQUESTED인지 조회하기 위해 사용 -->
     <select id="selectExchangeLatestStatusBy" resultType="com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus">
         SELECT
               A.status
@@ -505,6 +517,20 @@
                     ) latest_status ON A.exchange_code = latest_status.exchange_code
                     AND A.created_at = latest_status.max_created_at
         WHERE A.exchange_code = #{ exchangeCode }
+    </select>
+
+    <!-- 교환코드로 결재상황을 조회하기 위해 사용하는 쿼리 -->
+    <!-- (본사)교환상세보기 페이지 - '결재진행상황' 버튼 클릭 시 사용 -->
+    <select id="selectExchangeApproverBy" resultMap="exchangeApproverResultMap">
+        SELECT
+              B.name AS approver_name
+            , C.name AS position
+            , A.approved AS approval
+            , A.created_at
+          FROM tbl_exchange_approver A
+               JOIN tbl_member B ON A.member_code = B.member_code
+               JOIN tbl_position C ON B.position_code = C.position_code
+         WHERE exchange_code = #{ exchangeCode };
     </select>
 
 </mapper>
