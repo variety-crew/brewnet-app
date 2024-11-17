@@ -165,7 +165,6 @@
                                GROUP BY exchange_code
                         ) latest_status ON G.exchange_code = latest_status.exchange_code
                           AND G.created_at = latest_status.max_created_at
-                    WHERE A.active != false
                     GROUP BY A.exchange_code, C.franchise_name, A.reason, F.name, A.created_at, G.status, A.approved
                  ) AS grouped_result;
     </select>
@@ -194,7 +193,6 @@
                     GROUP BY exchange_code
                     ) latest_status ON G.exchange_code = latest_status.exchange_code
           AND G.created_at = latest_status.max_created_at
-        WHERE A.active != false
         GROUP BY A.exchange_code, C.franchise_name, A.reason, F.name, A.created_at, G.status, A.approved
         LIMIT #{ offset }, #{ pageSize };
     </select>
