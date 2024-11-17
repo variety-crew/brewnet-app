@@ -50,9 +50,9 @@ public class ExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 목록 검색 성공", result));
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/{exchangeCode}")
     @Operation(summary = "[본사] 교환요청 상세조회 API")
-    public ResponseEntity<ResponseMessage<ExchangeDetailVO>> findExchangeBy(@PathVariable("code") Integer exchangeCode) {
+    public ResponseEntity<ResponseMessage<ExchangeDetailVO>> findExchangeBy(@PathVariable("exchangeCode") Integer exchangeCode) {
 
         ExchangeDetailVO result = exchangeService.findExchangeDetailBy(exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 상세조회 성공", result));
@@ -82,9 +82,9 @@ public class ExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 목록 검색 성공", result));
     }
 
-    @GetMapping("/history/{code}")
+    @GetMapping("/history/{exchangeStockHistoryCode}")
     @Operation(summary = "[본사] 타부서 교환처리내역 상세조회 API")
-    public ResponseEntity<ResponseMessage<ExchangeHistoryDetailVO>> findExchangeHistoryBy(@PathVariable("code") Integer exchangeStockHistoryCode) {
+    public ResponseEntity<ResponseMessage<ExchangeHistoryDetailVO>> findExchangeHistoryBy(@PathVariable("exchangeStockHistoryCode") Integer exchangeStockHistoryCode) {
 
         ExchangeHistoryDetailVO result = exchangeService.findExchangeHistoryDetailBy(exchangeStockHistoryCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환처리내역 상세조회 성공", result));
@@ -92,9 +92,9 @@ public class ExchangeController {
 
     // code -> access token 정보로 수정 필요
     // url 수정 필요
-    @GetMapping("/franchise/list/{code}")
+    @GetMapping("/franchise/list/{franchiseCode}")
     @Operation(summary = "[가맹점] 교환요청 목록조회 API")
-    public ResponseEntity<ResponseMessage<Page<FranExchangeListVO>>> findFranExchangeList(@PathVariable("code") Integer franchiseCode,
+    public ResponseEntity<ResponseMessage<Page<FranExchangeListVO>>> findFranExchangeList(@PathVariable("franchiseCode") Integer franchiseCode,
                                                                                           @PageableDefault(value = 10) Pageable page) {
 
         Page<FranExchangeListVO> result = exchangeService.findFranExchangeList(franchiseCode, page);
@@ -103,13 +103,13 @@ public class ExchangeController {
 
     // code -> access token 정보로 수정 필요
     // url 수정 필요
-    @GetMapping("/franchise/search/{code}")
+    @GetMapping("/franchise/search/{franchiseCode}")
     @Operation(summary = "[가맹점] 교환요청 목록 검색 API",
             description = "searchFilter에 들어갈 수 있는 값은 exchangeCode(교환번호), itemName(품목명) 2가지<br>" +
                     "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
                     "2가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
     public ResponseEntity<ResponseMessage<Page<FranExchangeListVO>>> searchFranExchangeList(
-            @PathVariable("code") Integer franchiseCode,
+            @PathVariable("franchiseCode") Integer franchiseCode,
             @RequestParam(required = false) String searchFilter,
             @RequestParam(required = false) String searchWord,
             @RequestParam(required = false) String startDate,
@@ -121,25 +121,25 @@ public class ExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 목록 검색 성공", result));
     }
 
-    @GetMapping("/franchise/{code}")
+    @GetMapping("/franchise/{exchangeCode}")
     @Operation(summary = "[가맹점] 교환요청 상세조회 API")
-    public ResponseEntity<ResponseMessage<FranExchangeDetailVO>> findFranExchangeDetail(@PathVariable("code") Integer exchangeCode) {
+    public ResponseEntity<ResponseMessage<FranExchangeDetailVO>> findFranExchangeDetail(@PathVariable("exchangeCode") Integer exchangeCode) {
 
         FranExchangeDetailVO result = exchangeService.franFranExchangeDetailBy(exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 상세조회 성공", result));
     }
 
-    @GetMapping("/franchise/status/{code}")
+    @GetMapping("/franchise/status/{exchangeCode}")
     @Operation(summary = "[가맹점] 교환요청 상세조회 - 교환상태조회 API")
-    public ResponseEntity<ResponseMessage<List<FranExchangeStatusVO>>> findFranExchangeStatus(@PathVariable("code") Integer exchangeCode) {
+    public ResponseEntity<ResponseMessage<List<FranExchangeStatusVO>>> findFranExchangeStatus(@PathVariable("exchangeCode") Integer exchangeCode) {
 
         List<FranExchangeStatusVO> result = exchangeService.findFranExchangeStatusBy(exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 상세조회 성공", result));
     }
 
-    @GetMapping("/approver/{code}")
+    @GetMapping("/approver/{exchangeCode}")
     @Operation(summary = "[본사] 교환요청 상세조회 - 결재진행상태 API")
-    public ResponseEntity<ResponseMessage<List<ExchangeApproverVO>>> findExchangeApprover(@PathVariable("code") Integer exchangeCode) {
+    public ResponseEntity<ResponseMessage<List<ExchangeApproverVO>>> findExchangeApprover(@PathVariable("exchangeCode") Integer exchangeCode) {
 
         List<ExchangeApproverVO> result = exchangeService.findExchangeApprover(exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재진행상태 조회 성공", result));

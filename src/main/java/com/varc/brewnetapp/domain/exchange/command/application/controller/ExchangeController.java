@@ -25,9 +25,9 @@ public class ExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환신청 성공", null));
     }
 
-    @PostMapping("/cancel/{code}")
+    @PostMapping("/cancel/{exchangeCode}")
     @Operation(summary = "[가맹점] 교환취소 API")
-    public ResponseEntity<ResponseMessage<Integer>> cancelExchange(@PathVariable("code") Integer exchangeCode) {
+    public ResponseEntity<ResponseMessage<Integer>> cancelExchange(@PathVariable("exchangeCode") Integer exchangeCode) {
         exchangeService.cancelExchange(exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환취소 성공", exchangeCode));
     }
