@@ -52,12 +52,12 @@ public class Exchange {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_code", nullable = true)
-    private ExMember deliveryCode;      // 배송기사
+    private ExMember delivery;      // 배송기사
 
     @Enumerated(EnumType.STRING)
     @Column(name = "drafter_approved", nullable = true)
-    private ExchangeDraftApproval drafter_approved;     // 기안자의 교환 승인 여부
+    private ExchangeDraftApproval drafterApproved;     // 기안자의 교환 승인 여부
 
     @Column(name = "sum_price", nullable = false)
-    private int sum_price;              // 교환 금액 합계
+    private int sumPrice;              // 교환 금액 합계
 }

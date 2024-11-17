@@ -1,7 +1,6 @@
 package com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity;
 
 import com.varc.brewnetapp.domain.exchange.enums.ExchangeApproval;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +15,7 @@ import lombok.*;
 public class ExchangeApprover {
 
     @EmbeddedId
-    private ExchangeApproverId exchangeApproverId;  // (복합키) 회원코드, 교환코드
+    private ExchangeApproverCode exchangeApproverId;  // (복합키) 회원코드, 교환코드
 
     @Enumerated(EnumType.STRING)
     @Column(name = "approved", nullable = false)

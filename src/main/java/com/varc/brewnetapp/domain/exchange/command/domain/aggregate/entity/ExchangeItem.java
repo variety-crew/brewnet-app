@@ -13,7 +13,7 @@ import lombok.*;
 @ToString
 public class ExchangeItem {
     @EmbeddedId
-    private ExchangeItemId exchangeItemId;  // (복합키) 교환코드, 상품코드
+    private ExchangeItemCode exchangeItemCode;  // (복합키) 교환코드, 상품코드
 
     @Column(name = "quantity", nullable = false)
     private int quantity;                   // 수량

@@ -15,7 +15,7 @@ import lombok.*;
 @ToString
 public class ExchangeItemStatus {
     @EmbeddedId
-    private ExchangeItemStatusId exchangeItemStatusId;  // (복합키) 교환완료 내역 코드, 상품코드
+    private ExchangeItemStatusCode exchangeItemStatusId;  // (복합키) 교환완료 내역 코드, 상품코드
 
     @Column(name = "quantity", nullable = false)
     private int quantity;               // 총수량
