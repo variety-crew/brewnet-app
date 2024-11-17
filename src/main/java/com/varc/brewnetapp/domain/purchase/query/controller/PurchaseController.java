@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -82,5 +81,25 @@ public class PurchaseController {
                                                 startDate, endDate, pageNumber, pageSize);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "전체 입고 품목 목록 조회 성공", pageResponse));
+    }
+
+    @GetMapping("/uncheck-in-stock")
+    @Operation(summary = "입고 미확인 품목 목록 조회 API (발주 후 미입고 내역들이 조회됨)")
+    public ResponseEntity<ResponseMessage<PageResponse<List<ApprovedPurchaseItemDTO>>>>
+        selectApprovedPurchaseItemUncheck(
+                                            @RequestParam(required = false) Integer itemUniqueCode,
+                                            @RequestParam(required = false) String itemName,
+                                            @RequestParam(required = false) String correspondentName,
+                                            @RequestParam(required = false) String storageName,
+                                            @RequestParam(required = false) String startDate,
+                                            @RequestParam(required = false) String endDate,
+                                            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+                                            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+
+        PageResponse<List<ApprovedPurchaseItemDTO>> pageResponse = purchaseService
+                .selectApprovedPurchaseItemUncheck(itemUniqueCode, itemName, correspondentName, storageName,
+                                                    startDate, endDate, pageNumber, pageSize);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "입고 미확인 품목 목록 조회 성공", pageResponse));
     }
 }

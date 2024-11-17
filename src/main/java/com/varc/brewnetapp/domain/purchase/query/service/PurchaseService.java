@@ -31,4 +31,13 @@ public interface PurchaseService {
                                                                             String endDate,
                                                                             int pageNumber,
                                                                             int pageSize);
+
+    PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItemUncheck(Integer itemUniqueCode,
+                                                                                  String itemName,
+                                                                                  String correspondentName,
+                                                                                  String storageName,
+                                                                                  String startDate,
+                                                                                  String endDate,
+                                                                                  int pageNumber,
+                                                                                  int pageSize);
 }

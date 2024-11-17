@@ -286,4 +286,91 @@
         </where>
         ORDER BY P.CREATED_AT DESC
     </select>
+
+    <!-- 입고 미확인 품목 목록(미입고) 조회 -->
+    <select id="selectApprovedPurchaseItemUncheck"
+            parameterType="com.varc.brewnetapp.domain.purchase.common.SearchPurchaseItemCriteria"
+            resultMap="approvedPurchaseItemResultMap">
+        SELECT
+        I.LETTER_OF_PURCHASE_CODE,
+        I.ITEM_CODE,
+        I.QUANTITY,
+        P.CREATED_AT,
+        T.NAME AS ITEM_NAME,
+        T.ITEM_UNIQUE_CODE,
+        C.NAME AS CORRESPONDENT_NAME,
+        S.NAME AS STORAGE_NAME
+        FROM TBL_LETTER_OF_PURCHASE_ITEM I
+        JOIN TBL_LETTER_OF_PURCHASE P ON I.LETTER_OF_PURCHASE_CODE = P.LETTER_OF_PURCHASE_CODE
+        JOIN TBL_ITEM T ON I.ITEM_CODE = T.ITEM_CODE
+        JOIN TBL_CORRESPONDENT C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+        JOIN TBL_STORAGE S ON P.STORAGE_CODE = S.STORAGE_CODE
+        JOIN TBL_STOCK K ON T.ITEM_CODE = K.ITEM_CODE
+        <where>
+            P.APPROVED = 'APPROVED'
+            AND <![CDATA[K.IN_STOCK > 0]]>
+            <if test="startDate != null and endDate != null">
+                AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
+                AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+            </if>
+            <choose>
+                <when test="itemUniqueCode != null">
+                    AND T.ITEM_UNIQUE_CODE LIKE CONCAT('%', #{itemUniqueCode}, '%')
+                </when>
+                <when test="itemName != null">
+                    AND T.NAME LIKE CONCAT('%', #{itemName}, '%')
+                </when>
+                <when test="storageName != null">
+                    AND S.NAME LIKE CONCAT('%', #{storageName}, '%')
+                </when>
+                <when test="correspondentName != null">
+                    AND C.NAME LIKE CONCAT('%', #{correspondentName}, '%')
+                </when>
+                <otherwise>
+                    AND 1 = 1
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY P.CREATED_AT DESC
+    </select>
+
+    <!-- 입고 미확인 품목 목록 페이지네이션을 위한 입고 미확인 품목 총 개수 -->
+    <select id="getApprovedPurchaseItemUncheckCount"
+            parameterType="com.varc.brewnetapp.domain.purchase.common.SearchPurchaseItemCriteria"
+            resultType="int">
+        SELECT
+        COUNT(*)
+        FROM TBL_LETTER_OF_PURCHASE_ITEM I
+        JOIN TBL_LETTER_OF_PURCHASE P ON I.LETTER_OF_PURCHASE_CODE = P.LETTER_OF_PURCHASE_CODE
+        JOIN TBL_ITEM T ON I.ITEM_CODE = T.ITEM_CODE
+        JOIN TBL_CORRESPONDENT C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+        JOIN TBL_STORAGE S ON P.STORAGE_CODE = S.STORAGE_CODE
+        JOIN TBL_STOCK K ON T.ITEM_CODE = K.ITEM_CODE
+        <where>
+            P.APPROVED = 'APPROVED'
+            AND <![CDATA[K.IN_STOCK > 0]]>
+            <if test="startDate != null and endDate != null">
+                AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
+                AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+            </if>
+            <choose>
+                <when test="itemUniqueCode != null">
+                    AND T.ITEM_UNIQUE_CODE LIKE CONCAT('%', #{itemUniqueCode}, '%')
+                </when>
+                <when test="itemName != null">
+                    AND T.NAME LIKE CONCAT('%', #{itemName}, '%')
+                </when>
+                <when test="storageName != null">
+                    AND S.NAME LIKE CONCAT('%', #{storageName}, '%')
+                </when>
+                <when test="correspondentName != null">
+                    AND C.NAME LIKE CONCAT('%', #{correspondentName}, '%')
+                </when>
+                <otherwise>
+                    AND 1 = 1
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY P.CREATED_AT DESC
+    </select>
 </mapper>
