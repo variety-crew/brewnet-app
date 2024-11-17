@@ -204,7 +204,7 @@
         ORDER BY A.APPROVED_AT ASC
     </select>
 
-    <!-- 전체 입고 품목 목록(입고 처리 완료 + 미입고) 조회 -->
+    <!-- 전체 입고 품목 목록(입고 처리 완료 + 미입고) 조회 및 검색 -->
     <select id="selectApprovedPurchaseItemTotal"
             parameterType="com.varc.brewnetapp.domain.purchase.common.SearchPurchaseItemCriteria"
             resultMap="approvedPurchaseItemResultMap">
@@ -287,7 +287,7 @@
         ORDER BY P.CREATED_AT DESC
     </select>
 
-    <!-- 입고 미확인 품목 목록(미입고) 조회 -->
+    <!-- 입고 미확인 품목 목록(미입고) 조회 및 검색 -->
     <select id="selectApprovedPurchaseItemUncheck"
             parameterType="com.varc.brewnetapp.domain.purchase.common.SearchPurchaseItemCriteria"
             resultMap="approvedPurchaseItemResultMap">

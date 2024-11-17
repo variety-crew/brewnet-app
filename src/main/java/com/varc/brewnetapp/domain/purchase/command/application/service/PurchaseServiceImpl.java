@@ -1,4 +1,7 @@
 package com.varc.brewnetapp.domain.purchase.command.application.service;
 
-public class PurchaseServiceImpl {
+import org.springframework.stereotype.Service;
+
+@Service("PurchaseServiceCommand")
+public class PurchaseServiceImpl implements PurchaseService {
 }

@@ -2,7 +2,6 @@ package com.varc.brewnetapp.domain.purchase.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
-import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria;
 import com.varc.brewnetapp.domain.purchase.query.dto.*;
 import com.varc.brewnetapp.domain.purchase.query.service.PurchaseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
-@RestController
+@RestController("PurchaseControllerQuery")
 @RequestMapping("api/v1/purchase")
 public class PurchaseController {
 
