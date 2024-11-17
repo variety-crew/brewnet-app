@@ -157,7 +157,7 @@
                         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
                         JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
                         JOIN tbl_item E ON D.item_code = E.item_code
-                        JOIN tbl_member F ON A.member_code = F.member_code
+                        LEFT JOIN tbl_member F ON A.member_code = F.member_code
                         JOIN tbl_exchange_status_history G ON A.exchange_code = G.exchange_code
                         JOIN (
                                SELECT exchange_code, MAX(created_at) AS max_created_at
@@ -165,7 +165,7 @@
                                GROUP BY exchange_code
                         ) latest_status ON G.exchange_code = latest_status.exchange_code
                           AND G.created_at = latest_status.max_created_at
-                    GROUP BY A.exchange_code, C.franchise_name, A.reason, F.name, A.created_at, G.status, A.approved
+                    GROUP BY A.exchange_code
                  ) AS grouped_result;
     </select>
 
@@ -185,7 +185,7 @@
               JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
               JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
               JOIN tbl_item E ON D.item_code = E.item_code
-              JOIN tbl_member F ON A.member_code = F.member_code
+              LEFT JOIN tbl_member F ON A.member_code = F.member_code
               JOIN tbl_exchange_status_history G ON A.exchange_code = G.exchange_code
               JOIN (
                     SELECT exchange_code, MAX(created_at) AS max_created_at
@@ -193,7 +193,7 @@
                     GROUP BY exchange_code
                     ) latest_status ON G.exchange_code = latest_status.exchange_code
           AND G.created_at = latest_status.max_created_at
-        GROUP BY A.exchange_code, C.franchise_name, A.reason, F.name, A.created_at, G.status, A.approved
+        GROUP BY A.exchange_code
         LIMIT #{ offset }, #{ pageSize };
     </select>
 
