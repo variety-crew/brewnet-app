@@ -6,14 +6,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController(value = "queryOrderController")
-@RequestMapping("api/v1/order")
-public class OrderController {
+@RequestMapping("api/v1/franchise/orders")
+public class FranchiseOrderController {
 
     private final OrderService orderService;
 
     @Autowired
-    public OrderController(OrderService orderService) {
+    public FranchiseOrderController(OrderService orderService) {
         this.orderService = orderService;
     }
-
 }

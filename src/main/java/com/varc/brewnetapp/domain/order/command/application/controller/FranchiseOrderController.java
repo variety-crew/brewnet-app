@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController(value="commandOrderController")
-@RequestMapping("api/v1/order")
-public class OrderController {
+@RequestMapping("api/v1/franchise/orders")
+public class FranchiseOrderController {
 
     private final OrderService orderService;
 
     @Autowired
-    public OrderController(OrderService orderService) {
+    public FranchiseOrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 
-    // 가맹점이 주문 요청
+    // 주문 요청
     @PostMapping
     public ResponseEntity<ResponseMessage<OrderRequestResponseDTO>> franchiseOrder(
             @RequestAttribute("loginId") String loginId,
@@ -33,6 +33,7 @@ public class OrderController {
         );
     }
 
+    // 주문 요청 취소
     @DeleteMapping("/{orderCode}")
     public ResponseEntity<ResponseMessage<Void>> cancelOrder(
             @PathVariable("orderCode") String orderCode
