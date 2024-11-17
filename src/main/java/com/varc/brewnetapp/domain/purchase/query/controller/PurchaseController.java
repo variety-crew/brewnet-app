@@ -3,11 +3,8 @@ package com.varc.brewnetapp.domain.purchase.query.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria;
-import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDetailDTO;
-import com.varc.brewnetapp.domain.purchase.query.dto.PurchaseApprovalLineDTO;
-import com.varc.brewnetapp.domain.purchase.query.dto.PurchaseApproverDTO;
+import com.varc.brewnetapp.domain.purchase.query.dto.*;
 import com.varc.brewnetapp.domain.purchase.query.service.PurchaseService;
-import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,5 +63,24 @@ public class PurchaseController {
         PurchaseApprovalLineDTO approvalLine = purchaseService.selectApprovalLineOfOnePurchase(letterOfPurchaseCode);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "발주 내역의 결재라인 조회 성공", approvalLine));
+    }
+
+    @GetMapping("/total-in-stock")
+    @Operation(summary = "전체 입고 품목 목록 조회 API (발주 후 입고 처리 완료 내역과 미입고 내역 모두 조회됨)")
+    public ResponseEntity<ResponseMessage<PageResponse<List<ApprovedPurchaseItemDTO>>>> selectApprovedPurchaseItems(
+                                            @RequestParam(required = false) Integer itemUniqueCode,
+                                            @RequestParam(required = false) String itemName,
+                                            @RequestParam(required = false) String correspondentName,
+                                            @RequestParam(required = false) String storageName,
+                                            @RequestParam(required = false) String startDate,
+                                            @RequestParam(required = false) String endDate,
+                                            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+                                            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+
+        PageResponse<List<ApprovedPurchaseItemDTO>> pageResponse = purchaseService
+                .selectApprovedPurchaseItems(itemUniqueCode, itemName, correspondentName, storageName,
+                                                startDate, endDate, pageNumber, pageSize);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "전체 입고 품목 목록 조회 성공", pageResponse));
     }
 }

@@ -2,6 +2,8 @@ package com.varc.brewnetapp.domain.purchase.query.service;
 
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria;
+import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseItemCriteria;
+import com.varc.brewnetapp.domain.purchase.query.dto.ApprovedPurchaseItemDTO;
 import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDTO;
 import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDetailDTO;
 import com.varc.brewnetapp.domain.purchase.query.dto.PurchaseApprovalLineDTO;
@@ -88,5 +90,43 @@ public class PurchaseServiceImpl implements PurchaseService {
                                                     .selectApprovalLineByPurchaseCode(letterOfPurchaseCode);
 
         return approvalOfPurchase;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItems(Integer itemUniqueCode,
+                                                                                   String itemName,
+                                                                                   String correspondentName,
+                                                                                   String storageName,
+                                                                                   String startDate,
+                                                                                   String endDate,
+                                                                                   int pageNumber,
+                                                                                   int pageSize) {
+
+        SearchPurchaseItemCriteria criteria = new SearchPurchaseItemCriteria();
+        criteria.setItemUniqueCode(itemUniqueCode);
+        criteria.setItemName(itemName);
+        criteria.setCorrespondentName(correspondentName);
+        criteria.setStorageName(storageName);
+        criteria.setStartDate(startDate);
+        criteria.setEndDate(endDate);
+        criteria.setPageNumber(pageNumber);
+        criteria.setPageSize(pageSize);
+
+        int offset = (pageNumber - 1) * pageSize;
+        criteria.setOffset(offset);
+
+        if (criteria.getStartDate() != null && criteria.getEndDate() == null) {
+            throw new DuplicateException("종료일을 입력해 주세요.");
+        } else if (criteria.getStartDate() == null && criteria.getEndDate() != null) {
+            throw new DuplicateException("시작일을 입력해 주세요.");
+        }
+
+        List<ApprovedPurchaseItemDTO> purchaseItems = purchaseMapper.selectApprovedPurchaseItemTotal(criteria);
+        int totalCount = purchaseMapper.getTotalApprovedPurchaseItemCount(criteria);
+        PageResponse<List<ApprovedPurchaseItemDTO>> response = new PageResponse<>(
+                                                                purchaseItems, pageNumber, pageSize, totalCount);
+
+        return response;
     }
 }
