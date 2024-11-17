@@ -488,4 +488,23 @@
          FROM tbl_exchange_status_history A
         WHERE A.exchange_code = #{ exchangeCode }
     </select>
+
+
+
+    <!-- ===== Query 4. 기타 쿼리 ===== -->
+
+    <!-- 교환코드로 가장 최근 교환상태(status) 1개를 조회하는 쿼리 -->
+    <select id="selectExchangeLatestStatusBy" resultType="com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus">
+        SELECT
+              A.status
+         FROM tbl_exchange_status_history A
+              JOIN (
+                    SELECT exchange_code, MAX(created_at) AS max_created_at
+                    FROM tbl_exchange_status_history
+                    GROUP BY exchange_code
+                    ) latest_status ON A.exchange_code = latest_status.exchange_code
+                    AND A.created_at = latest_status.max_created_at
+        WHERE A.exchange_code = #{ exchangeCode }
+    </select>
+
 </mapper>

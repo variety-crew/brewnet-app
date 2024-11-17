@@ -1,7 +1,9 @@
 package com.varc.brewnetapp.domain.exchange.query.service;
 
+import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.*;
 import com.varc.brewnetapp.domain.exchange.query.mapper.ExchangeMapper;
+import com.varc.brewnetapp.exception.ExchangeNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -142,5 +144,12 @@ public class ExchangeServiceImpl implements ExchangeService{
     public List<FranExchangeStatusVO> findFranExchangeStatusBy(int exchangeCode) {
         List<FranExchangeStatusVO> franExchangeStatus = exchangeMapper.selectFranExchangeStatusBy(exchangeCode);
         return franExchangeStatus;
+    }
+
+    @Override
+    public ExchangeStatus findExchangeLatestStatus(int exchangeCode) {
+        ExchangeStatus latestStatus = exchangeMapper.selectExchangeLatestStatusBy(exchangeCode)
+                .orElseThrow(() -> new ExchangeNotFoundException("교환 상태를 찾을 수 없습니다."));
+        return latestStatus;
     }
 }

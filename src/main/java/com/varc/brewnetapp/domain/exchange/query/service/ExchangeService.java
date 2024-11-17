@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.exchange.query.service;
 
+import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,4 +26,6 @@ public interface ExchangeService {
     FranExchangeDetailVO franFranExchangeDetailBy(int exchangeCode);
 
     List<FranExchangeStatusVO> findFranExchangeStatusBy(int exchangeCode);
+
+    ExchangeStatus findExchangeLatestStatus(int exchangeCode);
 }
