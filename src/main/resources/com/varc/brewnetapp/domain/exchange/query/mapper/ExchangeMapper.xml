@@ -142,19 +142,32 @@
     <select id="selectExchangeListCnt" resultType="int">
         SELECT
               COUNT(*)
-          FROM tbl_exchange A
-              JOIN tbl_order B ON A.order_code = B.order_code
-              JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
-              JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
-              JOIN tbl_item E ON D.item_code = E.item_code
-              JOIN tbl_member F ON A.member_code = F.member_code
-              JOIN tbl_exchange_status_history G ON A.exchange_code = G.exchange_code
-              JOIN (
-                    SELECT exchange_code, MAX(created_at) AS max_created_at
-                      FROM tbl_exchange_status_history
-                     GROUP BY exchange_code
-              ) latest_status ON G.exchange_code = latest_status.exchange_code
-          AND G.created_at = latest_status.max_created_at;
+          FROM (
+                 SELECT
+                        A.exchange_code
+                      , C.franchise_name
+                      , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
+                      , A.reason
+                      , F.name AS member_name
+                      , A.created_at
+                      , G.status
+                      , A.approved
+                   FROM tbl_exchange A
+                        JOIN tbl_order B ON A.order_code = B.order_code
+                        JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
+                        JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
+                        JOIN tbl_item E ON D.item_code = E.item_code
+                        JOIN tbl_member F ON A.member_code = F.member_code
+                        JOIN tbl_exchange_status_history G ON A.exchange_code = G.exchange_code
+                        JOIN (
+                               SELECT exchange_code, MAX(created_at) AS max_created_at
+                               FROM tbl_exchange_status_history
+                               GROUP BY exchange_code
+                        ) latest_status ON G.exchange_code = latest_status.exchange_code
+                          AND G.created_at = latest_status.max_created_at
+                    WHERE A.active != false
+                    GROUP BY A.exchange_code, C.franchise_name, A.reason, F.name, A.created_at, G.status, A.approved
+                 ) AS grouped_result;
     </select>
 
     <!-- 교환내역 목록조회 쿼리 -->
@@ -181,6 +194,7 @@
                     GROUP BY exchange_code
                     ) latest_status ON G.exchange_code = latest_status.exchange_code
           AND G.created_at = latest_status.max_created_at
+        WHERE A.active != false
         GROUP BY A.exchange_code, C.franchise_name, A.reason, F.name, A.created_at, G.status, A.approved
         LIMIT #{ offset }, #{ pageSize };
     </select>
@@ -373,20 +387,29 @@
     <!--  가맹점 교환내역 조회용 cnt 쿼리 -->
     <select id="selectFranExchangeListCnt" resultType="int">
         SELECT
-            count(*)
-        FROM tbl_exchange A
-              JOIN tbl_exchange_status_history B ON A.exchange_code = B.exchange_code
-              JOIN (
-                     SELECT exchange_code, MAX(created_at) AS max_created_at
-                     FROM tbl_exchange_status_history
-                     GROUP BY exchange_code
-                   ) latest_status ON B.exchange_code = latest_status.exchange_code
-              AND B.created_at = latest_status.max_created_at
-              JOIN tbl_order C ON A.order_code = C.order_code
-              JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
-              JOIN tbl_item E ON D.item_code = E.item_code
-              JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
-        WHERE F.franchise_code = #{ franchiseCode };
+               count(*)
+          FROM (
+                 SELECT
+                        A.exchange_code
+                      , B.status
+                      , C.order_code
+                      , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
+                      , A.sum_price
+                      , A.created_at
+                      , CASE WHEN B.status = 'COMPLETED' THEN B.created_at ELSE NULL END AS completed_at
+                   FROM tbl_exchange A
+                        JOIN tbl_exchange_status_history B ON A.exchange_code = B.exchange_code
+                        JOIN (
+                              SELECT exchange_code, MAX(created_at) AS max_created_at
+                              FROM tbl_exchange_status_history
+                              GROUP BY exchange_code ) latest_status ON B.exchange_code = latest_status.exchange_code
+                              AND B.created_at = latest_status.max_created_at
+                        JOIN tbl_order C ON A.order_code = C.order_code
+                        JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
+                        JOIN tbl_item E ON D.item_code = E.item_code
+                        JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
+                  WHERE F.franchise_code = #{ franchiseCode }
+                  GROUP BY A.exchange_code) AS grouped_result;
     </select>
 
     <!--  가맹점 교환내역 조회 쿼리 -->
