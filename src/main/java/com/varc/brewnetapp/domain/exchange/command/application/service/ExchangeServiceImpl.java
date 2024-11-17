@@ -10,12 +10,15 @@ import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeR
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeReqVO;
 import com.varc.brewnetapp.domain.exchange.enums.ExchangeApproval;
 import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
+import com.varc.brewnetapp.exception.ExchangeNotFoundException;
+import com.varc.brewnetapp.exception.InvalidStatusException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service("ExchangeServiceCommand")
 @RequiredArgsConstructor
@@ -27,6 +30,7 @@ public class ExchangeServiceImpl implements ExchangeService{
     private final ItemRepository itemRepository;
     private final ExchangeItemRepository exchangeItemRepository;
     private final ExchangeStatusHistoryRepository exchangeStatusHistoryRepository;
+    private final com.varc.brewnetapp.domain.exchange.query.service.ExchangeServiceImpl exchangeServiceQuery;
 
     @Override
     @Transactional
@@ -82,5 +86,30 @@ public class ExchangeServiceImpl implements ExchangeService{
 
         // 4. 교환품목사진 저장
 
+    }
+
+    @Transactional
+    public boolean cancelExchange(Integer exchangeCode) {
+
+        Exchange exchange = exchangeRepository.findById(exchangeCode)
+                .orElseThrow(() -> new ExchangeNotFoundException("교환 코드가 존재하지 않습니다."));
+
+        ExchangeStatus exchangeStatus = exchangeServiceQuery.findExchangeLatestStatus(exchangeCode);
+
+        // status가 REQUESTED인 경우에만 취소 가능
+        if (exchangeStatus == ExchangeStatus.REQUESTED) {
+
+            ExchangeStatusHistory exchangeStatusHistory = new ExchangeStatusHistory();
+            exchangeStatusHistory.setStatus(ExchangeStatus.CANCELED);
+            exchangeStatusHistory.setCreatedAt(String.valueOf(LocalDateTime.now()));
+            exchangeStatusHistory.setActive(true);
+            exchangeStatusHistory.setExchange(exchange);
+
+            exchangeStatusHistoryRepository.save(exchangeStatusHistory);
+
+            return true;
+        } else {
+            throw new InvalidStatusException("교환신청 취소가 불가능합니다.");
+        }
     }
 }

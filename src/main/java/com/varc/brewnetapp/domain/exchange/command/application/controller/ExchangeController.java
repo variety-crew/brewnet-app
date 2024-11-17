@@ -3,14 +3,12 @@ package com.varc.brewnetapp.domain.exchange.command.application.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.exchange.command.application.service.ExchangeServiceImpl;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeReqVO;
+import com.varc.brewnetapp.exception.InvalidStatusException;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController("ExchangeControllerCommand")
 @RequiredArgsConstructor
@@ -24,7 +22,14 @@ public class ExchangeController {
     @Operation(summary = "[가맹점] 교환신청 API")
     public ResponseEntity<ResponseMessage<ExchangeReqVO>> registExchange(@RequestBody ExchangeReqVO exchangeReqVO) {
         exchangeService.createExchange(exchangeReqVO);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환처리내역 목록조회 성공", null));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "교환신청 성공", null));
+    }
+
+    @PostMapping("/cancel/{code}")
+    @Operation(summary = "[가맹점] 교환취소 API")
+    public ResponseEntity<ResponseMessage<Integer>> cancelExchange(@PathVariable("code") Integer exchangeCode) {
+        exchangeService.cancelExchange(exchangeCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "교환취소 성공", exchangeCode));
     }
 
 }
