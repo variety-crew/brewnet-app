@@ -23,6 +23,7 @@ public class PurchaseApproval {
     private Integer approvalCode;
 
     @Column(name = "kind")
+    @Enumerated(EnumType.STRING)
     private KindOfApproval kind;
 
     @Column(name = "sequence")
@@ -35,6 +36,6 @@ public class PurchaseApproval {
     private Boolean active;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "position_code")
+    @JoinColumn(name = "position_code", nullable = false, insertable = false, updatable = false)
     private PurchasePosition purchasePosition;
 }
