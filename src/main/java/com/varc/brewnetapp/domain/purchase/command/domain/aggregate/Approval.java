@@ -1,7 +1,6 @@
 package com.varc.brewnetapp.domain.purchase.command.domain.aggregate;
 
 import com.varc.brewnetapp.domain.purchase.common.KindOfApproval;
-import com.varc.brewnetapp.domain.purchase.common.PositionName;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,5 +36,5 @@ public class Approval {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "position_code")
-    private Position position;
+    private PurchasePosition purchasePosition;
 }
