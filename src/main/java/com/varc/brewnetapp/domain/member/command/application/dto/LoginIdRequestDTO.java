@@ -1,4 +1,4 @@
-package com.varc.brewnetapp.domain.auth.command.application.dto;
+package com.varc.brewnetapp.domain.member.command.application.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class SendEmailRequestDTO {
-    String loginId;
-    String email;
+public class LoginIdRequestDTO {
+    private String loginId;
 }

@@ -57,4 +57,6 @@ public class AuthServiceImpl implements AuthService {
     public List<String> getAuths() {
         return authenticationMapper.selectAuths();
     }
+
+
 }

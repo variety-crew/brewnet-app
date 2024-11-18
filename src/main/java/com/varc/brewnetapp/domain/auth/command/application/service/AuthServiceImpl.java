@@ -1,8 +1,6 @@
 package com.varc.brewnetapp.domain.auth.command.application.service;
 
-import com.varc.brewnetapp.domain.auth.command.application.dto.ChangePwRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.GrantAuthRequestDTO;
-import com.varc.brewnetapp.domain.auth.command.application.dto.LoginIdRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.MemberRolePK;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.RoleType;
@@ -26,7 +24,6 @@ import com.varc.brewnetapp.security.service.RefreshTokenService;
 import com.varc.brewnetapp.security.utility.JwtUtil;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,19 +150,6 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenService.deleteRefreshToken(loginId);
     }
 
-    @Override
-    @Transactional
-    public boolean changePassword(ChangePwRequestDTO changePwRequestDTO) {
-        Member member = memberRepository.findById(changePwRequestDTO.getLoginId())
-            .orElseThrow(() -> new MemberNotFoundException("비밀번호를 변경하려는 사용자가 존재하지 않습니다"));
-
-        if(!member.getActive())
-            throw new InvalidDataException("비밀번호를 변경하려는 사용자가 존재하지 않습니다");
-
-        String bcryptPw = bCryptPasswordEncoder.encode(changePwRequestDTO.getPassword());
-        member.setPassword(bcryptPw);
-        return memberRepository.save(member).getPassword().equals(bcryptPw);
-    }
 
     @Override
     @Transactional
@@ -199,25 +183,6 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
-    @Override
-    @Transactional
-    public void deleteMember(String accessToken, LoginIdRequestDTO loginIdRequestDTO) {
-        Authentication authentication = jwtUtil.getAuthentication(accessToken.replace("Bearer ", ""));
 
-        // 권한을 리스트 형태로 가져옴
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-
-        if (authorities.stream().anyMatch(auth -> "ROLE_MASTER".equals(auth.getAuthority()))) {
-            Member member = memberRepository.findById(loginIdRequestDTO.getLoginId())
-                .orElseThrow(() -> new MemberNotFoundException("삭제하려는 회원이 없습니다"));
-
-            if(!member.getActive())
-                throw new InvalidDataException("삭제하려는 회원이 없습니다");
-
-            member.setActive(false);
-            memberRepository.save(member);
-        } else
-            throw new UnauthorizedAccessException("마스터 권한이 없는 사용자입니다");
-    }
 
 }

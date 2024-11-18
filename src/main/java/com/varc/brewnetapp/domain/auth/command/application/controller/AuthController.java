@@ -1,27 +1,15 @@
 package com.varc.brewnetapp.domain.auth.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
-import com.varc.brewnetapp.domain.auth.command.application.dto.ChangePwRequestDTO;
-import com.varc.brewnetapp.domain.auth.command.application.dto.ConfirmEmailRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.GrantAuthRequestDTO;
-import com.varc.brewnetapp.domain.auth.command.application.dto.LoginIdRequestDTO;
-import com.varc.brewnetapp.domain.auth.command.application.dto.SendEmailRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
 import com.varc.brewnetapp.domain.auth.command.application.service.AuthService;
-import com.varc.brewnetapp.domain.auth.command.application.service.EmailService;
-import com.varc.brewnetapp.exception.InvalidEmailCodeException;
-import com.varc.brewnetapp.security.utility.JwtUtil;
+import com.varc.brewnetapp.domain.member.command.application.service.EmailService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.mail.MessagingException;
-import java.io.UnsupportedEncodingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailException;
-import org.springframework.mail.MailSendException;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,42 +45,10 @@ public class AuthController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "로그아웃 성공", null));
     }
 
-    // 아무나
-    @PostMapping("/send-email")
-    @Operation(summary = "인증 이메일 발송 API")
-    public ResponseEntity<ResponseMessage<Object>> sendEmail(@RequestBody SendEmailRequestDTO sendEmailRequestDTO)
-                                                             throws MessagingException, UnsupportedEncodingException {
-        try {
-            emailService.sendSimpleMessage(sendEmailRequestDTO);
-            return ResponseEntity.ok(new ResponseMessage<>(200, "인증 이메일 발송에 성공했습니다", null));
-        } catch (MailException e) {
-            throw new MailSendException("인증 이메일 발송에 실패했습니다.");
-        }
-    }
 
-    // 아무나
-    @PostMapping("/confirm-email")
-    @Operation(summary = "인증 이메일 검증 API")
-    public ResponseEntity<ResponseMessage<Object>> confirmEmail(@RequestBody ConfirmEmailRequestDTO confirmEmailRequestDTO) {
-        if (emailService.findEmailCode(confirmEmailRequestDTO))
-            return ResponseEntity.ok(new ResponseMessage<>(200, "이메일 인증에 성공했습니다", null));
-        else
-            throw new InvalidEmailCodeException("이메일 인증에 실패했습니다");
-    }
-
-    // 아무나
-    @PutMapping("/pw")
-    @Operation(summary = "비밀번호 변경 API")
-    public ResponseEntity<ResponseMessage<Object>> changePassword(@RequestBody ChangePwRequestDTO changePwRequestDTO) {
-        if (authService.changePassword(changePwRequestDTO)) {
-            return ResponseEntity.ok(new ResponseMessage<>(200, "비밀번호 변경에 성공했습니다", null));
-        } else {
-            throw new InvalidEmailCodeException("비밀번호 변경에 실패했습니다");
-        }
-    }
 
     //마스터만
-    @PostMapping("member")
+    @PostMapping("/member")
     @Operation(summary = "회원 별 권한 부여 API")
     public ResponseEntity<ResponseMessage<Object>> grantAuth(@RequestHeader("Authorization") String accessToken,
                                                              @RequestBody GrantAuthRequestDTO grantAuthRequestDTO){
@@ -101,16 +57,6 @@ public class AuthController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "권한 부여 성공", null));
     }
 
-    @DeleteMapping("member")
-    @Operation(summary = "회원 계정 비활성화 API")
-    public ResponseEntity<ResponseMessage<Object>> deleteMember(@RequestHeader("Authorization") String accessToken,
-                                                                @RequestBody LoginIdRequestDTO loginIdRequestDTO){
-
-        authService.deleteMember(accessToken, loginIdRequestDTO);
-
-        return ResponseEntity.ok(new ResponseMessage<>(200, "계정 삭제 완료", null));
-    }
-    
 
     
 

@@ -1,7 +1,8 @@
-package com.varc.brewnetapp.domain.auth.command.application.service;
+package com.varc.brewnetapp.domain.member.command.application.service;
 
-import com.varc.brewnetapp.domain.auth.command.application.dto.ConfirmEmailRequestDTO;
-import com.varc.brewnetapp.domain.auth.command.application.dto.SendEmailRequestDTO;
+import com.varc.brewnetapp.domain.member.command.application.dto.ConfirmEmailRequestDTO;
+import com.varc.brewnetapp.domain.member.command.application.dto.SendEmailRequestDTO;
+import com.varc.brewnetapp.domain.auth.command.application.service.RedisService;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.exception.InvalidEmailCodeException;
 import com.varc.brewnetapp.exception.InvalidEmailException;
