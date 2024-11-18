@@ -224,3 +224,5 @@ gradle-app.setting
 
 # application-profile
 application-secret.yml
+applocation-dev.yml
+application-prod.yml
