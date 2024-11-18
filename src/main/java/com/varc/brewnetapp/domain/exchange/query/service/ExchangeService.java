@@ -34,4 +34,6 @@ public interface ExchangeService {
     List<ExchangeApproverVO> findExchangeApprover(String loginId, int exchangeCode);
 
     boolean isValidExchangeByFranchise(String loginId, int exchangeCode);
+
+    boolean isValidOrderByFranchise(String loginId, int orderCode);
 }

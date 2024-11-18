@@ -570,4 +570,19 @@
         ) AS result;
     </select>
 
+    <!-- 유저 아이디(loginId)와 주문코드(orderCode)로 해당 가맹점의 주문이 맞는지 확인하는 쿼리 -->
+    <!-- 가맹점 교환신청 시 유효한 요청인지 검증하기 위해 사용 -->
+    <select id="selectValidOrderByFranchise" resultType="boolean">
+        SELECT
+              EXISTS(
+                      SELECT
+                             *
+                        FROM tbl_order A
+                             JOIN tbl_franchise B ON A.franchise_code = B.franchise_code
+                             JOIN tbl_franchise_member C ON A.franchise_code= C.franchise_code
+                             JOIN tbl_member D ON C.member_code = D.member_code
+                       WHERE A.order_code = #{ orderCode } AND D.id = #{ loginId }
+        ) AS result;
+    </select>
+
 </mapper>

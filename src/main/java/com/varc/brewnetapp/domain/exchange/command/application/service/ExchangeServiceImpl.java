@@ -11,6 +11,7 @@ import com.varc.brewnetapp.domain.exchange.enums.ExchangeDraftApproval;
 import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
 import com.varc.brewnetapp.exception.ExchangeNotFoundException;
 import com.varc.brewnetapp.exception.InvalidStatusException;
+import com.varc.brewnetapp.exception.UnauthorizedAccessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,62 +35,69 @@ public class ExchangeServiceImpl implements ExchangeService{
 
     @Override
     @Transactional
-    public void createExchange(ExchangeReqVO exchangeReqVO) {
+    public void createExchange(String loginId, ExchangeReqVO exchangeReqVO) {
 
         // 1. 교환 저장
         Exchange exchange = new Exchange();
+
+        // 1-1. 해당 주문이 이 가맹점의 주문이 맞는지 확인
         ExOrder order = orderRepository.findById(exchangeReqVO.getOrderCode()).orElse(null);
 
-        exchange.setComment(null);          // 첨언 null
-        exchange.setCreatedAt(String.valueOf(LocalDateTime.now()));
-        exchange.setActive(true);
-        exchange.setReason(exchangeReqVO.getReason());
-        exchange.setExplanation(exchangeReqVO.getExplanation());
-        exchange.setApproved(ExchangeApproval.UNCONFIRMED);
-        exchange.setOrder(order);
-        exchange.setMemberCode(null);       // 교환 기안자 null
-        exchange.setDelivery(null);         // 배송기사 null
-        exchange.setDrafterApproved(ExchangeDraftApproval.NONE);
-        exchange.setSumPrice(exchangeReqVO.getSumPrice());
+        if (exchangeServiceQuery.isValidOrderByFranchise(loginId, exchangeReqVO.getOrderCode())) {
+            exchange.setComment(null);          // 첨언 null
+            exchange.setCreatedAt(String.valueOf(LocalDateTime.now()));
+            exchange.setActive(true);
+            exchange.setReason(exchangeReqVO.getReason());
+            exchange.setExplanation(exchangeReqVO.getExplanation());
+            exchange.setApproved(ExchangeApproval.UNCONFIRMED);
+            exchange.setOrder(order);
+            exchange.setMemberCode(null);       // 교환 기안자 null
+            exchange.setDelivery(null);         // 배송기사 null
+            exchange.setDrafterApproved(ExchangeDraftApproval.NONE);
+            exchange.setSumPrice(exchangeReqVO.getSumPrice());
 
-        exchangeRepository.save(exchange);
+            exchangeRepository.save(exchange);
 
 
-        // 2. 교환별상품 저장
-        int exchangeCode = exchange.getExchangeCode();
+            // 2. 교환별상품 저장
+            int exchangeCode = exchange.getExchangeCode();
 
-        for (ExchangeReqItemVO reqItem: exchangeReqVO.getExchangeItemList()) {
+            for (ExchangeReqItemVO reqItem: exchangeReqVO.getExchangeItemList()) {
 
-            // 복합키 객체 생성
-            ExchangeItemCode exchangeItemCode = new ExchangeItemCode();
-            exchangeItemCode.setExchangeCode(exchangeCode);                 // 교환 코드 설정
-            exchangeItemCode.setItemCode(reqItem.getItemCode());            // 상품 코드 설정
+                // 복합키 객체 생성
+                ExchangeItemCode exchangeItemCode = new ExchangeItemCode();
+                exchangeItemCode.setExchangeCode(exchangeCode);                 // 교환 코드 설정
+                exchangeItemCode.setItemCode(reqItem.getItemCode());            // 상품 코드 설정
 
-            // ExchangeItem 객체 생성
-            ExchangeItem exchangeItem = new ExchangeItem();
-            exchangeItem.setExchangeItemCode(exchangeItemCode);  // 복합키 설정
-            exchangeItem.setQuantity(reqItem.getQuantity());
+                // ExchangeItem 객체 생성
+                ExchangeItem exchangeItem = new ExchangeItem();
+                exchangeItem.setExchangeItemCode(exchangeItemCode);  // 복합키 설정
+                exchangeItem.setQuantity(reqItem.getQuantity());
 
-            exchangeItemRepository.save(exchangeItem);
+                exchangeItemRepository.save(exchangeItem);
+            }
+
+
+            // 3. 교환상태이력 저장
+            ExchangeStatusHistory exchangeStatusHistory = new ExchangeStatusHistory();
+            exchangeStatusHistory.setStatus(ExchangeStatus.REQUESTED);
+            exchangeStatusHistory.setCreatedAt(String.valueOf(LocalDateTime.now()));
+            exchangeStatusHistory.setActive(true);
+            exchangeStatusHistory.setExchange(exchange);
+
+            exchangeStatusHistoryRepository.save(exchangeStatusHistory);
+
+
+            // 4. 교환품목사진 저장
+
+        } else {
+            throw new UnauthorizedAccessException("로그인한 가맹점에서 작성한 주문에 대해서만 교환 요청할 수 있습니다");
         }
-
-
-        // 3. 교환상태이력 저장
-        ExchangeStatusHistory exchangeStatusHistory = new ExchangeStatusHistory();
-        exchangeStatusHistory.setStatus(ExchangeStatus.REQUESTED);
-        exchangeStatusHistory.setCreatedAt(String.valueOf(LocalDateTime.now()));
-        exchangeStatusHistory.setActive(true);
-        exchangeStatusHistory.setExchange(exchange);
-
-        exchangeStatusHistoryRepository.save(exchangeStatusHistory);
-
-
-        // 4. 교환품목사진 저장
-
     }
 
+    @Override
     @Transactional
-    public boolean cancelExchange(Integer exchangeCode) {
+    public boolean cancelExchange(String loginId, Integer exchangeCode) {
 
         // 1. 교환 상태 이력(tbl_exchange_status_history)테이블에 취소내역 저장
         Exchange exchange = exchangeRepository.findById(exchangeCode)

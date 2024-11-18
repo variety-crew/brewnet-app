@@ -95,7 +95,7 @@ public class ExchangeController {
     // url 수정 필요
     @GetMapping("/franchise/list")
     @Operation(summary = "[가맹점] 교환요청 목록조회 API")
-    @SecurityRequirement(name = "Authorization")
+//    @SecurityRequirement(name = "Authorization")
     public ResponseEntity<ResponseMessage<Page<FranExchangeListVO>>> findFranExchangeList(@RequestAttribute("loginId") String loginId,
                                                                                           @PageableDefault(value = 10) Pageable page) {
         Page<FranExchangeListVO> result = exchangeService.findFranExchangeList(loginId, page);
@@ -107,7 +107,7 @@ public class ExchangeController {
             description = "searchFilter에 들어갈 수 있는 값은 exchangeCode(교환번호), itemName(품목명) 2가지<br>" +
                     "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
                     "2가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
-    @SecurityRequirement(name = "Authorization")
+//    @SecurityRequirement(name = "Authorization")
     public ResponseEntity<ResponseMessage<Page<FranExchangeListVO>>> searchFranExchangeList(
             @RequestAttribute("loginId") String loginId,
             @RequestParam(required = false) String searchFilter,

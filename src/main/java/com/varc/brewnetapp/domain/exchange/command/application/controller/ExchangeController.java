@@ -6,6 +6,7 @@ import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeA
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeReqVO;
 import com.varc.brewnetapp.exception.InvalidStatusException;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,15 +22,18 @@ public class ExchangeController {
 
     @PostMapping("/")
     @Operation(summary = "[가맹점] 교환신청 API")
-    public ResponseEntity<ResponseMessage<ExchangeReqVO>> registExchange(@RequestBody ExchangeReqVO exchangeReqVO) {
-        exchangeService.createExchange(exchangeReqVO);
+//    @SecurityRequirement(name = "Authorization")
+    public ResponseEntity<ResponseMessage<ExchangeReqVO>> registExchange(@RequestAttribute("loginId") String loginId,
+                                                                         @RequestBody ExchangeReqVO exchangeReqVO) {
+        exchangeService.createExchange(loginId, exchangeReqVO);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환신청 성공", null));
     }
 
     @PostMapping("/cancel/{exchangeCode}")
     @Operation(summary = "[가맹점] 교환취소 API")
-    public ResponseEntity<ResponseMessage<Integer>> cancelExchange(@PathVariable("exchangeCode") Integer exchangeCode) {
-        exchangeService.cancelExchange(exchangeCode);
+    public ResponseEntity<ResponseMessage<Integer>> cancelExchange(@RequestAttribute("loginId") String loginId,
+                                                                   @PathVariable("exchangeCode") Integer exchangeCode) {
+        exchangeService.cancelExchange(loginId, exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환취소 성공", exchangeCode));
     }
 

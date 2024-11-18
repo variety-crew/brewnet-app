@@ -175,10 +175,18 @@ public class ExchangeServiceImpl implements ExchangeService{
         return exchangeApproverList;
     }
 
-    /* 유저 아이디(loginId)와 교환코드(exchangeCode)로 해당 가맹점의 주문이 맞는지 확인하는 쿼리 */
+    /* 유저 아이디(loginId)와 교환코드(exchangeCode)로 해당 가맹점의 주문이 맞는지 확인하는 메서드 */
     // 가맹점 목록조회/가맹점 상세조회에서 유효한 요청인지 검증하기 위해 사용
     @Override
     public boolean isValidExchangeByFranchise(String loginId, int exchangeCode) {
         return exchangeMapper.selectValidExchangeByFranchise(loginId, exchangeCode);
+    }
+
+    // fix: 이동 필요
+    /* 유저 아이디(loginId)와 주문코드(orderCode)로 해당 가맹점의 주문이 맞는지 확인하는 메서드 */
+    // 가맹점 교환신청 시 유효한 요청인지 검증하기 위해 사용
+    @Override
+    public boolean isValidOrderByFranchise(String loginId, int orderCode) {
+        return exchangeMapper.selectValidExchangeByFranchise(loginId, orderCode);
     }
 }
