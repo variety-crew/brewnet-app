@@ -43,6 +43,7 @@ public class JwtAccessTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
+        log.debug("access token 필터 끝");
         filterChain.doFilter(request, response);
 
     }
