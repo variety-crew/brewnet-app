@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.common;
 
 import com.varc.brewnetapp.exception.DuplicateException;
+import com.varc.brewnetapp.exception.InvalidApiRequestException;
 import com.varc.brewnetapp.exception.InvalidEmailCodeException;
 import com.varc.brewnetapp.exception.InvalidEmailException;
 import com.varc.brewnetapp.exception.InvalidDataException;
@@ -23,7 +24,8 @@ public class GlobalExceptionHandler {
         InvalidEmailCodeException.class,
         InvalidEmailException.class,
         InvalidDataException.class,
-        MemberNotFoundException.class
+        MemberNotFoundException.class,
+        InvalidApiRequestException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
