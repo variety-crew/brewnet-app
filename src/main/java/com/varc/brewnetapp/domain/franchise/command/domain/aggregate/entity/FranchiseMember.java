@@ -1,6 +1,5 @@
 package com.varc.brewnetapp.domain.franchise.command.domain.aggregate.entity;
 
-import com.varc.brewnetapp.domain.franchise.command.domain.aggregate.FranchiseMemberId;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Position;
 import jakarta.persistence.*;
@@ -24,7 +23,6 @@ public class FranchiseMember {
     @Id
     @Column(name = "franchise_member_code", nullable = false)
     private Integer franchiseMemberCode;
-
 
     @Column(name = "franchise_code", nullable = false)
     private Integer franchiseCode;
