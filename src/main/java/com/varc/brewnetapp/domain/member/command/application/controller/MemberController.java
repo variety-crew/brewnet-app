@@ -44,7 +44,7 @@ public class MemberController {
     }
 
     // 아무나
-    @PostMapping("/send-email")
+    @PostMapping("email/send-email")
     @Operation(summary = "인증 이메일 발송 API")
     public ResponseEntity<ResponseMessage<Object>> sendEmail(@RequestBody SendEmailRequestDTO sendEmailRequestDTO)
         throws MessagingException, UnsupportedEncodingException {
@@ -57,7 +57,7 @@ public class MemberController {
     }
 
     // 아무나
-    @PostMapping("/confirm-email")
+    @PostMapping("email/confirm-email")
     @Operation(summary = "인증 이메일 검증 API")
     public ResponseEntity<ResponseMessage<Object>> confirmEmail(@RequestBody ConfirmEmailRequestDTO confirmEmailRequestDTO) {
         if (emailService.findEmailCode(confirmEmailRequestDTO))
@@ -67,7 +67,7 @@ public class MemberController {
     }
 
     // 아무나
-    @PutMapping("/pw")
+    @PutMapping("/member/pw")
     @Operation(summary = "비밀번호 변경 API")
     public ResponseEntity<ResponseMessage<Object>> changePassword(@RequestBody ChangePwRequestDTO changePwRequestDTO) {
         if (memberService.changePassword(changePwRequestDTO)) {

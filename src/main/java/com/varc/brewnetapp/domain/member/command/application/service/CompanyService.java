@@ -7,6 +7,7 @@ import com.varc.brewnetapp.domain.member.command.domain.repository.CompanyReposi
 import com.varc.brewnetapp.exception.InvalidApiRequestException;
 import com.varc.brewnetapp.exception.UnauthorizedAccessException;
 import com.varc.brewnetapp.security.utility.JwtUtil;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import org.modelmapper.ModelMapper;
@@ -36,12 +37,15 @@ public class CompanyService {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
         if (authorities.stream().anyMatch(auth -> "ROLE_MASTER".equals(auth.getAuthority()))) {
-            if(companyRepository.findAll().size() > 1)
+            if(companyRepository.findAll().size() >= 1)
                 throw new InvalidApiRequestException("잘못된 시도 : 이미 회사 정보가 존재하는데 추가적인 생성을 하려합니다");
 
             createCompanyRequestDTO.setContact(
                 TelNumberUtil.formatTelNumber(createCompanyRequestDTO.getContact()));
-            companyRepository.save(modelMapper.map(createCompanyRequestDTO, Company.class));
+            Company company = modelMapper.map(createCompanyRequestDTO, Company.class);
+            company.setActive(true);
+            company.setCreatedAt(LocalDateTime.now());
+            companyRepository.save(company);
         } else
             throw new UnauthorizedAccessException("마스터 권한이 없는 사용자입니다");
 
