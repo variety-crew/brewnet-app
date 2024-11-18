@@ -37,11 +37,11 @@ public class ExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환취소 성공", exchangeCode));
     }
 
-    // api url 수정 필요
-    @PostMapping("/drafter-approve/{memberCode}")
+    @PostMapping("/drafter-approve")
     @Operation(summary = "[본사] 교환 결재신청(기안자) API")
-    public ResponseEntity<ResponseMessage<Integer>> approveExchange(@PathVariable("memberCode") Integer memberCode, @RequestBody ExchangeApproveReqVO exchangeApproveReqVO) {
-        exchangeService.approveExchange(memberCode, exchangeApproveReqVO);
+    public ResponseEntity<ResponseMessage<Integer>> approveExchange(@RequestAttribute("loginId") String loginId,
+                                                                    @RequestBody ExchangeApproveReqVO exchangeApproveReqVO) {
+        exchangeService.approveExchange(loginId, exchangeApproveReqVO);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재신청 성공", null));
     }
 }
