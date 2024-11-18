@@ -5,5 +5,7 @@ import com.varc.brewnetapp.domain.purchase.command.domain.aggregate.Stock;
 import com.varc.brewnetapp.domain.purchase.command.domain.aggregate.StockId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface PurchaseMemberRepository extends JpaRepository<PurchaseMember, Integer> {
 }
