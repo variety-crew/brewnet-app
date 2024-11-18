@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.document.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.document.query.dto.ApproverDTO;
 import com.varc.brewnetapp.domain.document.query.service.ApprovalService;
 import com.varc.brewnetapp.domain.document.query.dto.ApprovalDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController(value = "queryDocumentController")
@@ -26,5 +28,12 @@ public class DocumentController {
     public ResponseEntity<ResponseMessage<List<ApprovalDTO>>> findApprovalList() {
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "결재 목록 조회 성공", approvalService.findApprovalList()));
+    }
+
+    @GetMapping("/approver")
+    @Operation(summary = "결재 가능자 API")
+    public ResponseEntity<ResponseMessage<List<ApproverDTO>>> findApprover() {
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "결재 목록 조회 성공", approvalService.findApproverlList()));
     }
 }

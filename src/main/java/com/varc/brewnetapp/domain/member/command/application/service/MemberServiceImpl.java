@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.member.command.application.service;
 
+import com.varc.brewnetapp.common.TelNumberUtil;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.RoleType;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.entity.MemberRole;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.entity.Role;
@@ -108,13 +109,8 @@ public class MemberServiceImpl implements MemberService {
             Member member = memberRepository.findById(changeMemberRequestDTO.getLoginId())
                 .orElseThrow(() -> new MemberNotFoundException("변경하려는 회원이 없습니다"));
 
-            if(changeMemberRequestDTO.getContact() != null){
-                if (changeMemberRequestDTO.getContact().length() != 11)
-                    throw new IllegalArgumentException("전화번호는 11자리여야 합니다.");
-
-                member.setContact(changeMemberRequestDTO.getContact().substring(0, 3)
-                    + "-" + changeMemberRequestDTO.getContact().substring(3, 7) + "-" + changeMemberRequestDTO.getContact().substring(7));
-            }
+            if(changeMemberRequestDTO.getContact() != null)
+                member.setContact(TelNumberUtil.formatTelNumber(changeMemberRequestDTO.getContact()));
 
             if(changeMemberRequestDTO.getName() != null)
                 member.setName(changeMemberRequestDTO.getName());

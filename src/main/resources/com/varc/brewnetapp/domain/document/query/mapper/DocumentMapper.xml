@@ -10,6 +10,11 @@
     <result property="positionName" column="NAME"/>
   </resultMap>
 
+  <resultMap id="approverResultMap" type="com.varc.brewnetapp.domain.document.query.dto.ApproverDTO">
+    <result property="positionName" column="NAME"/>
+  </resultMap>
+
+
   <select id="selectApprovalList" resultMap="approvalResultMap">
     SELECT
            A.KIND,
@@ -18,5 +23,12 @@
       FROM tbl_approval A
      INNER JOIN tbl_position P ON (A.position_code = P.position_code)
      ORDER BY A.KIND DESC, A.SEQUENCE ASC;
+  </select>
+  
+  <select id="selectApproverList" resultMap="approverResultMap" parameterType="string">
+    SELECT
+           NAME
+      FROM tbl_position
+     WHERE NAME != 'STAFF'
   </select>
 </mapper>

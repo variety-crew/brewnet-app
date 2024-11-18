@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.auth.command.application.service;
 
+import com.varc.brewnetapp.common.TelNumberUtil;
 import com.varc.brewnetapp.domain.auth.command.application.dto.GrantAuthRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.MemberRolePK;
@@ -86,11 +87,7 @@ public class AuthServiceImpl implements AuthService {
         if(existEmail != null)
             throw new DuplicateException("이메일이 이미 존재합니다");
 
-        if (signUpRequestDto.getContact().length() != 11)
-            throw new IllegalArgumentException("전화번호는 11자리여야 합니다.");
-
-        signUpRequestDto.setContact(signUpRequestDto.getContact().substring(0, 3)
-            + "-" + signUpRequestDto.getContact().substring(3, 7) + "-" + signUpRequestDto.getContact().substring(7));
+        signUpRequestDto.setContact(TelNumberUtil.formatTelNumber(signUpRequestDto.getContact()));
 
         signUpRequestDto.setPassword(bCryptPasswordEncoder.encode(signUpRequestDto.getPassword()));
         Member member = modelMapper.map(signUpRequestDto, Member.class);
