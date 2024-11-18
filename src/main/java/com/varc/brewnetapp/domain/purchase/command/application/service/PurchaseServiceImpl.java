@@ -150,6 +150,9 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new InvalidDataException("이미 결재 처리가 완료된 구매품의서입니다.");
         }
 
+        // 해당 구매품의서 비활성화 처리
+        purchase.setActive(false);
+
         // 해당 구매품의서의 상태 이력에 결재 취소 상태 추가
         PurchaseStatusHistory history = new PurchaseStatusHistory();
         history.setLetterOfPurchase(purchase);
