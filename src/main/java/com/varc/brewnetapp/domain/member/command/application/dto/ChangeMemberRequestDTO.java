@@ -18,5 +18,6 @@ public class ChangeMemberRequestDTO {
     private String email;
     private String contact;
     private String positionName;
+    private String FranchiseName;
 
 }

@@ -1,5 +1,12 @@
 package com.varc.brewnetapp.domain.member.command.application.service;
 
+import com.varc.brewnetapp.domain.auth.command.domain.aggregate.RoleType;
+import com.varc.brewnetapp.domain.auth.command.domain.aggregate.entity.MemberRole;
+import com.varc.brewnetapp.domain.auth.command.domain.aggregate.entity.Role;
+import com.varc.brewnetapp.domain.franchise.command.domain.aggregate.entity.Franchise;
+import com.varc.brewnetapp.domain.franchise.command.domain.aggregate.entity.FranchiseMember;
+import com.varc.brewnetapp.domain.franchise.command.domain.repository.FranchiseMemberRepository;
+import com.varc.brewnetapp.domain.franchise.command.domain.repository.FranchiseRepository;
 import com.varc.brewnetapp.domain.member.command.application.dto.ChangeMemberRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.ChangePwRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.LoginIdRequestDTO;
@@ -28,6 +35,8 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
     private final PositionRepository positionRepository;
+    private final FranchiseRepository franchiseRepository;
+    private final FranchiseMemberRepository franchiseMemberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtUtil jwtUtil;
     private final ModelMapper modelMapper;
@@ -36,12 +45,16 @@ public class MemberServiceImpl implements MemberService {
     public MemberServiceImpl(
         MemberRepository memberRepository,
         PositionRepository positionRepository,
+        FranchiseRepository franchiseRepository,
+        FranchiseMemberRepository franchiseMemberRepository,
         BCryptPasswordEncoder bCryptPasswordEncoder,
         JwtUtil jwtUtil,
         ModelMapper modelMapper
     ) {
         this.memberRepository = memberRepository;
         this.positionRepository = positionRepository;
+        this.franchiseRepository = franchiseRepository;
+        this.franchiseMemberRepository = franchiseMemberRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtUtil = jwtUtil;
         this.modelMapper = modelMapper;
@@ -112,7 +125,9 @@ public class MemberServiceImpl implements MemberService {
             if(changeMemberRequestDTO.getPassword() != null)
                 member.setPassword(bCryptPasswordEncoder.encode(changeMemberRequestDTO.getPassword()));
 
-            if(changeMemberRequestDTO.getPositionName() != null){
+            if(changeMemberRequestDTO.getPositionName() != null && changeMemberRequestDTO.getFranchiseName() != null)
+                throw new InvalidDataException("회원가입 시, 가맹점과 직급이 한꺼번에 설정될 수 없습니다");
+            else if(changeMemberRequestDTO.getPositionName() != null){
                 if(changeMemberRequestDTO.getPositionName().equals("사원"))
                     changeMemberRequestDTO.setPositionName("STAFF");
                 else if(changeMemberRequestDTO.getPositionName().equals("대리"))
@@ -128,8 +143,20 @@ public class MemberServiceImpl implements MemberService {
                     .getPositionCode());
 
                 memberRepository.save(member);
-            } else
+            } else if(changeMemberRequestDTO.getFranchiseName() != null){
                 memberRepository.save(member);
+                log.info("변경 회원 코드 : " + member.getMemberCode());
+
+                Franchise franchise = franchiseRepository.findByFranchiseName(changeMemberRequestDTO.getFranchiseName())
+                    .orElseThrow(() -> new InvalidDataException("잘못된 가맹점 이름을 입력했습니다"));
+
+                FranchiseMember franchiseMember = franchiseMemberRepository.findByMemberCode(member.getMemberCode())
+                    .orElseThrow(() -> new InvalidDataException("회원이 가맹점 유저가 아닙니다"));
+                franchiseMember.setFranchiseCode(franchise.getFranchiseCode());
+
+                franchiseMemberRepository.save(franchiseMember);
+            }
+
         } else
             throw new UnauthorizedAccessException("마스터 권한이 없는 사용자입니다");
 

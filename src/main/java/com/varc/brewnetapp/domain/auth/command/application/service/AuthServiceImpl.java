@@ -92,16 +92,6 @@ public class AuthServiceImpl implements AuthService {
         signUpRequestDto.setContact(signUpRequestDto.getContact().substring(0, 3)
             + "-" + signUpRequestDto.getContact().substring(3, 7) + "-" + signUpRequestDto.getContact().substring(7));
 
-        if(signUpRequestDto.getPositionName().equals("사원"))
-            signUpRequestDto.setPositionName("STAFF");
-        else if(signUpRequestDto.getPositionName().equals("대리"))
-            signUpRequestDto.setPositionName("ASSISTANT_MANAGER");
-        else if(signUpRequestDto.getPositionName().equals("과장"))
-            signUpRequestDto.setPositionName("MANAGER");
-        else if(signUpRequestDto.getPositionName().equals("대표"))
-            signUpRequestDto.setPositionName("CEO");
-
-
         signUpRequestDto.setPassword(bCryptPasswordEncoder.encode(signUpRequestDto.getPassword()));
         Member member = modelMapper.map(signUpRequestDto, Member.class);
         member.setCreatedAt(LocalDateTime.now());
@@ -110,6 +100,15 @@ public class AuthServiceImpl implements AuthService {
         if(signUpRequestDto.getPositionName() != null && signUpRequestDto.getFranchiseName() != null)
             throw new InvalidDataException("회원가입 시, 가맹점과 직급이 한꺼번에 설정될 수 없습니다");
         else if(signUpRequestDto.getPositionName() != null){
+            if(signUpRequestDto.getPositionName().equals("사원"))
+                signUpRequestDto.setPositionName("STAFF");
+            else if(signUpRequestDto.getPositionName().equals("대리"))
+                signUpRequestDto.setPositionName("ASSISTANT_MANAGER");
+            else if(signUpRequestDto.getPositionName().equals("과장"))
+                signUpRequestDto.setPositionName("MANAGER");
+            else if(signUpRequestDto.getPositionName().equals("대표"))
+                signUpRequestDto.setPositionName("CEO");
+
             member.setPositionCode(positionRepository.findByName
                 (PositionName.valueOf(signUpRequestDto.getPositionName())).orElseThrow(() -> new InvalidDataException("직급이 없습니다"))
                 .getPositionCode());
