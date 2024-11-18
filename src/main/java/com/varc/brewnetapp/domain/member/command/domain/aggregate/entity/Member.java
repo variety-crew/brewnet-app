@@ -25,33 +25,34 @@ public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_code")
     private Integer memberCode;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "id", nullable = false, unique = true)
     private String id;
 
-    @Column(nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "contact", nullable = false)
     private String contact;
 
-    @Column(length = 500)
+    @Column(name = "signature_url", length = 500)
     private String signatureUrl;
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "active", nullable = false)
     private Boolean active;
 
-    @Column
+    @Column(name = "position_code")
     private Integer positionCode;
 
 }
