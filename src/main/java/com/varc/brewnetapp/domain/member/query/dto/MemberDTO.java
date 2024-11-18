@@ -25,5 +25,5 @@ public class MemberDTO {
     private String contact;
     private String signatureUrl;
     private String positionName;
-    private List<String> roleList;
+    private String roles;
 }
