@@ -1,6 +1,6 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
-import com.varc.brewnetapp.domain.order.query.dto.OrderResponseDTO;
+import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public interface OrderService {
 
     // requested by hq
     // searched by hq
-    List<OrderResponseDTO> getAllOrderListBy();
+    List<OrderDTO> getAllOrderListBy();
 
 
     // requested by franchise

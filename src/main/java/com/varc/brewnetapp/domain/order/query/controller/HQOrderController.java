@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.order.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderResponseDTO;
 import com.varc.brewnetapp.domain.order.query.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,9 +28,9 @@ public class HQOrderController {
 
     @GetMapping
     @Operation(summary = "본사의 주문 리스트 조회")
-    public ResponseEntity<ResponseMessage<List<OrderResponseDTO>>> getOrderList() {
-//        List<OrderResponseDTO> orderResponseVO = orderService.getAllOrderListByHqRequest();
-        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", null));
+    public ResponseEntity<ResponseMessage<List<OrderDTO>>> getOrderList() {
+        List<OrderDTO> orderDTOList = orderService.getAllOrderListBy();
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDTOList));
     }
 
     @GetMapping("/excel")
