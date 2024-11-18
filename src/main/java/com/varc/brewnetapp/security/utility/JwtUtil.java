@@ -40,7 +40,6 @@ public class JwtUtil {
     }
 
     public String getLoginId(String token)  {
-        log.debug("getLoginId called");
         return parseClaims(token).getSubject();
     }
 

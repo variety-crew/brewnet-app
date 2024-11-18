@@ -1,6 +1,5 @@
-package com.varc.brewnetapp.config;
+package com.varc.brewnetapp.common;
 
-import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.exception.DuplicateException;
 import com.varc.brewnetapp.exception.ExchangeNotFoundException;
 import com.varc.brewnetapp.exception.InvalidStatusException;
