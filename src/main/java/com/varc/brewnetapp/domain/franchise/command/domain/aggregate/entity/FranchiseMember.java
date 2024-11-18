@@ -14,20 +14,23 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "tbl_franchise_member")
-@IdClass(FranchiseMemberId.class)
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class FranchiseMember {
 
-    @Id
-    @Column(name = "member_code", nullable = false)
-    private Integer memberCode;
 
     @Id
+    @Column(name = "franchise_member_code", nullable = false)
+    private Integer franchiseMemberCode;
+
+
     @Column(name = "franchise_code", nullable = false)
     private Integer franchiseCode;
+
+    @Column(name = "member_code", nullable = false)
+    private Integer memberCode;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
