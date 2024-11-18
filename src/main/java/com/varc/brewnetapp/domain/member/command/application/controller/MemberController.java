@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.member.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.member.command.application.dto.ChangeMemberRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.ChangePwRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.ConfirmEmailRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.LoginIdRequestDTO;
@@ -87,7 +88,7 @@ public class MemberController {
     public ResponseEntity<ResponseMessage<Object>> changeMember(@RequestHeader("Authorization") String accessToken,
                                                                 @RequestBody ChangeMemberRequestDTO changeMemberRequestDTO) {
 
-        authService
+        memberService.changeMember(accessToken, changeMemberRequestDTO);
         return ResponseEntity.ok(new ResponseMessage<>(200, "회원 정보 수정 성공", null));
     }
 

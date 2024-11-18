@@ -89,6 +89,9 @@ public class AuthServiceImpl implements AuthService {
         if (signUpRequestDto.getContact().length() != 11)
             throw new IllegalArgumentException("전화번호는 11자리여야 합니다.");
 
+        signUpRequestDto.setContact(signUpRequestDto.getContact().substring(0, 3)
+            + "-" + signUpRequestDto.getContact().substring(3, 7) + "-" + signUpRequestDto.getContact().substring(7));
+
         if(signUpRequestDto.getPositionName().equals("사원"))
             signUpRequestDto.setPositionName("STAFF");
         else if(signUpRequestDto.getPositionName().equals("대리"))
@@ -98,8 +101,7 @@ public class AuthServiceImpl implements AuthService {
         else if(signUpRequestDto.getPositionName().equals("대표"))
             signUpRequestDto.setPositionName("CEO");
 
-        signUpRequestDto.setContact(signUpRequestDto.getContact().substring(0, 3)
-            + "-" + signUpRequestDto.getContact().substring(3, 7) + "-" + signUpRequestDto.getContact().substring(7));
+
         signUpRequestDto.setPassword(bCryptPasswordEncoder.encode(signUpRequestDto.getPassword()));
         Member member = modelMapper.map(signUpRequestDto, Member.class);
         member.setCreatedAt(LocalDateTime.now());
