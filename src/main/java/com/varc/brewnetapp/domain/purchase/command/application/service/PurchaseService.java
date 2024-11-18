@@ -5,4 +5,6 @@ import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseReque
 public interface PurchaseService {
 
     void createLetterOfPurchase(PurchaseRequestDTO newPurchase);
+
+    void cancelLetterOfPurchase(int letterOfPurchaseCode);
 }
