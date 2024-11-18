@@ -92,6 +92,15 @@ public class AuthServiceImpl implements AuthService {
         if (signUpRequestDto.getContact().length() != 11)
             throw new IllegalArgumentException("전화번호는 11자리여야 합니다.");
 
+        if(signUpRequestDto.getPositionName().equals("사원"))
+            signUpRequestDto.setPositionName("STAFF");
+        else if(signUpRequestDto.getPositionName().equals("대리"))
+            signUpRequestDto.setPositionName("ASSISTANT_MANAGER");
+        else if(signUpRequestDto.getPositionName().equals("과장"))
+            signUpRequestDto.setPositionName("MANAGER");
+        else if(signUpRequestDto.getPositionName().equals("대표"))
+            signUpRequestDto.setPositionName("CEO");
+
         signUpRequestDto.setContact(signUpRequestDto.getContact().substring(0, 3)
             + "-" + signUpRequestDto.getContact().substring(3, 7) + "-" + signUpRequestDto.getContact().substring(7));
         signUpRequestDto.setPassword(bCryptPasswordEncoder.encode(signUpRequestDto.getPassword()));
