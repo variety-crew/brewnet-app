@@ -47,5 +47,5 @@ public class PurchaseMember {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "position_code")
-    private Position position;
+    private PurchasePosition purchasePosition;
 }

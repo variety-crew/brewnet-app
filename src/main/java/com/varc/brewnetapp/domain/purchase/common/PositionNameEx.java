@@ -1,6 +1,6 @@
 package com.varc.brewnetapp.domain.purchase.common;
 
-public enum PositionName {
+public enum PositionNameEx {
 
     STAFF,                  // 사원
     ASISTANT_MANAGER,       // 대리
