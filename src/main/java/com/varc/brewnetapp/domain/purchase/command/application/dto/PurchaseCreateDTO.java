@@ -13,11 +13,7 @@ import java.util.List;
 @ToString
 public class PurchaseCreateDTO {
 
-    private String createdAt;
-    private boolean active;
-    private IsApproved approved;
     private int memberCode;
-    private String memberName;
     private String comment;
     private int correspondentCode;
     private String correspondentName;
