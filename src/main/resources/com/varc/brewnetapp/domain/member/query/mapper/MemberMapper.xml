@@ -37,7 +37,7 @@
      WHERE M.ACTIVE = TRUE
      ORDER BY M.MEMBER_CODE DESC
      LIMIT #{ pageSize }
-    OFFSET #{ pageNum };
+    OFFSET #{ offset };
   </select>
 
   <select id="selectMemberListCnt" resultType="int">

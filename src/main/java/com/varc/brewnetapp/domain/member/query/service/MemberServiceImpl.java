@@ -3,6 +3,7 @@ package com.varc.brewnetapp.domain.member.query.service;
 import com.varc.brewnetapp.domain.member.query.dto.MemberDTO;
 import com.varc.brewnetapp.domain.member.query.mapper.MemberMapper;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service(value = "queryMemberService")
+@Slf4j
 public class MemberServiceImpl implements MemberService {
 
     private final MemberMapper memberMapper;
@@ -22,8 +24,9 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Page<MemberDTO> findMemberList(Pageable page) {
         // 페이징 정보 추가
-        long offset = page.getOffset();
         long pageSize = page.getPageSize();
+        long pageNumber = page.getPageNumber();
+        long offset = (pageNumber - 1) * pageSize;
 
         // DB에서 교환 목록 조회
         List<MemberDTO> memberList = memberMapper.selectMemberList(offset, pageSize);
