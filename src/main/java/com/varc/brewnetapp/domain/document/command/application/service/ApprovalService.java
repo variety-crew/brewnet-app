@@ -92,4 +92,35 @@ public class ApprovalService {
             throw new UnauthorizedAccessException("마스터 권한이 없는 사용자입니다");
 
     }
+
+    public void deleteApprover(String accessToken, ApproverRequestDTO approverRequestDTO) {
+        Authentication authentication = jwtUtil.getAuthentication(accessToken.replace("Bearer ", ""));
+
+        // 권한을 리스트 형태로 가져옴
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+
+        if (authorities.stream().anyMatch(auth -> "ROLE_MASTER".equals(auth.getAuthority()))) {
+            ApprovalKind approvalKind = null;
+            
+            if(approverRequestDTO.getKind().equals("주문"))
+                approvalKind = ApprovalKind.ORDER;
+            else if (approverRequestDTO.getKind().equals("반품"))
+                approvalKind = ApprovalKind.RETURN;
+            else if (approverRequestDTO.getKind().equals("교환"))
+                approvalKind = ApprovalKind.EXCHANGE;
+            else if (approverRequestDTO.getKind().equals("발주"))
+                approvalKind = ApprovalKind.PURCHASE;
+            else
+                throw new InvalidDataException("잘못된 결재 구분값입니다");
+
+            Approval approval = approvalRepository.findByKindAndSequence(approvalKind, approverRequestDTO.getSeq()).orElse(null);
+
+            if(approval == null)
+                throw new InvalidDataException("잘못된 결재 구분값과 순번 값을 입력하셨습니다");
+            else
+                approvalRepository.delete(approval);
+
+        } else
+            throw new UnauthorizedAccessException("마스터 권한이 없는 사용자입니다");
+    }
 }

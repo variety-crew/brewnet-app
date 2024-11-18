@@ -8,6 +8,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -33,6 +34,17 @@ public class DocumentController {
         @RequestBody ApproverRequestDTO approverRequestDTO) {
 
         approvalService.createApprover(accessToken, approverRequestDTO);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "결재 목록 조회 성공", null));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "결재자 생성 or 수정 성공", null));
+    }
+
+    @DeleteMapping("/approver")
+    @Operation(summary = "결재 별 결재 직급 설정 API / "
+        + "[seq]는 1 ~ 4만 가능 / [kind]는 주문, 반품, 교환, 발주 만 가능 " 
+        + "해당 API는 Hard Delete 됨")
+    public ResponseEntity<ResponseMessage<Object>> deleteApprover(@RequestHeader("Authorization") String accessToken,
+        @RequestBody ApproverRequestDTO approverRequestDTO) {
+
+        approvalService.deleteApprover(accessToken, approverRequestDTO);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "결재자 삭제 성공", null));
     }
 }
