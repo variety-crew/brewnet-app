@@ -10,7 +10,6 @@ import java.util.Objects;
 
 // 교환 별 결재자들 복합키
 @Data
-@EqualsAndHashCode
 @Embeddable
 public class ExchangeApproverCode implements Serializable {
 

@@ -10,7 +10,6 @@ import java.util.Objects;
 
 // 교환 완료 상품 상태(tbl_exchange_item_status) 복합키
 @Data
-@EqualsAndHashCode
 @Embeddable
 public class ExchangeItemStatusCode implements Serializable {
 

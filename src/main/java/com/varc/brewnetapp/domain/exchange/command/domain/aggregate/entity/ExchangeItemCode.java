@@ -10,7 +10,6 @@ import java.util.Objects;
 
 // 교환 별 상품(tbl_exchange_item) 복합키
 @Data
-@EqualsAndHashCode
 @Embeddable
 public class ExchangeItemCode implements Serializable {
 
