@@ -6,6 +6,7 @@ import com.varc.brewnetapp.security.utility.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,21 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
-    private final JwtUtil jwtUtil;
 
     @Autowired
-    public MemberController(MemberService memberService, JwtUtil jwtUtil) {
+    public MemberController(MemberService memberService) {
         this.memberService = memberService;
-        this.jwtUtil = jwtUtil;
     }
 
-    // 회원가입
-    @DeleteMapping("/logout")
-    public void logout(@RequestHeader("Authorization") String accessToken) {
-        String token = accessToken.replace("Bearer ", "");
-        String loginId = jwtUtil.getLoginId(token);
-        log.info(loginId);
-        log.info("컨트롤러도착");
-//        memberService.logout(loginId);
-    }
+
+
+
 }
