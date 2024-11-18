@@ -99,29 +99,34 @@ public class ExchangeServiceImpl implements ExchangeService{
     @Transactional
     public boolean cancelExchange(String loginId, Integer exchangeCode) {
 
-        // 1. 교환 상태 이력(tbl_exchange_status_history)테이블에 취소내역 저장
-        Exchange exchange = exchangeRepository.findById(exchangeCode)
-                .orElseThrow(() -> new ExchangeNotFoundException("교환 코드가 존재하지 않습니다."));
+        // 1. 해당 취소요청의 교환내역이 이 가맹점에서 작성한 것이 맞는지 확인
+        if (exchangeServiceQuery.isValidExchangeByFranchise(loginId, exchangeCode)) {
+            // 2. 교환 상태 이력(tbl_exchange_status_history)테이블에 취소내역 저장
+            Exchange exchange = exchangeRepository.findById(exchangeCode)
+                    .orElseThrow(() -> new ExchangeNotFoundException("교환 코드가 존재하지 않습니다."));
 
-        ExchangeStatus exchangeStatus = exchangeServiceQuery.findExchangeLatestStatus(exchangeCode);
+            ExchangeStatus exchangeStatus = exchangeServiceQuery.findExchangeLatestStatus(exchangeCode);
 
-        // status가 REQUESTED인 경우에만 취소 가능
-        if (exchangeStatus == ExchangeStatus.REQUESTED) {
+            // status가 REQUESTED인 경우에만 취소 가능
+            if (exchangeStatus == ExchangeStatus.REQUESTED) {
 
-            ExchangeStatusHistory exchangeStatusHistory = new ExchangeStatusHistory();
-            exchangeStatusHistory.setStatus(ExchangeStatus.CANCELED);
-            exchangeStatusHistory.setCreatedAt(String.valueOf(LocalDateTime.now()));
-            exchangeStatusHistory.setActive(true);
-            exchangeStatusHistory.setExchange(exchange);
+                ExchangeStatusHistory exchangeStatusHistory = new ExchangeStatusHistory();
+                exchangeStatusHistory.setStatus(ExchangeStatus.CANCELED);
+                exchangeStatusHistory.setCreatedAt(String.valueOf(LocalDateTime.now()));
+                exchangeStatusHistory.setActive(true);
+                exchangeStatusHistory.setExchange(exchange);
 
-            exchangeStatusHistoryRepository.save(exchangeStatusHistory);
+                exchangeStatusHistoryRepository.save(exchangeStatusHistory);
 
-            // 2. 교환(tbl_exchange) 테이블의 활성화(active)를 false로 변경
-            exchange.setActive(false);
+                // 3. 교환(tbl_exchange) 테이블의 활성화(active)를 false로 변경
+                exchange.setActive(false);
 
-            return true;
+                return true;
+            } else {
+                throw new InvalidStatusException("교환신청 취소가 불가능합니다. 교환상태가 '교환요청'인 경우에만 취소할 수 있습니다");
+            }
         } else {
-            throw new InvalidStatusException("교환신청 취소가 불가능합니다.");
+            throw new UnauthorizedAccessException("로그인한 가맹점에서 작성한 교환요청에 대해서만 취소할 수 있습니다");
         }
     }
 
