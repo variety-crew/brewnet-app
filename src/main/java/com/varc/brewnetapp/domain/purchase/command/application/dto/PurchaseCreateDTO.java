@@ -4,6 +4,8 @@ import com.varc.brewnetapp.domain.purchase.common.IsApproved;
 import com.varc.brewnetapp.domain.purchase.common.KindOfApproval;
 import lombok.*;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -24,4 +26,5 @@ public class PurchaseCreateDTO {
     private KindOfApproval kind;
     private int approverCode;
     private int sumPrice;
+    private List<PurchaseItemDTO> items;
 }
