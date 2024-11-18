@@ -1,7 +1,6 @@
 package com.varc.brewnetapp.domain.purchase.command.domain.aggregate;
 
-import com.varc.brewnetapp.domain.purchase.common.IsApproved;
-import com.varc.brewnetapp.domain.purchase.common.PositionName;
+import com.varc.brewnetapp.domain.purchase.common.PositionNameEx;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Position {
+public class PurchasePosition {
 
     @Id
     @Column(name = "position_code")
@@ -25,7 +24,7 @@ public class Position {
 
     @Column(name = "name", nullable = false)
     @Enumerated(EnumType.STRING)
-    private PositionName name;
+    private PositionNameEx name;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
