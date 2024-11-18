@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="">
+<mapper namespace="com.varc.brewnetapp.domain.order.query.mapper.OrderMapper">
     <resultMap id="baseOrderList" type="com.varc.brewnetapp.domain.order.query.dto.OrderDTO">
         <id property="orderCode" column="ORDER_CODE"/>
         <result property="comment" column="COMMENT"/>

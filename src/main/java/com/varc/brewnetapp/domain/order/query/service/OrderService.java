@@ -15,19 +15,10 @@ public interface OrderService {
     * */
 
     // requested by hq
-    List<OrderResponseDTO> getAllOrderListByHqRequest();
-    OrderResponseDTO getOrderDetailByHqWith(Integer orderCode);
-
     // searched by hq
-    List<OrderResponseDTO> searchOrderListWithOrderCodeByHqRequest(int orderCode);
-    List<OrderResponseDTO> searchOrderListWithFranchiseNameByHqRequest(String franchiseName);
-    List<OrderResponseDTO> searchOrderListWithDrafterNameByHqRequest(String drafterName);
+    List<OrderResponseDTO> getAllOrderListBy();
 
 
     // requested by franchise
-    List<OrderResponseDTO> getAllOrderListByFranchiseRequest();
-    OrderResponseDTO getOrderDetailByFranchiseWith(Integer orderCode);
-
     // searched by hq
-    List<OrderResponseDTO> searchOrderListByFranchiseWithOrderCode(int orderCode);
 }
