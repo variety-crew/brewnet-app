@@ -11,5 +11,4 @@ public class PurchaseItemDTO {
 
     private int itemCode;
     private int quantity;
-    private int totalPrice;
 }
