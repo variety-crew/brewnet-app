@@ -15,43 +15,14 @@ public class OrderServiceImpl implements OrderService{
         this.orderMapper = orderMapper;
     }
 
+    // by hq
+
     @Override
-    public List<OrderResponseDTO> getAllOrderListByHqRequest() {
+    public List<OrderResponseDTO> getAllOrderListBy() {
+        orderMapper.findOrders();
         return List.of();
     }
 
-    @Override
-    public OrderResponseDTO getOrderDetailByHqWith(Integer orderCode) {
-        return null;
-    }
 
-    @Override
-    public List<OrderResponseDTO> searchOrderListWithOrderCodeByHqRequest(int orderCode) {
-        return List.of();
-    }
-
-    @Override
-    public List<OrderResponseDTO> searchOrderListWithFranchiseNameByHqRequest(String franchiseName) {
-        return List.of();
-    }
-
-    @Override
-    public List<OrderResponseDTO> searchOrderListWithDrafterNameByHqRequest(String drafterName) {
-        return List.of();
-    }
-
-    @Override
-    public List<OrderResponseDTO> getAllOrderListByFranchiseRequest() {
-        return List.of();
-    }
-
-    @Override
-    public OrderResponseDTO getOrderDetailByFranchiseWith(Integer orderCode) {
-        return null;
-    }
-
-    @Override
-    public List<OrderResponseDTO> searchOrderListByFranchiseWithOrderCode(int orderCode) {
-        return List.of();
-    }
+    // by franchise
 }

@@ -28,8 +28,8 @@ public class HQOrderController {
     @GetMapping
     @Operation(summary = "본사의 주문 리스트 조회")
     public ResponseEntity<ResponseMessage<List<OrderResponseDTO>>> getOrderList() {
-        List<OrderResponseDTO> orderResponseVO = orderService.getAllOrderListByHqRequest();
-        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderResponseVO));
+//        List<OrderResponseDTO> orderResponseVO = orderService.getAllOrderListByHqRequest();
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", null));
     }
 
     @GetMapping("/excel")
@@ -50,7 +50,7 @@ public class HQOrderController {
     @Operation(summary = "주문 코드를 path variable로 활용한 주문 상세 조회")
     public ResponseEntity<ResponseMessage<OrderResponseDTO>> getOrderInformation(
             @PathVariable("orderCode") String orderCode) {
-        OrderResponseDTO orderResponseVO = orderService.getOrderDetailByHqWith(Integer.parseInt(orderCode));
-        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderResponseVO));
+//        OrderResponseDTO orderResponseVO = orderService.getOrderDetailByHqWith(Integer.parseInt(orderCode));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", null));
     }
 }
