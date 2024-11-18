@@ -1,10 +1,10 @@
 package com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity;
 
-import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExMember;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrder;
 import com.varc.brewnetapp.domain.exchange.enums.ExchangeApproval;
 import com.varc.brewnetapp.domain.exchange.enums.ExchangeDraftApproval;
 import com.varc.brewnetapp.domain.exchange.enums.ExchangeReason;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -48,11 +48,11 @@ public class Exchange {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_code", nullable = true)
-    private ExMember memberCode;        // 교환 기안자
+    private Member memberCode;        // 교환 기안자
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_code", nullable = true)
-    private ExMember delivery;      // 배송기사
+    private Member delivery;      // 배송기사
 
     @Enumerated(EnumType.STRING)
     @Column(name = "drafter_approved", nullable = true)
