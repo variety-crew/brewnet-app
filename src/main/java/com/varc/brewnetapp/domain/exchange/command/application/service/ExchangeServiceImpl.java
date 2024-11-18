@@ -7,6 +7,7 @@ import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeA
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeReqItemVO;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeReqVO;
 import com.varc.brewnetapp.domain.exchange.enums.ExchangeApproval;
+import com.varc.brewnetapp.domain.exchange.enums.ExchangeDraftApproval;
 import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
 import com.varc.brewnetapp.exception.ExchangeNotFoundException;
 import com.varc.brewnetapp.exception.InvalidStatusException;
@@ -48,7 +49,7 @@ public class ExchangeServiceImpl implements ExchangeService{
         exchange.setOrder(order);
         exchange.setMemberCode(null);       // 교환 기안자 null
         exchange.setDelivery(null);         // 배송기사 null
-        exchange.setDrafterApproved(null);  // 기안자의 교환 승인 여부 null
+        exchange.setDrafterApproved(ExchangeDraftApproval.NONE);
         exchange.setSumPrice(exchangeReqVO.getSumPrice());
 
         exchangeRepository.save(exchange);
