@@ -254,7 +254,7 @@
          FROM tbl_exchange A
               JOIN tbl_order B ON A.order_code = B.order_code
               JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
-              JOIN tbl_member D ON A.member_code = D.member_code
+              LEFT JOIN tbl_member D ON A.member_code = D.member_code
         WHERE A.exchange_code = #{ exchangeCode };
     </select>
 
