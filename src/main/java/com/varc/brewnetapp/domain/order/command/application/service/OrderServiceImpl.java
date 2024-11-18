@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
-@Service
+@Service(value = "commandOrderService")
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+@Service(value = "queryOrderService")
 public class OrderServiceImpl implements OrderService{
     private final OrderMapper orderMapper;
 
