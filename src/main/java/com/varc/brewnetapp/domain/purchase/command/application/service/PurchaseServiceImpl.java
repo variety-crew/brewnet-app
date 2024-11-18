@@ -69,7 +69,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         int totalPrice = 0;
         List<PurchaseItemDTO> items = newPurchase.getItems();
         for (PurchaseItemDTO purchaseItem : items) {
-            Item item = itemRepository.findById(purchaseItem.getItemCode())
+            PurchaseItem item = itemRepository.findById(purchaseItem.getItemCode())
                     .orElseThrow(() -> new DuplicateException("존재하지 않는 품목입니다."));
 
             totalPrice += (item.getPurchasePrice() * purchaseItem.getQuantity());
