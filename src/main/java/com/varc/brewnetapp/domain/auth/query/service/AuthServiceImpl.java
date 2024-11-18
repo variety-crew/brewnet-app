@@ -4,6 +4,8 @@ import com.varc.brewnetapp.domain.auth.query.mapper.AuthenticationMapper;
 import com.varc.brewnetapp.domain.auth.query.vo.MemberVO;
 import com.varc.brewnetapp.domain.auth.query.vo.RoleVO;
 import com.varc.brewnetapp.security.domain.CustomUser;
+import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,6 +28,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
         log.debug("loadUserByUsername");
         MemberVO loginMember = authenticationMapper.selectMemberByIdWithAuthorities(loginId);
@@ -47,5 +50,11 @@ public class AuthServiceImpl implements AuthService {
                 loginMember.getName(),
                 grantedAuthorities
         );
+    }
+
+    @Override
+    @Transactional
+    public List<String> getAuths() {
+        return authenticationMapper.selectAuths();
     }
 }
