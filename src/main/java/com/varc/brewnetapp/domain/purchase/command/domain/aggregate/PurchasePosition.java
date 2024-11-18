@@ -1,6 +1,5 @@
 package com.varc.brewnetapp.domain.purchase.command.domain.aggregate;
 
-import com.varc.brewnetapp.domain.purchase.common.IsApproved;
 import com.varc.brewnetapp.domain.purchase.common.PositionName;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -16,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Position {
+public class PurchasePosition {
 
     @Id
     @Column(name = "position_code")

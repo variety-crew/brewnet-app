@@ -13,32 +13,36 @@
     <result property="contact" column="CONTACT"/>
     <result property="signatureUrl" column="SIGNATURE_URL"/>
     <result property="positionName" column="POSITION_NAME"/>
-    <collection property="roleList" ofType="java.lang.String">
-      <result property="role" column="ROLE"/>
-    </collection>
+    <result property="roles" column="ROLES"/>
   </resultMap>
 
-  <select id="selectMember" resultMap="memberResultMap" parameterType="map">
+  <select id="selectMemberList" resultMap="memberResultMap" parameterType="map">
     SELECT
-           M.MEMBER_CODE
-         , M.ID
-         , M.PASSWORD
-         , M.NAME
-         , M.EMAIL
-         , M.CONTACT
-         , M.SIGNATURE_URL
-         , P.POSITION_NAME
-         , R.ROLE
+           M.MEMBER_CODE,
+           M.ID,
+           M.PASSWORD,
+           M.NAME,
+           M.EMAIL,
+           M.CONTACT,
+           M.SIGNATURE_URL,
+           P.NAME AS POSITION_NAME,
+           (SELECT GROUP_CONCAT(R.ROLE SEPARATOR ', ')
+           FROM tbl_member_role MR
+           INNER JOIN tbl_role R
+           ON MR.ROLE_CODE = R.ROLE_CODE
+           WHERE MR.MEMBER_CODE = M.MEMBER_CODE) AS ROLES
       FROM tbl_member M
-     INNER JOIN tbl_member_role MR
-        ON (M.MEMBER_CODE = MR.MEMBER_CODE)
-     INNER JOIN tbl_role R
-        ON (MR.ROLE_CODE = R.ROLE_CODE)
      INNER JOIN tbl_position P
-        ON (M.POSITION_CODE = P.POSITION_CODE)
+        ON M.POSITION_CODE = P.POSITION_CODE
      WHERE M.ACTIVE = TRUE
      ORDER BY M.MEMBER_CODE DESC
      LIMIT #{ pageSize }
-    OFFSET #{ pageNum }
+    OFFSET #{ pageNum };
+  </select>
+
+  <select id="selectMemberListCnt" resultType="int">
+    SELECT COUNT(*)
+      FROM tbl_member
+     WHERE ACTIVE = TRUE
   </select>
 </mapper>
