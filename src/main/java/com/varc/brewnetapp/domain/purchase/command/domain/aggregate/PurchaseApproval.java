@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Approval {
+public class PurchaseApproval {
 
     @Id
     @Column(name = "approval_code")

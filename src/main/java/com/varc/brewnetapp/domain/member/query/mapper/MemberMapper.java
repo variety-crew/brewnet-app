@@ -9,4 +9,6 @@ public interface MemberMapper {
     List<MemberDTO> selectMemberList(long offset, long pageSize);
 
     int selectMemberListCnt();
+
+
 }

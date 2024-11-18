@@ -134,7 +134,7 @@ public class MemberServiceImpl implements MemberService {
                     changeMemberRequestDTO.setPositionName("ASSISTANT_MANAGER");
                 else if(changeMemberRequestDTO.getPositionName().equals("과장"))
                     changeMemberRequestDTO.setPositionName("MANAGER");
-                else if(changeMemberRequestDTO.getPositionName().equals("대표"))
+                else if(changeMemberRequestDTO.getPositionName().equals("대표이사"))
                     changeMemberRequestDTO.setPositionName("CEO");
 
                 member.setPositionCode(positionRepository.findByName

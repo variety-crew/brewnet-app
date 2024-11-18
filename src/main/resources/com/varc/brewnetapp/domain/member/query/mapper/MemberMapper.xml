@@ -16,6 +16,7 @@
     <result property="roles" column="ROLES"/>
   </resultMap>
 
+
   <select id="selectMemberList" resultMap="memberResultMap" parameterType="map">
     SELECT
            M.MEMBER_CODE,
@@ -45,4 +46,5 @@
       FROM tbl_member
      WHERE ACTIVE = TRUE
   </select>
+
 </mapper>
