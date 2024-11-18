@@ -1,5 +1,7 @@
 package com.varc.brewnetapp.domain.order.command.domain.aggregate.entity;
 
+import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
+import com.varc.brewnetapp.common.domain.order.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,11 +30,11 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "approved", nullable = false)
-    private OrderApprovalStatus approved;
+    private OrderStatus orderStatus;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "drafter_approved", nullable = true)
-    private ApprovalType approvalType;
+    @Column(name = "drafter_approved", nullable = false)
+    private DrafterApproved drafterApproved;
 
     @Column(name = "sum_price", nullable = false)
     private int sumPrice;
@@ -46,6 +48,7 @@ public class Order {
     @Column(name = "delivery_code", nullable = true)
     private Integer deliveryCode;
 
+    // 본사의 기안 요청 전 주문 취소
     public void orderRequestCancel() {
         this.active = false;
     }

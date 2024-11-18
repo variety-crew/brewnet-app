@@ -1,8 +1,8 @@
 package com.varc.brewnetapp.domain.order.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.order.query.dto.OrderResponseDTO;
 import com.varc.brewnetapp.domain.order.query.service.OrderService;
-import com.varc.brewnetapp.domain.order.query.vo.hq.response.OrderResponseVO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +27,14 @@ public class HQOrderController {
 
     @GetMapping
     @Operation(summary = "본사의 주문 리스트 조회")
-    public ResponseEntity<ResponseMessage<List<OrderResponseVO>>> getOrderList() {
-        List<OrderResponseVO> orderResponseVO = orderService.getAllOrderListByHqRequest();
+    public ResponseEntity<ResponseMessage<List<OrderResponseDTO>>> getOrderList() {
+        List<OrderResponseDTO> orderResponseVO = orderService.getAllOrderListByHqRequest();
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderResponseVO));
     }
 
     @GetMapping("/excel")
     @Operation(summary = "엑셀 데이터 추출을 위한 주문 리스트 조회")
-    public ResponseEntity<ResponseMessage<List<OrderResponseVO>>> getOrderListExcel() {
+    public ResponseEntity<ResponseMessage<List<OrderResponseDTO>>> getOrderListExcel() {
 
         // TODO: 엑셀 다운로드를 위한 데이터 전달 API
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", null));
@@ -42,15 +42,15 @@ public class HQOrderController {
 
     @GetMapping("/search")
     @Operation(summary = "주문 일자(기간) 별로 검색 타입(주문번호, 주문지점, 주문담당자)에 따른 검색")
-    public ResponseEntity<ResponseMessage<List<OrderResponseVO>>> getOrderListByHqSearch() {
+    public ResponseEntity<ResponseMessage<List<OrderResponseDTO>>> getOrderListByHqSearch() {
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", null));
     }
 
     @GetMapping("/{orderCode}")
     @Operation(summary = "주문 코드를 path variable로 활용한 주문 상세 조회")
-    public ResponseEntity<ResponseMessage<OrderResponseVO>> getOrderInformation(
+    public ResponseEntity<ResponseMessage<OrderResponseDTO>> getOrderInformation(
             @PathVariable("orderCode") String orderCode) {
-        OrderResponseVO orderResponseVO = orderService.getOrderDetailByHqWith(Integer.parseInt(orderCode));
+        OrderResponseDTO orderResponseVO = orderService.getOrderDetailByHqWith(Integer.parseInt(orderCode));
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderResponseVO));
     }
 }

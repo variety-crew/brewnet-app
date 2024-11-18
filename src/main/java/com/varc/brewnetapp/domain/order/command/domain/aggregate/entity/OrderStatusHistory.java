@@ -21,7 +21,7 @@ public class OrderStatusHistory {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private OrderStatus status;
+    private OrderHistoryStatus status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

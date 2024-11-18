@@ -3,5 +3,25 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="">
-
+    <resultMap id="baseOrderList" type="com.varc.brewnetapp.domain.order.query.dto.OrderDTO">
+        <id property="orderCode" column="ORDER_CODE"/>
+        <result property="comment" column="COMMENT"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="active" column="ACTIVE"/>
+        <result property="approved" column="APPROVED"/>
+        <result property="drafterApproved" column="DRAFTER_APPROVED"/>
+        <result property="sumPrice" column="SUM_PRICE"/>
+    </resultMap>
+    <select id="findOrders" resultMap="baseOrderList">
+        SELECT
+              O.ORDER_CODE
+            , O.COMMENT
+            , O.CREATED_AT
+            , O.ACTIVE
+            , O.APPROVED
+            , O.DRAFTER_APPROVED
+            , O.SUM_PRICE
+         FROM tbl_order O
+        ORDER BY CREATED_AT
+    </select>
 </mapper>

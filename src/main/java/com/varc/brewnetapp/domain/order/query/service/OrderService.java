@@ -1,25 +1,33 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
-import com.varc.brewnetapp.domain.order.query.vo.hq.response.OrderResponseVO;
+import com.varc.brewnetapp.domain.order.query.dto.OrderResponseDTO;
 
 import java.util.List;
 
 public interface OrderService {
 
+    /*
+    * TODO
+     *  1. 조회 파라미터
+     *   1-1. 권한, 필터링, 정렬 설정
+     *  2. 로직 - 권한에 따른 조회 결과 분리(동적 쿼리 사용)
+     *  3. 리스트 조회 / 검색
+    * */
+
     // requested by hq
-    List<OrderResponseVO> getAllOrderListByHqRequest();
-    OrderResponseVO getOrderDetailByHqWith(Integer orderCode);
+    List<OrderResponseDTO> getAllOrderListByHqRequest();
+    OrderResponseDTO getOrderDetailByHqWith(Integer orderCode);
 
     // searched by hq
-    List<OrderResponseVO> searchOrderListWithOrderCodeByHqRequest(int orderCode);
-    List<OrderResponseVO> searchOrderListWithFranchiseNameByHqRequest(String franchiseName);
-    List<OrderResponseVO> searchOrderListWithDrafterNameByHqRequest(String drafterName);
+    List<OrderResponseDTO> searchOrderListWithOrderCodeByHqRequest(int orderCode);
+    List<OrderResponseDTO> searchOrderListWithFranchiseNameByHqRequest(String franchiseName);
+    List<OrderResponseDTO> searchOrderListWithDrafterNameByHqRequest(String drafterName);
 
 
     // requested by franchise
-    List<OrderResponseVO> getAllOrderListByFranchiseRequest();
-    OrderResponseVO getOrderDetailByFranchiseWith(Integer orderCode);
+    List<OrderResponseDTO> getAllOrderListByFranchiseRequest();
+    OrderResponseDTO getOrderDetailByFranchiseWith(Integer orderCode);
 
     // searched by hq
-    List<OrderResponseVO> searchOrderListByFranchiseWithOrderCode(int orderCode);
+    List<OrderResponseDTO> searchOrderListByFranchiseWithOrderCode(int orderCode);
 }

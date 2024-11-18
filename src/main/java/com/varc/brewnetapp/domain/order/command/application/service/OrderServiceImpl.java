@@ -1,5 +1,7 @@
 package com.varc.brewnetapp.domain.order.command.application.service;
 
+import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
+import com.varc.brewnetapp.common.domain.order.OrderStatus;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderItemDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
@@ -49,7 +51,8 @@ public class OrderServiceImpl implements OrderService {
                 Order.builder()
                         .createdAt(LocalDateTime.now())
                         .active(true)
-                        .approved(OrderApprovalStatus.UNCONFIRMED)
+                        .drafterApproved(DrafterApproved.NONE)
+                        .orderStatus(OrderStatus.UNCONFIRMED)
                         .sumPrice(orderedSum)
                         .franchiseCode(requestFranchiseCode)
                         .build()
@@ -59,7 +62,7 @@ public class OrderServiceImpl implements OrderService {
         addItemsPerOrder(orderedCode, requestedOrderItemDTOList);
 
         // 주문 이력 수정
-        updateOrderStatusTo(orderedCode, OrderStatus.REQUESTED);
+        updateOrderStatusTo(orderedCode, OrderHistoryStatus.REQUESTED);
         return new OrderRequestResponseDTO(orderedCode);
     }
 
@@ -94,17 +97,17 @@ public class OrderServiceImpl implements OrderService {
 
         log.debug("order cancelled: {}", order);
 
-        updateOrderStatusTo(orderCode, OrderStatus.CANCELED);
+        updateOrderStatusTo(orderCode, OrderHistoryStatus.CANCELED);
         log.debug("order history updated: {}", orderStatusHistoryRepository);
     }
 
     // 주문 상태 변화
     @Transactional
-    public void updateOrderStatusTo(int orderCode, OrderStatus newOrderStatus) {
+    public void updateOrderStatusTo(int orderCode, OrderHistoryStatus newOrderHistoryStatus) {
         orderStatusHistoryRepository.save(
                 OrderStatusHistory.builder()
                         .orderCode(orderCode)
-                        .status(newOrderStatus)
+                        .status(newOrderHistoryStatus)
                         .createdAt(LocalDateTime.now())
                         .active(true)
                         .build()
