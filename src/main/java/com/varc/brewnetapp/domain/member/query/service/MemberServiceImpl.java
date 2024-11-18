@@ -1,5 +1,8 @@
 package com.varc.brewnetapp.domain.member.query.service;
 
-public class MemberServiceImpl {
+import org.springframework.stereotype.Service;
+
+@Service(value = "queryMemberService")
+public class MemberServiceImpl implements MemberService {
 
 }
