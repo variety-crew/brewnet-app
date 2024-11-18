@@ -26,11 +26,11 @@ public interface ExchangeMapper {
 
     ExchangeHistoryDetailVO selectExchangeHistoryDetailBy(int exchangeStockHistoryCode);
 
-    int selectFranExchangeListCnt(int franchiseCode);
+    int selectFranExchangeListCnt(String loginId);
 
-    List<FranExchangeListVO> selectFranExchangeList(int franchiseCode, long offset, long pageSize);
+    List<FranExchangeListVO> selectFranExchangeList(String loginId, long offset, long pageSize);
 
-    List<FranExchangeListVO> selectSearchFranExchangeList(int franchiseCode, String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
+    List<FranExchangeListVO> selectSearchFranExchangeList(String loginId, String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 
     FranExchangeDetailVO selectFranExchangeDetailBy(int exchangeCode);
 
@@ -39,4 +39,6 @@ public interface ExchangeMapper {
     Optional<ExchangeStatus> selectExchangeLatestStatusBy(int exchangeCode);
 
     List<ExchangeApproverVO> selectExchangeApproverBy(int exchangeCode);
+
+    boolean selectValidExchangeByFranchise(String loginId, int exchangeCode);
 }

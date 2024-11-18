@@ -406,7 +406,7 @@
                         JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
                         JOIN tbl_item E ON D.item_code = E.item_code
                         JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
-                  WHERE F.franchise_code = #{ franchiseCode }
+                  WHERE F.franchise_code = ( SELECT B.franchise_code FROM tbl_member A JOIN tbl_franchise_member B ON A.member_code = B.member_code WHERE A.id = #{ loginId } )
                   GROUP BY A.exchange_code) AS grouped_result;
     </select>
 
@@ -432,7 +432,7 @@
               JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
               JOIN tbl_item E ON D.item_code = E.item_code
               JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
-        WHERE F.franchise_code = #{ franchiseCode }
+        WHERE F.franchise_code = ( SELECT B.franchise_code FROM tbl_member A JOIN tbl_franchise_member B ON A.member_code = B.member_code WHERE A.id = #{ loginId } )
         GROUP BY A.exchange_code
         LIMIT #{ offset }, #{ pageSize };
     </select>
@@ -460,7 +460,7 @@
               JOIN tbl_item E ON D.item_code = E.item_code
               JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
         <where>
-            F.franchise_code = #{ franchiseCode }
+            F.franchise_code = ( SELECT B.franchise_code FROM tbl_member A JOIN tbl_franchise_member B ON A.member_code = B.member_code WHERE A.id = #{ loginId } )
             <choose>
                 <when test="searchFilter == 'exchangeCode'">
                     AND CAST(A.exchange_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
@@ -552,6 +552,22 @@
                JOIN tbl_member B ON A.member_code = B.member_code
                JOIN tbl_position C ON B.position_code = C.position_code
          WHERE exchange_code = #{ exchangeCode } AND A.active != false;
+    </select>
+
+    <!-- 유저 아이디(loginId)와 교환코드(exchangeCode)로 해당 가맹점의 주문이 맞는지 확인하는 쿼리 -->
+    <!-- 가맹점 목록조회/가맹점 상세조회에서 유효한 요청인지 검증하기 위해 사용 -->
+    <select id="selectValidExchangeByFranchise" resultType="boolean">
+        SELECT
+              EXISTS(
+                      SELECT
+                             *
+                        FROM tbl_exchange A
+                             JOIN tbl_order B ON A.order_code = B.order_code
+                             JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
+                             JOIN tbl_franchise_member D ON B.franchise_code= D.franchise_code
+                             JOIN tbl_member E ON D.member_code = E.member_code
+                       WHERE A.exchange_code = #{ exchangeCode } AND E.id = #{ loginId }
+        ) AS result;
     </select>
 
 </mapper>

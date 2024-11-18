@@ -21,13 +21,17 @@ public interface ExchangeService {
 
     ExchangeHistoryDetailVO findExchangeHistoryDetailBy(Integer exchangeStockHistoryCode);
 
-    Page<FranExchangeListVO> findFranExchangeList(int franchiseCode, Pageable page);
+    Page<FranExchangeListVO> findFranExchangeList(String loginId, Pageable page);
 
-    FranExchangeDetailVO franFranExchangeDetailBy(int exchangeCode);
+    Page<FranExchangeListVO> searchFranExchangeList(String loginId, String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
 
-    List<FranExchangeStatusVO> findFranExchangeStatusBy(int exchangeCode);
+    FranExchangeDetailVO findFranExchangeDetailBy(String loginId, int exchangeCode);
+
+    List<FranExchangeStatusVO> findFranExchangeStatusBy(String loginId, int exchangeCode);
 
     ExchangeStatus findExchangeLatestStatus(int exchangeCode);
 
-    List<ExchangeApproverVO> findExchangeApprover(int exchangeCode);
+    List<ExchangeApproverVO> findExchangeApprover(String loginId, int exchangeCode);
+
+    boolean isValidExchangeByFranchise(String loginId, int exchangeCode);
 }
