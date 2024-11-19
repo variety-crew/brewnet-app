@@ -1,6 +1,5 @@
 package com.varc.brewnetapp.domain.purchase.command.domain.aggregate;
 
-import com.varc.brewnetapp.domain.purchase.common.KindOfApproval;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Item {
+public class PurchaseItem {
 
     @Id
     @Column(name = "item_code")
