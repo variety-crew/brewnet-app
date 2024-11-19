@@ -40,14 +40,23 @@ public class PurchaseController {
 
     @PutMapping("/approve/{letterOfPurchaseCode}")
     @Operation(summary = "발주(구매품의서) 결재 승인 API")
-    public ResponseEntity<ResponseMessage<Object>> approveLetterOfPurchase(@PathVariable int letterOfPurchaseCode,
-                                                                       @RequestBody PurchaseApprovalRequestDTO request) {
+    public ResponseEntity<ResponseMessage<Object>> approveLetterOfPurchase(
+                                                    @PathVariable int letterOfPurchaseCode,
+                                                    @RequestBody PurchaseApprovalRequestDTO request) {
 
         purchaseService.approveLetterOfPurchase(letterOfPurchaseCode, request);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "구매품의서 결재 승인 성공", null));
     }
 
-//    @PutMapping("/reject/{letterOfPurchaseCode}")
-//    @Operation(summary = "발주(구매품의서) 결재 반려 API")
+    @PutMapping("/reject/{letterOfPurchaseCode}")
+    @Operation(summary = "발주(구매품의서) 결재 반려 API")
+    public ResponseEntity<ResponseMessage<Object>> rejectLetterOfPurchase(
+                                                    @PathVariable int letterOfPurchaseCode,
+                                                    @RequestBody PurchaseApprovalRequestDTO request) {
+
+        purchaseService.rejectLetterOfPurchase(letterOfPurchaseCode, request);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "구매품의서 결재 반려 성공", null));
+    }
 }

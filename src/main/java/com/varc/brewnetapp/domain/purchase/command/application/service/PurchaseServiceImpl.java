@@ -207,4 +207,38 @@ public class PurchaseServiceImpl implements PurchaseService {
         history.setActive(true);
         purchaseStatusHistoryRepository.save(history);
     }
+
+    @Transactional
+    @Override
+    public void rejectLetterOfPurchase(int letterOfPurchaseCode, PurchaseApprovalRequestDTO request) {
+        LetterOfPurchase requestedPurchase = letterOfPurchaseRepository.findById(letterOfPurchaseCode)
+                                    .orElseThrow(() -> new PurchaseNotFoundException("존재하지 않는 구매품의서입니다."));
+
+        LetterOfPurchaseApprover approver = letterOfPurchaseApproverRepository
+                                            .findByLetterOfPurchaseCode(letterOfPurchaseCode);
+
+        // 결재자가 맞는지 체크
+        if (request.getApproverCode() != (approver.getMemberCode())) {
+            throw new InvalidDataException("해당 구매품의서의 결재자가 아닙니다.");
+        }
+
+        // 아직 결재 전인 내역이 맞는지 체크
+        if (!requestedPurchase.getApproved().equals(IsApproved.UNCONFIRMED)) {
+            throw new InvalidDataException("이미 결재 처리가 완료된 구매품의서입니다.");
+        }
+
+        // 결재 관련 정보 업데이트
+        approver.setApproved(IsApproved.REJECTED);
+        approver.setApprovedAt(LocalDateTime.now());
+        approver.setComment(request.getComment());
+        requestedPurchase.setApproved(IsApproved.REJECTED);
+
+        // 해당 구매품의서의 상태 이력에 결재 반려 상태 추가
+        PurchaseStatusHistory history = new PurchaseStatusHistory();
+        history.setLetterOfPurchase(requestedPurchase);
+        history.setStatus(Status.REJECTED);
+        history.setCreatedAt(LocalDateTime.now());
+        history.setActive(true);
+        purchaseStatusHistoryRepository.save(history);
+    }
 }
