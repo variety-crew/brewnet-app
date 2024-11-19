@@ -4,6 +4,8 @@ import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
 import com.varc.brewnetapp.common.domain.order.OrderStatus;
 import lombok.*;
 
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -18,4 +20,8 @@ public class OrderDTO {
     private OrderStatus approved;
     private DrafterApproved drafterApproved;
     private int sumPrice;
+
+    private OrderFranchiseDTO orderFranchiseDTO;
+    private List<OrderItemDTO> orderItems;
+    private List<OrderStatusHistoryDTO> orderStatusHistoryDTOList;
 }
