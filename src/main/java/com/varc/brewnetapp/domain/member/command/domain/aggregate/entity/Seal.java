@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "tbl_seal")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

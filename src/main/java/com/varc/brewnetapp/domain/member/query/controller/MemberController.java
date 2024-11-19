@@ -4,6 +4,7 @@ import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.member.query.dto.CompanyDTO;
 import com.varc.brewnetapp.domain.member.query.dto.MemberDTO;
 import com.varc.brewnetapp.domain.member.query.dto.SealDTO;
+import com.varc.brewnetapp.domain.member.query.service.CompanyService;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
+    private final CompanyService companyService;
 
     @Autowired
-    public MemberController(MemberService memberService) {
+    public MemberController(MemberService memberService, CompanyService companyService) {
         this.memberService = memberService;
+        this.companyService = companyService;
     }
 
     @GetMapping("/member")
@@ -37,13 +40,13 @@ public class MemberController {
     @GetMapping("/company")
     @Operation(summary = "회사 정보 조회 API")
     public ResponseEntity<ResponseMessage<CompanyDTO>> findCompany() {
-        return ResponseEntity.ok(new ResponseMessage<>(200, "회사 정보 조회 성공", memberService.findCompany()));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "회사 정보 조회 성공", companyService.findCompany()));
     }
 
     @GetMapping("/company/seal")
     @Operation(summary = "법인 인감 조회 API")
     public ResponseEntity<ResponseMessage<SealDTO>> findCompanySeal() {
-        return ResponseEntity.ok(new ResponseMessage<>(200, "인감 조회 성공", memberService.findCompanySeal()));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "인감 조회 성공", companyService.findCompanySeal()));
     }
 
 

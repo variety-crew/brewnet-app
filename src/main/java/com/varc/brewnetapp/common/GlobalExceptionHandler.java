@@ -6,6 +6,7 @@ import com.varc.brewnetapp.exception.InvalidEmailCodeException;
 import com.varc.brewnetapp.exception.InvalidEmailException;
 import com.varc.brewnetapp.exception.InvalidDataException;
 import com.varc.brewnetapp.exception.MemberNotFoundException;
+import com.varc.brewnetapp.exception.EmptyDataException;
 import com.varc.brewnetapp.exception.UnauthorizedAccessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseMessage<Object>> handleUnAuthorizedException(Exception e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body(new ResponseMessage<>(401, e.getMessage(), null));
+    }
+
+    @ExceptionHandler({
+        EmptyDataException.class
+    })
+    public ResponseEntity<ResponseMessage<Object>> handleNotFoundException(Exception e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new ResponseMessage<>(404, e.getMessage(), null));
     }
 
 }

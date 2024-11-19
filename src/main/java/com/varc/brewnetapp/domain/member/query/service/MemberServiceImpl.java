@@ -4,6 +4,7 @@ import com.varc.brewnetapp.domain.member.query.dto.CompanyDTO;
 import com.varc.brewnetapp.domain.member.query.dto.MemberDTO;
 import com.varc.brewnetapp.domain.member.query.dto.SealDTO;
 import com.varc.brewnetapp.domain.member.query.mapper.MemberMapper;
+import com.varc.brewnetapp.exception.EmptyDataException;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,10 @@ public class MemberServiceImpl implements MemberService {
 
         // DB에서 교환 목록 조회
         List<MemberDTO> memberList = memberMapper.selectMemberList(offset, pageSize);
+
+        if (memberList.isEmpty() || memberList.size() < 0)
+            throw new EmptyDataException("조회하려는 회원 정보가 없습니다");
+
         memberList.stream().forEach(member -> {
             if(member.getPositionName().equals("STAFF"))
                 member.setPositionName("사원");
@@ -52,16 +57,9 @@ public class MemberServiceImpl implements MemberService {
         return new PageImpl<>(memberList, page, count);
     }
 
-    @Override
-    @Transactional
-    public CompanyDTO findCompany() {
-        return memberMapper.selectCompany();
-    }
 
-    @Override
-    public SealDTO findCompanySeal() {
-        return memberMapper.selectCompanySeal();
-    }
+
+
 
 
 }

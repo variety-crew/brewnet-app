@@ -10,7 +10,4 @@ public interface MemberService {
 
     Page<MemberDTO> findMemberList(Pageable page);
 
-    CompanyDTO findCompany();
-
-    SealDTO findCompanySeal();
 }

@@ -25,7 +25,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RequestMapping("api/v1")
@@ -114,6 +116,32 @@ public class MemberController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "회사 정보 수정 성공", null));
     }
 
+    @PostMapping("/company/seal")
+    @Operation(summary = "법인 인감 등록 API")
+    public ResponseEntity<ResponseMessage<Object>> createSeal(@RequestHeader("Authorization") String accessToken,
+        @RequestPart(value = "sealImage") MultipartFile sealImage) {
+
+        companyService.createSeal(accessToken, sealImage);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "법인 인감 등록 성공", null));
+    }
+
+    @PutMapping("/company/seal")
+    @Operation(summary = "법인 인감 수정 API / 법인 인감이 없다면 생성해줌. 즉, POST, DELETE 역할 둘 다 함 / "
+        + "법인 인감 생성 API는 굳이 안써도 됩니다. / 법인 인감 생성 시 기존에 인감 지워진 인감이 있다면 사용 불가")
+    public ResponseEntity<ResponseMessage<Object>> updateSeal(@RequestHeader("Authorization") String accessToken,
+        @RequestPart(value = "sealImage") MultipartFile sealImage) {
+
+        companyService.updateSeal(accessToken, sealImage);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "법인 인감 수정 성공", null));
+    }
+
+    @DeleteMapping("/company/seal")
+    @Operation(summary = "법인 인감 수정 API")
+    public ResponseEntity<ResponseMessage<Object>> deleteSeal(@RequestHeader("Authorization") String accessToken) {
+
+        companyService.deleteSeal(accessToken);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "법인 인감 삭제 성공", null));
+    }
 
 
 
