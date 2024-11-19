@@ -3,7 +3,9 @@ package com.varc.brewnetapp.domain.order.query.service;
 import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
 import com.varc.brewnetapp.domain.order.query.mapper.OrderMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,22 +14,25 @@ import java.util.List;
 @Service(value = "queryOrderService")
 public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
-    private final ModelMapper modelMapper;
 
-    public OrderServiceImpl(OrderMapper orderMapper,
-                            ModelMapper modelMapper) {
+    public OrderServiceImpl(OrderMapper orderMapper) {
         this.orderMapper = orderMapper;
-        this.modelMapper = modelMapper;
     }
 
-    // by hq
+    // for HQ
     @Override
-    public List<OrderDTO> getAllOrderListBy() {
-        List<OrderDTO> allOrderList = orderMapper.findOrders();
-        log.debug("allOrderList: {}", allOrderList);
-        return allOrderList;
+    public Page<OrderDTO> getOrderListForHQ(Pageable pageable, String filter, String sort) {
+        int page = pageable.getPageNumber();
+        int size = pageable.getPageSize();
+        int offset = page * size;
+        List<OrderDTO> orders = orderMapper.findOrdersBy(filter, sort, size, offset);
+        int total = orderMapper.countOrders(filter);
+        return new PageImpl<>(orders, pageable, total);
     }
 
-
-    // by franchise
+    // for franchise
+    @Override
+    public Page<OrderDTO> getOrderListForFranchise(Pageable pageable, String filter, String sort) {
+        return null;
+    }
 }
