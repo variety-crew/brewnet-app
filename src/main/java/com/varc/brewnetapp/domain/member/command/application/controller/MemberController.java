@@ -3,6 +3,7 @@ package com.varc.brewnetapp.domain.member.command.application.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.member.command.application.dto.ChangeMemberRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.ChangePwRequestDTO;
+import com.varc.brewnetapp.domain.member.command.application.dto.CheckPwRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.ConfirmEmailRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.CreateCompanyRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.LoginIdRequestDTO;
@@ -143,7 +144,21 @@ public class MemberController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "법인 인감 삭제 성공", null));
     }
 
+    @PostMapping("/member/my-pw")
+    @Operation(summary = "회원정보 수정 전 내 비밀번호 확인 API. 비밀번호가 맞으면 200, 틀리면 400으로 HTTP 상태 코드가 전달됨")
+    public ResponseEntity<ResponseMessage<Object>> checkPassword(@RequestHeader("Authorization") String accessToken,
+        @RequestBody CheckPwRequestDTO checkPasswordRequestDTO) {
+        memberService.checkPassword(accessToken, checkPasswordRequestDTO);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "비밀번호가 확인되었습니다", null));
+    }
 
+    @PutMapping("/member/my-pw")
+    @Operation(summary = "내 비밀번호 변경 API(로그인한 유저 전용)")
+    public ResponseEntity<ResponseMessage<Object>> changeMyPassword(@RequestHeader("Authorization") String accessToken,
+        @RequestBody CheckPwRequestDTO checkPasswordRequestDTO) {
+        memberService.changeMyPassword(accessToken, checkPasswordRequestDTO);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "비밀번호가 변경되었습니다", null));
+    }
 
 
 

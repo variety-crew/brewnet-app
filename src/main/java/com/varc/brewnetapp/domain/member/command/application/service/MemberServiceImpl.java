@@ -10,6 +10,7 @@ import com.varc.brewnetapp.domain.franchise.command.domain.repository.FranchiseM
 import com.varc.brewnetapp.domain.franchise.command.domain.repository.FranchiseRepository;
 import com.varc.brewnetapp.domain.member.command.application.dto.ChangeMemberRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.ChangePwRequestDTO;
+import com.varc.brewnetapp.domain.member.command.application.dto.CheckPwRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.LoginIdRequestDTO;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.PositionName;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
@@ -156,5 +157,29 @@ public class MemberServiceImpl implements MemberService {
         } else
             throw new UnauthorizedAccessException("마스터 권한이 없는 사용자입니다");
 
+    }
+
+    @Override
+    @Transactional
+    public void checkPassword(String accessToken, CheckPwRequestDTO checkPasswordRequestDTO) {
+        String loginId = jwtUtil.getLoginId(accessToken);
+        Member member = memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("조회되는 회원이 없습니다"));
+
+        if(member.getPassword().equals(bCryptPasswordEncoder.encode(checkPasswordRequestDTO.getPw())))
+            return;
+        else
+            throw new InvalidDataException("비밀번호가 맞지 않습니다");
+
+    }
+
+    @Override
+    @Transactional
+    public void changeMyPassword(String accessToken, CheckPwRequestDTO checkPasswordRequestDTO) {
+        String loginId = jwtUtil.getLoginId(accessToken);
+        Member member = memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("조회되는 회원이 없습니다"));
+
+        member.setPassword(bCryptPasswordEncoder.encode(checkPasswordRequestDTO.getPw()));
+
+        memberRepository.save(member);
     }
 }
