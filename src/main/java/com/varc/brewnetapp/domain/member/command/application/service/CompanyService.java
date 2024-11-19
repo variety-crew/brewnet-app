@@ -1,7 +1,7 @@
 package com.varc.brewnetapp.domain.member.command.application.service;
 
 import com.varc.brewnetapp.common.S3ImageService;
-import com.varc.brewnetapp.common.TelNumberUtil;
+import com.varc.brewnetapp.utility.TelNumberUtil;
 import com.varc.brewnetapp.domain.member.command.application.dto.CreateCompanyRequestDTO;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Company;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Seal;
