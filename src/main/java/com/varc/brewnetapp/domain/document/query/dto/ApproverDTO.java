@@ -1,15 +1,16 @@
-package com.varc.brewnetapp.domain.auth.command.application.dto;
+package com.varc.brewnetapp.domain.document.query.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ChangePwRequestDTO {
-    private String loginId;
-    private String password;
+public class ApproverDTO {
+    private String positionName;
 }

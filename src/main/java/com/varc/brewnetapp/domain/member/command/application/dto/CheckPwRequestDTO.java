@@ -1,16 +1,17 @@
-package com.varc.brewnetapp.domain.auth.command.application.dto;
+package com.varc.brewnetapp.domain.member.command.application.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ConfirmEmailRequestDTO {
-    private String email;
-    private String code;
+public class CheckPwRequestDTO {
+    private String pw;
 
 }

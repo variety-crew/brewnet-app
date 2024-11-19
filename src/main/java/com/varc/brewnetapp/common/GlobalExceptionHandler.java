@@ -19,7 +19,8 @@ public class GlobalExceptionHandler {
             InvalidEmailException.class,
             InvalidDataException.class,
             MemberNotFoundException.class,
-            InvalidStatusException.class
+            InvalidStatusException.class,
+            InvalidApiRequestException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -37,7 +38,8 @@ public class GlobalExceptionHandler {
 
     // 404: Not Found
     @ExceptionHandler({
-            ExchangeNotFoundException.class
+            ExchangeNotFoundException.class,
+            EmptyDataException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleNotFoundException(Exception e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
