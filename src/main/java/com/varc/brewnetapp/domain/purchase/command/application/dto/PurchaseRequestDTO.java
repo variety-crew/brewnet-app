@@ -1,6 +1,5 @@
 package com.varc.brewnetapp.domain.purchase.command.application.dto;
 
-import com.varc.brewnetapp.domain.purchase.common.IsApproved;
 import com.varc.brewnetapp.domain.purchase.common.KindOfApproval;
 import lombok.*;
 
@@ -11,16 +10,14 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class PurchaseCreateDTO {
+public class PurchaseRequestDTO {
 
     private int memberCode;
     private String comment;
     private int correspondentCode;
-    private String correspondentName;
     private int storageCode;
-    private String storageName;
     private KindOfApproval kind;
     private int approverCode;
-    private int sumPrice;
     private List<PurchaseItemDTO> items;
 }
+

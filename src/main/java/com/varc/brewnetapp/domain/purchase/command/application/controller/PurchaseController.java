@@ -1,7 +1,7 @@
 package com.varc.brewnetapp.domain.purchase.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
-import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseCreateDTO;
+import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseRequestDTO;
 import com.varc.brewnetapp.domain.purchase.command.application.service.PurchaseService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class PurchaseController {
 
     @PostMapping
     @Operation(summary = "발주(구매품의서) 등록 API")
-    public ResponseEntity<ResponseMessage<Object>> createLetterOfPurchase(@RequestBody PurchaseCreateDTO newPurchase) {
+    public ResponseEntity<ResponseMessage<Object>> createLetterOfPurchase(@RequestBody PurchaseRequestDTO newPurchase) {
         purchaseService.createLetterOfPurchase(newPurchase);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "발주 등록 성공", null));
