@@ -10,7 +10,10 @@ import com.varc.brewnetapp.exception.EmptyDataException;
 import com.varc.brewnetapp.exception.MemberNotFoundException;
 import com.varc.brewnetapp.security.utility.JwtUtil;
 import jakarta.transaction.Transactional;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +64,22 @@ public class MemberServiceImpl implements MemberService {
                 member.setPositionName("과장");
             else if(member.getPositionName().equals("CEO"))
                 member.setPositionName("대표이사");
+
+            Map<String, String> roleMap = Map.of(
+                "ROLE_MASTER", "마스터",
+                "ROLE_GENERAL_ADMIN", "일반 관리자",
+                "ROLE_RESPONSIBLE_ADMIN", "책임 관리자",
+                "ROLE_FRANCHISE", "가맹점",
+                "ROLE_DELIVERY", "배송기사"
+            );
+
+            // 역할 변환
+            String mappedRoles = Arrays.stream(member.getRoles().split(","))
+                .map(String::trim) // 공백 제거
+                .map(roleMap::get) // 매핑된 이름으로 변환
+                .collect(Collectors.joining(", ")); // 콤마로 연결
+
+            member.setRoles(mappedRoles);
         });
 
         // 전체 데이터 개수 조회

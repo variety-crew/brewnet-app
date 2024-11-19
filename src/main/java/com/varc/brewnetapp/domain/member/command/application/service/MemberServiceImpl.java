@@ -30,6 +30,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service(value = "commandMemberService")
@@ -181,5 +182,24 @@ public class MemberServiceImpl implements MemberService {
         member.setPassword(bCryptPasswordEncoder.encode(checkPasswordRequestDTO.getPw()));
 
         memberRepository.save(member);
+    }
+
+    @Override
+    @Transactional
+    public void createMySignature(String accessToken, MultipartFile signatureImg) {
+        String loginId = jwtUtil.getLoginId(accessToken);
+
+    }
+
+    @Override
+    @Transactional
+    public void changeMySignature(String accessToken, MultipartFile signatureImg) {
+        String loginId = jwtUtil.getLoginId(accessToken);
+    }
+
+    @Override
+    @Transactional
+    public void deleteMySignature(String accessToken) {
+        String loginId = jwtUtil.getLoginId(accessToken);
     }
 }

@@ -160,6 +160,27 @@ public class MemberController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "비밀번호가 변경되었습니다", null));
     }
 
+    @PostMapping("/member/my-signature")
+    @Operation(summary = "내 서명 생성 API")
+    public ResponseEntity<ResponseMessage<Object>> createMySignature(@RequestHeader("Authorization") String accessToken,
+        @RequestPart MultipartFile signatureImg) {
+        memberService.createMySignature(accessToken, signatureImg);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "서명이 생성되었습니다", null));
+    }
 
+    @PutMapping("/member/my-signature")
+    @Operation(summary = "내 서명 변경 API")
+    public ResponseEntity<ResponseMessage<Object>> changeMySignature(@RequestHeader("Authorization") String accessToken,
+        @RequestPart MultipartFile signatureImg) {
+        memberService.changeMySignature(accessToken, signatureImg);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "서명이 변경되었습니다", null));
+    }
+
+    @DeleteMapping("/member/my-signature")
+    @Operation(summary = "내 서명 삭제 API")
+    public ResponseEntity<ResponseMessage<Object>> deleteMySignature(@RequestHeader("Authorization") String accessToken) {
+        memberService.deleteMySignature(accessToken);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "서명이 삭제되었습니다", null));
+    }
 
 }
