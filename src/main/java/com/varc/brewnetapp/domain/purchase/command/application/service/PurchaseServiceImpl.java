@@ -241,4 +241,41 @@ public class PurchaseServiceImpl implements PurchaseService {
         history.setActive(true);
         purchaseStatusHistoryRepository.save(history);
     }
+
+    @Transactional
+    @Override
+    public void changeInStockToAvailable(int itemCode, int purchaseCode) {
+        LetterOfPurchase approvedPurchase = letterOfPurchaseRepository
+                                            .findByLetterOfPurchaseCodeAndActiveTrue(purchaseCode);
+
+        // 해당 구매품의서가 정상적으로 결재 승인된 상태인지 체크
+        if (approvedPurchase == null) {
+            throw new PurchaseNotFoundException("구매품의서가 삭제되었거나 존재하지 않습니다.");
+        }
+        else if (!approvedPurchase.getApproved().equals(IsApproved.APPROVED)) {
+            throw new InvalidDataException("결재 승인되지 않은 구매품의서입니다.");
+        }
+
+        LetterOfPurchaseItem purchaseItem = letterOfPurchaseItemRepository
+                                            .findByLetterOfPurchaseCodeAndItemCode(purchaseCode, itemCode);
+
+        if (purchaseItem == null) throw new InvalidDataException("발주하지 않은 상품입니다.");
+
+        Stock stock = stockRepository
+                        .findByStorageCodeAndItemCode(approvedPurchase.getStorage().getStorageCode(),
+                                                        purchaseItem.getItemCode());
+
+        if (stock == null) throw new InvalidDataException("해당 창고에 없는 상품입니다.");
+
+        // 구매품의서의 상품과 창고의 상품이 일치하는지 체크
+        if (!stock.getItemCode().equals(purchaseItem.getItemCode()))
+            throw new InvalidDataException("발주한 상품 코드와 창고의 상품 코드가 일치하지 않습니다.");
+
+        // 입고예정재고는 발주 수량만큼 감소하고, 가용재고는 발주 수량만큼 증가
+        int inStock = stock.getInStock() - purchaseItem.getQuantity();
+        int availableStock = stock.getAvailableStock() + purchaseItem.getQuantity();
+
+        stock.setInStock(inStock);
+        stock.setAvailableStock(availableStock);
+    }
 }
