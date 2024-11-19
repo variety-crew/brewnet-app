@@ -30,7 +30,7 @@ public class AuthController {
 
     // 회원가입 마스터 권한
     @PostMapping("sign-up")
-    @Operation(summary = "회원가입 API")
+    @Operation(summary = "회원가입 API / 가맹점 지점을 같이 보내면 가맹점으로 회원가입 됨")
     public ResponseEntity<ResponseMessage<Object>> signup(@RequestBody SignUpRequestDto signupRequestDto) {
         authService.signUp(signupRequestDto);
 

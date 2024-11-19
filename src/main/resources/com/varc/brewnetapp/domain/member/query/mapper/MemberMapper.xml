@@ -7,7 +7,6 @@
   <resultMap id="memberResultMap" type="com.varc.brewnetapp.domain.member.query.dto.MemberDTO">
     <id property="memberCode" column="MEMBER_CODE"/>
     <result property="id" column="ID"/>
-    <result property="password" column="PASSWORD"/>
     <result property="name" column="NAME"/>
     <result property="email" column="EMAIL"/>
     <result property="contact" column="CONTACT"/>
@@ -37,7 +36,6 @@
     SELECT
            M.MEMBER_CODE,
            M.ID,
-           M.PASSWORD,
            M.NAME,
            M.EMAIL,
            M.CONTACT,
@@ -86,6 +84,26 @@
       FROM tbl_seal
      ORDER BY SEAL_CODE ASC
      LIMIT 1
+  </select>
+
+  <select id="selectMember" resultMap="memberResultMap" parameterType="string">
+    SELECT
+           M.MEMBER_CODE,
+           M.ID,
+           M.NAME,
+           M.EMAIL,
+           M.CONTACT,
+           M.SIGNATURE_URL,
+           P.NAME AS POSITION_NAME,
+           (SELECT GROUP_CONCAT(R.ROLE SEPARATOR ', ')
+              FROM tbl_member_role MR
+             INNER JOIN tbl_role R
+                ON MR.ROLE_CODE = R.ROLE_CODE
+             WHERE MR.MEMBER_CODE = M.MEMBER_CODE) AS ROLES
+      FROM tbl_member M
+     INNER JOIN tbl_position P
+        ON M.POSITION_CODE = P.POSITION_CODE
+     WHERE M.ACTIVE = TRUE AND M.ID = #{ loginId }
   </select>
 
 </mapper>

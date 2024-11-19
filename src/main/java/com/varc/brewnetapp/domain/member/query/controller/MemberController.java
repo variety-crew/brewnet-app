@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,7 +31,7 @@ public class MemberController {
     }
 
     @GetMapping("/member")
-    @Operation(summary = "멤버 목록 조회 API")
+    @Operation(summary = "멤버 목록 조회 API / query param으로 page와 size를 키값으로 데이터 보내주시면 됩니다 / page는 1부터 시작")
     public ResponseEntity<ResponseMessage<Page<MemberDTO>>> findMemberList(@PageableDefault(value = 10) Pageable page) {
         // 페이지네이션
         Page<MemberDTO> result = memberService.findMemberList(page);
@@ -49,6 +50,12 @@ public class MemberController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "인감 조회 성공", companyService.findCompanySeal()));
     }
 
+    @GetMapping("/member/detail")
+    @Operation(summary = "멤버 상세 조회 API / 토큰에 들어 있는 아이디 값에 해당하는 유저의 정보를 보여줌")
+    public ResponseEntity<ResponseMessage<MemberDTO>> findMember(@RequestHeader("Authorization") String accessToken) {
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "멤버 조회 성공", memberService.findMember(accessToken)));
+    }
 
 
 

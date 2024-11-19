@@ -10,4 +10,5 @@ public interface MemberService {
 
     Page<MemberDTO> findMemberList(Pageable page);
 
+    MemberDTO findMember(String accessToken);
 }

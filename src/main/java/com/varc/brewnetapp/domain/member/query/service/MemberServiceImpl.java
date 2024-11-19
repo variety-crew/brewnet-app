@@ -1,13 +1,18 @@
 package com.varc.brewnetapp.domain.member.query.service;
 
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
+import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.domain.member.query.dto.CompanyDTO;
 import com.varc.brewnetapp.domain.member.query.dto.MemberDTO;
 import com.varc.brewnetapp.domain.member.query.dto.SealDTO;
 import com.varc.brewnetapp.domain.member.query.mapper.MemberMapper;
 import com.varc.brewnetapp.exception.EmptyDataException;
+import com.varc.brewnetapp.exception.MemberNotFoundException;
+import com.varc.brewnetapp.security.utility.JwtUtil;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -19,10 +24,18 @@ import org.springframework.stereotype.Service;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberMapper memberMapper;
+    private final JwtUtil jwtUtil;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public MemberServiceImpl(MemberMapper memberMapper) {
+    public MemberServiceImpl
+        (
+            MemberMapper memberMapper,
+            JwtUtil jwtUtil,
+            ModelMapper modelMapper) {
         this.memberMapper = memberMapper;
+        this.jwtUtil = jwtUtil;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -57,9 +70,18 @@ public class MemberServiceImpl implements MemberService {
         return new PageImpl<>(memberList, page, count);
     }
 
+    @Override
+    @Transactional
+    public MemberDTO findMember(String accessToken) {
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
+        MemberDTO member = memberMapper.selectMember(loginId);
 
+        if(member == null)
+            throw new MemberNotFoundException("조회하려는 멤버 정보가 없습니다");
 
-
+        return member;
+        
+    }
 
 
 }

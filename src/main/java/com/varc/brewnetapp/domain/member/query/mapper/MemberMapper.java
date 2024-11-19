@@ -15,4 +15,6 @@ public interface MemberMapper {
     CompanyDTO selectCompany();
 
     SealDTO selectCompanySeal();
+
+    MemberDTO selectMember(String loginId);
 }

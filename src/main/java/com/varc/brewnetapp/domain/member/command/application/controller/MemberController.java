@@ -47,7 +47,7 @@ public class MemberController {
 
     // 아무나
     @PostMapping("email/send-email")
-    @Operation(summary = "인증 이메일 발송 API")
+    @Operation(summary = "인증 이메일 발송 API / 권한 없는 사람 + 권한 있는 사람 모두 사용 가능")
     public ResponseEntity<ResponseMessage<Object>> sendEmail(@RequestBody SendEmailRequestDTO sendEmailRequestDTO)
         throws MessagingException, UnsupportedEncodingException {
         try {
@@ -60,7 +60,7 @@ public class MemberController {
 
     // 아무나
     @PostMapping("email/confirm-email")
-    @Operation(summary = "인증 이메일 검증 API")
+    @Operation(summary = "인증 이메일 검증 API / 권한 없는 사람 + 권한 있는 사람 모두 사용 가능")
     public ResponseEntity<ResponseMessage<Object>> confirmEmail(@RequestBody ConfirmEmailRequestDTO confirmEmailRequestDTO) {
         if (emailService.findEmailCode(confirmEmailRequestDTO))
             return ResponseEntity.ok(new ResponseMessage<>(200, "이메일 인증에 성공했습니다", null));
@@ -70,7 +70,7 @@ public class MemberController {
 
     // 아무나
     @PutMapping("/member/pw")
-    @Operation(summary = "비밀번호 변경 API")
+    @Operation(summary = "비밀번호 변경 API / 권한 없는 사람 + 권한 있는 사람 모두 사용 가능")
     public ResponseEntity<ResponseMessage<Object>> changePassword(@RequestBody ChangePwRequestDTO changePwRequestDTO) {
         if (memberService.changePassword(changePwRequestDTO)) {
             return ResponseEntity.ok(new ResponseMessage<>(200, "비밀번호 변경에 성공했습니다", null));
@@ -142,6 +142,8 @@ public class MemberController {
         companyService.deleteSeal(accessToken);
         return ResponseEntity.ok(new ResponseMessage<>(200, "법인 인감 삭제 성공", null));
     }
+
+
 
 
 
