@@ -163,16 +163,16 @@ public class MemberController {
     @PostMapping("/member/my-signature")
     @Operation(summary = "내 서명 생성 API")
     public ResponseEntity<ResponseMessage<Object>> createMySignature(@RequestHeader("Authorization") String accessToken,
-        @RequestPart MultipartFile signatureImg) {
-        memberService.createMySignature(accessToken, signatureImg);
+        @RequestPart(value = "signatureImage") MultipartFile signatureImage) {
+        memberService.createMySignature(accessToken, signatureImage);
         return ResponseEntity.ok(new ResponseMessage<>(200, "서명이 생성되었습니다", null));
     }
 
     @PutMapping("/member/my-signature")
     @Operation(summary = "내 서명 변경 API")
     public ResponseEntity<ResponseMessage<Object>> changeMySignature(@RequestHeader("Authorization") String accessToken,
-        @RequestPart MultipartFile signatureImg) {
-        memberService.changeMySignature(accessToken, signatureImg);
+        @RequestPart(value = "signatureImage") MultipartFile signatureImage) {
+        memberService.changeMySignature(accessToken, signatureImage);
         return ResponseEntity.ok(new ResponseMessage<>(200, "서명이 변경되었습니다", null));
     }
 

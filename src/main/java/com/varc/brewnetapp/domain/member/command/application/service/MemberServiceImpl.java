@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.member.command.application.service;
 
+import com.varc.brewnetapp.common.S3ImageService;
 import com.varc.brewnetapp.common.TelNumberUtil;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.RoleType;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.entity.MemberRole;
@@ -14,14 +15,17 @@ import com.varc.brewnetapp.domain.member.command.application.dto.CheckPwRequestD
 import com.varc.brewnetapp.domain.member.command.application.dto.LoginIdRequestDTO;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.PositionName;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Seal;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.domain.member.command.domain.repository.PositionRepository;
+import com.varc.brewnetapp.exception.InvalidApiRequestException;
 import com.varc.brewnetapp.exception.InvalidDataException;
 import com.varc.brewnetapp.exception.MemberNotFoundException;
 import com.varc.brewnetapp.exception.UnauthorizedAccessException;
 import com.varc.brewnetapp.security.utility.JwtUtil;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +47,7 @@ public class MemberServiceImpl implements MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtUtil jwtUtil;
     private final ModelMapper modelMapper;
+    private final S3ImageService s3ImageService;
 
     @Autowired
     public MemberServiceImpl(
@@ -52,7 +57,8 @@ public class MemberServiceImpl implements MemberService {
         FranchiseMemberRepository franchiseMemberRepository,
         BCryptPasswordEncoder bCryptPasswordEncoder,
         JwtUtil jwtUtil,
-        ModelMapper modelMapper
+        ModelMapper modelMapper,
+        S3ImageService s3ImageService
     ) {
         this.memberRepository = memberRepository;
         this.positionRepository = positionRepository;
@@ -61,6 +67,7 @@ public class MemberServiceImpl implements MemberService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtUtil = jwtUtil;
         this.modelMapper = modelMapper;
+        this.s3ImageService = s3ImageService;
     }
 
 
@@ -163,10 +170,10 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void checkPassword(String accessToken, CheckPwRequestDTO checkPasswordRequestDTO) {
-        String loginId = jwtUtil.getLoginId(accessToken);
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
         Member member = memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("조회되는 회원이 없습니다"));
 
-        if(member.getPassword().equals(bCryptPasswordEncoder.encode(checkPasswordRequestDTO.getPw())))
+        if(bCryptPasswordEncoder.matches(checkPasswordRequestDTO.getPw(), member.getPassword()))
             return;
         else
             throw new InvalidDataException("비밀번호가 맞지 않습니다");
@@ -176,7 +183,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void changeMyPassword(String accessToken, CheckPwRequestDTO checkPasswordRequestDTO) {
-        String loginId = jwtUtil.getLoginId(accessToken);
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
         Member member = memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("조회되는 회원이 없습니다"));
 
         member.setPassword(bCryptPasswordEncoder.encode(checkPasswordRequestDTO.getPw()));
@@ -187,19 +194,51 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void createMySignature(String accessToken, MultipartFile signatureImg) {
-        String loginId = jwtUtil.getLoginId(accessToken);
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
 
+        Member member = memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("조회하려는 회원이 없습니다"));
+
+        if(member.getSignatureUrl() != null)
+            throw new InvalidApiRequestException("이미 서명이 존재합니다");
+
+        String s3Url = s3ImageService.upload(signatureImg);
+
+        member.setSignatureUrl(s3Url);
+
+        memberRepository.save(member);
     }
 
     @Override
     @Transactional
     public void changeMySignature(String accessToken, MultipartFile signatureImg) {
-        String loginId = jwtUtil.getLoginId(accessToken);
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
+
+        Member member = memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("조회하려는 회원이 없습니다"));
+
+        if(member.getSignatureUrl() == null || member.getSignatureUrl().equals(""))
+            createMySignature(accessToken, signatureImg);
+
+//        s3ImageService.deleteImageFromS3(sealList.get(0).getImageUrl());
+        String s3Url = s3ImageService.upload(signatureImg);
+
+        member.setSignatureUrl(s3Url);
+
+        memberRepository.save(member);
     }
 
     @Override
     @Transactional
     public void deleteMySignature(String accessToken) {
-        String loginId = jwtUtil.getLoginId(accessToken);
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
+        Member member = memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("조회하려는 회원이 없습니다"));
+
+        if(member.getSignatureUrl() == null || member.getSignatureUrl().equals(""))
+            throw new InvalidDataException("서명이 존재하지 않습니다");
+
+        s3ImageService.deleteImageFromS3(member.getSignatureUrl());
+
+        member.setSignatureUrl(null);
+
+        memberRepository.save(member);
     }
 }
