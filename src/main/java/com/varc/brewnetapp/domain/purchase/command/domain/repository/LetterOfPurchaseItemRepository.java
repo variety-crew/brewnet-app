@@ -9,4 +9,6 @@ import java.util.List;
 public interface LetterOfPurchaseItemRepository extends JpaRepository<LetterOfPurchaseItem, LetterOfPurchaseItemId> {
 
     List<LetterOfPurchaseItem> findByLetterOfPurchaseCode(int letterOfPurchaseCode);
+
+    LetterOfPurchaseItem findByLetterOfPurchaseCodeAndItemCode(int purchaseCode, int itemCode);
 }

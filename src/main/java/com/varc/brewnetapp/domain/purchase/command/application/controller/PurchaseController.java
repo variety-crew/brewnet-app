@@ -40,14 +40,33 @@ public class PurchaseController {
 
     @PutMapping("/approve/{letterOfPurchaseCode}")
     @Operation(summary = "발주(구매품의서) 결재 승인 API")
-    public ResponseEntity<ResponseMessage<Object>> approveLetterOfPurchase(@PathVariable int letterOfPurchaseCode,
-                                                                       @RequestBody PurchaseApprovalRequestDTO request) {
+    public ResponseEntity<ResponseMessage<Object>> approveLetterOfPurchase(
+                                                    @PathVariable int letterOfPurchaseCode,
+                                                    @RequestBody PurchaseApprovalRequestDTO request) {
 
         purchaseService.approveLetterOfPurchase(letterOfPurchaseCode, request);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "구매품의서 결재 승인 성공", null));
     }
 
-//    @PutMapping("/reject/{letterOfPurchaseCode}")
-//    @Operation(summary = "발주(구매품의서) 결재 반려 API")
+    @PutMapping("/reject/{letterOfPurchaseCode}")
+    @Operation(summary = "발주(구매품의서) 결재 반려 API")
+    public ResponseEntity<ResponseMessage<Object>> rejectLetterOfPurchase(
+                                                    @PathVariable int letterOfPurchaseCode,
+                                                    @RequestBody PurchaseApprovalRequestDTO request) {
+
+        purchaseService.rejectLetterOfPurchase(letterOfPurchaseCode, request);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "구매품의서 결재 반려 성공", null));
+    }
+
+    @PutMapping("/in-stock")
+    @Operation(summary = "발주 상품 입고 처리 API (입고예정재고 -> 가용재고)")
+    public ResponseEntity<ResponseMessage<Object>> changeInStockToAvailable(@RequestParam int itemCode,
+                                                                            @RequestParam int purchaseCode) {
+
+        purchaseService.changeInStockToAvailable(itemCode, purchaseCode);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "발주한 상품 입고 처리 성공", null));
+    }
 }

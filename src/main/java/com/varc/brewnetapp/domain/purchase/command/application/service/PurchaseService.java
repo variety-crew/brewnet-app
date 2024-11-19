@@ -10,4 +10,8 @@ public interface PurchaseService {
     void cancelLetterOfPurchase(int letterOfPurchaseCode);
 
     void approveLetterOfPurchase(int letterOfPurchaseCode, PurchaseApprovalRequestDTO request);
+
+    void rejectLetterOfPurchase(int letterOfPurchaseCode, PurchaseApprovalRequestDTO request);
+
+    void changeInStockToAvailable(int itemCode, int purchaseCode);
 }
