@@ -1,6 +1,6 @@
 package com.varc.brewnetapp.domain.auth.command.application.service;
 
-import com.varc.brewnetapp.common.TelNumberUtil;
+import com.varc.brewnetapp.utility.TelNumberUtil;
 import com.varc.brewnetapp.domain.auth.command.application.dto.GrantAuthRequestDTO;
 import com.varc.brewnetapp.domain.auth.command.application.dto.SignUpRequestDto;
 import com.varc.brewnetapp.domain.auth.command.domain.aggregate.MemberRolePK;
