@@ -19,7 +19,7 @@ public class Storage {
     @Id
     @Column(name = "storage_code")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer correspondentCode;
+    private Integer storageCode;
 
     @Column(name = "name", nullable = false)
     private String name;

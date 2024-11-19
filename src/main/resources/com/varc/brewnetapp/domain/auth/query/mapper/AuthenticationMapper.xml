@@ -12,6 +12,7 @@
             <result property="role" column="ROLE"/>
         </collection>
     </resultMap>
+
     <select id="selectMemberByIdWithAuthorities" resultMap="memberWithDistinctRolesMap" parameterType="string">
         SELECT
                M.MEMBER_CODE
@@ -27,4 +28,10 @@
          WHERE M.ID = #{ id }
          GROUP BY R.ROLE
     </select>
+
+    <select id="selectAuths" resultType="java.lang.String">
+      SELECT role
+        FROM tbl_Role
+    </select>
+
 </mapper>
