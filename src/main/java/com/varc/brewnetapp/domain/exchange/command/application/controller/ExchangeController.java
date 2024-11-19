@@ -14,28 +14,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController("ExchangeControllerCommand")
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/exchange")
+@RequestMapping("/api/v1/hq/exchange")
 @Slf4j
 public class ExchangeController {
 
     private final ExchangeServiceImpl exchangeService;
-
-    @PostMapping("/")
-    @Operation(summary = "[가맹점] 교환신청 API")
-//    @SecurityRequirement(name = "Authorization")
-    public ResponseEntity<ResponseMessage<ExchangeReqVO>> registExchange(@RequestAttribute("loginId") String loginId,
-                                                                         @RequestBody ExchangeReqVO exchangeReqVO) {
-        exchangeService.createExchange(loginId, exchangeReqVO);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "교환신청 성공", null));
-    }
-
-    @PostMapping("/cancel/{exchangeCode}")
-    @Operation(summary = "[가맹점] 교환취소 API")
-    public ResponseEntity<ResponseMessage<Integer>> cancelExchange(@RequestAttribute("loginId") String loginId,
-                                                                   @PathVariable("exchangeCode") Integer exchangeCode) {
-        exchangeService.cancelExchange(loginId, exchangeCode);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "교환취소 성공", exchangeCode));
-    }
 
     @PostMapping("/drafter-approve")
     @Operation(summary = "[본사] 교환 결재신청(기안자) API")
