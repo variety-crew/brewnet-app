@@ -47,4 +47,7 @@ public class PurchaseController {
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "구매품의서 결재 승인 성공", null));
     }
+
+//    @PutMapping("/reject/{letterOfPurchaseCode}")
+//    @Operation(summary = "발주(구매품의서) 결재 반려 API")
 }
