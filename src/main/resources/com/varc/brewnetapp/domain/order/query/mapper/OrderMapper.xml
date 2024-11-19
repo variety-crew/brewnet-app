@@ -12,6 +12,8 @@
         <result property="drafterApproved" column="DRAFTER_APPROVED"/>
         <result property="sumPrice" column="SUM_PRICE"/>
     </resultMap>
+
+<!--    test-->
     <select id="findOrders" resultMap="baseOrderList">
         SELECT
               O.ORDER_CODE
@@ -23,5 +25,48 @@
             , O.SUM_PRICE
          FROM tbl_order O
         ORDER BY CREATED_AT
+    </select>
+    <select id="findOrdersBy" resultMap="baseOrderList">
+        SELECT
+        O.ORDER_CODE
+        , O.COMMENT
+        , O.CREATED_AT
+        , O.ACTIVE
+        , O.APPROVED
+        , O.DRAFTER_APPROVED
+        , O.SUM_PRICE
+        FROM tbl_order O
+        WHERE O.ACTIVE = 1
+        <if test="filter != null">
+            AND O.APPROVED = 'UNCONFIRMED'
+        </if>
+
+        <choose>
+            <when test="sort == 'createdAtDesc'">
+                ORDER BY O.CREATED_AT DESC
+            </when>
+            <when test="sort == 'createdAtAsc'">
+                ORDER BY O.CREATED_AT ASC
+            </when>
+            <when test="sort == 'sumPriceDesc'">
+                ORDER BY O.SUM_PRICE DESC
+            </when>
+            <when test="sort == 'sumPriceAsc'">
+                ORDER BY O.SUM_PRICE ASC
+            </when>
+            <otherwise>
+                <!-- 기본 정렬 -->
+                ORDER BY O.CREATED_AT DESC
+            </otherwise>
+        </choose>
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+    <select id="countOrders" resultType="int">
+        SELECT COUNT(*)
+        FROM tbl_order O
+        WHERE 1=1
+        <if test="filter != null and filter != ''">
+            AND O.APPROVED = 'UNCONFIRMED'
+        </if>
     </select>
 </mapper>
