@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.purchase.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseApprovalRequestDTO;
 import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseRequestDTO;
 import com.varc.brewnetapp.domain.purchase.command.application.service.PurchaseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,5 +36,15 @@ public class PurchaseController {
         purchaseService.cancelLetterOfPurchase(letterOfPurchaseCode);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "구매품의서 결재 요청 취소 성공", null));
+    }
+
+    @PutMapping("/approve/{letterOfPurchaseCode}")
+    @Operation(summary = "발주(구매품의서) 결재 승인 API")
+    public ResponseEntity<ResponseMessage<Object>> approveLetterOfPurchase(@PathVariable int letterOfPurchaseCode,
+                                                                       @RequestBody PurchaseApprovalRequestDTO request) {
+
+        purchaseService.approveLetterOfPurchase(letterOfPurchaseCode, request);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "구매품의서 결재 승인 성공", null));
     }
 }

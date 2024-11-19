@@ -4,5 +4,9 @@ import com.varc.brewnetapp.domain.purchase.command.domain.aggregate.LetterOfPurc
 import com.varc.brewnetapp.domain.purchase.command.domain.aggregate.LetterOfPurchaseItemId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface LetterOfPurchaseItemRepository extends JpaRepository<LetterOfPurchaseItem, LetterOfPurchaseItemId> {
+
+    List<LetterOfPurchaseItem> findByLetterOfPurchaseCode(int letterOfPurchaseCode);
 }

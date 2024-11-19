@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.purchase.command.application.service;
 
+import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseApprovalRequestDTO;
 import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseItemDTO;
 import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseRequestDTO;
 import com.varc.brewnetapp.domain.purchase.command.domain.aggregate.*;
@@ -157,6 +158,51 @@ public class PurchaseServiceImpl implements PurchaseService {
         PurchaseStatusHistory history = new PurchaseStatusHistory();
         history.setLetterOfPurchase(purchase);
         history.setStatus(Status.CANCELED);
+        history.setCreatedAt(LocalDateTime.now());
+        history.setActive(true);
+        purchaseStatusHistoryRepository.save(history);
+    }
+
+    @Transactional
+    @Override
+    public void approveLetterOfPurchase(int letterOfPurchaseCode, PurchaseApprovalRequestDTO request) {
+        LetterOfPurchase requestedPurchase = letterOfPurchaseRepository.findById(letterOfPurchaseCode)
+                                    .orElseThrow(() -> new PurchaseNotFoundException("존재하지 않는 구매품의서입니다."));
+
+        LetterOfPurchaseApprover approver = letterOfPurchaseApproverRepository
+                                            .findByLetterOfPurchaseCode(letterOfPurchaseCode);
+
+        // 결재자가 맞는지 체크
+        if (request.getApproverCode() != (approver.getMemberCode())) {
+            throw new InvalidDataException("해당 구매품의서의 결재자가 아닙니다.");
+        }
+
+        // 아직 결재 전인 내역이 맞는지 체크
+        if (!requestedPurchase.getApproved().equals(IsApproved.UNCONFIRMED)) {
+            throw new InvalidDataException("이미 결재 처리가 완료된 구매품의서입니다.");
+        }
+
+        // 결재 관련 정보 업데이트
+        approver.setApproved(IsApproved.APPROVED);
+        approver.setApprovedAt(LocalDateTime.now());
+        approver.setComment(request.getComment());
+        requestedPurchase.setApproved(IsApproved.APPROVED);
+
+        Storage storage = requestedPurchase.getStorage();
+        List<LetterOfPurchaseItem> items = letterOfPurchaseItemRepository
+                                            .findByLetterOfPurchaseCode(letterOfPurchaseCode);
+
+        // 발주 품목의 입고예정재고가 발주 수량만큼 증가
+        for (LetterOfPurchaseItem item : items) {
+            Stock stock = stockRepository.findByStorageCodeAndItemCode(storage.getStorageCode(), item.getItemCode());
+            int inStock = stock.getInStock() + item.getQuantity();
+            stock.setInStock(inStock);
+        }
+
+        // 해당 구매품의서의 상태 이력에 결재 승인 상태 추가
+        PurchaseStatusHistory history = new PurchaseStatusHistory();
+        history.setLetterOfPurchase(requestedPurchase);
+        history.setStatus(Status.APPROVED);
         history.setCreatedAt(LocalDateTime.now());
         history.setActive(true);
         purchaseStatusHistoryRepository.save(history);

@@ -27,11 +27,8 @@ public class Correspondent {
     @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "city")
-    private String city;
-
-    @Column(name = "province")
-    private String province;
+    @Column(name = "detail_address")
+    private String detailAddress;
 
     @Column(name = "email")
     private String email;
