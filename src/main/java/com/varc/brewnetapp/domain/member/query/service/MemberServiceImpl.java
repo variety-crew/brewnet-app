@@ -1,6 +1,8 @@
 package com.varc.brewnetapp.domain.member.query.service;
 
+import com.varc.brewnetapp.domain.member.query.dto.CompanyDTO;
 import com.varc.brewnetapp.domain.member.query.dto.MemberDTO;
+import com.varc.brewnetapp.domain.member.query.dto.SealDTO;
 import com.varc.brewnetapp.domain.member.query.mapper.MemberMapper;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -48,6 +50,17 @@ public class MemberServiceImpl implements MemberService {
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(memberList, page, count);
+    }
+
+    @Override
+    @Transactional
+    public CompanyDTO findCompany() {
+        return memberMapper.selectCompany();
+    }
+
+    @Override
+    public SealDTO findCompanySeal() {
+        return memberMapper.selectCompanySeal();
     }
 
 

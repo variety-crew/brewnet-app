@@ -15,7 +15,23 @@
     <result property="positionName" column="POSITION_NAME"/>
     <result property="roles" column="ROLES"/>
   </resultMap>
+  
+  <resultMap id="companyResultMap" type="com.varc.brewnetapp.domain.member.query.dto.CompanyDTO">
+    <id property="companyCode" column="COMPANY_CODE"/>
+    <result property="name" column="NAME"/>
+    <result property="businessNumber" column="BUSINESS_NUMBER"/>
+    <result property="corporateNumber" column="CORPORATE_NUMBER"/>
+    <result property="ceoName" column="CEO_NAME"/>
+    <result property="address" column="ADDRESS"/>
+    <result property="typeOfBusiness" column="TYPE_OF_BUSINESS"/>
+    <result property="contact" column="CONTACT"/>
+    <result property="dateOfEstablishment" column="DATE_OF_ESTABLISHMENT"/>
+  </resultMap>
 
+  <resultMap id="sealResultMap" type="com.varc.brewnetapp.domain.member.query.dto.SealDTO">
+    <id property="sealCode" column="SEAL_CODE"/>
+    <result property="imageUrl" column="IMAGE_URL"/>
+  </resultMap>
 
   <select id="selectMemberList" resultMap="memberResultMap" parameterType="map">
     SELECT
@@ -45,6 +61,31 @@
     SELECT COUNT(*)
       FROM tbl_member
      WHERE ACTIVE = TRUE
+  </select>
+
+  <select id="selectCompany" resultMap="companyResultMap">
+    SELECT
+           COMPANY_CODE,
+           NAME,
+           BUSINESS_NUMBER,
+           CORPORATE_NUMBER,
+           CEO_NAME,
+           ADDRESS,
+           TYPE_OF_BUSINESS,
+           CONTACT,
+           DATE_OF_ESTABLISHMENT
+      FROM tbl_company
+     ORDER BY COMPANY_CODE ASC
+     LIMIT 1
+  </select>
+
+  <select id="selectCompanySeal" resultMap="sealResultMap">
+    SELECT
+           SEAL_CODE,
+           IMAGE_URL
+      FROM tbl_seal
+     ORDER BY SEAL_CODE ASC
+     LIMIT 1
   </select>
 
 </mapper>
