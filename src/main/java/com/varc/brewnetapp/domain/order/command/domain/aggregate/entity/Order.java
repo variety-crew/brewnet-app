@@ -47,9 +47,4 @@ public class Order {
 
     @Column(name = "delivery_code", nullable = true)
     private Integer deliveryCode;
-
-    // 본사의 기안 요청 전 주문 취소
-    public void orderRequestCancel() {
-        this.active = false;
-    }
 }
