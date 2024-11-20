@@ -1,5 +1,8 @@
 package com.varc.brewnetapp.common.domain.member;
 
+import lombok.Getter;
+
+@Getter
 public enum RoleType {
     ROLE_MASTER("ROLE_MASTER", 1)
     , ROLE_GENERAL_ADMIN("ROLE_GENERAL_ADMIN", 2)

@@ -8,37 +8,49 @@
         <result property="comment" column="COMMENT"/>
         <result property="createdAt" column="CREATED_AT"/>
         <result property="active" column="ACTIVE"/>
-        <result property="approved" column="APPROVED"/>
+        <result property="approvalStatus" column="APPROVAL_STATUS"/>
         <result property="drafterApproved" column="DRAFTER_APPROVED"/>
         <result property="sumPrice" column="SUM_PRICE"/>
     </resultMap>
 
 <!--    test-->
-    <select id="findOrders" resultMap="baseOrderList">
+    <select id="findOrdersBy" resultMap="baseOrderList">
         SELECT
               O.ORDER_CODE
             , O.COMMENT
             , O.CREATED_AT
             , O.ACTIVE
-            , O.APPROVED
+            , O.APPROVAL_STATUS
             , O.DRAFTER_APPROVED
             , O.SUM_PRICE
          FROM tbl_order O
         ORDER BY CREATED_AT
     </select>
-    <select id="findOrdersBy" resultMap="baseOrderList">
-        SELECT
-        O.ORDER_CODE
-        , O.COMMENT
-        , O.CREATED_AT
-        , O.ACTIVE
-        , O.APPROVED
-        , O.DRAFTER_APPROVED
-        , O.SUM_PRICE
+
+<!--    common-->
+    <select id="countOrders" resultType="int">
+        SELECT COUNT(*)
         FROM tbl_order O
-        WHERE O.ACTIVE = 1
-        <if test="filter != null">
-            AND O.APPROVED = 'UNCONFIRMED'
+        WHERE 1=1
+        <if test="filter == 'UNCONFIRMED'">
+            AND O.APPROVED = #{filter}
+        </if>
+    </select>
+
+<!--    for HQ-->
+    <select id="findOrdersForHQBy" resultMap="baseOrderList">
+        SELECT
+               O.ORDER_CODE
+             , O.COMMENT
+             , O.CREATED_AT
+             , O.ACTIVE
+             , O.APPROVAL_STATUS
+             , O.DRAFTER_APPROVED
+             , O.SUM_PRICE
+          FROM tbl_order O
+         WHERE O.ACTIVE = 1
+        <if test="filter == 'UNCONFIRMED'">
+           AND O.APPROVED = #{filter}
         </if>
 
         <choose>
@@ -61,12 +73,5 @@
         </choose>
         LIMIT #{size} OFFSET #{offset}
     </select>
-    <select id="countOrders" resultType="int">
-        SELECT COUNT(*)
-        FROM tbl_order O
-        WHERE 1=1
-        <if test="filter != null and filter != ''">
-            AND O.APPROVED = 'UNCONFIRMED'
-        </if>
-    </select>
+
 </mapper>

@@ -29,8 +29,8 @@ public class Order {
     private boolean active = true;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "approved", nullable = false)
-    private OrderStatus orderStatus;
+    @Column(name = "approval_status", nullable = false)
+    private OrderStatus approvalStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "drafter_approved", nullable = false)
@@ -47,9 +47,4 @@ public class Order {
 
     @Column(name = "delivery_code", nullable = true)
     private Integer deliveryCode;
-
-    // 본사의 기안 요청 전 주문 취소
-    public void orderRequestCancel() {
-        this.active = false;
-    }
 }

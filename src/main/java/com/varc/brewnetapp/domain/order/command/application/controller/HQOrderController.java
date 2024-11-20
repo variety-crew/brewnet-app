@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
-@RestController(value="commandHQOrderController")
+@RestController
 @RequestMapping("api/v1/hq/orders")
 public class HQOrderController {
     private final OrderService orderService;
