@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
     // 404: Not Found
     @ExceptionHandler({
             ExchangeNotFoundException.class,
-            EmptyDataException.class
+            EmptyDataException.class,
     })
     public ResponseEntity<ResponseMessage<Object>> handleNotFoundException(Exception e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

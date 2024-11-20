@@ -9,33 +9,39 @@ import java.util.List;
 @Mapper
 public interface OrderMapper {
 
-    // for HQ
-
 // default: 주문일 역순(최신순)
 // 주문일 순
 // 주문 금액 높은 순
 // 주문 금액 낮은 순
 
-    List<OrderDTO> findOrdersBy(@Param("filter") String filter,
-                              @Param("sort") String sort,
-                              @Param("size") int size,
-                              @Param("offset") int offset);
-
-    List<OrderDTO> findOrdersForHQ(@Param("filter") String filter,
-                                                  @Param("sort") String sort,
-                                                  @Param("size") int size,
-                                                  @Param("offset") int offset);
-
-    // for FRANCHISE
-    // TODO: read order list for franchise
-    default List<OrderDTO> findOrdersForFranchise(@Param("filter") String filter,
-                                   @Param("sort") String sort,
-                                   @Param("size") int size,
-                                   @Param("offset") int offset) {
-        return null;
-    }
-
+    // test
+    List<OrderDTO> findOrdersBy(
+            @Param("filter") String filter,
+            @Param("sort") String sort,
+            @Param("size") int size,
+            @Param("offset") int offset
+    );
 
     // common
-    int countOrders(@Param("filter") String filter);
+    int countOrders(
+            @Param("filter") String filter
+    );
+
+
+    // for HQ
+    List<OrderDTO> findOrdersForHQBy(
+            @Param("filter") String filter,
+            @Param("sort") String sort,
+            @Param("size") int size,
+            @Param("offset") int offset
+    );
+
+
+    // for FRANCHISE
+    List<OrderDTO> findOrdersForFranchise(
+            @Param("filter") String filter,
+            @Param("sort") String sort,
+            @Param("size") int size,
+            @Param("offset") int offset
+    );
 }

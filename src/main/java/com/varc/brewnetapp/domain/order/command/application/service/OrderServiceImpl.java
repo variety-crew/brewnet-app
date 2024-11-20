@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.order.command.application.service;
 
 import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
+import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.common.domain.order.OrderHistoryStatus;
 import com.varc.brewnetapp.common.domain.order.OrderStatus;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderItemDTO;
@@ -11,6 +12,7 @@ import com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.composit
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderItemRepository;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderRepository;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderStatusHistoryRepository;
+import com.varc.brewnetapp.exception.OrderNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,12 +32,12 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     public OrderServiceImpl(
             OrderRepository orderRepository,
-            OrderItemRepository orderItemRepository,
-            OrderStatusHistoryRepository orderStatusHistoryRepository
+            OrderStatusHistoryRepository orderStatusHistoryRepository,
+            OrderItemRepository orderItemRepository
     ) {
         this.orderRepository = orderRepository;
-        this.orderItemRepository = orderItemRepository;
         this.orderStatusHistoryRepository = orderStatusHistoryRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
     // 가맹점의 주문요청
@@ -44,25 +46,26 @@ public class OrderServiceImpl implements OrderService {
     public OrderRequestResponseDTO orderRequestByFranchise(OrderRequestDTO orderRequestDTO) {
         int requestFranchiseCode = orderRequestDTO.getFranchiseCode();
         List<OrderItemDTO> requestedOrderItemDTOList = orderRequestDTO.getOrderList();
+        log.debug("requestedOrderItemDTOList: {}", requestedOrderItemDTOList);
 
         int orderedSum = getOrderTotalSum(requestedOrderItemDTOList);
 
-        log.debug("orderRequestDTO: {}", orderRequestDTO);
         int orderedCode = orderRepository.save(
                 Order.builder()
                         .createdAt(LocalDateTime.now())
                         .active(true)
                         .drafterApproved(DrafterApproved.NONE)
-                        .orderStatus(OrderStatus.UNCONFIRMED)
+                        .approvalStatus(OrderStatus.UNCONFIRMED)
                         .sumPrice(orderedSum)
                         .franchiseCode(requestFranchiseCode)
                         .build()
         ).getOrderCode();
+        log.debug("orderedCode: {}", orderedCode);
 
         // 주문별 품목 추가
         addItemsPerOrder(orderedCode, requestedOrderItemDTOList);
 
-        // 주문 이력 수정
+        // 주문 내역 수정
         updateOrderStatusTo(orderedCode, OrderHistoryStatus.REQUESTED);
         return new OrderRequestResponseDTO(orderedCode);
     }
@@ -71,18 +74,29 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void addItemsPerOrder(int orderedCode, List<OrderItemDTO> orderRequestRequestDTO) {
         orderRequestRequestDTO.forEach(
-                orderItemDTO ->
-                        orderItemRepository.save(
-                                OrderItem.builder()
-                                        .orderItemCode(
-                                                OrderItemCode.builder()
-                                                        .itemCode(orderItemDTO.getItemCode())
-                                                        .orderCode(orderedCode)
-                                                        .build()
-                                        )
-                                        .quantity(orderItemDTO.getQuantity())
-                                        .build()
-                        )
+                orderItemDTO -> {
+                    int itemCode = orderItemDTO.getItemCode();
+                    int orderQuantity = orderItemDTO.getQuantity();
+
+                    // TODO:
+                    //  int itemPrice = ItemService.findItemPriceByItemCode(itemCode);
+                    //  int partPriceSum = itemPrice * orderQuantity;
+                    int partPriceSum = 0;
+
+                    orderItemRepository.save(
+                            OrderItem.builder()
+                                    .orderItemCode(
+                                            OrderItemCode.builder()
+                                                    .itemCode(itemCode)
+                                                    .orderCode(orderedCode)
+                                                    .build()
+                                    )
+                                    .quantity(orderQuantity)
+                                    .available(Available.AVAILABLE)
+                                    .partSumPrice(partPriceSum)
+                                    .build()
+                    );
+                }
         );
     }
 
@@ -90,13 +104,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public void cancelOrderRequest(Integer orderCode) {
-        Order order = orderRepository.findById(orderCode).orElseThrow(IllegalArgumentException::new);
-        log.debug("exist order: {}", order);
+        Order order = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
 
-        // TODO: validate that order processed with headquater's policy
-        order.orderRequestCancel();
-
-        log.debug("order cancelled: {}", order);
+        // TODO: validate
+        //  1. If member_code in tbl_order is null
+        //  2. If the status column in tbl_order_status_history is 'REQUEST'
 
         updateOrderStatusTo(orderCode, OrderHistoryStatus.CANCELED);
         log.debug("order history updated: {}", orderStatusHistoryRepository);
@@ -119,6 +131,7 @@ public class OrderServiceImpl implements OrderService {
     private int getOrderTotalSum(List<OrderItemDTO> requestedOrderItemDTOList) {
         int totalSum = 0;
         for (OrderItemDTO orderItemDTO : requestedOrderItemDTOList) {
+
             /* TODO: itemCode로 Item 가격 찾기
             *   int itemCode = orderItem.getItemCode();
             *   int itemPrice = itemService.getItemPriceByCode(itemCode);

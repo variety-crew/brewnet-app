@@ -17,7 +17,7 @@ public class OrderDTO {
     private String comment; // written by drafter
     private String createdAt;
     private boolean active;
-    private OrderStatus approved;
+    private OrderStatus approvalStatus;
     private DrafterApproved drafterApproved;
     private int sumPrice;
 

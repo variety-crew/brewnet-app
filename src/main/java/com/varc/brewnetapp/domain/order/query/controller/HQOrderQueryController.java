@@ -1,11 +1,10 @@
 package com.varc.brewnetapp.domain.order.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
-import com.varc.brewnetapp.common.domain.member.RoleType;
 
 import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderResponseDTO;
-import com.varc.brewnetapp.domain.order.query.service.OrderService;
+import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +17,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
-@RestController(value="queryHQOrderController")
+@RestController
 @RequestMapping("api/v1/hq/orders")
-public class HQOrderController {
-    private final OrderService orderService;
+public class HQOrderQueryController {
+    private final OrderQueryService orderQueryService;
 
     @Autowired
-    public HQOrderController(OrderService orderService) {
-        this.orderService = orderService;
+    public HQOrderQueryController(OrderQueryService orderQueryService) {
+        this.orderQueryService = orderQueryService;
     }
 
     @GetMapping("health")
@@ -36,7 +35,7 @@ public class HQOrderController {
             @RequestParam(name = "sort", required = false) String sort,
             @RequestAttribute(name = "loginId") String loginId
     ) {
-        Page<OrderDTO> orderDTOList = orderService.getOrderListForHQ(
+        Page<OrderDTO> orderDTOList = orderQueryService.getOrderListForTest(
                 pageable,
                 filter,
                 sort
@@ -51,7 +50,7 @@ public class HQOrderController {
             @RequestParam(name = "filter", required = false) String filter,
             @RequestParam(name = "sort", required = false) String sort
     ) {
-        Page<OrderDTO> orderDTOList = orderService.getOrderListForHQ(
+        Page<OrderDTO> orderDTOList = orderQueryService.getOrderListForHQ(
                 pageable,
                 filter,
                 sort
