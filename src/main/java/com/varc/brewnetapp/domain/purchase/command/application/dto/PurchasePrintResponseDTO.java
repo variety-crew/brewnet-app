@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class ExportPurchasePrintResponseDTO {
+public class PurchasePrintResponseDTO {
 
     private int letterOfPurchaseCode;               // 발주서 코드
     private String createdAt;                       // 발주서 생성일시

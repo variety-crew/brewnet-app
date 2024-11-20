@@ -1,9 +1,6 @@
 package com.varc.brewnetapp.domain.purchase.command.application.service;
 
-import com.varc.brewnetapp.domain.purchase.command.application.dto.ExportPurchasePrintRequestDTO;
-import com.varc.brewnetapp.domain.purchase.command.application.dto.ExportPurchasePrintResponseDTO;
-import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseApprovalRequestDTO;
-import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseRequestDTO;
+import com.varc.brewnetapp.domain.purchase.command.application.dto.*;
 
 public interface PurchaseService {
 
@@ -17,6 +14,9 @@ public interface PurchaseService {
 
     void changeInStockToAvailable(int itemCode, int purchaseCode);
 
-    ExportPurchasePrintResponseDTO exportPurchasePrint(int letterOfPurchaseCode,
-                                                       ExportPurchasePrintRequestDTO printRequest);
+    PurchasePrintResponseDTO exportPurchasePrint(int letterOfPurchaseCode,
+                                                 ExportPurchasePrintRequestDTO printRequest);
+
+    PurchasePrintResponseDTO takeInHousePurchasePrint(int letterOfPurchaseCode,
+                                                      InHousePurchasePrintRequestDTO printRequest);
 }

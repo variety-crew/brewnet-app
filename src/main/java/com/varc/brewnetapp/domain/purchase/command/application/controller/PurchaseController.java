@@ -1,13 +1,11 @@
 package com.varc.brewnetapp.domain.purchase.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
-import com.varc.brewnetapp.domain.purchase.command.application.dto.ExportPurchasePrintRequestDTO;
-import com.varc.brewnetapp.domain.purchase.command.application.dto.ExportPurchasePrintResponseDTO;
-import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseApprovalRequestDTO;
-import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseRequestDTO;
+import com.varc.brewnetapp.domain.purchase.command.application.dto.*;
 import com.varc.brewnetapp.domain.purchase.command.application.service.PurchaseService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -74,13 +72,25 @@ public class PurchaseController {
 
     @PostMapping("/print-export/{letterOfPurchaseCode}")
     @Operation(summary = "외부용 발주서 출력 및 출력 내역 저장 API (응답으로 발주서에 출력될 데이터 전달)")
-    public ResponseEntity<ResponseMessage<ExportPurchasePrintResponseDTO>> exportPurchasePrint(
+    public ResponseEntity<ResponseMessage<PurchasePrintResponseDTO>> exportPurchasePrint(
                                                         @PathVariable int letterOfPurchaseCode,
                                                         @RequestBody ExportPurchasePrintRequestDTO printRequest) {
 
-        ExportPurchasePrintResponseDTO responsePrint = purchaseService
+        PurchasePrintResponseDTO responsePrint = purchaseService
                                                         .exportPurchasePrint(letterOfPurchaseCode, printRequest);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "외부용 발주서 출력 성공", responsePrint));
+    }
+
+    @PutMapping("/print-in-house/{letterOfPurchaseCode}")
+    @Operation(summary = "내부용 발주서 출력 API (응답으로 발주서에 출력될 데이터 전달)")
+    public ResponseEntity<ResponseMessage<PurchasePrintResponseDTO>> takeInHousePurchasePrint(
+                                                        @PathVariable int letterOfPurchaseCode,
+                                                        @RequestBody InHousePurchasePrintRequestDTO printRequest) {
+
+        PurchasePrintResponseDTO responsePrint = purchaseService
+                                                    .takeInHousePurchasePrint(letterOfPurchaseCode, printRequest);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "내부용 발주서 출력 성공", responsePrint));
     }
 }

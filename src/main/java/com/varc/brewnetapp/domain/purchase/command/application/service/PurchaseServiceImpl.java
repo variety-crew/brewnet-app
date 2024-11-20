@@ -290,13 +290,13 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional
     @Override
-    public ExportPurchasePrintResponseDTO exportPurchasePrint(int letterOfPurchaseCode,
-                                                              ExportPurchasePrintRequestDTO printRequest) {
+    public PurchasePrintResponseDTO exportPurchasePrint(int letterOfPurchaseCode,
+                                                        ExportPurchasePrintRequestDTO printRequest) {
 
-        // 외부용 발주서 출력 내역 먼저 저장
         LetterOfPurchase letterOfPurchase = letterOfPurchaseRepository
                                             .findByLetterOfPurchaseCodeAndActiveTrue(letterOfPurchaseCode);
 
+        // 발주서가 유효한건지, 결재 승인 처리된 건지 체크
         if (letterOfPurchase == null) {
             throw new PurchaseNotFoundException("발주서가 삭제되었거나 존재하지 않습니다.");
         }
@@ -307,6 +307,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         PurchaseMember member = purchaseMemberRepository.findById(printRequest.getMemberCode())
                                 .orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
 
+        // 외부용 발주서 출력 내역 먼저 저장
         PurchasePrint purchasePrint = new PurchasePrint();
         purchasePrint.setReason(printRequest.getReason());
         purchasePrint.setPrintedAt(LocalDateTime.now());
@@ -345,8 +346,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             printItems.add(printItem);
         }
 
-        // 문서 출력 응답 반환
-        ExportPurchasePrintResponseDTO printResponse = new ExportPurchasePrintResponseDTO();
+        // 외부용 발주서 출력 응답 반환
+        PurchasePrintResponseDTO printResponse = new PurchasePrintResponseDTO();
         printResponse.setLetterOfPurchaseCode(letterOfPurchaseCode);
         printResponse.setCreatedAt((letterOfPurchase.getCreatedAt())
                                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
@@ -358,6 +359,81 @@ public class PurchaseServiceImpl implements PurchaseService {
         printResponse.setCeoName(company.getCeoName());
         printResponse.setCompanyContact(company.getContact());
         printResponse.setSealImageUrl(seal.getImageUrl());
+        printResponse.setItems(printItems);
+        printResponse.setSumPrice(letterOfPurchase.getSumPrice());
+        printResponse.setVatSum(letterOfPurchase.getSumPrice() / 10);
+        printResponse.setCorrespondentName(correspondent.getName());
+        printResponse.setManagerName(correspondent.getManagerName());
+        printResponse.setCorrespondentContact(correspondent.getContact());
+        printResponse.setStorageName(storage.getName());
+        printResponse.setStorageAddress(storage.getAddress());
+        printResponse.setStorageContact(storage.getContact());
+
+        return printResponse;
+    }
+
+    @Transactional
+    @Override
+    public PurchasePrintResponseDTO takeInHousePurchasePrint(int letterOfPurchaseCode,
+                                                             InHousePurchasePrintRequestDTO printRequest) {
+
+        LetterOfPurchase letterOfPurchase = letterOfPurchaseRepository
+                                            .findByLetterOfPurchaseCodeAndActiveTrue(letterOfPurchaseCode);
+
+        // 발주서가 유효한건지, 결재 승인 처리된 건지 체크
+        if (letterOfPurchase == null) {
+            throw new PurchaseNotFoundException("발주서가 삭제되었거나 존재하지 않습니다.");
+        }
+        else if (!letterOfPurchase.getApproved().equals(IsApproved.APPROVED)) {
+            throw new InvalidDataException("결재 승인되지 않은 발주서입니다.");
+        }
+
+        // 존재하는 회원인지 체크
+        if (!purchaseMemberRepository.existsById(printRequest.getMemberCode()))
+            throw new MemberNotFoundException("존재하지 않는 회원입니다.");
+
+        // 내부용 발주서로 변경되어 연결된 법인 인감 코드 제거
+        letterOfPurchase.setSeal(null);
+
+        CompanyTemp company = companyTempRepository.findTopByActiveTrueOrderByCompanyCodeDesc();
+        Correspondent correspondent = letterOfPurchase.getCorrespondent();
+        Storage storage = letterOfPurchase.getStorage();
+
+        List<PurchasePrintItemDTO> printItems = new ArrayList<>();
+        List<LetterOfPurchaseItem> purchaseItems = letterOfPurchaseItemRepository
+                                                    .findByLetterOfPurchaseCode(letterOfPurchaseCode);
+
+        // 발주서의 상품 목록 불러오기
+        for (LetterOfPurchaseItem purchaseItem : purchaseItems) {
+            PurchaseItem item = purchaseItemRepository.findByItemCodeAndActiveTrue(purchaseItem.getItemCode());
+
+            if (item == null) throw new ItemNotFoundException("삭제되었거나 존재하지 않는 상품입니다.");
+            if (!correspondentItemRepository.existsByCorrespondentCodeAndItemCodeAndActiveTrue(
+                                                correspondent.getCorrespondentCode(), item.getItemCode())) {
+                throw new ItemNotFoundException("해당 거래처에서 취급하는 품목이 아닙니다.");
+            }
+
+            PurchasePrintItemDTO printItem = new PurchasePrintItemDTO(item.getName(),
+                                                                        item.getUniqueCode(),
+                                                                        item.getPurchasePrice(),
+                                                                        purchaseItem.getQuantity());
+
+            printItems.add(printItem);
+        }
+
+        // 내부용 발주서 출력 응답 반환
+        PurchasePrintResponseDTO printResponse = new PurchasePrintResponseDTO();
+        printResponse.setLetterOfPurchaseCode(letterOfPurchaseCode);
+        printResponse.setCreatedAt((letterOfPurchase.getCreatedAt())
+                                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        printResponse.setMemberName(letterOfPurchase.getMember().getName());
+        printResponse.setPositionName(letterOfPurchase.getMember().getPurchasePosition().getName());
+        printResponse.setCompanyName(company.getName());
+        printResponse.setBusinessNumber(company.getBusinessNumber());
+        printResponse.setCorporateNumber(company.getCorporateNumber());
+        printResponse.setCeoName(company.getCeoName());
+        printResponse.setCompanyContact(company.getContact());
+        printResponse.setSealImageUrl(null);
         printResponse.setItems(printItems);
         printResponse.setSumPrice(letterOfPurchase.getSumPrice());
         printResponse.setVatSum(letterOfPurchase.getSumPrice() / 10);
