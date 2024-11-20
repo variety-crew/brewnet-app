@@ -446,4 +446,19 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         return printResponse;
     }
+
+    @Transactional
+    @Override
+    public void sendLetterOfPurchase(int letterOfPurchaseCode) {
+        LetterOfPurchase letterOfPurchase = letterOfPurchaseRepository
+                                            .findByLetterOfPurchaseCodeAndActiveTrue(letterOfPurchaseCode);
+
+        // 발주서가 유효한건지, 결재 승인 처리된 건지 체크
+        if (letterOfPurchase == null) {
+            throw new PurchaseNotFoundException("발주서가 삭제되었거나 존재하지 않습니다.");
+        }
+        else if (!letterOfPurchase.getApproved().equals(IsApproved.APPROVED)) {
+            throw new InvalidDataException("결재 승인되지 않은 발주서입니다.");
+        }
+    }
 }

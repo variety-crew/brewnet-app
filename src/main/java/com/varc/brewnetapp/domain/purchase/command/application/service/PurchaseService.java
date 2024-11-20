@@ -19,4 +19,6 @@ public interface PurchaseService {
 
     PurchasePrintResponseDTO takeInHousePurchasePrint(int letterOfPurchaseCode,
                                                       InHousePurchasePrintRequestDTO printRequest);
+
+    void sendLetterOfPurchase(int letterOfPurchaseCode);
 }
