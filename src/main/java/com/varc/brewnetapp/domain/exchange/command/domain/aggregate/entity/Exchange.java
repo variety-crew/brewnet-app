@@ -15,6 +15,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 무분별한 객체 생성 방지
 @AllArgsConstructor
 @ToString
+@Builder(toBuilder = true)
 public class Exchange {
 
     @Id
@@ -39,8 +40,8 @@ public class Exchange {
     private String explanation;         // 교환사유설명
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "approved", nullable = false)
-    private Approval approved;          // 교환결재승인
+    @Column(name = "approval_status", nullable = false)
+    private Approval approvalStatus;    // 교환결재승인
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_code", nullable = false)
@@ -60,20 +61,4 @@ public class Exchange {
 
     @Column(name = "sum_price", nullable = false)
     private int sumPrice;              // 교환 금액 합계
-
-    @Builder(toBuilder = true)
-    public Exchange(String comment, String createdAt, boolean active, ExchangeReason reason, Approval approved,
-                    String explanation, ExOrder order, Member memberCode, Member delivery, DrafterApproved drafterApproved, int sumPrice) {
-        this.comment = comment;
-        this.createdAt = createdAt;
-        this.active = active;
-        this.reason = reason;
-        this.explanation = explanation;
-        this.approved = approved;
-        this.order = order;
-        this.memberCode = memberCode;
-        this.delivery = delivery;
-        this.drafterApproved = drafterApproved;
-        this.sumPrice = sumPrice;
-    }
 }

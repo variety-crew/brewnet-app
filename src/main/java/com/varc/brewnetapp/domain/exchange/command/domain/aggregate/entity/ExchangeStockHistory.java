@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
-@Setter
+//@Setter
 @Entity
 @Table(name = "tbl_exchange_stock_history")
 @NoArgsConstructor

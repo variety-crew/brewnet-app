@@ -14,7 +14,7 @@
         <result property="memberCode" column="member_name"/>
         <result property="createdAt" column="created_at"/>
         <result property="status" column="status"/>
-        <result property="approved" column="approved"/>
+        <result property="approvalStatus" column="approval_status"/>
     </resultMap>
 
     <resultMap id="exchangeDetailItemResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeItemVO">
@@ -152,7 +152,7 @@
                       , F.name AS member_name
                       , A.created_at
                       , G.status
-                      , A.approved
+                      , A.approval_status
                    FROM tbl_exchange A
                         JOIN tbl_order B ON A.order_code = B.order_code
                         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
@@ -180,7 +180,7 @@
             , F.name AS member_name
             , A.created_at
             , G.status
-            , A.approved
+            , A.approval_status
          FROM tbl_exchange A
               JOIN tbl_order B ON A.order_code = B.order_code
               JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
@@ -209,7 +209,7 @@
             , F.name AS member_name
             , A.created_at
             , G.status
-            , A.approved
+            , A.approval_status
          FROM tbl_exchange A
               JOIN tbl_order B ON A.order_code = B.order_code
               JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
@@ -239,7 +239,7 @@
                 AND A.created_at BETWEEN #{ startDate } AND CONCAT(#{ endDate }, ' 23:59:59')
             </if>
         </where>
-        GROUP BY A.exchange_code, C.franchise_name, A.reason, F.name, A.created_at, G.status, A.approved
+        GROUP BY A.exchange_code, C.franchise_name, A.reason, F.name, A.created_at, G.status, A.approval_status
         ORDER BY A.created_at DESC
         LIMIT #{ offset }, #{ pageSize };
     </select>
@@ -354,8 +354,8 @@
     <select id="selectExchangeHistoryDetailBy" resultMap="exchangeHistoryDetailResultMap">
         SELECT
               A.exchange_stock_history_code
-            , B.created_at AS exchange_create_at
-            , D.franchise_name
+            , B.created_at AS exchange_created_at
+        , D.franchise_name
             , B.reason
             , B.member_code AS exchange_manager
             , A.comment

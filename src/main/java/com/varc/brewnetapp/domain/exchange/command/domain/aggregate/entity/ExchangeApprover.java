@@ -4,12 +4,13 @@ import com.varc.brewnetapp.common.domain.approve.Approval;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Builder
 @Data
 @Getter
-@Setter
+//@Setter
 @Entity
 @Table(name = "tbl_exchange_approver")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString
 public class ExchangeApprover {

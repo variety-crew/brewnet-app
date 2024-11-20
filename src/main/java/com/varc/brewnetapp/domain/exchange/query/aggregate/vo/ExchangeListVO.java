@@ -16,5 +16,5 @@ public class ExchangeListVO {
     private String memberCode;          // 교환담당자
     private String createdAt;           // 교환요청일자
     private ExchangeStatus status;      // 교환상태
-    private Approval approved;  // 교환 승인 상태
+    private Approval approvalStatus;    // 교환 승인 상태
 }

@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 import lombok.*;
 
 @Getter
-@Setter
+//@Setter
 @Entity
 @Table(name = "tbl_exchange_item_status")
 @NoArgsConstructor

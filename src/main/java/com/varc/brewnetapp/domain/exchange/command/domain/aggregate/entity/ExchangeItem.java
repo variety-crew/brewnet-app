@@ -5,7 +5,7 @@ import lombok.*;
 
 @Data
 @Getter
-@Setter
+//@Setter
 @Entity
 @Table(name = "tbl_exchange_item")
 @NoArgsConstructor
@@ -16,5 +16,5 @@ public class ExchangeItem {
     private ExchangeItemCode exchangeItemCode;  // (복합키) 교환코드, 상품코드
 
     @Column(name = "quantity", nullable = false)
-    private int quantity;                   // 수량
+    private int quantity;                       // 수량
 }

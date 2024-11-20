@@ -52,7 +52,7 @@ public class ExchangeServiceImpl implements ExchangeService{
                     .active(true)
                     .reason(exchangeReqVO.getReason())
                     .explanation(exchangeReqVO.getExplanation())
-                    .approved(Approval.UNCONFIRMED)
+                    .approvalStatus(Approval.UNCONFIRMED)
                     .order(order)
                     .memberCode(null)
                     .delivery(null)
@@ -80,11 +80,12 @@ public class ExchangeServiceImpl implements ExchangeService{
 
 
             // 4. 교환상태이력 저장
-            ExchangeStatusHistory exchangeStatusHistory = new ExchangeStatusHistory();
-            exchangeStatusHistory.setStatus(ExchangeStatus.REQUESTED);
-            exchangeStatusHistory.setCreatedAt(String.valueOf(LocalDateTime.now()));
-            exchangeStatusHistory.setActive(true);
-            exchangeStatusHistory.setExchange(exchange);
+            ExchangeStatusHistory exchangeStatusHistory = ExchangeStatusHistory.builder()
+                    .status(ExchangeStatus.REQUESTED)
+                    .createdAt(String.valueOf(LocalDateTime.now()))
+                    .active(true)
+                    .exchange(exchange)
+                    .build();
 
             exchangeStatusHistoryRepository.save(exchangeStatusHistory);
 
@@ -102,6 +103,7 @@ public class ExchangeServiceImpl implements ExchangeService{
 
         // 1. 해당 취소요청의 교환내역이 이 가맹점에서 작성한 것이 맞는지 확인
         if (exchangeServiceQuery.isValidExchangeByFranchise(loginId, exchangeCode)) {
+
             // 2. 교환 상태 이력(tbl_exchange_status_history)테이블에 취소내역 저장
             Exchange exchange = exchangeRepository.findById(exchangeCode)
                     .orElseThrow(() -> new ExchangeNotFoundException("교환 코드가 존재하지 않습니다."));
@@ -111,11 +113,12 @@ public class ExchangeServiceImpl implements ExchangeService{
             // status가 REQUESTED인 경우에만 취소 가능
             if (exchangeStatus == ExchangeStatus.REQUESTED) {
 
-                ExchangeStatusHistory exchangeStatusHistory = new ExchangeStatusHistory();
-                exchangeStatusHistory.setStatus(ExchangeStatus.CANCELED);
-                exchangeStatusHistory.setCreatedAt(String.valueOf(LocalDateTime.now()));
-                exchangeStatusHistory.setActive(true);
-                exchangeStatusHistory.setExchange(exchange);
+                ExchangeStatusHistory exchangeStatusHistory = ExchangeStatusHistory.builder()
+                        .status(ExchangeStatus.CANCELED)
+                        .createdAt(String.valueOf(LocalDateTime.now()))
+                        .active(true)
+                        .exchange(exchange)
+                        .build();
 
                 exchangeStatusHistoryRepository.save(exchangeStatusHistory);
 
@@ -135,6 +138,7 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     @Override
+    @Transactional
     public void approveExchange(String loginId, ExchangeApproveReqVO exchangeApproveReqVO) {
         /*
          * 교환 결재 신청(최초기안자)
@@ -149,7 +153,7 @@ public class ExchangeServiceImpl implements ExchangeService{
         Exchange exchange = exchangeRepository.findById(exchangeApproveReqVO.getExchangeCode())
                 .orElseThrow(() -> new ExchangeNotFoundException("교환 코드가 존재하지 않습니다."));
 
-        if (exchange.getApproved() != Approval.UNCONFIRMED) {
+        if (exchange.getApprovalStatus() != Approval.UNCONFIRMED) {
             throw new InvalidStatusException("이미 결재신청이 완료된 교환입니다.");
         } else if (exchange.getDrafterApproved() != DrafterApproved.NONE) {
             throw new InvalidStatusException("이미 결재신청이 진행 중인 교환입니다.");
@@ -170,6 +174,7 @@ public class ExchangeServiceImpl implements ExchangeService{
                 .comment(exchangeApproveReqVO.getComment())
                 .build();
 
+
         exchangeRepository.save(exchange);
 
 
@@ -177,35 +182,40 @@ public class ExchangeServiceImpl implements ExchangeService{
 
         // 2-1. 기안자 등록 -> 여기에 기안자도 등록되는거 맞는지 확인 필요
         // 복합키 객체 생성
-        ExchangeApproverCode drafterApproverCode = new ExchangeApproverCode();
-        drafterApproverCode.setMemberCode(member.getMemberCode());                     // 멤버 코드 설정
-        drafterApproverCode.setExchangeCode(exchangeApproveReqVO.getExchangeCode());   // 교환 코드 설정
+        ExchangeApproverCode drafterApproverCode = ExchangeApproverCode.builder()
+                .memberCode(member.getMemberCode())         // 멤버 코드 설정
+                .exchangeCode(exchange.getExchangeCode())   // 교환 코드 설정
+                .build();
 
         // ExchangeApprover 객체 생성
-        ExchangeApprover drafterApprover = new ExchangeApprover();
-        drafterApprover.setExchangeApproverCode(drafterApproverCode);  // 복합키 설정
-        drafterApprover.setApproved(Approval.APPROVED); // 기안자는 승인으로 저장?
-        drafterApprover.setCreatedAt(String.valueOf(LocalDateTime.now()));
-        drafterApprover.setComment(exchange.getComment());
-        drafterApprover.setActive(true);
+        ExchangeApprover drafterApprover = ExchangeApprover.builder()
+                .exchangeApproverCode(drafterApproverCode) // 복합키 설정
+                .approved(Approval.APPROVED) // 기안자는 승인으로 저장?
+                .createdAt(String.valueOf(LocalDateTime.now()))
+                .comment(exchange.getComment())
+                .active(true)
+                .build();
 
         exchangeApproverRepository.save(drafterApprover);
+
 
         // 2-2. 결재자들 등록
         for (Integer approverCode : exchangeApproveReqVO.getApproverCodeList()) {
 
             // 복합키 객체 생성
-            ExchangeApproverCode exchangeApproverCode = new ExchangeApproverCode();
-            exchangeApproverCode.setMemberCode(approverCode);                                 // 멤버 코드 설정
-            exchangeApproverCode.setExchangeCode(exchangeApproveReqVO.getExchangeCode());     // 교환 코드 설정
+            ExchangeApproverCode exchangeApproverCode = ExchangeApproverCode.builder()
+                    .memberCode(member.getMemberCode())         // 멤버 코드 설정
+                    .exchangeCode(exchange.getExchangeCode())   // 교환 코드 설정
+                    .build();
 
             // ExchangeApprover 객체 생성
-            ExchangeApprover exchangeApprover = new ExchangeApprover();
-            exchangeApprover.setExchangeApproverCode(exchangeApproverCode);  // 복합키 설정
-            exchangeApprover.setApproved(Approval.UNCONFIRMED);
-            exchangeApprover.setCreatedAt(null);
-            exchangeApprover.setComment(null);
-            exchangeApprover.setActive(true);
+            ExchangeApprover exchangeApprover = ExchangeApprover.builder()
+                    .exchangeApproverCode(exchangeApproverCode)  // 복합키 설정
+                    .approved(Approval.UNCONFIRMED)
+                    .createdAt(null)
+                    .comment(null)
+                    .active(true)
+                    .build();
 
             exchangeApproverRepository.save(exchangeApprover);
         }
