@@ -2,6 +2,7 @@ package com.varc.brewnetapp.domain.exchange.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.FranExchangeDetailVO;
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.FranExchangeItemVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.FranExchangeListVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.FranExchangeStatusVO;
 import com.varc.brewnetapp.domain.exchange.query.service.ExchangeServiceImpl;
@@ -69,4 +70,18 @@ public class FrExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 상세조회 성공", result));
     }
 
+    @GetMapping("/available-orders")
+    @Operation(summary = "[가맹점] 교환신청 - 1. 교환신청 가능한 주문 목록 조회 API")
+    public ResponseEntity<ResponseMessage<List<Integer>>> findFranAvailableExchangeBy(@RequestAttribute("loginId") String loginId) {
+        List<Integer> result = exchangeService.findFranAvailableExchangeBy(loginId);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 상세조회 성공", result));
+    }
+
+    @GetMapping("/available-items/{orderCode}")
+    @Operation(summary = "[가맹점] 교환신청 - 2. 교환신청할 주문의 상품목록 조회 API")
+    public ResponseEntity<ResponseMessage<List<FranExchangeItemVO>>> findFranAvailableExchangeItemBy(@RequestAttribute("loginId") String loginId,
+                                                                                                     @PathVariable("orderCode") int orderCode) {
+        List<FranExchangeItemVO> result = exchangeService.findFranAvailableExchangeItemBy(loginId, orderCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 상세조회 성공", result));
+    }
 }

@@ -1,6 +1,6 @@
 package com.varc.brewnetapp.domain.exchange.query.service;
 
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
+import com.varc.brewnetapp.common.domain.exchange.ExchangeStatus;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.*;
 import com.varc.brewnetapp.domain.exchange.query.mapper.ExchangeMapper;
 import com.varc.brewnetapp.exception.ExchangeNotFoundException;
@@ -12,9 +12,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service("ExchangeServiceQuery")
 @Slf4j
@@ -138,7 +136,7 @@ public class ExchangeServiceImpl implements ExchangeService{
 
     @Override
     public FranExchangeDetailVO findFranExchangeDetailBy(String loginId, int exchangeCode) {
-        // 해당 가맹점에서 교환신청한 내역이 맞는지 확인
+        // 해당 가맹점에서 교환신청한 내역이 맞는지 검증
         if (isValidExchangeByFranchise(loginId, exchangeCode)) {
             FranExchangeDetailVO franExchangeDetail = exchangeMapper.selectFranExchangeDetailBy(exchangeCode);
             return franExchangeDetail;
@@ -175,7 +173,7 @@ public class ExchangeServiceImpl implements ExchangeService{
         return exchangeApproverList;
     }
 
-    /* 유저 아이디(loginId)와 교환코드(exchangeCode)로 해당 가맹점의 주문이 맞는지 확인하는 메서드 */
+    /* 유저 아이디(loginId)와 교환코드(exchangeCode)로 해당 가맹점의 주문이 맞는지 검증하는 메서드 */
     // 가맹점 목록조회/가맹점 상세조회에서 유효한 요청인지 검증하기 위해 사용
     @Override
     public boolean isValidExchangeByFranchise(String loginId, int exchangeCode) {
@@ -183,10 +181,30 @@ public class ExchangeServiceImpl implements ExchangeService{
     }
 
     // fix: 이동 필요
-    /* 유저 아이디(loginId)와 주문코드(orderCode)로 해당 가맹점의 주문이 맞는지 확인하는 메서드 */
+    /* 유저 아이디(loginId)와 주문코드(orderCode)로 해당 가맹점의 주문이 맞는지 검증하는 메서드 */
     // 가맹점 교환신청 시 유효한 요청인지 검증하기 위해 사용
     @Override
     public boolean isValidOrderByFranchise(String loginId, int orderCode) {
         return exchangeMapper.selectValidExchangeByFranchise(loginId, orderCode);
     }
+
+    /* 유저 아이디(loginId)로 교환신청 가능한 주문코드 목록을 찾는 메서드 */
+    // 가맹점 교환신청 시 교환신청 가능한 주문 목록 찾기 위해 사용(주문에 교환신청 가능한 물품이 1건 이상인 경우에 포함됨)
+    @Override
+    public List<Integer> findFranAvailableExchangeBy(String loginId) {
+        return exchangeMapper.selectAvailableExchangeBy(loginId);
+    }
+
+    /* 주문코드(orderCode)로 교환신청 가능한 그 주문의 상품 리스트 찾는 메서드 */
+    // 가맹점 교환신청 시 선택한 주문코드에서 교환신청 가능한 상품목록을 찾기 위해 사용
+    @Override
+    public List<FranExchangeItemVO> findFranAvailableExchangeItemBy(String loginId, int orderCode) {
+        // 해당 가맹점에서 주문한 내역이 맞는지 검증
+        if (isValidOrderByFranchise(loginId, orderCode)) {
+            return exchangeMapper.selectAvailableExchangeItemBy(orderCode);
+        } else {
+            throw new UnauthorizedAccessException("로그인한 가맹점에서 신청한 주문의 상품 리스트만 조회할 수 있습니다");
+        }
+    }
+
 }

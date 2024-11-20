@@ -1,11 +1,10 @@
 package com.varc.brewnetapp.domain.exchange.query.mapper;
 
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
+import com.varc.brewnetapp.common.domain.exchange.ExchangeStatus;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Mapper
@@ -41,4 +40,8 @@ public interface ExchangeMapper {
     List<ExchangeApproverVO> selectExchangeApproverBy(int exchangeCode);
 
     boolean selectValidExchangeByFranchise(String loginId, int exchangeCode);
+
+    List<Integer> selectAvailableExchangeBy(String loginId);
+
+    List<FranExchangeItemVO> selectAvailableExchangeItemBy(int orderCode);
 }

@@ -1,12 +1,11 @@
 package com.varc.brewnetapp.domain.exchange.query.service;
 
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
+import com.varc.brewnetapp.common.domain.exchange.ExchangeStatus;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Map;
 
 public interface ExchangeService {
     Page<ExchangeListVO> findExchangeList(Pageable page);
@@ -36,4 +35,8 @@ public interface ExchangeService {
     boolean isValidExchangeByFranchise(String loginId, int exchangeCode);
 
     boolean isValidOrderByFranchise(String loginId, int orderCode);
+
+    List<Integer> findFranAvailableExchangeBy(String loginId);
+
+    List<FranExchangeItemVO> findFranAvailableExchangeItemBy(String loginId, int orderCode);
 }
