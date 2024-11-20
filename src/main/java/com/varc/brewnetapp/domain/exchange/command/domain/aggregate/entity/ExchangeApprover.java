@@ -1,6 +1,6 @@
 package com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity;
 
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeApproval;
+import com.varc.brewnetapp.common.domain.approve.Approval;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +19,7 @@ public class ExchangeApprover {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "approved", nullable = false)
-    private ExchangeApproval approved;              // 승인여부
+    private Approval approved;              // 승인여부
 
     @Column(name = "created_at", nullable = true)
     private String createdAt;                       // 결재일시

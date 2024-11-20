@@ -1,7 +1,7 @@
 package com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity;
 
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeApproval;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeDraftApproval;
+import com.varc.brewnetapp.common.domain.approve.Approval;
+import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,11 +30,11 @@ public class ExOrder {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "approved", nullable = false)
-    private ExchangeApproval approved;
+    private Approval approved;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "drafter_approved")
-    private ExchangeDraftApproval drafterApproved;
+    private DrafterApproved drafterApproved;
 
     @Column(name = "sum_price", nullable = false)
     private Integer sumPrice;

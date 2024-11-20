@@ -1,12 +1,10 @@
 package com.varc.brewnetapp.domain.exchange.query.aggregate.vo;
 
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeConfirmed;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeHistoryStatus;
+import com.varc.brewnetapp.common.domain.approve.Confirmed;
+import com.varc.brewnetapp.common.domain.exchange.ExchangeHistoryStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,7 +14,7 @@ public class ExchangeHistoryVO {
     private ExchangeHistoryStatus status;
     private String manager;
     private String createdAt;
-    private ExchangeConfirmed confirmed;
+    private Confirmed confirmed;
     private String exchangeCode;
     private String exchangeManager;
 }

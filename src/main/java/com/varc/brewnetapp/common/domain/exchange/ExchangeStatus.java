@@ -1,4 +1,4 @@
-package com.varc.brewnetapp.domain.exchange.enums;
+package com.varc.brewnetapp.common.domain.exchange;
 
 public enum ExchangeStatus {
     REQUESTED("교환요청"),

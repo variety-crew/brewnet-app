@@ -1,9 +1,9 @@
 package com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity;
 
+import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrder;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeApproval;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeDraftApproval;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeReason;
+import com.varc.brewnetapp.common.domain.approve.Approval;
+import com.varc.brewnetapp.common.domain.exchange.ExchangeReason;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -40,7 +40,7 @@ public class Exchange {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "approved", nullable = false)
-    private ExchangeApproval approved;  // 교환결재승인
+    private Approval approved;          // 교환결재승인
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_code", nullable = false)
@@ -48,15 +48,15 @@ public class Exchange {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_code", nullable = true)
-    private Member memberCode;        // 교환 기안자
+    private Member memberCode;          // 교환 기안자
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_code", nullable = true)
-    private Member delivery;      // 배송기사
+    private Member delivery;            // 배송기사
 
     @Enumerated(EnumType.STRING)
     @Column(name = "drafter_approved", nullable = true)
-    private ExchangeDraftApproval drafterApproved;     // 기안자의 교환 승인 여부
+    private DrafterApproved drafterApproved;     // 기안자의 교환 승인 여부
 
     @Column(name = "sum_price", nullable = false)
     private int sumPrice;              // 교환 금액 합계
