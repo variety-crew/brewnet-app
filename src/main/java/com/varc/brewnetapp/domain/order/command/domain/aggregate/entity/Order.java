@@ -29,8 +29,8 @@ public class Order {
     private boolean active = true;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "approved", nullable = false)
-    private OrderStatus orderStatus;
+    @Column(name = "approval_status", nullable = false)
+    private OrderStatus approvalStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "drafter_approved", nullable = false)

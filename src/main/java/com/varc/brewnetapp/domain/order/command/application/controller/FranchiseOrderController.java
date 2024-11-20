@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@RestController(value="commandOrderController")
+@RestController
 @RequestMapping("api/v1/franchise/orders")
 public class FranchiseOrderController {
 
@@ -24,9 +24,10 @@ public class FranchiseOrderController {
     // 주문 요청
     @PostMapping
     public ResponseEntity<ResponseMessage<OrderRequestResponseDTO>> franchiseOrder(
-            @RequestAttribute("loginId") String loginId,
             @RequestBody OrderRequestDTO orderRequestDTO
     ) {
+
+        // TODO: is member from target franchise
         OrderRequestResponseDTO orderRequestResponse = orderService.orderRequestByFranchise(orderRequestDTO);
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "본사로의 주문요청이 완료됐습니다.", orderRequestResponse)
@@ -38,7 +39,10 @@ public class FranchiseOrderController {
     public ResponseEntity<ResponseMessage<Void>> cancelOrder(
             @PathVariable("orderCode") String orderCode
     ) {
-        log.debug("cancelOrder called");
+
+        // TODO: validate
+        //  If the requester is from target franchise
+
         orderService.cancelOrderRequest(Integer.parseInt(orderCode));
         return ResponseEntity.ok(
                 new ResponseMessage<>(204, "주문 요청이 취소되었습니다.", null)
