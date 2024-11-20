@@ -1,8 +1,6 @@
 package com.varc.brewnetapp.domain.purchase.command.application.service;
 
-import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseApprovalRequestDTO;
-import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseItemDTO;
-import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseRequestDTO;
+import com.varc.brewnetapp.domain.purchase.command.application.dto.*;
 import com.varc.brewnetapp.domain.purchase.command.domain.aggregate.*;
 import com.varc.brewnetapp.domain.purchase.command.domain.repository.*;
 import com.varc.brewnetapp.domain.purchase.common.IsApproved;
@@ -15,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -34,6 +34,9 @@ public class PurchaseServiceImpl implements PurchaseService {
     private final PurchaseApprovalRepository purchaseApprovalRepository;
     private final LetterOfPurchaseApproverRepository letterOfPurchaseApproverRepository;
     private final PurchasePositionRepository purchasePositionRepository;
+    private final PurchaseSealRepository purchaseSealRepository;
+    private final PurchasePrintRepository purchasePrintRepository;
+    private final CompanyTempRepository companyTempRepository;
 
     @Autowired
     public PurchaseServiceImpl(ModelMapper modelMapper,
@@ -48,7 +51,10 @@ public class PurchaseServiceImpl implements PurchaseService {
                                LetterOfPurchaseItemRepository letterOfPurchaseItemRepository,
                                PurchaseApprovalRepository purchaseApprovalRepository,
                                LetterOfPurchaseApproverRepository letterOfPurchaseApproverRepository,
-                               PurchasePositionRepository purchasePositionRepository) {
+                               PurchasePositionRepository purchasePositionRepository,
+                               PurchaseSealRepository purchaseSealRepository,
+                               PurchasePrintRepository purchasePrintRepository,
+                               CompanyTempRepository companyTempRepository) {
         this.modelMapper = modelMapper;
         this.letterOfPurchaseRepository = letterOfPurchaseRepository;
         this.purchaseMemberRepository = purchaseMemberRepository;
@@ -62,6 +68,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         this.purchaseApprovalRepository = purchaseApprovalRepository;
         this.letterOfPurchaseApproverRepository = letterOfPurchaseApproverRepository;
         this.purchasePositionRepository = purchasePositionRepository;
+        this.purchaseSealRepository = purchaseSealRepository;
+        this.purchasePrintRepository = purchasePrintRepository;
+        this.companyTempRepository = companyTempRepository;
     }
 
     @Transactional
@@ -277,5 +286,88 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         stock.setInStock(inStock);
         stock.setAvailableStock(availableStock);
+    }
+
+    @Transactional
+    @Override
+    public ExportPurchasePrintResponseDTO exportPurchasePrint(int letterOfPurchaseCode,
+                                                              ExportPurchasePrintRequestDTO printRequest) {
+
+        // 외부용 발주서 출력 내역 먼저 저장
+        LetterOfPurchase letterOfPurchase = letterOfPurchaseRepository
+                                            .findByLetterOfPurchaseCodeAndActiveTrue(letterOfPurchaseCode);
+
+        if (letterOfPurchase == null) {
+            throw new PurchaseNotFoundException("발주서가 삭제되었거나 존재하지 않습니다.");
+        }
+        else if (!letterOfPurchase.getApproved().equals(IsApproved.APPROVED)) {
+            throw new InvalidDataException("결재 승인되지 않은 발주서입니다.");
+        }
+
+        PurchaseMember member = purchaseMemberRepository.findById(printRequest.getMemberCode())
+                                .orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
+
+        PurchasePrint purchasePrint = new PurchasePrint();
+        purchasePrint.setReason(printRequest.getReason());
+        purchasePrint.setPrintedAt(LocalDateTime.now());
+        purchasePrint.setActive(true);
+        purchasePrint.setMember(member);
+        purchasePrint.setLetterOfPurchase(letterOfPurchase);
+        purchasePrintRepository.save(purchasePrint);
+
+        // 외부용이므로 발주서에 법인 인감 코드 set
+        PurchaseSeal seal = purchaseSealRepository.findTopByActiveTrueOrderBySealCodeDesc();
+        letterOfPurchase.setSeal(seal);
+
+        CompanyTemp company = companyTempRepository.findTopByActiveTrueOrderByCompanyCodeDesc();
+        Correspondent correspondent = letterOfPurchase.getCorrespondent();
+        Storage storage = letterOfPurchase.getStorage();
+
+        List<PurchasePrintItemDTO> printItems = new ArrayList<>();
+        List<LetterOfPurchaseItem> purchaseItems = letterOfPurchaseItemRepository
+                                            .findByLetterOfPurchaseCode(letterOfPurchaseCode);
+
+        // 발주서의 상품 목록 불러오기
+        for (LetterOfPurchaseItem purchaseItem : purchaseItems) {
+            PurchaseItem item = purchaseItemRepository.findByItemCodeAndActiveTrue(purchaseItem.getItemCode());
+
+            if (item == null) throw new ItemNotFoundException("삭제되었거나 존재하지 않는 상품입니다.");
+            if (!correspondentItemRepository.existsByCorrespondentCodeAndItemCodeAndActiveTrue(
+                                                correspondent.getCorrespondentCode(), item.getItemCode())) {
+                throw new ItemNotFoundException("해당 거래처에서 취급하는 품목이 아닙니다.");
+            }
+
+            PurchasePrintItemDTO printItem = new PurchasePrintItemDTO(item.getName(),
+                                                                        item.getUniqueCode(),
+                                                                        item.getPurchasePrice(),
+                                                                        purchaseItem.getQuantity());
+
+            printItems.add(printItem);
+        }
+
+        // 문서 출력 응답 반환
+        ExportPurchasePrintResponseDTO printResponse = new ExportPurchasePrintResponseDTO();
+        printResponse.setLetterOfPurchaseCode(letterOfPurchaseCode);
+        printResponse.setCreatedAt((letterOfPurchase.getCreatedAt())
+                                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        printResponse.setMemberName(letterOfPurchase.getMember().getName());
+        printResponse.setPositionName(letterOfPurchase.getMember().getPurchasePosition().getName());
+        printResponse.setCompanyName(company.getName());
+        printResponse.setBusinessNumber(company.getBusinessNumber());
+        printResponse.setCorporateNumber(company.getCorporateNumber());
+        printResponse.setCeoName(company.getCeoName());
+        printResponse.setCompanyContact(company.getContact());
+        printResponse.setSealImageUrl(seal.getImageUrl());
+        printResponse.setItems(printItems);
+        printResponse.setSumPrice(letterOfPurchase.getSumPrice());
+        printResponse.setVatSum(letterOfPurchase.getSumPrice() / 10);
+        printResponse.setCorrespondentName(correspondent.getName());
+        printResponse.setManagerName(correspondent.getManagerName());
+        printResponse.setCorrespondentContact(correspondent.getContact());
+        printResponse.setStorageName(storage.getName());
+        printResponse.setStorageAddress(storage.getAddress());
+        printResponse.setStorageContact(storage.getContact());
+
+        return printResponse;
     }
 }
