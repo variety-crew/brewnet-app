@@ -41,29 +41,26 @@ public class ExchangeServiceImpl implements ExchangeService{
     @Transactional
     public void createExchange(String loginId, ExchangeReqVO exchangeReqVO) {
 
-        // 1. 교환 저장
-        Exchange exchange = new Exchange();
-
-        // 1-1. 해당 주문이 이 가맹점의 주문이 맞는지 확인
+        // 1. 해당 주문이 이 가맹점의 주문이 맞는지 확인
         ExOrder order = orderRepository.findById(exchangeReqVO.getOrderCode()).orElse(null);
 
+        // 2. 교환 객체 생성
         if (exchangeServiceQuery.isValidOrderByFranchise(loginId, exchangeReqVO.getOrderCode())) {
-            exchange.setComment(null);          // 첨언 null
-            exchange.setCreatedAt(String.valueOf(LocalDateTime.now()));
-            exchange.setActive(true);
-            exchange.setReason(exchangeReqVO.getReason());
-            exchange.setExplanation(exchangeReqVO.getExplanation());
-            exchange.setApproved(Approval.UNCONFIRMED);
-            exchange.setOrder(order);
-            exchange.setMemberCode(null);       // 교환 기안자 null
-            exchange.setDelivery(null);         // 배송기사 null
-            exchange.setDrafterApproved(DrafterApproved.NONE);
-            exchange.setSumPrice(exchangeReqVO.getSumPrice());
+            Exchange exchange = Exchange.builder()
+                    .comment(null)
+                    .createdAt(String.valueOf(LocalDateTime.now()))
+                    .active(true)
+                    .reason(exchangeReqVO.getReason())
+                    .explanation(exchangeReqVO.getExplanation())
+                    .approved(Approval.UNCONFIRMED)
+                    .order(order)
+                    .memberCode(null)
+                    .delivery(null)
+                    .drafterApproved(DrafterApproved.NONE)
+                    .sumPrice(exchangeReqVO.getSumPrice())
+                    .build();
 
-            exchangeRepository.save(exchange);
-
-
-            // 2. 교환별상품 저장
+            // 3. 교환별상품 저장
             int exchangeCode = exchange.getExchangeCode();
 
             for (ExchangeReqItemVO reqItem: exchangeReqVO.getExchangeItemList()) {
@@ -82,7 +79,7 @@ public class ExchangeServiceImpl implements ExchangeService{
             }
 
 
-            // 3. 교환상태이력 저장
+            // 4. 교환상태이력 저장
             ExchangeStatusHistory exchangeStatusHistory = new ExchangeStatusHistory();
             exchangeStatusHistory.setStatus(ExchangeStatus.REQUESTED);
             exchangeStatusHistory.setCreatedAt(String.valueOf(LocalDateTime.now()));
@@ -92,7 +89,7 @@ public class ExchangeServiceImpl implements ExchangeService{
             exchangeStatusHistoryRepository.save(exchangeStatusHistory);
 
 
-            // 4. 교환품목사진 저장
+            // 5. 교환품목사진 저장
 
         } else {
             throw new UnauthorizedAccessException("로그인한 가맹점에서 작성한 주문에 대해서만 교환 요청할 수 있습니다");
@@ -123,7 +120,10 @@ public class ExchangeServiceImpl implements ExchangeService{
                 exchangeStatusHistoryRepository.save(exchangeStatusHistory);
 
                 // 3. 교환(tbl_exchange) 테이블의 활성화(active)를 false로 변경
-                exchange.setActive(false);
+                exchange = exchange.toBuilder()     // 새 객체가 생성되지만, 영속성 컨텍스트는 아님
+                        .active(false)
+                        .build();
+                exchangeRepository.save(exchange);  //객체가 영속성 컨텍스트에 저장되고, 엔티티 매니저가 이 객체를 관리함
 
                 return true;
             } else {
@@ -160,16 +160,17 @@ public class ExchangeServiceImpl implements ExchangeService{
 
         // 2. 교환(tbl_exchange) 테이블 '기안자의 교환 승인 여부(drafter_approved)' 변경
         //    '교환 결재 상태(approved)'는 계속 UNCONFIRMED (최종결재자가 결재완료시 변경됨)
-        exchange.setDrafterApproved(exchangeApproveReqVO.getApproval());
 
         Member member = memberRepository.findById(loginId)
                 .orElseThrow(() -> new MemberNotFoundException("해당 아이디의 회원이 존재하지 않습니다."));
-        exchange.setMemberCode(member);
 
-        exchange.setComment(exchangeApproveReqVO.getComment());
+        exchange = exchange.toBuilder()
+                .drafterApproved(exchangeApproveReqVO.getApproval())
+                .memberCode(member)
+                .comment(exchangeApproveReqVO.getComment())
+                .build();
 
         exchangeRepository.save(exchange);
-        log.info("*** ExchangeServiceCommand approveExchange - exchange: {}", exchange);
 
 
         // 3. 교환 별 결재자들(tbl_exchange_approver) 등록 (기안자 제외 approved=UNCONFIRMED)

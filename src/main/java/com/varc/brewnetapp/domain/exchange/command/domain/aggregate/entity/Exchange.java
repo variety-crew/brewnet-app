@@ -9,10 +9,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
-@Setter
+//@Setter
 @Entity
 @Table(name = "tbl_exchange")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // 무분별한 객체 생성 방지
 @AllArgsConstructor
 @ToString
 public class Exchange {
@@ -60,4 +60,20 @@ public class Exchange {
 
     @Column(name = "sum_price", nullable = false)
     private int sumPrice;              // 교환 금액 합계
+
+    @Builder(toBuilder = true)
+    public Exchange(String comment, String createdAt, boolean active, ExchangeReason reason, Approval approved,
+                    String explanation, ExOrder order, Member memberCode, Member delivery, DrafterApproved drafterApproved, int sumPrice) {
+        this.comment = comment;
+        this.createdAt = createdAt;
+        this.active = active;
+        this.reason = reason;
+        this.explanation = explanation;
+        this.approved = approved;
+        this.order = order;
+        this.memberCode = memberCode;
+        this.delivery = delivery;
+        this.drafterApproved = drafterApproved;
+        this.sumPrice = sumPrice;
+    }
 }
