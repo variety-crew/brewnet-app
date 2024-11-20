@@ -1,14 +1,14 @@
 package com.varc.brewnetapp.domain.exchange.command.application.service;
 
+import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
 import com.varc.brewnetapp.domain.exchange.command.application.repository.*;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity.*;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrder;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeApproveReqVO;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeReqItemVO;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeReqVO;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeApproval;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeDraftApproval;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
+import com.varc.brewnetapp.common.domain.approve.Approval;
+import com.varc.brewnetapp.common.domain.exchange.ExchangeStatus;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.exception.ExchangeNotFoundException;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service("ExchangeServiceCommand")
 @RequiredArgsConstructor
@@ -54,11 +53,11 @@ public class ExchangeServiceImpl implements ExchangeService{
             exchange.setActive(true);
             exchange.setReason(exchangeReqVO.getReason());
             exchange.setExplanation(exchangeReqVO.getExplanation());
-            exchange.setApproved(ExchangeApproval.UNCONFIRMED);
+            exchange.setApproved(Approval.UNCONFIRMED);
             exchange.setOrder(order);
             exchange.setMemberCode(null);       // 교환 기안자 null
             exchange.setDelivery(null);         // 배송기사 null
-            exchange.setDrafterApproved(ExchangeDraftApproval.NONE);
+            exchange.setDrafterApproved(DrafterApproved.NONE);
             exchange.setSumPrice(exchangeReqVO.getSumPrice());
 
             exchangeRepository.save(exchange);
@@ -150,9 +149,9 @@ public class ExchangeServiceImpl implements ExchangeService{
         Exchange exchange = exchangeRepository.findById(exchangeApproveReqVO.getExchangeCode())
                 .orElseThrow(() -> new ExchangeNotFoundException("교환 코드가 존재하지 않습니다."));
 
-        if (exchange.getApproved() != ExchangeApproval.UNCONFIRMED) {
+        if (exchange.getApproved() != Approval.UNCONFIRMED) {
             throw new InvalidStatusException("이미 결재신청이 완료된 교환입니다.");
-        } else if (exchange.getDrafterApproved() != ExchangeDraftApproval.NONE) {
+        } else if (exchange.getDrafterApproved() != DrafterApproved.NONE) {
             throw new InvalidStatusException("이미 결재신청이 진행 중인 교환입니다.");
         } else if (exchange.getMemberCode() != null) {
             throw new InvalidStatusException("이미 결재신청이 진행 중인 교환입니다.");
@@ -184,7 +183,7 @@ public class ExchangeServiceImpl implements ExchangeService{
         // ExchangeApprover 객체 생성
         ExchangeApprover drafterApprover = new ExchangeApprover();
         drafterApprover.setExchangeApproverCode(drafterApproverCode);  // 복합키 설정
-        drafterApprover.setApproved(ExchangeApproval.APPROVED); // 기안자는 승인으로 저장?
+        drafterApprover.setApproved(Approval.APPROVED); // 기안자는 승인으로 저장?
         drafterApprover.setCreatedAt(String.valueOf(LocalDateTime.now()));
         drafterApprover.setComment(exchange.getComment());
         drafterApprover.setActive(true);
@@ -202,7 +201,7 @@ public class ExchangeServiceImpl implements ExchangeService{
             // ExchangeApprover 객체 생성
             ExchangeApprover exchangeApprover = new ExchangeApprover();
             exchangeApprover.setExchangeApproverCode(exchangeApproverCode);  // 복합키 설정
-            exchangeApprover.setApproved(ExchangeApproval.UNCONFIRMED);
+            exchangeApprover.setApproved(Approval.UNCONFIRMED);
             exchangeApprover.setCreatedAt(null);
             exchangeApprover.setComment(null);
             exchangeApprover.setActive(true);
