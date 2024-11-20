@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class FranExchangeItemVO {
+    private int itemCode;           // 교환신청 시, 프론트에서 상품 코드를 보내줘야 하기 때문에 필요
     private String itemUniqueCode;  // 상품 고유 코드
     private String itemName;        // 상품명
     private int quantity;           // 교환수량
