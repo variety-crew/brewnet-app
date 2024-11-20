@@ -7,7 +7,7 @@ import lombok.*;
 
 @Data
 @Getter
-@Setter
+//@Setter
 @Entity
 @Table(name = "tbl_order")
 @NoArgsConstructor
@@ -29,8 +29,8 @@ public class ExOrder {
     private Boolean active;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "approved", nullable = false)
-    private Approval approved;
+    @Column(name = "approval_status", nullable = false)
+    private Approval approvalStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "drafter_approved")

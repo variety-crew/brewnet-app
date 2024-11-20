@@ -1,9 +1,12 @@
 package com.varc.brewnetapp.domain.exchange.command.application.service;
 
 import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
+import com.varc.brewnetapp.common.domain.exchange.Availability;
 import com.varc.brewnetapp.domain.exchange.command.application.repository.*;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity.*;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrder;
+import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrderItem;
+import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrderItemCode;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeApproveReqVO;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeReqItemVO;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeReqVO;
@@ -29,8 +32,8 @@ public class ExchangeServiceImpl implements ExchangeService{
 
     // 이후 의존성 수정 필요
     private final ExchangeRepository exchangeRepository;
-    private final OrderRepository orderRepository;
-    private final ItemRepository itemRepository;
+    private final ExOrderRepository exOrderRepository;  // 임시
+    private final ExOrderItemRepository exOrderItemRepository; // 임시
     private final MemberRepository memberRepository;
     private final ExchangeItemRepository exchangeItemRepository;
     private final ExchangeStatusHistoryRepository exchangeStatusHistoryRepository;
@@ -40,48 +43,75 @@ public class ExchangeServiceImpl implements ExchangeService{
     @Override
     @Transactional
     public void createExchange(String loginId, ExchangeReqVO exchangeReqVO) {
+        /*
+         * 교환 신청 시 변하는 상태값
+         * [1] 교환 결재 상태           - tbl_exchange : approvalStatus = UNCONFIRMED
+         * [2] 기안자의 교환 승인 여부    - tbl_exchange : drafterApproved = NONE
+         * [3] 교환상태                - tbl_exchange_status_history : status = REQUESTED
+         * [4] 반품/교환요청 가능여부     - tbl_order_item : available = UNAVAILABLE
+        * */
 
         // 1. 해당 주문이 이 가맹점의 주문이 맞는지 확인
-        ExOrder order = orderRepository.findById(exchangeReqVO.getOrderCode()).orElse(null);
+        ExOrder order = exOrderRepository.findById(exchangeReqVO.getOrderCode()).orElse(null);
 
-        // 2. 교환 객체 생성
         if (exchangeServiceQuery.isValidOrderByFranchise(loginId, exchangeReqVO.getOrderCode())) {
+
+            // 2. 교환 객체 생성
             Exchange exchange = Exchange.builder()
                     .comment(null)
                     .createdAt(String.valueOf(LocalDateTime.now()))
                     .active(true)
                     .reason(exchangeReqVO.getReason())
                     .explanation(exchangeReqVO.getExplanation())
-                    .approvalStatus(Approval.UNCONFIRMED)
+                    .approvalStatus(Approval.UNCONFIRMED)   // [1] 교환 결재 상태
                     .order(order)
                     .memberCode(null)
                     .delivery(null)
-                    .drafterApproved(DrafterApproved.NONE)
+                    .drafterApproved(DrafterApproved.NONE)  // [2] 기안자의 교환 승인 여부
                     .sumPrice(exchangeReqVO.getSumPrice())
                     .build();
 
-            // 3. 교환별상품 저장
-            int exchangeCode = exchange.getExchangeCode();
+            exchangeRepository.save(exchange);
+
 
             for (ExchangeReqItemVO reqItem: exchangeReqVO.getExchangeItemList()) {
 
+                // 3. 교환별상품 저장
                 // 복합키 객체 생성
-                ExchangeItemCode exchangeItemCode = new ExchangeItemCode();
-                exchangeItemCode.setExchangeCode(exchangeCode);                 // 교환 코드 설정
-                exchangeItemCode.setItemCode(reqItem.getItemCode());            // 상품 코드 설정
+                ExchangeItemCode exchangeItemCode = ExchangeItemCode.builder()
+                        .exchangeCode(exchange.getExchangeCode())   // 교환 코드 설정
+                        .itemCode(reqItem.getItemCode())            // 상품 코드 설정
+                        .build();
 
                 // ExchangeItem 객체 생성
-                ExchangeItem exchangeItem = new ExchangeItem();
-                exchangeItem.setExchangeItemCode(exchangeItemCode);  // 복합키 설정
-                exchangeItem.setQuantity(reqItem.getQuantity());
+                ExchangeItem exchangeItem = ExchangeItem.builder()
+                        .exchangeItemCode(exchangeItemCode)         // 복합키 설정
+                        .quantity(reqItem.getQuantity())
+                        .build();
 
                 exchangeItemRepository.save(exchangeItem);
-            }
 
+
+                // 4. 주문 별 상품 - 반품/교환요청 가능여부 변경
+                // 복합키 객체 생성
+                ExOrderItemCode exOrderItemCode = ExOrderItemCode.builder()
+                        .orderCode(order.getOrderCode())            // 주문 코드 설정
+                        .itemCode(reqItem.getItemCode())            // 상품 코드 설정
+                        .build();
+
+                ExOrderItem exOrderItem = exOrderItemRepository.findById(exOrderItemCode)
+                        .orElseThrow(() -> new ExchangeNotFoundException("주문 상품이 존재하지 않습니다."));
+
+                exOrderItem = exOrderItem.toBuilder()
+                        .available(Availability.UNAVAILABLE)        // [4] 반품/교환요청 가능여부
+                        .build();
+
+                exOrderItemRepository.save(exOrderItem);
+            }
 
             // 4. 교환상태이력 저장
             ExchangeStatusHistory exchangeStatusHistory = ExchangeStatusHistory.builder()
-                    .status(ExchangeStatus.REQUESTED)
+                    .status(ExchangeStatus.REQUESTED)   // [3] 교환 상태
                     .createdAt(String.valueOf(LocalDateTime.now()))
                     .active(true)
                     .exchange(exchange)
@@ -91,6 +121,7 @@ public class ExchangeServiceImpl implements ExchangeService{
 
 
             // 5. 교환품목사진 저장
+
 
         } else {
             throw new UnauthorizedAccessException("로그인한 가맹점에서 작성한 주문에 대해서만 교환 요청할 수 있습니다");
@@ -180,7 +211,7 @@ public class ExchangeServiceImpl implements ExchangeService{
 
         // 3. 교환 별 결재자들(tbl_exchange_approver) 등록 (기안자 제외 approved=UNCONFIRMED)
 
-        // 2-1. 기안자 등록 -> 여기에 기안자도 등록되는거 맞는지 확인 필요
+        // 3-1. 기안자 등록 -> 여기에 기안자도 등록되는거 맞는지 확인 필요
         // 복합키 객체 생성
         ExchangeApproverCode drafterApproverCode = ExchangeApproverCode.builder()
                 .memberCode(member.getMemberCode())         // 멤버 코드 설정
@@ -199,7 +230,7 @@ public class ExchangeServiceImpl implements ExchangeService{
         exchangeApproverRepository.save(drafterApprover);
 
 
-        // 2-2. 결재자들 등록
+        // 3-2. 결재자들 등록
         for (Integer approverCode : exchangeApproveReqVO.getApproverCodeList()) {
 
             // 복합키 객체 생성

@@ -5,7 +5,7 @@ import lombok.*;
 
 @Data
 @Getter
-@Setter
+//@Setter
 @Entity
 @Table(name = "tbl_item")
 @NoArgsConstructor
