@@ -49,4 +49,8 @@ public class LetterOfPurchase {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "storage_code", nullable = false)
     private Storage storage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seal_code")
+    private PurchaseSeal seal;
 }

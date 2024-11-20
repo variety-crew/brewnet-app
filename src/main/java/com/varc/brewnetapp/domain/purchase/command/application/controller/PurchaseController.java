@@ -1,6 +1,8 @@
 package com.varc.brewnetapp.domain.purchase.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.purchase.command.application.dto.ExportPurchasePrintRequestDTO;
+import com.varc.brewnetapp.domain.purchase.command.application.dto.ExportPurchasePrintResponseDTO;
 import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseApprovalRequestDTO;
 import com.varc.brewnetapp.domain.purchase.command.application.dto.PurchaseRequestDTO;
 import com.varc.brewnetapp.domain.purchase.command.application.service.PurchaseService;
@@ -68,5 +70,17 @@ public class PurchaseController {
         purchaseService.changeInStockToAvailable(itemCode, purchaseCode);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "발주한 상품 입고 처리 성공", null));
+    }
+
+    @PostMapping("/print-export/{letterOfPurchaseCode}")
+    @Operation(summary = "외부용 발주서 출력 및 출력 내역 저장 API (응답으로 발주서에 출력될 데이터 전달)")
+    public ResponseEntity<ResponseMessage<ExportPurchasePrintResponseDTO>> exportPurchasePrint(
+                                                        @PathVariable int letterOfPurchaseCode,
+                                                        @RequestBody ExportPurchasePrintRequestDTO printRequest) {
+
+        ExportPurchasePrintResponseDTO responsePrint = purchaseService
+                                                        .exportPurchasePrint(letterOfPurchaseCode, printRequest);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "외부용 발주서 출력 성공", responsePrint));
     }
 }
