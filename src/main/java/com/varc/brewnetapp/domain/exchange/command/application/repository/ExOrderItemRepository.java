@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository("ExOrderItemRepositoryCommand")
 public interface ExOrderItemRepository extends JpaRepository<ExOrderItem, ExOrderItemCode> {
-    Optional<ExOrderItem> findById(ExOrderItemCode exOrderItemCode);
+    Optional<ExOrderItem> findByOrderItemCode(ExOrderItemCode exOrderItemCode);
 }
 
