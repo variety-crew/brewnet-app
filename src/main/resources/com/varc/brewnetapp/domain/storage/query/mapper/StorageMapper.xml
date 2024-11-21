@@ -20,6 +20,11 @@
         <result property="active" column="ACTIVE"/>
     </resultMap>
 
+    <resultMap id="storageNameResultMap" type="com.varc.brewnetapp.domain.storage.query.dto.StorageNameDTO">
+        <id property="storageCode" column="STORAGE_CODE"/>
+        <result property="storageName" column="STORAGE_NAME"/>
+    </resultMap>
+
     <select id="searchStorage"
             parameterType="com.varc.brewnetapp.domain.storage.common.SearchStorageCriteria"
             resultMap="storageResultMap">
@@ -67,5 +72,16 @@
             S.STORAGE_CODE = #{storageCode}
             AND S.ACTIVE = TRUE
         </where>
+    </select>
+
+    <select id="selectStorageNameList" resultMap="storageNameResultMap">
+        SELECT
+               S.STORAGE_CODE,
+               S.NAME AS STORAGE_NAME
+          FROM TBL_STORAGE S
+        <where>
+            S.ACTIVE = TRUE
+        </where>
+        ORDER BY S.STORAGE_CODE ASC
     </select>
 </mapper>

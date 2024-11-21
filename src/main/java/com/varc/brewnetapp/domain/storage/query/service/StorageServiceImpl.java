@@ -4,6 +4,7 @@ import com.varc.brewnetapp.domain.storage.common.PageResponse;
 import com.varc.brewnetapp.domain.storage.common.SearchStorageCriteria;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDetailDTO;
+import com.varc.brewnetapp.domain.storage.query.dto.StorageNameDTO;
 import com.varc.brewnetapp.domain.storage.query.mapper.StorageMapper;
 import com.varc.brewnetapp.exception.StorageNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,5 +52,16 @@ public class StorageServiceImpl implements StorageService {
         if (!storage.isActive()) throw new StorageNotFoundException("삭제된 창고입니다.");
 
         return storage;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<StorageNameDTO> selectStorageList(String loginId) {
+
+        List<StorageNameDTO> storageNames = storageMapper.selectStorageNameList();
+
+        if (storageNames == null) throw new StorageNotFoundException("창고가 존재하지 않습니다.");
+
+        return storageNames;
     }
 }

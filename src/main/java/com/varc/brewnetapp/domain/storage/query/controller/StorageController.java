@@ -4,6 +4,7 @@ import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.storage.common.PageResponse;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDetailDTO;
+import com.varc.brewnetapp.domain.storage.query.dto.StorageNameDTO;
 import com.varc.brewnetapp.domain.storage.query.service.StorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -48,5 +49,15 @@ public class StorageController {
         StorageDetailDTO storageDetail = storageService.selectOneStorage(loginId, storageCode);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "창고 상세 조회 성공", storageDetail));
+    }
+
+    @GetMapping("/storages")
+    @Operation(summary = "창고별 상품 재고 조회 페이지에서 창고 셀렉트박스에 사용되는 창고명 리스트 조회 API")
+    public ResponseEntity<ResponseMessage<List<StorageNameDTO>>> selectStorageList(
+                                                                    @RequestAttribute("loginId") String loginId) {
+
+        List<StorageNameDTO> storages = storageService.selectStorageList(loginId);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "창고명 리스트 조회 성공", storages));
     }
 }
