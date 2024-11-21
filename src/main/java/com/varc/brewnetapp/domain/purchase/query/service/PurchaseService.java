@@ -1,10 +1,8 @@
 package com.varc.brewnetapp.domain.purchase.query.service;
 
+import com.varc.brewnetapp.domain.purchase.common.KindOfApproval;
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
-import com.varc.brewnetapp.domain.purchase.query.dto.ApprovedPurchaseItemDTO;
-import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDTO;
-import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDetailDTO;
-import com.varc.brewnetapp.domain.purchase.query.dto.PurchaseApprovalLineDTO;
+import com.varc.brewnetapp.domain.purchase.query.dto.*;
 
 import java.util.List;
 
@@ -40,4 +38,6 @@ public interface PurchaseService {
                                                                                   String endDate,
                                                                                   int pageNumber,
                                                                                   int pageSize);
+
+    List<PurchaseApproverMemberDTO> selectApproverList(KindOfApproval approvalLine);
 }
