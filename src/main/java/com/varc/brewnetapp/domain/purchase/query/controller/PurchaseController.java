@@ -26,7 +26,7 @@ public class PurchaseController {
     }
 
     @GetMapping("")
-    @Operation(summary = "발주 내역(구매품의서) 목록 조회 API")
+    @Operation(summary = "발주 내역(구매품의서) 목록 조회 API - pageNumber의 default값은 1, pageSize의 default값은 10")
     public ResponseEntity<ResponseMessage<PageResponse<List<LetterOfPurchaseDTO>>>> selectLettersOfPurchase(
                                             @RequestParam(required = false) Integer purchaseCode,
                                             @RequestParam(required = false) String memberName,
@@ -65,7 +65,8 @@ public class PurchaseController {
     }
 
     @GetMapping("/total-in-stock")
-    @Operation(summary = "전체 입고 품목 목록 조회 API (발주 후 입고 처리 완료 내역과 미입고 내역 모두 조회됨)")
+    @Operation(summary = "전체 입고 품목 목록 조회 API (발주 후 입고 처리 완료 내역과 미입고 내역 모두 조회됨)" +
+            " - pageNumber의 default값은 1, pageSize의 default값은 10")
     public ResponseEntity<ResponseMessage<PageResponse<List<ApprovedPurchaseItemDTO>>>> selectApprovedPurchaseItems(
                                             @RequestParam(required = false) Integer itemUniqueCode,
                                             @RequestParam(required = false) String itemName,
@@ -84,7 +85,8 @@ public class PurchaseController {
     }
 
     @GetMapping("/uncheck-in-stock")
-    @Operation(summary = "입고 미확인 품목 목록 조회 API (발주 후 미입고 내역들이 조회됨)")
+    @Operation(summary = "입고 미확인 품목 목록 조회 API (발주 후 미입고 내역들이 조회됨)" +
+            " - pageNumber의 default값은 1, pageSize의 default값은 10")
     public ResponseEntity<ResponseMessage<PageResponse<List<ApprovedPurchaseItemDTO>>>>
         selectApprovedPurchaseItemUncheck(
                                             @RequestParam(required = false) Integer itemUniqueCode,

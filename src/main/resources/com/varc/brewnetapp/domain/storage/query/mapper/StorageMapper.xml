@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.varc.brewnetapp.domain.storage.query.mapper.StorageMapper">
+    
+    <resultMap id="storageResultMap" type="com.varc.brewnetapp.domain.storage.query.dto.StorageDTO">
+        <id property="storageCode" column="STORAGE_CODE"/>
+        <result property="storageName" column="STORAGE_NAME"/>
+        <result property="address" column="ADDRESS"/>
+        <result property="contact" column="CONTACT"/>
+    </resultMap>
+
+    <select id="searchStorage"
+            parameterType="com.varc.brewnetapp.domain.storage.common.SearchStorageCriteria"
+            resultMap="storageResultMap">
+        SELECT
+               S.STORAGE_CODE,
+               S.NAME AS STORAGE_NAME,
+               S.ADDRESS,
+               S.CONTACT
+          FROM TBL_STORAGE S
+        <where>
+            S.ACTIVE = TRUE
+            <if test="storageName != null">
+                AND S.NAME LIKE CONCAT('%', #{storageName}, '%')
+            </if>
+        </where>
+         ORDER BY S.STORAGE_CODE ASC
+         LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="getTotalStorageCount"
+            parameterType="com.varc.brewnetapp.domain.storage.common.SearchStorageCriteria"
+            resultType="int">
+        SELECT
+               COUNT(S.STORAGE_CODE)
+          FROM TBL_STORAGE S
+        <where>
+            S.ACTIVE = TRUE
+            <if test="storageName != null">
+                AND S.NAME LIKE CONCAT('%', #{storageName}, '%')
+            </if>
+        </where>
+         ORDER BY S.STORAGE_CODE ASC
+    </select>
+</mapper>
