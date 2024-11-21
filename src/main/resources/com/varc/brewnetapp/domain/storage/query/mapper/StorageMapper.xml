@@ -37,6 +37,7 @@
         <result property="currentStock" column="CURRENT_STOCK"/>
     </resultMap>
 
+    <!-- 창고 목록 조회 및 검색 -->
     <select id="searchStorage"
             parameterType="com.varc.brewnetapp.domain.storage.common.SearchStorageCriteria"
             resultMap="storageResultMap">
@@ -56,6 +57,7 @@
          LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
+    <!-- 창고 목록 페이지네이션을 위한 창고 총 개수 -->
     <select id="getTotalStorageCount"
             parameterType="com.varc.brewnetapp.domain.storage.common.SearchStorageCriteria"
             resultType="int">
@@ -71,6 +73,7 @@
          ORDER BY S.STORAGE_CODE ASC
     </select>
 
+    <!-- 하나의 창고 상세 조회 -->
     <select id="selectStorageByStorageCode" parameterType="int" resultMap="storageDetailResultMap">
         SELECT
                S.STORAGE_CODE,
@@ -86,6 +89,7 @@
         </where>
     </select>
 
+    <!-- 셀렉트박스를 위한 창고명 리스트 조회 -->
     <select id="selectStorageNameList" resultMap="storageNameResultMap">
         SELECT
                S.STORAGE_CODE,
@@ -97,6 +101,7 @@
         ORDER BY S.STORAGE_CODE ASC
     </select>
 
+    <!-- 창고별 상품 재고 목록 조회 -->
     <select id="searchStockOfStorage"
             parameterType="com.varc.brewnetapp.domain.storage.common.SearchItemStockCriteria"
             resultMap="stockResultMap">
@@ -123,6 +128,7 @@
          LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
+    <!-- 창고별 상품 재고 목록 페이지네이션을 위한 창고별 상품 총 개수 -->
     <select id="getTotalStorageStockCount"
             parameterType="com.varc.brewnetapp.domain.storage.common.SearchItemStockCriteria"
             resultType="int">

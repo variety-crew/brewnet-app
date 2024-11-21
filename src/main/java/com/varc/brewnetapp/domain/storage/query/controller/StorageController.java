@@ -2,7 +2,6 @@ package com.varc.brewnetapp.domain.storage.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.storage.common.PageResponse;
-import com.varc.brewnetapp.domain.storage.common.SearchItemStockCriteria;
 import com.varc.brewnetapp.domain.storage.query.dto.StockDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDetailDTO;
@@ -75,7 +74,7 @@ public class StorageController {
                                             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
 
         if (storageCode == 0) throw new InvalidDataException("창고 코드는 필수값입니다.");
-        
+
         PageResponse<List<StockDTO>> response = storageService
                                                 .selectAllStock(loginId, storageCode, itemName, pageNumber, pageSize);
 

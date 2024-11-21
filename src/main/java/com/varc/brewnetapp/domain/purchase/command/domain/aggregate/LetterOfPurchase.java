@@ -2,6 +2,7 @@ package com.varc.brewnetapp.domain.purchase.command.domain.aggregate;
 
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.purchase.common.IsApproved;
+import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Storage;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
