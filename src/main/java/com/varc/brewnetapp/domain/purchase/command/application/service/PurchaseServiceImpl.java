@@ -124,13 +124,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 총 발주금액 저장
         savedPurchase.setSumPrice(totalPrice);
 
-        // 해당 구매품의서의 결재 라인 및 결재자 설정
-        PurchaseApproval approvalLine = purchaseApprovalRepository
-                                        .findByKindAndActiveTrue(newPurchase.getKind());
-        PurchasePosition position = purchasePositionRepository
-                                    .findById(approvalLine.getPurchasePosition().getPositionCode())
-                                    .orElseThrow(() -> new PositionNotFoundException("존재하지 않는 직급입니다."));
-        PurchaseMember approver = purchaseMemberRepository.findByPurchasePositionAndActiveTrue(position);
+        // 해당 구매품의서의 결재자 설정
+        PurchaseMember approver = purchaseMemberRepository.findById(newPurchase.getApproverCode())
+                                    .orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
         LetterOfPurchaseApprover purchaseApprover = new LetterOfPurchaseApprover();
         purchaseApprover.setMemberCode(approver.getMemberCode());
         purchaseApprover.setLetterOfPurchaseCode(savedPurchase.getLetterOfPurchaseCode());

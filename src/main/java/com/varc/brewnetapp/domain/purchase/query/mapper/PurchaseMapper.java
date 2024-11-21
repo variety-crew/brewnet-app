@@ -1,11 +1,9 @@
 package com.varc.brewnetapp.domain.purchase.query.mapper;
 
+import com.varc.brewnetapp.domain.purchase.common.KindOfApproval;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseItemCriteria;
-import com.varc.brewnetapp.domain.purchase.query.dto.ApprovedPurchaseItemDTO;
-import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDTO;
-import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDetailDTO;
-import com.varc.brewnetapp.domain.purchase.query.dto.PurchaseApprovalLineDTO;
+import com.varc.brewnetapp.domain.purchase.query.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -28,4 +26,6 @@ public interface PurchaseMapper {
     List<ApprovedPurchaseItemDTO> selectApprovedPurchaseItemUncheck(SearchPurchaseItemCriteria criteria);
 
     int getApprovedPurchaseItemUncheckCount(SearchPurchaseItemCriteria criteria);
+
+    List<PurchaseApproverMemberDTO> selectApproversByKind(KindOfApproval approvalLine);
 }
