@@ -7,7 +7,6 @@ import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseItemCriteria;
 import com.varc.brewnetapp.domain.purchase.query.dto.*;
 import com.varc.brewnetapp.domain.purchase.query.mapper.PurchaseMapper;
 import com.varc.brewnetapp.exception.ApprovalNotFoundException;
-import com.varc.brewnetapp.exception.DuplicateException;
 import com.varc.brewnetapp.exception.InvalidConditionException;
 import com.varc.brewnetapp.exception.PurchaseNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
