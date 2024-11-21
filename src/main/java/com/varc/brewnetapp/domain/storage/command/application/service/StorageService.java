@@ -5,4 +5,8 @@ import com.varc.brewnetapp.domain.storage.command.application.dto.StorageRequest
 public interface StorageService {
 
     void createStorage(String loginId, StorageRequestDTO newStorage);
+
+    void editStorage(String loginId, int storageCode, StorageRequestDTO editedStorage);
+
+    void deleteStorage(String loginId, int storageCode);
 }
