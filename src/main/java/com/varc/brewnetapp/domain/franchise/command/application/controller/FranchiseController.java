@@ -2,11 +2,14 @@ package com.varc.brewnetapp.domain.franchise.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.franchise.command.application.dto.CreateFranchiseRequestDTO;
+import com.varc.brewnetapp.domain.franchise.command.application.dto.DeleteFranchiseRequestDTO;
+import com.varc.brewnetapp.domain.franchise.command.application.dto.UpdateFranchiseRequestDTO;
 import com.varc.brewnetapp.domain.franchise.command.application.service.FranchiseService;
 import com.varc.brewnetapp.domain.member.command.application.dto.CreateCompanyRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,9 +42,19 @@ public class FranchiseController {
     @PutMapping("")
     @Operation(summary = "가맹점 정보 수정 API")
     public ResponseEntity<ResponseMessage<Object>> updateFranchise(@RequestBody
-    CreateFranchiseRequestDTO createFranchiseRequestDTO) {
+    UpdateFranchiseRequestDTO updateFranchiseRequestDTO) {
 
-        franchiseService.updateFranchise(createFranchiseRequestDTO);
+        franchiseService.updateFranchise(updateFranchiseRequestDTO);
         return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 정보 수정 성공", null));
+    }
+
+    // 마스터만 가능
+    @DeleteMapping("")
+    @Operation(summary = "가맹점 정보 삭제 API")
+    public ResponseEntity<ResponseMessage<Object>> deleteFranchise(@RequestBody
+    DeleteFranchiseRequestDTO deleteFranchiseRequestDTO) {
+
+        franchiseService.deleteFranchise(deleteFranchiseRequestDTO);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 정보 삭제 성공", null));
     }
 }
