@@ -30,4 +30,15 @@ public class StorageController {
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "창고 등록 성공", null));
     }
+
+    @PutMapping("/edit/{storageCode}")
+    @Operation(summary = "창고 정보 수정 API")
+    public ResponseEntity<ResponseMessage<Object>> editStorage(@RequestAttribute("loginId") String loginId,
+                                                               @PathVariable int storageCode,
+                                                               @RequestBody StorageRequestDTO editedStorage) {
+
+        storageService.editStorage(loginId, storageCode, editedStorage);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "창고 정보 수정 성공", null));
+    }
 }

@@ -9,6 +9,7 @@ import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Storage;
 import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
 import com.varc.brewnetapp.domain.storage.command.domain.repository.StorageRepository;
 import com.varc.brewnetapp.exception.MemberNotFoundException;
+import com.varc.brewnetapp.exception.StorageNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,5 +66,21 @@ public class StorageServiceImpl implements StorageService{
             stock.setActive(true);
             stockRepository.save(stock);
         }
+    }
+
+    @Transactional
+    @Override
+    public void editStorage(String loginId, int storageCode, StorageRequestDTO editedStorage) {
+
+        // 로그인한 사용자 체크
+        memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
+
+        Storage storage = storageRepository.findByStorageCodeAndActiveTrue(storageCode);
+        if (storage == null) throw new StorageNotFoundException("삭제되었거나 존재하지 않는 창고입니다.");
+
+        // 수정한 정보 저장
+        if (editedStorage.getName() != null) storage.setName(editedStorage.getName());
+        if (editedStorage.getAddress() != null) storage.setAddress(editedStorage.getAddress());
+        if (editedStorage.getContact() != null) storage.setContact(editedStorage.getContact());
     }
 }
