@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.storage.query.service;
 
 import com.varc.brewnetapp.domain.storage.common.PageResponse;
+import com.varc.brewnetapp.domain.storage.query.dto.StockDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDetailDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageNameDTO;
@@ -14,4 +15,7 @@ public interface StorageService {
     StorageDetailDTO selectOneStorage(String loginId, int storageCode);
 
     List<StorageNameDTO> selectStorageList(String loginId);
+
+    PageResponse<List<StockDTO>> selectAllStock(
+                                    String loginId, int storageCode, String itemName, int pageNumber, int pageSize);
 }

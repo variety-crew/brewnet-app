@@ -2,6 +2,7 @@ package com.varc.brewnetapp.domain.storage.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.storage.common.PageResponse;
+import com.varc.brewnetapp.domain.storage.query.dto.StockDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDetailDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageNameDTO;
@@ -59,5 +60,21 @@ public class StorageController {
         List<StorageNameDTO> storages = storageService.selectStorageList(loginId);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "창고명 리스트 조회 성공", storages));
+    }
+
+    @GetMapping("/storage-stock/")
+    @Operation(summary = "창고별 상품 재고 리스트 조회 API (창고코드 필수 / 상품명으로 검색 가능) - pageNumber의 default값은 1," +
+            " pageSize의 default값은 10")
+    public ResponseEntity<ResponseMessage<PageResponse<List<StockDTO>>>> selectAllStock(
+                                                @RequestAttribute("loginId") String loginId,
+                                                @RequestParam int storageCode,
+                                                @RequestParam(required = false) String itemName,
+                                                @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+                                                @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+
+        PageResponse<List<StockDTO>> response = storageService
+                                                .selectAllStock(loginId, storageCode, itemName, pageNumber, pageSize);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "창고별 상품 재고 리스트 조회 성공", response));
     }
 }

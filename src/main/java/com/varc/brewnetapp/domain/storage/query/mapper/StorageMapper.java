@@ -1,6 +1,8 @@
 package com.varc.brewnetapp.domain.storage.query.mapper;
 
+import com.varc.brewnetapp.domain.storage.common.SearchItemStockCriteria;
 import com.varc.brewnetapp.domain.storage.common.SearchStorageCriteria;
+import com.varc.brewnetapp.domain.storage.query.dto.StockDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDetailDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageNameDTO;
@@ -18,4 +20,8 @@ public interface StorageMapper {
     StorageDetailDTO selectStorageByStorageCode(int storageCode);
 
     List<StorageNameDTO> selectStorageNameList();
+
+    List<StockDTO> searchStockOfStorage(SearchItemStockCriteria criteria);
+
+    int getTotalStorageStockCount(SearchItemStockCriteria criteria);
 }
