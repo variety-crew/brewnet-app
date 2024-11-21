@@ -34,6 +34,16 @@ public class ExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 목록 조회 성공", result));
     }
 
+    @GetMapping("/status-requested")
+    @Operation(summary = "[본사] 미결재된 교환요청 목록 조회 API")
+    public ResponseEntity<ResponseMessage<Page<ExchangeListVO>>> findRequestedExchangeList(
+            @PageableDefault(value = 10) Pageable page) {
+
+        // 페이지네이션
+        Page<ExchangeListVO> result = exchangeService.findRequestedExchangeList(page);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "미결재되면 교환요청 목록 조회 성공", result));
+    }
+
     @GetMapping("/search")
     @Operation(summary = "[본사] 교환요청 목록 검색 API",
             description = "searchFilter에 들어갈 수 있는 값은 exchangeCode(교환번호), franchiseName(교환지점), managerName(교환지점) 3가지<br>" +
