@@ -29,6 +29,8 @@
         <result property="approverApproved" column="APPROVER_APPROVED"/>
         <result property="approverComment" column="APPROVER_COMMENT"/>
         <result property="sumPrice" column="SUM_PRICE"/>
+        <result property="vatPrice" column="VAT_PRICE"/>
+        <result property="totalPrice" column="TOTAL_PRICE"/>
         <result property="storageCode" column="STORAGE_CODE"/>
         <result property="storageName" column="STORAGE_NAME"/>
         <collection property="items" ofType="com.varc.brewnetapp.domain.purchase.query.dto.PurchaseItemDTO">
@@ -38,6 +40,8 @@
             <result property="itemUniqueCode" column="ITEM_UNIQUE_CODE"/>
             <result property="purchasePrice" column="PURCHASE_PRICE"/>
             <result property="quantity" column="QUANTITY"/>
+            <result property="purchaseSum" column="PURCHASE_SUM"/>
+            <result property="purchaseVat" column="PURCHASE_VAT"/>
         </collection>
     </resultMap>
 
@@ -166,6 +170,8 @@
                A.APPROVED AS APPROVER_APPROVED,
                A.COMMENT AS APPROVER_COMMENT,
                P.SUM_PRICE,
+               (P.SUM_PRICE * 0.1) AS VAT_PRICE,
+               (P.SUM_PRICE * 1.1) AS TOTAL_PRICE,
                S.STORAGE_CODE,
                S.NAME AS STORAGE_NAME,
                I.LETTER_OF_PURCHASE_CODE AS ITEM_PURCHASE_CODE,
@@ -173,7 +179,9 @@
                T.NAME AS ITEM_NAME,
                T.ITEM_UNIQUE_CODE,
                T.PURCHASE_PRICE,
-               I.QUANTITY
+               I.QUANTITY,
+               (T.PURCHASE_PRICE * I.QUANTITY) AS PURCHASE_SUM,
+               (T.PURCHASE_PRICE * I.QUANTITY * 0.1) AS PURCHASE_VAT
           FROM TBL_LETTER_OF_PURCHASE P
           JOIN TBL_LETTER_OF_PURCHASE_APPROVER A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
           JOIN TBL_STORAGE S ON P.STORAGE_CODE = S.STORAGE_CODE
