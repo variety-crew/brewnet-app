@@ -36,7 +36,7 @@ public class MemberController {
     @GetMapping("/member")
     @Operation(summary = "멤버 목록 조회 API / query param으로 page와 size를 키값으로 데이터 보내주시면 됩니다 "
         + "/ page는 0부터 시작 / search는 직원명. 필수는 X")
-    public ResponseEntity<ResponseMessage<Page<MemberDTO>>> findMemberList(@PageableDefault(value = 10) Pageable page,
+    public ResponseEntity<ResponseMessage<Page<MemberDTO>>> findMemberList(@PageableDefault(page = 0, size = 10) Pageable page,
         @RequestParam(required = false) String search) {
         // 페이지네이션
         Page<MemberDTO> result = memberService.findMemberList(page, search);
@@ -63,7 +63,9 @@ public class MemberController {
     }
 
     @GetMapping("/company/seal/history")
-    @Operation(summary = "법인 인감 사용 내역 API")
+    @Operation(summary = "법인 인감 사용 내역 API / query param으로 page와 size를 키값으로 데이터 보내주시면 됩니다 " 
+        + "/ page는 0부터 시작 / startDate와 endDate는 둘 다 보내주시거나 둘 다 안보내주시면 됩니다." 
+        + " 둘 중 하나만 보내면 예외처리됩니다. Date 값 포맷은 2024-01-01로 보내주시면 됩니다")
     public ResponseEntity<ResponseMessage<Page<OrderPrintDTO>>> findSealHistory(
         @PageableDefault(size = 10, page = 1) Pageable page,
         @RequestParam(required = false) String startDate,
