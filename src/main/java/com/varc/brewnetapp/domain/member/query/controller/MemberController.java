@@ -3,10 +3,12 @@ package com.varc.brewnetapp.domain.member.query.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.member.query.dto.CompanyDTO;
 import com.varc.brewnetapp.domain.member.query.dto.MemberDTO;
+import com.varc.brewnetapp.domain.member.query.dto.OrderPrintDTO;
 import com.varc.brewnetapp.domain.member.query.dto.SealDTO;
 import com.varc.brewnetapp.domain.member.query.service.CompanyService;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,6 +62,16 @@ public class MemberController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "멤버 조회 성공", memberService.findMember(accessToken)));
     }
 
+    @GetMapping("/company/seal/history")
+    @Operation(summary = "법인 인감 사용 내역 API")
+    public ResponseEntity<ResponseMessage<Page<OrderPrintDTO>>> findSealHistory(
+        @PageableDefault(size = 10, page = 1) Pageable page,
+        @RequestParam(required = false) String startDate,
+        @RequestParam(required = false) String endDate) {
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "법인 인감 사용 내역 조회 성공"
+            , memberService.findSealHistory(page, startDate, endDate)));
+    }
 
 
 

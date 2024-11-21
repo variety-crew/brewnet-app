@@ -32,6 +32,16 @@
     <result property="imageUrl" column="IMAGE_URL"/>
   </resultMap>
 
+  <resultMap id="orderPrintResultMap" type="com.varc.brewnetapp.domain.member.query.dto.OrderPrintDTO">
+    <id property="orderPrintCode" column="ORDER_PRINT_CODE"/>
+    <result property="reason" column="REASON"/>
+    <result property="printedAt" column="PRINTED_AT"/>
+    <result property="memberCode" column="MEMBER_CODE"/>
+    <result property="memberName" column="NAME"/>
+    <result property="memberSignature" column="SIGNATURE"/>
+    <result property="letterOfPurchaseCode" column="LETTER_OF_PURCHASE_CODE"/>
+  </resultMap>
+
   <select id="selectMemberList" resultMap="memberResultMap" parameterType="map">
     SELECT
            M.MEMBER_CODE,
@@ -47,8 +57,7 @@
            ON MR.ROLE_CODE = R.ROLE_CODE
            WHERE MR.MEMBER_CODE = M.MEMBER_CODE) AS ROLES
       FROM tbl_member M
-     INNER JOIN tbl_position P
-        ON M.POSITION_CODE = P.POSITION_CODE
+     INNER JOIN tbl_position P ON M.POSITION_CODE = P.POSITION_CODE
      WHERE M.ACTIVE = TRUE
       <if test="search != null and search != ''">
        AND M.NAME LIKE CONCAT('%', #{search}, '%')
@@ -63,6 +72,13 @@
       FROM tbl_member
      WHERE ACTIVE = TRUE
   </select>
+
+  <select id="selectMemberListWhereSearchCnt" resultType="int" parameterType="string">
+    SELECT COUNT(*)
+    FROM tbl_member
+    WHERE ACTIVE = TRUE AND M.NAME LIKE CONCAT('%', #{search}, '%')
+  </select>
+
 
   <select id="selectCompany" resultMap="companyResultMap">
     SELECT
@@ -104,9 +120,40 @@
                 ON MR.ROLE_CODE = R.ROLE_CODE
              WHERE MR.MEMBER_CODE = M.MEMBER_CODE) AS ROLES
       FROM tbl_member M
-     INNER JOIN tbl_position P
-        ON M.POSITION_CODE = P.POSITION_CODE
+     INNER JOIN tbl_position P ON M.POSITION_CODE = P.POSITION_CODE
      WHERE M.ACTIVE = TRUE AND M.ID = #{ loginId }
+  </select>
+
+  <select id="selectOrderPrintList" resultMap="orderPrintResultMap" parameterType="map">
+    SELECT
+           OP.ORDER_PRINT_CODE
+         , OP.REASON
+         , DATE_FORMAT(OP.PRINTED_AT, '%Y-%m-%d') AS printed_at
+         , M.MEMBER_CODE
+         , M.NAME
+         , M.SIGNATURE_URL
+         , OP.LETTER_OF_PURCHASE_CODE
+     FROM tbl_order_print OP
+     INNER JOIN tbl_member M ON OP.MEMBER_CODE = M.MEMBER_CODE
+     WHERE OP.ACTIVE = TRUE
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+       AND PRINTED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+     ORDER BY OP.ORDER_PRINT_CODE DESC
+     LIMIT #{ pageSize }
+    OFFSET #{ offset };
+  </select>
+
+  <select id="selectOrderPrintListWhereDateCnt" resultType="int" parameterType="map">
+    SELECT COUNT(*)
+    FROM tbl_order_print
+    WHERE ACTIVE = TRUE AND PRINTED_AT BETWEEN #{startDate} AND #{endDate}
+  </select>
+
+  <select id="selectOrderPrintListCnt" resultType="int" >
+    SELECT COUNT(*)
+    FROM tbl_order_print
+    WHERE ACTIVE = TRUE
   </select>
 
 </mapper>
