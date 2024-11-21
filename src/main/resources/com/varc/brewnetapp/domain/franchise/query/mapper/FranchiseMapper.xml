@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.varc.brewnetapp.domain.franchise.query.mapper.FranchiseMapper">
+
+  <resultMap id="franchiseResultMap" type="com.varc.brewnetapp.domain.franchise.query.dto.FranchiseDTO">
+    <id property="franchiseCode" column="FRANCHISE_CODE"/>
+    <result property="franchiseName" column="FRANCHISE_NAME"/>
+    <result property="address" column="ADDRESS"/>
+    <result property="contact" column="CONTACT"/>
+    <result property="businessNumber" column="BUSINESS_NUMBER"/>
+    <result property="name" column="NAME"/>
+  </resultMap>
+
+  <select id="selectFranchise" resultMap="franchiseResultMap" parameterType="_int">
+    SELECT
+           FRANCHISE_CODE
+         , FRANCHISE_NAME
+         , CONCAT (ADDRESS, ' ', DETAIL_ADDRESS) AS ADDRESS
+         , CONTACT
+         , BUSINESS_NUMBER
+         , NAME
+      FROM tbl_franchise
+     WHERE FRANCHISE_CODE = ${franchiseCode}
+  </select>
+
+
+</mapper>
