@@ -11,8 +11,6 @@ import org.apache.ibatis.annotations.Mapper;
 public interface MemberMapper {
     List<MemberDTO> selectMemberList(long offset, long pageSize, String search);
 
-    int selectMemberListCnt();
-
     CompanyDTO selectCompany();
 
     SealDTO selectCompanySeal();

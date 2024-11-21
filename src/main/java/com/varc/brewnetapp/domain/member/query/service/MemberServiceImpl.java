@@ -95,12 +95,7 @@ public class MemberServiceImpl implements MemberService {
         });
 
         // 전체 데이터 개수 조회
-        int count = 0;
-
-        if(search == null || search.equals(""))
-            count = memberMapper.selectMemberListCnt();
-        else
-            count = memberMapper.selectMemberListWhereSearchCnt(search);
+        int count = memberMapper.selectMemberListWhereSearchCnt(search);
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(memberList, page, count);
