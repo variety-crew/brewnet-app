@@ -14,7 +14,7 @@ public class LetterOfPurchaseDetailDTO {
 
     private int letterOfPurchaseCode;
     private String createdAt;
-    private Boolean Active;
+    private boolean Active;
     private IsApproved allApproved;
     private String memberComment;
     private int correspondentCode;

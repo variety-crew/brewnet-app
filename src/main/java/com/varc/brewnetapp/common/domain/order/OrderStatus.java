@@ -4,14 +4,15 @@ import lombok.Getter;
 
 @Getter
 public enum OrderStatus {
-    APPROVED("APPROVED")
-    , UNCONFIRMED("UNCONFIRMED")
+    UNCONFIRMED("UNCONFIRMED")
+    , CANCELED("CANCELED")
+    , APPROVED("APPROVED")
     , REJECTED("REJECTED")
     ;
 
-    private final String value;
+    private final String status;
 
-    OrderStatus(String value) {
-        this.value = value;
+    OrderStatus(String status) {
+        this.status = status;
     }
 }

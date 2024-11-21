@@ -10,6 +10,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "tbl_franchise")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Franchise {
@@ -28,8 +29,8 @@ public class Franchise {
     @Column(name = "city", nullable = false)
     private String city;
 
-    @Column(name = "province", nullable = false)
-    private String province;
+    @Column(name = "detail_address", nullable = false)
+    private String detailAddress;
 
     @Column(name = "contact", nullable = false)
     private String contact;

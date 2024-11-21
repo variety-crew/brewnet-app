@@ -7,5 +7,6 @@ import com.varc.brewnetapp.domain.purchase.command.domain.aggregate.LetterOfPurc
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CorrespondentItemRepository extends JpaRepository<CorrespondentItem, CorrespondentItemId> {
+
     boolean existsByCorrespondentCodeAndItemCodeAndActiveTrue(int correspondentCode, int itemCode);
 }
