@@ -9,6 +9,6 @@ import lombok.*;
 @ToString
 public class OrderStatusHistory {
     private int orderStatusHistoryCode;
-    private OrderHistoryStatus orderHistoryStatus;
+    private String orderHistoryStatus;
     private String createdAt;
 }

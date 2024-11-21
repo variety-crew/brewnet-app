@@ -11,8 +11,8 @@ import lombok.*;
 public class OrderItem {
 
     // tbl_order_item
-    private String itemCode;
-    private String quantity;
+    private int itemCode;
+    private int quantity;
 
     // tbl_item
     private String name;

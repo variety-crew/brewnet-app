@@ -117,13 +117,13 @@
           LEFT JOIN
                tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
           LEFT JOIN
+               tbl_order_status_history oh ON o.ORDER_CODE = oh.ORDER_CODE
+          LEFT JOIN
                tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
           LEFT JOIN
                tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
           LEFT JOIN
                tbl_sub_category sc ON i.CATEGORY_CODE = sc.SUB_CATEGORY_CODE
-          LEFT JOIN
-               tbl_order_status_history oh ON o.ORDER_CODE = oh.ORDER_CODE
 
          WHERE o.ACTIVE = 1
         <if test="filter == 'UNCONFIRMED'">
