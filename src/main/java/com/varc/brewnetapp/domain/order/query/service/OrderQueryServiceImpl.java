@@ -42,6 +42,10 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         // TODO: check if sort value is one of ["createdAtDesc", "createdAtAsc", "sumPriceDesc", "sumPriceAsc"]
 
         List<OrderDTO> orderDTOList = orderMapper.findOrdersForHQBy(filter, sort, size, offset);
+        orderDTOList.forEach(
+                orderDTO -> log.debug("orderDTO: {}", orderDTO)
+        );
+
 
         int total = orderMapper.countOrders(filter);
         return new PageImpl<>(orderDTOList, pageable, total);

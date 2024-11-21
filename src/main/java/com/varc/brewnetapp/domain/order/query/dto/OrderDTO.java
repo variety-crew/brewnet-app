@@ -1,7 +1,7 @@
 package com.varc.brewnetapp.domain.order.query.dto;
 
 import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
-import com.varc.brewnetapp.common.domain.order.OrderStatus;
+import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
 import lombok.*;
 
 import java.util.List;
@@ -17,11 +17,11 @@ public class OrderDTO {
     private String comment; // written by drafter
     private String createdAt;
     private boolean active;
-    private OrderStatus approvalStatus;
+    private OrderApprovalStatus approvalStatus;
     private DrafterApproved drafterApproved;
     private int sumPrice;
 
-    private OrderFranchiseDTO orderFranchiseDTO;
-    private List<OrderItemDTO> orderItems;
-    private List<OrderStatusHistoryDTO> orderStatusHistoryDTOList;
+    private OrderFranchise orderFranchise;
+    private List<OrderItem> orderItemList;
+    private List<OrderStatusHistory> orderStatusHistoryList;
 }
