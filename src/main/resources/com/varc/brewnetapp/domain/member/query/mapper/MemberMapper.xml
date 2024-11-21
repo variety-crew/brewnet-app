@@ -70,13 +70,13 @@
   <select id="selectMemberListCnt" resultType="int">
     SELECT COUNT(*)
       FROM tbl_member
-     WHERE ACTIVE = TRUE
+     WHERE ACTIVE = TRUE AND POSITION_CODE IS NOT NULL
   </select>
 
   <select id="selectMemberListWhereSearchCnt" resultType="int" parameterType="string">
     SELECT COUNT(*)
     FROM tbl_member
-    WHERE ACTIVE = TRUE AND M.NAME LIKE CONCAT('%', #{search}, '%')
+    WHERE ACTIVE = TRUE AND M.NAME LIKE CONCAT('%', #{search}, '%') AND POSITION_CODE IS NOT NULL
   </select>
 
 
@@ -154,6 +154,7 @@
     SELECT COUNT(*)
     FROM tbl_order_print
     WHERE ACTIVE = TRUE
+
   </select>
 
 </mapper>

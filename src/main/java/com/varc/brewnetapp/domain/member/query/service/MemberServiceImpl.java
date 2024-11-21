@@ -54,7 +54,8 @@ public class MemberServiceImpl implements MemberService {
         // 페이징 정보 추가
         long pageSize = page.getPageSize();
         long pageNumber = page.getPageNumber();
-        long offset = (pageNumber - 1) * pageSize;
+        long offset = pageNumber * pageSize;
+
 
         // DB에서 교환 목록 조회
         List<MemberDTO> memberList = memberMapper.selectMemberList(offset, pageSize, search);
@@ -123,7 +124,7 @@ public class MemberServiceImpl implements MemberService {
     public Page<OrderPrintDTO> findSealHistory(Pageable page, String startDate, String endDate) {
         long pageSize = page.getPageSize();
         long pageNumber = page.getPageNumber();
-        long offset = (pageNumber - 1) * pageSize;
+        long offset = pageNumber * pageSize;
 
         if ((startDate == null || startDate.isEmpty()) ^ (endDate == null || endDate.isEmpty()))
             throw new InvalidDataException("시작일자와 종료일자는 모두 입력되거나, 둘 다 비어 있어야 합니다.");
@@ -141,9 +142,7 @@ public class MemberServiceImpl implements MemberService {
         else
             count = memberMapper.selectOrderPrintListCnt();
 
-        Page<OrderPrintDTO> pageResult = new PageImpl<>(orderPrintList, page, count);
-        log.info("Page total elements: {}", pageResult.getTotalElements());
-        return pageResult;
+        return new PageImpl<>(orderPrintList, page, count);
 
     }
 

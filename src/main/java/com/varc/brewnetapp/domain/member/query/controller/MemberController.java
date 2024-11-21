@@ -35,7 +35,7 @@ public class MemberController {
 
     @GetMapping("/member")
     @Operation(summary = "멤버 목록 조회 API / query param으로 page와 size를 키값으로 데이터 보내주시면 됩니다 "
-        + "/ page는 1부터 시작 / search는 직원명. 필수는 X")
+        + "/ page는 0부터 시작 / search는 직원명. 필수는 X")
     public ResponseEntity<ResponseMessage<Page<MemberDTO>>> findMemberList(@PageableDefault(value = 10) Pageable page,
         @RequestParam(required = false) String search) {
         // 페이지네이션
