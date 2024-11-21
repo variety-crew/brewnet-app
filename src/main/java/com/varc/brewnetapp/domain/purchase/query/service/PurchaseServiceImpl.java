@@ -71,7 +71,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                                                     .selectLetterOfPurchaseByPurchaseCode(letterOfPurchaseCode);
 
         if (letterOfPurchase == null) throw new PurchaseNotFoundException("존재하지 않는 발주 내역 입니다.");
-        if (!letterOfPurchase.getActive()) throw new PurchaseNotFoundException("삭제된 발주 내역 입니다.");
+        if (!letterOfPurchase.isActive()) throw new PurchaseNotFoundException("삭제된 발주 내역 입니다.");
 
         return letterOfPurchase;
     }
@@ -84,7 +84,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                                             .selectLetterOfPurchaseByPurchaseCode(letterOfPurchaseCode);
 
         if (purchase == null) throw new PurchaseNotFoundException("존재하지 않는 발주 내역 입니다.");
-        if (!purchase.getActive()) throw new PurchaseNotFoundException("삭제된 발주 내역 입니다.");
+        if (!purchase.isActive()) throw new PurchaseNotFoundException("삭제된 발주 내역 입니다.");
 
         PurchaseApprovalLineDTO approvalOfPurchase = purchaseMapper
                                                     .selectApprovalLineByPurchaseCode(letterOfPurchaseCode);
