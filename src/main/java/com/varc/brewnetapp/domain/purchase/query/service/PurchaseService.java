@@ -8,7 +8,8 @@ import java.util.List;
 
 public interface PurchaseService {
 
-    PageResponse<List<LetterOfPurchaseDTO>> selectLettersOfPurchase(Integer purchaseCode,
+    PageResponse<List<LetterOfPurchaseDTO>> selectLettersOfPurchase(String loginId,
+                                                                    Integer purchaseCode,
                                                                     String memberName,
                                                                     String correspondentName,
                                                                     String storageName,
@@ -17,11 +18,12 @@ public interface PurchaseService {
                                                                     int pageNumber,
                                                                     int pageSize);
 
-    LetterOfPurchaseDetailDTO selectOneLetterOfPurchase(int letterOfPurchaseCode);
+    LetterOfPurchaseDetailDTO selectOneLetterOfPurchase(String loginId, int letterOfPurchaseCode);
 
-    PurchaseApprovalLineDTO selectApprovalLineOfOnePurchase(int letterOfPurchaseCode);
+    PurchaseApprovalLineDTO selectApprovalLineOfOnePurchase(String loginId, int letterOfPurchaseCode);
 
-    PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItems(Integer itemUniqueCode,
+    PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItems(String loginId,
+                                                                            Integer itemUniqueCode,
                                                                             String itemName,
                                                                             String correspondentName,
                                                                             String storageName,
@@ -30,7 +32,8 @@ public interface PurchaseService {
                                                                             int pageNumber,
                                                                             int pageSize);
 
-    PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItemUncheck(Integer itemUniqueCode,
+    PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItemUncheck(String loginId,
+                                                                                  Integer itemUniqueCode,
                                                                                   String itemName,
                                                                                   String correspondentName,
                                                                                   String storageName,
@@ -39,5 +42,5 @@ public interface PurchaseService {
                                                                                   int pageNumber,
                                                                                   int pageSize);
 
-    List<PurchaseApproverMemberDTO> selectApproverList(KindOfApproval approvalLine);
+    List<PurchaseApproverMemberDTO> selectApproverList(String loginId, KindOfApproval approvalLine);
 }
