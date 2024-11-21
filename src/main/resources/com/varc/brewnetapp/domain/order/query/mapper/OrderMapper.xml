@@ -79,6 +79,7 @@
         SELECT COUNT(*)
         FROM tbl_order O
         WHERE 1=1
+        AND O.ACTIVE = 1
         <if test="filter == 'UNCONFIRMED'">
             AND O.APPROVED = #{filter}
         </if>
