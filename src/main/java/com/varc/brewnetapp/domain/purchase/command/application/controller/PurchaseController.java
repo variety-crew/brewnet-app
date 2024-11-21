@@ -93,4 +93,12 @@ public class PurchaseController {
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "내부용 발주서 출력 성공", responsePrint));
     }
+
+    @PostMapping("/send")
+    @Operation(summary = "구매품의서를 회계부서로 발송하는 API (실제 전송은 아니지만 버튼 클릭 시 호출됨)")
+    public ResponseEntity<ResponseMessage<Object>> sendLetterOfPurchase(@RequestParam int letterOfPurchaseCode) {
+        purchaseService.sendLetterOfPurchase(letterOfPurchaseCode);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "회계부서로 구매품의서 발송 성공", null));
+    }
 }
