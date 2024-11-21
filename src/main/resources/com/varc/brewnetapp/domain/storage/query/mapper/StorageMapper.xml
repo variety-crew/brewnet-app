@@ -25,6 +25,18 @@
         <result property="storageName" column="STORAGE_NAME"/>
     </resultMap>
 
+    <resultMap id="stockResultMap" type="com.varc.brewnetapp.domain.storage.query.dto.StockDTO">
+        <id property="storageCode" column="STORAGE_CODE"/>
+        <id property="itemCode" column="ITEM_CODE"/>
+        <result property="availableStock" column="AVAILABLE_STOCK"/>
+        <result property="outStock" column="OUT_STOCK"/>
+        <result property="inStock" column="IN_STOCK"/>
+        <result property="itemUniqueCode" column="ITEM_UNIQUE_CODE"/>
+        <result property="itemName" column="ITEM_NAME"/>
+        <result property="safetyStock" column="SAFETY_STOCK"/>
+        <result property="currentStock" column="CURRENT_STOCK"/>
+    </resultMap>
+
     <select id="searchStorage"
             parameterType="com.varc.brewnetapp.domain.storage.common.SearchStorageCriteria"
             resultMap="storageResultMap">
@@ -83,5 +95,48 @@
             S.ACTIVE = TRUE
         </where>
         ORDER BY S.STORAGE_CODE ASC
+    </select>
+
+    <select id="searchStockOfStorage"
+            parameterType="com.varc.brewnetapp.domain.storage.common.SearchItemStockCriteria"
+            resultMap="stockResultMap">
+        SELECT
+               S.STORAGE_CODE,
+               S.ITEM_CODE,
+               S.AVAILABLE_STOCK,
+               S.OUT_STOCK,
+               S.IN_STOCK,
+               I.ITEM_UNIQUE_CODE,
+               I.NAME AS ITEM_NAME,
+               I.SAFETY_STOCK,
+               (S.AVAILABLE_STOCK + S.OUT_STOCK) AS CURRENT_STOCK
+          FROM TBL_STOCK S
+          JOIN TBL_ITEM I ON S.ITEM_CODE = I.ITEM_CODE
+        <where>
+            S.STORAGE_CODE = #{storageCode}
+            AND S.ACTIVE = TRUE
+            <if test="itemName != null">
+                AND I.NAME LIKE CONCAT('%', #{itemName}, '%')
+            </if>
+        </where>
+         ORDER BY I.ITEM_UNIQUE_CODE ASC
+         LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="getTotalStorageStockCount"
+            parameterType="com.varc.brewnetapp.domain.storage.common.SearchItemStockCriteria"
+            resultType="int">
+        SELECT
+               COUNT(*)
+          FROM TBL_STOCK S
+          JOIN TBL_ITEM I ON S.ITEM_CODE = I.ITEM_CODE
+        <where>
+            S.STORAGE_CODE = #{storageCode}
+            AND S.ACTIVE = TRUE
+            <if test="itemName != null">
+                AND I.NAME LIKE CONCAT('%', #{itemName}, '%')
+            </if>
+        </where>
+         ORDER BY I.ITEM_UNIQUE_CODE ASC
     </select>
 </mapper>
