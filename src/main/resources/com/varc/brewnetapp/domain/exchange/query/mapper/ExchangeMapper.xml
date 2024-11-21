@@ -199,6 +199,34 @@
         LIMIT #{ offset }, #{ pageSize };
     </select>
 
+    <!-- 엑셀출력용 전체 교환내역 목록조회 쿼리 -->
+    <select id="selectAllExchangeList" resultMap="exchangeListResultMap">
+        SELECT
+              A.exchange_code
+            , C.franchise_name
+            , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
+            , A.reason
+            , F.name AS member_name
+            , A.created_at
+            , G.status
+            , A.approval_status
+         FROM tbl_exchange A
+              JOIN tbl_order B ON A.order_code = B.order_code
+              JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
+              JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
+              JOIN tbl_item E ON D.item_code = E.item_code
+              LEFT JOIN tbl_member F ON A.member_code = F.member_code
+              JOIN tbl_exchange_status_history G ON A.exchange_code = G.exchange_code
+              JOIN (
+                    SELECT exchange_code, MAX(created_at) AS max_created_at
+                    FROM tbl_exchange_status_history
+                    GROUP BY exchange_code
+                    ) latest_status ON G.exchange_code = latest_status.exchange_code
+          AND G.created_at = latest_status.max_created_at
+        GROUP BY A.exchange_code, A.created_at
+        ORDER BY A.created_at DESC;
+    </select>
+
     <!-- 미결재된 교환내역 목록조회 쿼리 -->
     <select id="selectRequestedExchangeList" resultMap="exchangeListResultMap">
         SELECT

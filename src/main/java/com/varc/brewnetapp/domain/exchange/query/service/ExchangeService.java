@@ -2,6 +2,7 @@ package com.varc.brewnetapp.domain.exchange.query.service;
 
 import com.varc.brewnetapp.common.domain.exchange.ExchangeStatus;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.*;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -29,6 +30,8 @@ public interface ExchangeService {
     FranExchangeDetailVO findFranExchangeDetailBy(String loginId, int exchangeCode);
 
     List<FranExchangeStatusVO> findFranExchangeStatusBy(String loginId, int exchangeCode);
+
+    Workbook exportExchangeExcel();
 
     ExchangeStatus findExchangeLatestStatus(int exchangeCode);
 

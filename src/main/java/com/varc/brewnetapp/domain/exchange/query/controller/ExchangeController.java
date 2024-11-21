@@ -5,14 +5,17 @@ import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.*;
 import com.varc.brewnetapp.domain.exchange.query.service.ExchangeServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -108,5 +111,21 @@ public class ExchangeController {
 
         List<ExchangeApproverVO> result = exchangeService.findExchangeApprover(loginId, exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재진행상태 조회 성공", result));
+    }
+    @GetMapping("/excel")
+    @Operation(summary = "[본사] 교환목록 엑셀출력 API")
+    public ResponseEntity<ResponseMessage<Void>> exportExchangeExcel(HttpServletResponse response) throws NumberFormatException, IOException {
+
+        Workbook wb = exchangeService.exportExchangeExcel();
+
+        // 컨텐츠 타입, 파일명 지정
+        response.setContentType("ms-vnd/excel");
+        response.setHeader("Content-Disposition", "attachment;filename=exchangeList.xlsx");
+
+        // 엑셀파일 저장
+        wb.write(response.getOutputStream());
+        wb.close();
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재진행상태 조회 성공", null));
     }
 }

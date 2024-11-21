@@ -6,17 +6,24 @@ import com.varc.brewnetapp.domain.exchange.query.mapper.ExchangeMapper;
 import com.varc.brewnetapp.exception.ExchangeNotFoundException;
 import com.varc.brewnetapp.exception.UnauthorizedAccessException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service("ExchangeServiceQuery")
 @Slf4j
-public class ExchangeServiceImpl implements ExchangeService{
+public class ExchangeServiceImpl implements ExchangeService {
 
     private final ExchangeMapper exchangeMapper;
 
@@ -103,7 +110,7 @@ public class ExchangeServiceImpl implements ExchangeService{
         long pageSize = page.getPageSize();
 
         // DB에서 교환 목록 조회
-        List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectSearchExchangeHistoryList (searchFilter, searchWord, startDate, endDate, offset, pageSize);
+        List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectSearchExchangeHistoryList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
 
         // 전체 데이터 개수 조회
         int count = exchangeMapper.selectExchangeHistoryListCnt();
@@ -170,6 +177,50 @@ public class ExchangeServiceImpl implements ExchangeService{
             throw new UnauthorizedAccessException("로그인한 가맹점에서 작성한 교환 요청 상태만 조회할 수 있습니다");
         }
 
+    }
+
+    @Override
+    public Workbook exportExchangeExcel() {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet(); //excel 파일 생성
+
+        List<String> headers = Arrays.asList("교환번호", "교환요청지점", "교환품목명", "교환사유",
+                "교환담당자", "교환요청일자", "교환상태", "교환 승인 상태");  // 헤더 데이터
+
+        List<ExchangeListVO> rows = exchangeMapper.selectAllExchangeList();
+        List<List<String>> rowData = new ArrayList<>();
+        for (ExchangeListVO exchange : rows) {
+            List<String> row = new ArrayList<>();
+            row.add(String.valueOf(exchange.getExchangeCode()));      // 교환번호
+            row.add(exchange.getFranchiseName());                     // 교환요청지점
+            row.add(exchange.getItemName());                          // 교환품목명
+            row.add(exchange.getReason() != null ? exchange.getReason().getKrName() : ""); // 교환사유 (null 체크)
+            row.add(exchange.getMemberCode());                        // 교환담당자
+            row.add(exchange.getCreatedAt());                         // 교환요청일자
+            row.add(exchange.getStatus() != null ? exchange.getStatus().getKrName() : ""); // 교환상태 (null 체크)
+            row.add(exchange.getApprovalStatus() != null ? exchange.getApprovalStatus().getKrName() : ""); // 교환 승인 상태 (null 체크)
+
+            rowData.add(row);
+        }
+
+        // 헤더 세팅
+        Row headerRow = sheet.createRow(0); //0번째 줄 생성 - 헤더(맨 윗줄)
+        for (int i = 0; i < headers.size(); i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers.get(i));
+        }
+
+        // 데이터 세팅
+        for (int i = 0; i < rows.size(); i++) { // 0부터 시작
+            Row row = sheet.createRow(i + 1); // 데이터는 1번 줄부터 시작
+            List<String> data = rowData.get(i);
+            for (int j = 0; j < data.size(); j++) {
+                Cell cell = row.createCell(j);
+                cell.setCellValue(data.get(j));
+            }
+        }
+
+        return workbook;
     }
 
     /* 교환코드로 가장 최근 교환상태(status) 1개를 조회하는 메서드 */

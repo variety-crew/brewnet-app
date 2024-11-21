@@ -13,6 +13,8 @@ public interface ExchangeMapper {
 
     List<ExchangeListVO> selectExchangeList(long offset, long pageSize);
 
+    List<ExchangeListVO> selectAllExchangeList();
+
     List<ExchangeListVO> selectRequestedExchangeList(long offset, long pageSize);
 
     List<ExchangeListVO> selectSearchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
