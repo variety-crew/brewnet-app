@@ -1,8 +1,11 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
 import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 
 public interface OrderQueryService {
@@ -18,6 +21,9 @@ public interface OrderQueryService {
     // for test
     Page<OrderDTO> getOrderListForTest(Pageable pageable, String filter, String sort);
 
+    // common
+    List<OrderStatusHistory> getOrderHistoryByOrderId(int orderId);
+
     // searched by hq
     Page<OrderDTO> getOrderListForHQ(Pageable pageable, String filter, String sort);
 
@@ -26,7 +32,4 @@ public interface OrderQueryService {
     default Page<OrderDTO> getOrderListForFranchise(Pageable pageable, String filter, String sort) {
         return null;
     }
-
-    // common
-
 }

@@ -1,8 +1,10 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
 import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
 import com.varc.brewnetapp.domain.order.query.mapper.OrderMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +29,12 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         List<OrderDTO> orders = orderMapper.findOrdersBy(filter, sort, size, offset);
         int total = orderMapper.countOrders(filter);
         return new PageImpl<>(orders, pageable, total);
+    }
+
+    // for common
+    @Override
+    public List<OrderStatusHistory> getOrderHistoryByOrderId(int orderId) {
+        return orderMapper.findOrderHistoriesByOrderId(orderId);
     }
 
     // for HQ

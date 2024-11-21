@@ -1,8 +1,6 @@
 package com.varc.brewnetapp.common.domain.order;
 
-import lombok.Getter;
 
-@Getter
 public enum OrderApprovalStatus {
     UNCONFIRMED("UNCONFIRMED")
     , CANCELED("CANCELED")
@@ -10,9 +8,13 @@ public enum OrderApprovalStatus {
     , REJECTED("REJECTED")
     ;
 
-    private final String status;
+    private final String value;
 
-    OrderApprovalStatus(String status) {
-        this.status = status;
+    OrderApprovalStatus(String value) {
+        this.value = value;
+    }
+
+    public String getStatus() {
+        return value;
     }
 }

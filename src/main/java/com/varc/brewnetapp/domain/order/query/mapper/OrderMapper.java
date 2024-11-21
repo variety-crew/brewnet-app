@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.order.query.mapper;
 
 import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -44,4 +45,6 @@ public interface OrderMapper {
             @Param("size") int size,
             @Param("offset") int offset
     );
+
+    List<OrderStatusHistory> findOrderHistoriesByOrderId(int orderId);
 }

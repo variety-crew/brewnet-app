@@ -4,6 +4,7 @@ import com.varc.brewnetapp.common.ResponseMessage;
 
 import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderResponseDTO;
+import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
 import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -27,23 +28,16 @@ public class HQOrderQueryController {
         this.orderQueryService = orderQueryService;
     }
 
-    @GetMapping("health")
+    @GetMapping("/{orderCode}/history")
     @Operation(summary = "테스트 for 본사의 주문 조회")
-    public ResponseEntity<ResponseMessage<Page<OrderDTO>>> healthcheck(
-            @PageableDefault(size = 10, page = 0) Pageable pageable,
-            @RequestParam(name = "filter", required = false) String filter,
-            @RequestParam(name = "sort", required = false) String sort,
-            @RequestAttribute(name = "loginId") String loginId
+    public ResponseEntity<ResponseMessage<List<OrderStatusHistory>>> healthcheck(
+            @PathVariable("orderCode") Integer orderCode
     ) {
-        Page<OrderDTO> orderDTOList = orderQueryService.getOrderListForTest(
-                pageable,
-                filter,
-                sort
-        );
-        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDTOList));
+        List<OrderStatusHistory> orderHistoryList = orderQueryService.getOrderHistoryByOrderId(orderCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderHistoryList));
     }
 
-    @GetMapping
+    @GetMapping("/list")
     @Operation(summary = "본사의 주문 리스트 조회")
     public ResponseEntity<ResponseMessage<Page<OrderDTO>>> getOrderList(
             @PageableDefault(size = 10, page = 0) Pageable pageable,

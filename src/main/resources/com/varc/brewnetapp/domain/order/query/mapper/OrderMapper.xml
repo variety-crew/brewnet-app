@@ -15,9 +15,14 @@
         <result property="sumPrice" column="SUM_PRICE"/>
     </resultMap>
 
+    <resultMap id="orderHistoryList" type="com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory">
+        <id property="orderStatusHistoryCode" column="ORDER_CODE"/>
+        <result property="orderHistoryStatus" column="STATUS"/>
+        <result property="createdAt" column="CREATED_AT"/>
+    </resultMap>
+
     <resultMap id="OrderDTOResultList" type="com.varc.brewnetapp.domain.order.query.dto.OrderDTO">
         <id property="orderCode" column="ORDER_CODE"/>
-<!--        <result property="comment" column="COMMENT"/>-->
         <result property="createdAt" column="CREATED_AT"/>
         <result property="active" column="ACTIVE"/>
         <result property="approvalStatus" column="APPROVAL_STATUS"/>
@@ -29,11 +34,6 @@
                      javaType="com.varc.brewnetapp.domain.order.query.dto.OrderFranchise">
             <id property="franchiseCode" column="FRANCHISE_CODE" />
             <result property="franchiseName" column="FRANCHISE_NAME" />
-            <result property="address" column="ADDRESS" />
-            <result property="detailAddress" column="DETAIL_ADDRESS" />
-            <result property="city" column="CITY" />
-            <result property="contact" column="CONTACT" />
-            <result property="createdAt" column="FRANCHISE_CREATED_AT" />
         </association>
 
         <!-- orderItems-->
@@ -43,11 +43,8 @@
         >
             <id property="itemCode" column="ITEM_CODE"/>
             <result property="quantity" column="QUANTITY" />
-            <result property="available" column="AVAILABLE" />
-            <result property="partSumPrice" column="PART_SUM_PRICE" />
 
             <result property="name" column="ITEM_NAME" />
-            <result property="purchasePrice" column="PURCHASE_PRICE" />
             <result property="categoryName" column="SUB_CATEGORY_NAME" />
         </collection>
 
@@ -57,14 +54,14 @@
                     javaType="java.util.List"
         >
             <id property="orderStatusHistoryCode" column="ORDER_STATUS_HISTORY_CODE"/>
-<!--            <result property="orderHistoryStatus" column="ORDER_HISTORY_STATUS" />-->
+            <result property="orderHistoryStatus" column="ORDER_HISTORY_STATUS" />
             <result property="createdAt" column="HISTORY_CREATED_AT" />
         </collection>
     </resultMap>
 
-
+    <!-- Queries-->
     <!-- test-->
-    <select id="findOrdersBy" resultMap="OrderDTOResultList">
+    <select id="findOrdersBy" resultMap="baseOrderList">
         SELECT
               O.ORDER_CODE
             , O.COMMENT
@@ -87,11 +84,19 @@
         </if>
     </select>
 
+    <select id="findOrderHistoriesByOrderId" resultMap="orderHistoryList">
+        SELECT
+               oh.ORDER_STATUS_HISTORY_CODE
+             , oh.STATUS
+             , oh.CREATED_AT
+          FROM tbl_order_status_history oh
+    </select>
+
+
     <!-- for HQ-->
     <select id="findOrdersForHQBy" resultMap="OrderDTOResultList">
         SELECT
                o.ORDER_CODE
-<!--             , o.COMMENT-->
              , o.CREATED_AT
              , o.ACTIVE
              , o.APPROVAL_STATUS
@@ -99,21 +104,13 @@
              , o.SUM_PRICE
              , f.FRANCHISE_CODE
              , f.FRANCHISE_NAME
-             , f.ADDRESS
-             , f.DETAIL_ADDRESS
-             , f.CITY
-             , f.CONTACT
-             , f.CREATED_AT as FRANCHISE_CREATED_AT
              , oi.ITEM_CODE
              , oi.QUANTITY
-             , oi.AVAILABLE
-             , oi.PART_SUM_PRICE
              , i.NAME as ITEM_NAME
-             , i.PURCHASE_PRICE
              , sc.NAME as SUB_CATEGORY_NAME
-             , os.ORDER_STATUS_HISTORY_CODE
-<!--             , os.STATUS as ORDER_HISTORY_STATUS-->
-             , os.CREATED_AT as HISTORY_CREATED_AT
+             , oh.ORDER_STATUS_HISTORY_CODE
+             , oh.STATUS as ORDER_HISTORY_STATUS
+             , oh.CREATED_AT as HISTORY_CREATED_AT
 
           FROM tbl_order o
 
@@ -126,7 +123,7 @@
           LEFT JOIN
                tbl_sub_category sc ON i.CATEGORY_CODE = sc.SUB_CATEGORY_CODE
           LEFT JOIN
-               tbl_order_status_history os ON o.ORDER_CODE = os.ORDER_CODE
+               tbl_order_status_history oh ON o.ORDER_CODE = oh.ORDER_CODE
 
          WHERE o.ACTIVE = 1
         <if test="filter == 'UNCONFIRMED'">
@@ -147,6 +144,7 @@
                 ORDER BY o.SUM_PRICE ASC
             </when>
             <otherwise>
+
                 <!-- 기본 정렬 -->
                 ORDER BY o.CREATED_AT DESC
             </otherwise>

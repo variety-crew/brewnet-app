@@ -14,7 +14,6 @@ import java.util.List;
 @ToString
 public class OrderDTO {
     private int orderCode;
-    private String comment; // written by drafter
     private String createdAt;
     private boolean active;
     private OrderApprovalStatus approvalStatus;
