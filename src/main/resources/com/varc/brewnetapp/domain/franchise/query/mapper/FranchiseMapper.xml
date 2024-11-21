@@ -13,6 +13,14 @@
     <result property="name" column="NAME"/>
   </resultMap>
 
+  <resultMap id="franchiseMemberResultMap" type="com.varc.brewnetapp.domain.franchise.query.dto.FranchiseMemberDTO">
+    <id property="memberCode" column="MEMBER_CODE"/>
+    <result property="memberName" column="NAME"/>
+    <result property="contact" column="CONTACT"/>
+    <result property="franchiseName" column="FRANCHISE_NAME"/>
+    <result property="franchiseCode" column="FRANCHISE_CODE"/>
+  </resultMap>
+
   <select id="selectFranchise" resultMap="franchiseResultMap" parameterType="_int">
     SELECT
            FRANCHISE_CODE
@@ -61,6 +69,49 @@
     </if>
     <if test="citys != null and citys.size() > 0">
       AND CITY IN
+      <foreach item="city" collection="citys" open="(" separator="," close=")">
+        #{city}
+      </foreach>
+    </if>
+  </select>
+
+  <select id="selectFranchiseMemberList" resultMap="franchiseMemberResultMap" parameterType="map">
+    SELECT
+           M.MEMBER_CODE
+         , M.NAME
+         , M.CONTACT
+         , F.FRANCHISE_NAME
+         , F.FRANCHISE_CODE
+      FROM tbl_member M
+     INNER JOIN tbl_franchise_member FM ON M.MEMBER_CODE = FM.MEMBER_CODE
+     INNER JOIN tbl_franchise F ON FM.FRANCHISE_CODE = F.FRANCHISE_CODE
+     WHERE M.ACTIVE = TRUE AND F.ACTIVE = TRUE
+    <if test="franchiseName != null and franchiseName != ''">
+      AND F.FRANCHISE_NAME LIKE CONCAT('%', #{franchiseName}, '%')
+    </if>
+    <if test="citys != null and citys.size() > 0">
+      AND F.CITY IN
+      <foreach item="city" collection="citys" open="(" separator="," close=")">
+        #{city}
+      </foreach>
+    </if>
+     ORDER BY M.MEMBER_CODE DESC
+     LIMIT #{ pageSize }
+    OFFSET #{ offset };
+  </select>
+
+  <select id="selectFranchiseMemberWhereFranchiseNameAndCitysCnt" resultType="_int" parameterType="map">
+    SELECT
+           COUNT(*)
+      FROM tbl_member M
+     INNER JOIN tbl_franchise_member FM ON M.MEMBER_CODE = FM.MEMBER_CODE
+     INNER JOIN tbl_franchise F ON FM.FRANCHISE_CODE = F.FRANCHISE_CODE
+     WHERE M.ACTIVE = TRUE AND F.ACTIVE = TRUE
+    <if test="franchiseName != null and franchiseName != ''">
+      AND F.FRANCHISE_NAME LIKE CONCAT('%', #{franchiseName}, '%')
+    </if>
+    <if test="citys != null and citys.size() > 0">
+      AND F.CITY IN
       <foreach item="city" collection="citys" open="(" separator="," close=")">
         #{city}
       </foreach>

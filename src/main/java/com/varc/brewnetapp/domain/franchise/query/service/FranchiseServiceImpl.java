@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.franchise.query.service;
 
 import com.varc.brewnetapp.domain.franchise.query.dto.FranchiseDTO;
+import com.varc.brewnetapp.domain.franchise.query.dto.FranchiseMemberDTO;
 import com.varc.brewnetapp.domain.franchise.query.mapper.FranchiseMapper;
 import com.varc.brewnetapp.exception.EmptyDataException;
 import jakarta.transaction.Transactional;
@@ -48,5 +49,24 @@ public class FranchiseServiceImpl implements FranchiseService {
 
 
         return new PageImpl<>(franchiseList, page, count);
+    }
+
+    @Override
+    public Page<FranchiseMemberDTO> findFranchiseMemberList(Pageable page, String franchiseName,
+        List<String> citys) {
+        long pageSize = page.getPageSize();
+        long pageNumber = page.getPageNumber();
+        long offset = pageNumber * pageSize;
+
+        List<FranchiseMemberDTO> franchiseMemberList = franchiseMapper.selectFranchiseMemberList(offset, pageSize, franchiseName, citys);
+
+        if (franchiseMemberList.isEmpty() || franchiseMemberList.size() < 0)
+            throw new EmptyDataException("조회하려는 가맹점 회원 정보가 없습니다");
+
+        // 동적 쿼리 사용해서 필터링 및 검색어 있으면 전체 total element 값이 달라짐
+        int count = franchiseMapper.selectFranchiseMemberWhereFranchiseNameAndCitysCnt(franchiseName, citys);
+
+
+        return new PageImpl<>(franchiseMemberList, page, count);
     }
 }

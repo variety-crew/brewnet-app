@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.franchise.query.mapper;
 
 import com.varc.brewnetapp.domain.franchise.query.dto.FranchiseDTO;
+import com.varc.brewnetapp.domain.franchise.query.dto.FranchiseMemberDTO;
 import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
@@ -14,9 +15,7 @@ public interface FranchiseMapper {
 
     int selectFranchiseWhereFranchiseNameAndCitysCnt(String franchiseName, List<String> citys);
 
-    int selectFranchiseWhereFranchiseNameCnt(String franchiseName);
+    List<FranchiseMemberDTO> selectFranchiseMemberList(long offset, long pageSize, String franchiseName, List<String> citys);
 
-    int selectFranchiseWhereCitysCnt(List<String> citys);
-
-    int selectFranchiseCnt();
+    int selectFranchiseMemberWhereFranchiseNameAndCitysCnt(String franchiseName, List<String> citys);
 }
