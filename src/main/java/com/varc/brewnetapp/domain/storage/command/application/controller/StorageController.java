@@ -41,4 +41,14 @@ public class StorageController {
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "창고 정보 수정 성공", null));
     }
+
+    @DeleteMapping("/delete/{storageCode}")
+    @Operation(summary = "창고 삭제 API - 창고별 상품 재고가 전부 0이 아니면 삭제 불가")
+    public ResponseEntity<ResponseMessage<Object>> deleteStorage(@RequestAttribute("loginId") String loginId,
+                                                                 @PathVariable int storageCode) {
+
+        storageService.deleteStorage(loginId, storageCode);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "창고 삭제 성공", null));
+    }
 }

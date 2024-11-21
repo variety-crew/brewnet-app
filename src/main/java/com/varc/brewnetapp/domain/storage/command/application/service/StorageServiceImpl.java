@@ -8,6 +8,8 @@ import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
 import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Storage;
 import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
 import com.varc.brewnetapp.domain.storage.command.domain.repository.StorageRepository;
+import com.varc.brewnetapp.exception.AccessDeniedException;
+import com.varc.brewnetapp.exception.InvalidDataException;
 import com.varc.brewnetapp.exception.MemberNotFoundException;
 import com.varc.brewnetapp.exception.StorageNotFoundException;
 import org.modelmapper.ModelMapper;
@@ -82,5 +84,36 @@ public class StorageServiceImpl implements StorageService{
         if (editedStorage.getName() != null) storage.setName(editedStorage.getName());
         if (editedStorage.getAddress() != null) storage.setAddress(editedStorage.getAddress());
         if (editedStorage.getContact() != null) storage.setContact(editedStorage.getContact());
+    }
+
+    @Transactional
+    @Override
+    public void deleteStorage(String loginId, int storageCode) {
+
+        // 로그인한 사용자 체크
+        memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
+
+        Storage storage = storageRepository.findByStorageCodeAndActiveTrue(storageCode);
+        if (storage == null) throw new StorageNotFoundException("삭제되었거나 존재하지 않는 창고입니다.");
+
+        List<Stock> stockList = stockRepository.findByStorageCodeAndActiveTrue(storageCode);
+
+        // 창고별 상품 재고가 모두 0인지 체크하여 0이면 창고의 해당 상품 삭제 처리
+        for (Stock stock : stockList) {
+            if (!(stock.getAvailableStock()).equals(0) ||
+                    !(stock.getOutStock()).equals(0) ||
+                    !(stock.getInStock()).equals(0)) {
+                throw new InvalidDataException("해당 창고에 상품의 재고가 남아 있습니다.");
+            }
+            else if (stock.getAvailableStock().equals(0) &&
+                    stock.getOutStock().equals(0) &&
+                    stock.getInStock().equals(0)) {
+                stock.setActive(false);
+            }
+        }
+
+        // 창고별 상품 재고가 모두 삭제 처리된 것을 확인하면 창고 삭제 처리
+        List<Stock> stockCheckList = stockRepository.findByStorageCodeAndActiveTrue(storageCode);
+        if (stockCheckList == null) storage.setActive(false);
     }
 }
