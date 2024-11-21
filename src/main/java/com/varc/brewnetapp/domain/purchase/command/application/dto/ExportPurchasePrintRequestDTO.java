@@ -12,7 +12,6 @@ import java.util.List;
 @ToString
 public class ExportPurchasePrintRequestDTO {
 
-    private int memberCode;
-    private String reason;
+    private String reason;      // 출력 사유
 }
 

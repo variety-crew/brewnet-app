@@ -4,21 +4,21 @@ import com.varc.brewnetapp.domain.purchase.command.application.dto.*;
 
 public interface PurchaseService {
 
-    void createLetterOfPurchase(PurchaseRequestDTO newPurchase);
+    void createLetterOfPurchase(String loginId, PurchaseRequestDTO newPurchase);
 
-    void cancelLetterOfPurchase(int letterOfPurchaseCode);
+    void cancelLetterOfPurchase(String loginId, int letterOfPurchaseCode);
 
-    void approveLetterOfPurchase(int letterOfPurchaseCode, PurchaseApprovalRequestDTO request);
+    void approveLetterOfPurchase(String loginId, int letterOfPurchaseCode, PurchaseApprovalRequestDTO request);
 
-    void rejectLetterOfPurchase(int letterOfPurchaseCode, PurchaseApprovalRequestDTO request);
+    void rejectLetterOfPurchase(String loginId, int letterOfPurchaseCode, PurchaseApprovalRequestDTO request);
 
-    void changeInStockToAvailable(int itemCode, int purchaseCode);
+    void changeInStockToAvailable(String loginId, int itemCode, int purchaseCode);
 
-    PurchasePrintResponseDTO exportPurchasePrint(int letterOfPurchaseCode,
+    PurchasePrintResponseDTO exportPurchasePrint(String loginId,
+                                                 int letterOfPurchaseCode,
                                                  ExportPurchasePrintRequestDTO printRequest);
 
-    PurchasePrintResponseDTO takeInHousePurchasePrint(int letterOfPurchaseCode,
-                                                      InHousePurchasePrintRequestDTO printRequest);
+    PurchasePrintResponseDTO takeInHousePurchasePrint(String loginId, int letterOfPurchaseCode);
 
-    void sendLetterOfPurchase(int letterOfPurchaseCode);
+    void sendLetterOfPurchase(String loginId, int letterOfPurchaseCode);
 }

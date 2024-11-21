@@ -11,7 +11,6 @@ import java.util.List;
 @ToString
 public class PurchaseRequestDTO {
 
-    private int memberCode;
     private String comment;
     private int correspondentCode;
     private int storageCode;
