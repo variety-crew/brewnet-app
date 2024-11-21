@@ -2,6 +2,7 @@ package com.varc.brewnetapp.domain.storage.query.mapper;
 
 import com.varc.brewnetapp.domain.storage.common.SearchStorageCriteria;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDTO;
+import com.varc.brewnetapp.domain.storage.query.dto.StorageDetailDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -12,4 +13,6 @@ public interface StorageMapper {
     List<StorageDTO> searchStorage(SearchStorageCriteria criteria);
 
     int getTotalStorageCount(SearchStorageCriteria criteria);
+
+    StorageDetailDTO selectStorageByStorageCode(int storageCode);
 }
