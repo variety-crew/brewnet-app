@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface MemberService {
 
-    Page<MemberDTO> findMemberList(Pageable page);
+    Page<MemberDTO> findMemberList(Pageable page, String search);
 
     MemberDTO findMember(String accessToken);
 }

@@ -50,6 +50,9 @@
      INNER JOIN tbl_position P
         ON M.POSITION_CODE = P.POSITION_CODE
      WHERE M.ACTIVE = TRUE
+      <if test="search != null and search != ''">
+       AND M.NAME LIKE CONCAT('%', #{search}, '%')
+      </if>
      ORDER BY M.MEMBER_CODE DESC
      LIMIT #{ pageSize }
     OFFSET #{ offset };

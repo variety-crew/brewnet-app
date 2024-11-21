@@ -13,6 +13,8 @@ import jakarta.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -43,14 +45,14 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public Page<MemberDTO> findMemberList(Pageable page) {
+    public Page<MemberDTO> findMemberList(Pageable page, String search) {
         // 페이징 정보 추가
         long pageSize = page.getPageSize();
         long pageNumber = page.getPageNumber();
         long offset = (pageNumber - 1) * pageSize;
 
         // DB에서 교환 목록 조회
-        List<MemberDTO> memberList = memberMapper.selectMemberList(offset, pageSize);
+        List<MemberDTO> memberList = memberMapper.selectMemberList(offset, pageSize, search);
 
         if (memberList.isEmpty() || memberList.size() < 0)
             throw new EmptyDataException("조회하려는 회원 정보가 없습니다");
@@ -74,10 +76,14 @@ public class MemberServiceImpl implements MemberService {
             );
 
             // 역할 변환
-            String mappedRoles = Arrays.stream(member.getRoles().split(","))
-                .map(String::trim) // 공백 제거
-                .map(roleMap::get) // 매핑된 이름으로 변환
-                .collect(Collectors.joining(", ")); // 콤마로 연결
+            String mappedRoles = Optional.ofNullable(member.getRoles()) // null 처리
+                .filter(roles -> !roles.isBlank()) // 빈 문자열 체크
+                .map(roles -> Arrays.stream(roles.split(",")) // 스트림 시작
+                    .map(String::trim) // 공백 제거
+                    .map(roleMap::get) // 매핑된 이름으로 변환
+                    .filter(Objects::nonNull) // 매핑 실패한 값 제외
+                    .collect(Collectors.joining(", "))) // 콤마로 연결
+                .orElse(""); // null 또는 빈 문자열일 경우 기본값
 
             member.setRoles(mappedRoles);
         });
