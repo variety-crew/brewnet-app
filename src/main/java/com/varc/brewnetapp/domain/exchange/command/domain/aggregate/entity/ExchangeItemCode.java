@@ -14,6 +14,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @ToString
 @Builder(toBuilder = true)
+@EqualsAndHashCode
 public class ExchangeItemCode implements Serializable {
 
     @Column(name="exchange_code")
@@ -21,17 +22,4 @@ public class ExchangeItemCode implements Serializable {
 
     @Column(name="item_code")
     private int itemCode;           // 상품코드
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        ExchangeItemCode that = (ExchangeItemCode) object;
-        return exchangeCode == that.exchangeCode && itemCode == that.itemCode;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(exchangeCode, itemCode);
-    }
 }

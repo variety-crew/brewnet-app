@@ -185,7 +185,7 @@ public class ExchangeServiceImpl implements ExchangeService{
     // 가맹점 교환신청 시 유효한 요청인지 검증하기 위해 사용
     @Override
     public boolean isValidOrderByFranchise(String loginId, int orderCode) {
-        return exchangeMapper.selectValidExchangeByFranchise(loginId, orderCode);
+        return exchangeMapper.selectValidOrderByFranchise(loginId, orderCode);
     }
 
     /* 유저 아이디(loginId)로 교환신청 가능한 주문코드 목록을 찾는 메서드 */

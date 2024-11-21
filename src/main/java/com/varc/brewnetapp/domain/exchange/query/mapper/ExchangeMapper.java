@@ -41,6 +41,8 @@ public interface ExchangeMapper {
 
     boolean selectValidExchangeByFranchise(String loginId, int exchangeCode);
 
+    boolean selectValidOrderByFranchise(String loginId, int orderCode);
+
     List<Integer> selectAvailableExchangeBy(String loginId);
 
     List<FranExchangeItemVO> selectAvailableExchangeItemBy(int orderCode);

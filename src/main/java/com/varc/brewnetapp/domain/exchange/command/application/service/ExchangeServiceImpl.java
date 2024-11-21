@@ -24,11 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service("ExchangeServiceCommand")
 @RequiredArgsConstructor
 @Slf4j
-public class ExchangeServiceImpl implements ExchangeService{
+public class ExchangeServiceImpl implements ExchangeService {
 
     // 이후 의존성 수정 필요
     private final ExchangeRepository exchangeRepository;
@@ -74,9 +75,27 @@ public class ExchangeServiceImpl implements ExchangeService{
             exchangeRepository.save(exchange);
 
 
-            for (ExchangeReqItemVO reqItem: exchangeReqVO.getExchangeItemList()) {
+            for (ExchangeReqItemVO reqItem : exchangeReqVO.getExchangeItemList()) {
+                // 3. 주문 별 상품 - 반품/교환요청 가능여부 변경
+                // 복합키 객체 생성
+                ExOrderItemCode exOrderItemCode = ExOrderItemCode.builder()
+                        .orderCode(order.getOrderCode())            // 주문 코드 설정
+                        .itemCode(reqItem.getItemCode())            // 상품 코드 설정
+                        .build();
 
-                // 3. 교환별상품 저장
+                ExOrderItem exOrderItem = exOrderItemRepository.findByOrderItemCode(exOrderItemCode)
+                        .orElseThrow(() -> new ExchangeNotFoundException("존재하지 않는 주문 상품이 포함되어 있습니다."));
+                if (exOrderItem.getAvailable() != Availability.AVAILABLE) {
+                    throw new IllegalArgumentException("교환 신청이 불가한 주문 상품이 포함되어 있습니다.");
+                }
+
+                exOrderItem = exOrderItem.toBuilder()
+                        .available(Availability.UNAVAILABLE)        // [4] 반품/교환요청 가능여부
+                        .build();
+
+                exOrderItemRepository.save(exOrderItem);
+
+                // 4. 교환별상품 저장
                 // 복합키 객체 생성
                 ExchangeItemCode exchangeItemCode = ExchangeItemCode.builder()
                         .exchangeCode(exchange.getExchangeCode())   // 교환 코드 설정
@@ -86,30 +105,14 @@ public class ExchangeServiceImpl implements ExchangeService{
                 // ExchangeItem 객체 생성
                 ExchangeItem exchangeItem = ExchangeItem.builder()
                         .exchangeItemCode(exchangeItemCode)         // 복합키 설정
-                        .quantity(reqItem.getQuantity())
+                        .quantity(exOrderItem.getQuantity())        // 기존 주문 별 상품의 수량 그대로 저장
                         .build();
 
                 exchangeItemRepository.save(exchangeItem);
 
-
-                // 4. 주문 별 상품 - 반품/교환요청 가능여부 변경
-                // 복합키 객체 생성
-                ExOrderItemCode exOrderItemCode = ExOrderItemCode.builder()
-                        .orderCode(order.getOrderCode())            // 주문 코드 설정
-                        .itemCode(reqItem.getItemCode())            // 상품 코드 설정
-                        .build();
-
-                ExOrderItem exOrderItem = exOrderItemRepository.findById(exOrderItemCode)
-                        .orElseThrow(() -> new ExchangeNotFoundException("주문 상품이 존재하지 않습니다."));
-
-                exOrderItem = exOrderItem.toBuilder()
-                        .available(Availability.UNAVAILABLE)        // [4] 반품/교환요청 가능여부
-                        .build();
-
-                exOrderItemRepository.save(exOrderItem);
             }
 
-            // 4. 교환상태이력 저장
+            // 5. 교환상태이력 저장
             ExchangeStatusHistory exchangeStatusHistory = ExchangeStatusHistory.builder()
                     .status(ExchangeStatus.REQUESTED)   // [3] 교환 상태
                     .createdAt(String.valueOf(LocalDateTime.now()))
@@ -120,7 +123,7 @@ public class ExchangeServiceImpl implements ExchangeService{
             exchangeStatusHistoryRepository.save(exchangeStatusHistory);
 
 
-            // 5. 교환품목사진 저장
+            // 6. 교환품목사진 저장
 
 
         } else {
@@ -131,11 +134,21 @@ public class ExchangeServiceImpl implements ExchangeService{
     @Override
     @Transactional
     public boolean cancelExchange(String loginId, Integer exchangeCode) {
+        /*
+         * 교환 취소 시 변하는 상태값
+         * [1] 교환상태                - tbl_exchange_status_history : status = CANCELED (내역 추가됨)
+         * [2] 활성화                  - tbl_exchange : active = False
+         * [3] 반품/교환요청 가능여부     - tbl_order_item : available = AVAILABLE
+         * */
+
+        /*
+         * 교환 취소 가능한 조건
+         * 1. 교환 상태 이력(tbl_exchange_status_history)테이블의 교환상태(status)가 REQUESTED인 경우
+         * */
 
         // 1. 해당 취소요청의 교환내역이 이 가맹점에서 작성한 것이 맞는지 확인
         if (exchangeServiceQuery.isValidExchangeByFranchise(loginId, exchangeCode)) {
 
-            // 2. 교환 상태 이력(tbl_exchange_status_history)테이블에 취소내역 저장
             Exchange exchange = exchangeRepository.findById(exchangeCode)
                     .orElseThrow(() -> new ExchangeNotFoundException("교환 코드가 존재하지 않습니다."));
 
@@ -144,8 +157,10 @@ public class ExchangeServiceImpl implements ExchangeService{
             // status가 REQUESTED인 경우에만 취소 가능
             if (exchangeStatus == ExchangeStatus.REQUESTED) {
 
+
+                // 2. 교환 상태 이력(tbl_exchange_status_history)테이블에 취소내역 저장
                 ExchangeStatusHistory exchangeStatusHistory = ExchangeStatusHistory.builder()
-                        .status(ExchangeStatus.CANCELED)
+                        .status(ExchangeStatus.CANCELED)    // [1] 교환상태
                         .createdAt(String.valueOf(LocalDateTime.now()))
                         .active(true)
                         .exchange(exchange)
@@ -155,9 +170,33 @@ public class ExchangeServiceImpl implements ExchangeService{
 
                 // 3. 교환(tbl_exchange) 테이블의 활성화(active)를 false로 변경
                 exchange = exchange.toBuilder()     // 새 객체가 생성되지만, 영속성 컨텍스트는 아님
-                        .active(false)
+                        .active(false)              // [2] 활성화
                         .build();
                 exchangeRepository.save(exchange);  //객체가 영속성 컨텍스트에 저장되고, 엔티티 매니저가 이 객체를 관리함
+
+
+                // 4. 교환 별 상품 -> 주문 별 상품의 반품/교환요청 가능여부(available)을 AVAILABLE로 변경
+                // 주문 별 상품(tbl_order_item)의
+                // 교환 별 상품 리스트 -> 주문 별 상품 하나씩 조회 -> 상태값 변경
+                log.info("*** cancelExchange - exchange.getExchangeCode(): {}", exchange.getExchangeCode());
+
+                List<ExchangeItem> exchangeItemList = exchangeItemRepository.findByExchangeItemCode_ExchangeCode(exchange.getExchangeCode());
+
+                for (ExchangeItem exchangeItem : exchangeItemList) {
+
+                    ExOrderItemCode orderItemCode = ExOrderItemCode.builder()
+                            .orderCode(exchange.getOrder().getOrderCode())              // 주문 코드 설정
+                            .itemCode(exchangeItem.getExchangeItemCode().getItemCode()) // 상품 코드 설정
+                            .build();
+
+                    ExOrderItem orderItem = exOrderItemRepository.findByOrderItemCode(orderItemCode)
+                            .orElseThrow(() -> new ExchangeNotFoundException("교환할 상품이 존재하지 않습니다."));
+
+                    orderItem = orderItem.toBuilder()
+                            .available(Availability.AVAILABLE) // [3] 반품/교환요청 가능여부
+                            .build();
+                    exOrderItemRepository.save(orderItem);
+                }
 
                 return true;
             } else {

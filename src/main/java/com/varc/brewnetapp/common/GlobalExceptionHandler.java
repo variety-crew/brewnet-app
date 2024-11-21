@@ -19,7 +19,8 @@ public class GlobalExceptionHandler {
             InvalidEmailException.class,
             InvalidDataException.class,
             MemberNotFoundException.class,
-            InvalidStatusException.class
+            InvalidStatusException.class,
+            IllegalArgumentException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
