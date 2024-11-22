@@ -1,9 +1,6 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
-import com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO;
-import com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderRequestDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
+import com.varc.brewnetapp.domain.order.query.dto.*;
 import com.varc.brewnetapp.domain.order.query.mapper.OrderMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -68,8 +65,8 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     }
 
     @Override
-    public HQOrderDTO getOrderDetailForHqBy(int orderCode) {
-        HQOrderDTO orderDetail = orderMapper.findOrderDetailForHqBy(orderCode);
+    public OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode) {
+        OrderDetailForHQDTO orderDetail = orderMapper.findOrderDetailForHqBy(orderCode);
         return orderDetail;
     }
 

@@ -2,10 +2,7 @@ package com.varc.brewnetapp.domain.order.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
 
-import com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderRequestDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderResponseDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
+import com.varc.brewnetapp.domain.order.query.dto.*;
 import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -80,10 +77,10 @@ public class HQOrderQueryController {
 
     @GetMapping("/detail/{orderCode}")
     @Operation(summary = "주문 코드를 path variable로 활용한 주문 상세 조회")
-    public ResponseEntity<ResponseMessage<HQOrderDTO>> getOrderInformation(
+    public ResponseEntity<ResponseMessage<OrderDetailForHQDTO>> getOrderInformation(
             @PathVariable("orderCode") Integer orderCode) {
-        HQOrderDTO hqOrderDTO = orderQueryService.getOrderDetailForHqBy(orderCode);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", hqOrderDTO));
+        OrderDetailForHQDTO orderDetailDTO = orderQueryService.getOrderDetailForHqBy(orderCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDetailDTO));
     }
 
     @GetMapping("/detail/{orderCode}/print/order-request")
