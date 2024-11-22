@@ -50,6 +50,9 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         // TODO: check if filter value is one of ["UNCONFIRMED", null]
         // TODO: check if sort value is one of ["createdAtDesc", "createdAtAsc", "sumPriceDesc", "sumPriceAsc"]
         List<HQOrderDTO> HQOrderDTOList = orderMapper.findOrdersForHQBy(filter, sort, size, offset, startDate, endDate);
+        HQOrderDTOList.forEach(
+                HQOrderDTO -> log.debug("HQOrderDTOList: {}", HQOrderDTOList)
+        );
 
         int total = orderMapper.countOrders(filter);
         return new PageImpl<>(HQOrderDTOList, pageable, total);

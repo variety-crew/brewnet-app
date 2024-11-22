@@ -44,7 +44,7 @@ public class HQOrderQueryController {
             @PageableDefault(size = 10, page = 0) Pageable pageable,
             @RequestParam(name = "filter", required = false) String filter,
             @RequestParam(name = "sort", required = false) String sort,
-                @RequestParam(name = "startDate", required = false) String startDate,
+            @RequestParam(name = "startDate", required = false) String startDate,
             @RequestParam(name = "endDate", required = false) String endDate
     ) {
         log.debug("startDate: {}", startDate);
