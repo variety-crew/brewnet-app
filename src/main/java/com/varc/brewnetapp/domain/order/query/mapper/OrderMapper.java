@@ -25,9 +25,6 @@ public interface OrderMapper {
     );
 
     // common
-    int countOrders(
-            @Param("filter") String filter
-    );
     List<OrderStatusHistory> findOrderHistoriesByOrderId(int orderId);
 
 
@@ -40,6 +37,10 @@ public interface OrderMapper {
             @Param("startDate") String startDate,
             @Param("endDate") String endDate
     );
+    int countOrdersForHq(
+            @Param("filter") String filter
+    );
+    HQOrderDTO findOrderDetailForHqBy(int orderCode);
 
 
     // for FRANCHISE
@@ -57,4 +58,5 @@ public interface OrderMapper {
             @Param("filter") String filter,
             @Param("franchiseCode") int franchiseCode
     );
+
 }

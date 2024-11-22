@@ -50,4 +50,5 @@ public interface OrderQueryService {
                                                      int franchiseCode
     );
 
+    HQOrderDTO getOrderDetailForHqBy(int orderCode);
 }

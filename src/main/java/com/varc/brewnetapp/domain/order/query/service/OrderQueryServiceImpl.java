@@ -28,7 +28,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         int size = pageable.getPageSize();
         int offset = page * size;
         List<HQOrderDTO> orders = orderMapper.findOrdersBy(filter, sort, size, offset);
-        int total = orderMapper.countOrders(filter);
+        int total = orderMapper.countOrdersForHq(filter);
         return new PageImpl<>(orders, pageable, total);
     }
 
@@ -51,7 +51,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         // TODO: check if sort value is one of ["createdAtDesc", "createdAtAsc", "sumPriceDesc", "sumPriceAsc"]
         List<HQOrderDTO> hqOrderDTOList = orderMapper.findOrdersForHQBy(filter, sort, size, offset, startDate, endDate);
 
-        int total = orderMapper.countOrders(filter);
+        int total = orderMapper.countOrdersForHq(filter);
         return new PageImpl<>(hqOrderDTOList, pageable, total);
     }
 
@@ -62,9 +62,15 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         int offset = page * size;
 //        List<OrderDTO> searchedList = orderMapper.findOrderListForHQBy(filter, sort, size, offset, criteria);
 
-        int total = orderMapper.countOrders(filter);
+        int total = orderMapper.countOrdersForHq(filter);
 //        return new PageImpl<>(null, pageable, total);
         return null;
+    }
+
+    @Override
+    public HQOrderDTO getOrderDetailForHqBy(int orderCode) {
+        HQOrderDTO orderDetail = orderMapper.findOrderDetailForHqBy(orderCode);
+        return orderDetail;
     }
 
     @Override

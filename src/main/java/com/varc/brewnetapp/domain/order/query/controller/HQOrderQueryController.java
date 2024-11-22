@@ -80,10 +80,10 @@ public class HQOrderQueryController {
 
     @GetMapping("/detail/{orderCode}")
     @Operation(summary = "주문 코드를 path variable로 활용한 주문 상세 조회")
-    public ResponseEntity<ResponseMessage<OrderResponseDTO>> getOrderInformation(
+    public ResponseEntity<ResponseMessage<HQOrderDTO>> getOrderInformation(
             @PathVariable("orderCode") Integer orderCode) {
-//        OrderResponseDTO orderResponseVO = orderService.getOrderDetailByHqWith(Integer.parseInt(orderCode));
-        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", null));
+        HQOrderDTO hqOrderDTO = orderQueryService.getOrderDetailForHqBy(orderCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", hqOrderDTO));
     }
 
     @GetMapping("/detail/{orderCode}/print/order-request")
