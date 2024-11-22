@@ -29,15 +29,17 @@ public class StorageController {
     }
 
     @GetMapping("")
-    @Operation(summary = "창고 목록 조회 API (창고명으로 검색 가능) - pageNumber의 default값은 1, pageSize의 default값은 10")
+    @Operation(summary = "창고 목록 조회 API (창고코드, 창고명 중 하나로 검색 가능) - pageNumber의 default값은 1," +
+            " pageSize의 default값은 10")
     public ResponseEntity<ResponseMessage<PageResponse<List<StorageDTO>>>> selectStorage(
                                             @RequestAttribute("loginId") String loginId,
+                                            @RequestParam(required = false) Integer storageCode,
                                             @RequestParam(required = false) String storageName,
                                             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
                                             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
 
         PageResponse<List<StorageDTO>> response = storageService
-                                                    .selectStorage(loginId, storageName, pageNumber, pageSize);
+                                                .selectStorage(loginId, storageCode, storageName, pageNumber, pageSize);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "창고 목록 조회 성공", response));
     }

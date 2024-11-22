@@ -2,6 +2,7 @@ package com.varc.brewnetapp.domain.order.query.mapper;
 
 import com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO;
 import com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.OrderDetailForHQDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -25,9 +26,6 @@ public interface OrderMapper {
     );
 
     // common
-    int countOrders(
-            @Param("filter") String filter
-    );
     List<OrderStatusHistory> findOrderHistoriesByOrderId(int orderId);
 
 
@@ -40,6 +38,10 @@ public interface OrderMapper {
             @Param("startDate") String startDate,
             @Param("endDate") String endDate
     );
+    int countOrdersForHq(
+            @Param("filter") String filter
+    );
+    OrderDetailForHQDTO findOrderDetailForHqBy(int orderCode);
 
 
     // for FRANCHISE
@@ -57,4 +59,5 @@ public interface OrderMapper {
             @Param("filter") String filter,
             @Param("franchiseCode") int franchiseCode
     );
+
 }

@@ -9,6 +9,7 @@ import lombok.*;
 @ToString
 public class SearchStorageCriteria {
 
+    private Integer storageCode;            // 창고 코드
     private String storageName;             // 창고명
 
     private int pageNumber;                 // 현재 페이지 번호

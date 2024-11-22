@@ -1,10 +1,8 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
-import com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO;
-import com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderRequestDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
+import com.varc.brewnetapp.domain.order.query.dto.*;
 import com.varc.brewnetapp.domain.order.query.mapper.OrderMapper;
+import com.varc.brewnetapp.exception.OrderNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,7 +26,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         int size = pageable.getPageSize();
         int offset = page * size;
         List<HQOrderDTO> orders = orderMapper.findOrdersBy(filter, sort, size, offset);
-        int total = orderMapper.countOrders(filter);
+        int total = orderMapper.countOrdersForHq(filter);
         return new PageImpl<>(orders, pageable, total);
     }
 
@@ -51,7 +49,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         // TODO: check if sort value is one of ["createdAtDesc", "createdAtAsc", "sumPriceDesc", "sumPriceAsc"]
         List<HQOrderDTO> hqOrderDTOList = orderMapper.findOrdersForHQBy(filter, sort, size, offset, startDate, endDate);
 
-        int total = orderMapper.countOrders(filter);
+        int total = orderMapper.countOrdersForHq(filter);
         return new PageImpl<>(hqOrderDTOList, pageable, total);
     }
 
@@ -62,9 +60,19 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         int offset = page * size;
 //        List<OrderDTO> searchedList = orderMapper.findOrderListForHQBy(filter, sort, size, offset, criteria);
 
-        int total = orderMapper.countOrders(filter);
+        int total = orderMapper.countOrdersForHq(filter);
 //        return new PageImpl<>(null, pageable, total);
         return null;
+    }
+
+    @Override
+    public OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode) {
+        OrderDetailForHQDTO orderDetail = orderMapper.findOrderDetailForHqBy(orderCode);
+        if (orderDetail == null) {
+            throw new OrderNotFound("Order not found");
+        } else {
+            return orderDetail;
+        }
     }
 
     @Override
