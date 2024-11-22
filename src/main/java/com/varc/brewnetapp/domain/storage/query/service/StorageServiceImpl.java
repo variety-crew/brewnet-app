@@ -71,7 +71,7 @@ public class StorageServiceImpl implements StorageService {
     @Transactional(readOnly = true)
     @Override
     public PageResponse<List<StockDTO>> selectAllStock(
-                                String loginId, int storageCode, String itemName, int pageNumber, int pageSize) {
+                                String loginId, Integer storageCode, String itemName, int pageNumber, int pageSize) {
 
         SearchItemStockCriteria criteria = new SearchItemStockCriteria();
         criteria.setStorageCode(storageCode);
