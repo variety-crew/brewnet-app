@@ -4,7 +4,7 @@ import com.varc.brewnetapp.domain.purchase.command.application.dto.*;
 
 public interface PurchaseService {
 
-    void createLetterOfPurchase(String loginId, PurchaseRequestDTO newPurchase);
+    Integer createLetterOfPurchase(String loginId, PurchaseRequestDTO newPurchase);
 
     void cancelLetterOfPurchase(String loginId, int letterOfPurchaseCode);
 

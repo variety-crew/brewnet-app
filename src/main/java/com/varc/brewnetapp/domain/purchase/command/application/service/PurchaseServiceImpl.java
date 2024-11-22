@@ -30,7 +30,6 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     private final ModelMapper modelMapper;
     private final LetterOfPurchaseRepository letterOfPurchaseRepository;
-    private final PurchaseMemberRepository purchaseMemberRepository;
     private final PurchaseStatusHistoryRepository purchaseStatusHistoryRepository;
     private final StockRepository stockRepository;
     private final CorrespondentRepository correspondentRepository;
@@ -48,7 +47,6 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Autowired
     public PurchaseServiceImpl(ModelMapper modelMapper,
                                LetterOfPurchaseRepository letterOfPurchaseRepository,
-                               PurchaseMemberRepository purchaseMemberRepository,
                                PurchaseStatusHistoryRepository purchaseStatusHistoryRepository,
                                StockRepository stockRepository,
                                CorrespondentRepository correspondentRepository,
@@ -63,7 +61,6 @@ public class PurchaseServiceImpl implements PurchaseService {
                                MemberRepository memberRepository, PositionRepository positionRepository, PurchasePositionRepository purchasePositionRepository) {
         this.modelMapper = modelMapper;
         this.letterOfPurchaseRepository = letterOfPurchaseRepository;
-        this.purchaseMemberRepository = purchaseMemberRepository;
         this.purchaseStatusHistoryRepository = purchaseStatusHistoryRepository;
         this.stockRepository = stockRepository;
         this.correspondentRepository = correspondentRepository;
@@ -81,7 +78,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional
     @Override
-    public void createLetterOfPurchase(String loginId, PurchaseRequestDTO newPurchase) {
+    public Integer createLetterOfPurchase(String loginId, PurchaseRequestDTO newPurchase) {
 
         LetterOfPurchase letterOfPurchase = modelMapper.map(newPurchase, LetterOfPurchase.class);
 
@@ -150,6 +147,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchaseStatusHistory.setActive(true);
         purchaseStatusHistory.setLetterOfPurchase(savedPurchase);
         purchaseStatusHistoryRepository.save(purchaseStatusHistory);
+
+        // 새로 등록된 구매품의서의 구매품의서 코드 반환
+        return savedPurchase.getLetterOfPurchaseCode();
     }
 
     @Transactional

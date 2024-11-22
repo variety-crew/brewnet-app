@@ -23,12 +23,13 @@ public class PurchaseController {
 
     @PostMapping("/create")
     @Operation(summary = "발주(구매품의서) 등록 API")
-    public ResponseEntity<ResponseMessage<Object>> createLetterOfPurchase(@RequestAttribute("loginId") String loginId,
+    public ResponseEntity<ResponseMessage<Integer>> createLetterOfPurchase(@RequestAttribute("loginId") String loginId,
                                                                           @RequestBody PurchaseRequestDTO newPurchase) {
 
-        purchaseService.createLetterOfPurchase(loginId, newPurchase);
+        Integer newPurchaseCode = purchaseService.createLetterOfPurchase(loginId, newPurchase);
 
-        return ResponseEntity.ok(new ResponseMessage<>(200, "구매품의서 등록 및 결재 요청 성공", null));
+        return ResponseEntity.ok(new ResponseMessage<>(
+                                    200, "구매품의서 등록 및 결재 요청 성공", newPurchaseCode));
     }
 
     @PostMapping("/cancel/{letterOfPurchaseCode}")
