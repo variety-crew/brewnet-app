@@ -132,6 +132,7 @@ public class StorageServiceImpl implements StorageService{
 
             if (itemStock == null) throw new ItemNotFoundException("창고에 존재하지 않는 상품입니다.");
             if (!(itemStock.getActive()).equals(true)) throw new ItemNotFoundException("창고에서 삭제된 상품입니다.");
+            if (change.getQuantity() == 0) throw new InvalidDataException("재고에 합산할 수량을 입력해 주세요.");
 
             // 가용재고에 재입고된 수량 합산
             int changedStock = itemStock.getAvailableStock() + change.getQuantity();
