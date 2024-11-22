@@ -40,7 +40,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     // for HQ
     @Override
-    public Page<OrderDTO> getOrderListForHQ(Pageable pageable, String filter, String sort) {
+    public Page<OrderDTO> getOrderListForHQ(Pageable pageable, String filter, String sort, String startDate, String endDate) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
         int offset = page * size;
@@ -49,7 +49,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
         // TODO: check if filter value is one of ["UNCONFIRMED", null]
         // TODO: check if sort value is one of ["createdAtDesc", "createdAtAsc", "sumPriceDesc", "sumPriceAsc"]
-        List<OrderDTO> orderDTOList = orderMapper.findOrdersForHQBy(filter, sort, size, offset);
+        List<OrderDTO> orderDTOList = orderMapper.findOrdersForHQBy(filter, sort, size, offset, startDate, endDate);
 
         int total = orderMapper.countOrders(filter);
         return new PageImpl<>(orderDTOList, pageable, total);

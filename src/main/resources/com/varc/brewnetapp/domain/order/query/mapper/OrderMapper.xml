@@ -130,6 +130,12 @@
         <if test="filter == 'UNCONFIRMED'">
            AND o.APPROVED = #{filter}
         </if>
+        <if test="startDate != null and startDate != ''">
+            AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
 
         <choose>
             <when test="sort == 'createdAtDesc'">

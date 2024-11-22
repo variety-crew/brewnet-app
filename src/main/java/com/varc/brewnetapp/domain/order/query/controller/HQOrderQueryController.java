@@ -9,6 +9,7 @@ import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
 import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -43,12 +45,18 @@ public class HQOrderQueryController {
     public ResponseEntity<ResponseMessage<Page<OrderDTO>>> getOrderList(
             @PageableDefault(size = 10, page = 0) Pageable pageable,
             @RequestParam(name = "filter", required = false) String filter,
-            @RequestParam(name = "sort", required = false) String sort
+            @RequestParam(name = "sort", required = false) String sort,
+                @RequestParam(name = "startDate", required = false) String startDate,
+            @RequestParam(name = "endDate", required = false) String endDate
     ) {
+        log.debug("startDate: {}", startDate);
+        log.debug("endDate: {}", endDate);
         Page<OrderDTO> orderDTOList = orderQueryService.getOrderListForHQ(
                 pageable,
                 filter,
-                sort
+                sort,
+                startDate,
+                endDate
         );
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDTOList));
     }

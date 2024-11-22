@@ -26,7 +26,7 @@ public interface OrderQueryService {
     List<OrderStatusHistory> getOrderHistoryByOrderId(int orderId);
 
     // requested by hq
-    Page<OrderDTO> getOrderListForHQ(Pageable pageable, String filter, String sort);
+    Page<OrderDTO> getOrderListForHQ(Pageable pageable, String filter, String sort, String startDate, String endDate);
     Page<OrderDTO> searchOrderListForHQ(Pageable pageable, String filter, String criteria);
     OrderRequestDTO printOrderRequest(int orderCode);
 
