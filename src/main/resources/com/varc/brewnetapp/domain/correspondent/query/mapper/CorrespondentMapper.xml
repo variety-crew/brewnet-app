@@ -14,6 +14,20 @@
         <result property="managerName" column="MANAGER_NAME"/>
     </resultMap>
 
+    <resultMap id="correspondentItemResultMap"
+               type="com.varc.brewnetapp.domain.correspondent.query.dto.CorrespondentItemDTO">
+        <id property="correspondentCode" column="CORRESPONDENT_CODE"/>
+        <id property="itemCode" column="ITEM_CODE"/>
+        <result property="categoryName" column="CATEGORY_NAME"/>
+        <result property="itemUniqueCode" column="ITEM_UNIQUE_CODE"/>
+        <result property="itemName" column="ITEM_NAME"/>
+        <result property="correspondentName" column="CORRESPONDENT_NAME"/>
+        <result property="sellingPrice" column="SELLING_PRICE"/>
+        <result property="purchasePrice" column="PURCHASE_PRICE"/>
+        <result property="safetyStock" column="SAFETY_STOCK"/>
+        <result property="active" column="ACTIVE"/>
+    </resultMap>
+
     <!-- 거래처 목록 조회 및 검색 -->
     <select id="searchCorrespondents"
             parameterType="com.varc.brewnetapp.domain.correspondent.common.SearchCorrespondentCriteria"
@@ -49,13 +63,82 @@
           FROM TBL_CORRESPONDENT C
         <where>
             C.ACTIVE = TRUE
-            <if test="correspondentCode != null">
-                AND C.CORRESPONDENT_CODE = #{correspondentCode}
-            </if>
-            <if test="correspondentName != null">
-                AND C.NAME LIKE CONCAT('%', #{correspondentName}, '%')
-            </if>
+            <choose>
+                <when test="correspondentCode != null">
+                    AND C.CORRESPONDENT_CODE = #{correspondentCode}
+                </when>
+                <when test="correspondentName != null">
+                    AND C.NAME LIKE CONCAT('%', #{correspondentName}, '%')
+                </when>
+                <otherwise>
+                    AND 1 = 1
+                </otherwise>
+            </choose>
         </where>
         ORDER BY C.CORRESPONDENT_CODE DESC
     </select>
+
+    <!-- 거래처별 취급 상품 목록 조회 및 검색 -->
+    <select id="searchCorrespondentItems"
+            parameterType="com.varc.brewnetapp.domain.correspondent.common.SearchCorrespondentItemCriteria"
+            resultMap="correspondentItemResultMap">
+        SELECT
+               I.CORRESPONDENT_CODE,
+               I.ITEM_CODE,
+               G.NAME AS CATEGORY_NAME,
+               T.ITEM_UNIQUE_CODE,
+               T.NAME AS ITEM_NAME,
+               C.NAME AS CORRESPONDENT_NAME,
+               T.SELLING_PRICE,
+               T.PURCHASE_PRICE,
+               T.SAFETY_STOCK,
+               I.ACTIVE
+          FROM TBL_CORRESPONDENT_ITEM I
+          JOIN TBL_CORRESPONDENT C ON I.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+          JOIN TBL_ITEM T ON I.ITEM_CODE = T.ITEM_CODE
+          JOIN TBL_SUB_CATEGORY G ON T.CATEGORY_CODE = G.SUB_CATEGORY_CODE
+        <where>
+            I.CORRESPONDENT_CODE = #{correspondentCode}
+            <choose>
+                <when test="itemUniqueCode != null">
+                    AND T.ITEM_UNIQUE_CODE LIKE CONCAT('%', #{itemUniqueCode}, '%')
+                </when>
+                <when test="itemName != null">
+                    AND T.NAME LIKE CONCAT('%', #{itemName}, '%')
+                </when>
+                <otherwise>
+                    AND 1 = 1
+                </otherwise>
+            </choose>
+        </where>
+         ORDER BY T.ITEM_UNIQUE_CODE ASC
+    </select>
+
+    <!-- 거래처별 취급 상품 목록 페이지네이션을 위한 거래처의 상품 총 개수 -->
+    <select id="getTotalCorrespondentItemCount"
+            parameterType="com.varc.brewnetapp.domain.correspondent.common.SearchCorrespondentItemCriteria"
+            resultType="int">
+        SELECT
+               COUNT(*)
+          FROM TBL_CORRESPONDENT_ITEM I
+          JOIN TBL_CORRESPONDENT C ON I.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+          JOIN TBL_ITEM T ON I.ITEM_CODE = T.ITEM_CODE
+          JOIN TBL_SUB_CATEGORY G ON T.CATEGORY_CODE = G.SUB_CATEGORY_CODE
+        <where>
+            I.CORRESPONDENT_CODE = #{correspondentCode}
+            <choose>
+                <when test="itemUniqueCode != null">
+                    AND T.ITEM_UNIQUE_CODE LIKE CONCAT('%', #{itemUniqueCode}, '%')
+                </when>
+                <when test="itemName != null">
+                    AND T.NAME LIKE CONCAT('%', #{itemName}, '%')
+                </when>
+                <otherwise>
+                    AND 1 = 1
+                </otherwise>
+            </choose>
+        </where>
+         ORDER BY T.ITEM_UNIQUE_CODE ASC
+    </select>
+
 </mapper>

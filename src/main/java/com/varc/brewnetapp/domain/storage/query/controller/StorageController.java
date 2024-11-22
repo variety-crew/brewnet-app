@@ -67,13 +67,13 @@ public class StorageController {
     @Operation(summary = "창고별 상품 재고 리스트 조회 API (창고 코드는 필수(default 1) / 상품명으로 검색 가능)" +
             " - pageNumber의 default값은 1, pageSize의 default값은 10")
     public ResponseEntity<ResponseMessage<PageResponse<List<StockDTO>>>> selectAllStock(
-                                            @RequestAttribute("loginId") String loginId,
-                                            @RequestParam(value = "storageCode", defaultValue = "1") int storageCode,
-                                            @RequestParam(required = false, value = "itemName") String itemName,
-                                            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
-                                            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+                                        @RequestAttribute("loginId") String loginId,
+                                        @RequestParam(value = "storageCode", defaultValue = "1") Integer storageCode,
+                                        @RequestParam(required = false, value = "itemName") String itemName,
+                                        @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+                                        @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
 
-        if (storageCode == 0) throw new InvalidDataException("창고 코드는 필수값입니다.");
+        if (storageCode == null) throw new InvalidDataException("창고 코드는 필수값입니다.");
 
         PageResponse<List<StockDTO>> response = storageService
                                                 .selectAllStock(loginId, storageCode, itemName, pageNumber, pageSize);

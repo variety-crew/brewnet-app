@@ -17,5 +17,5 @@ public interface StorageService {
     List<StorageNameDTO> selectStorageList(String loginId);
 
     PageResponse<List<StockDTO>> selectAllStock(
-                                    String loginId, int storageCode, String itemName, int pageNumber, int pageSize);
+                                    String loginId, Integer storageCode, String itemName, int pageNumber, int pageSize);
 }
