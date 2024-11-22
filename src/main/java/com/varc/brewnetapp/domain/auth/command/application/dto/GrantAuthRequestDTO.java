@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.auth.command.application.dto;
 
+import com.varc.brewnetapp.domain.auth.command.domain.aggregate.RoleType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,6 @@ import lombok.ToString;
 @ToString
 public class GrantAuthRequestDTO {
     private String loginId;
-    private String authName;
+    private RoleType authName;
 
 }

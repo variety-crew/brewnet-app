@@ -14,6 +14,6 @@ public class SignUpRequestDto {
     private String name;
     private String email;
     private String contact;
-    private String positionName;
+    private PositionName positionName;
     private String FranchiseName;
 }

@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.member.command.application.service;
 
 import com.varc.brewnetapp.common.S3ImageService;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Position;
 import com.varc.brewnetapp.utility.TelNumberUtil;
 import com.varc.brewnetapp.domain.franchise.command.domain.aggregate.entity.Franchise;
 import com.varc.brewnetapp.domain.franchise.command.domain.aggregate.entity.FranchiseMember;
@@ -127,19 +128,11 @@ public class MemberServiceImpl implements MemberService {
             if(changeMemberRequestDTO.getPositionName() != null && changeMemberRequestDTO.getFranchiseName() != null)
                 throw new InvalidDataException("회원가입 시, 가맹점과 직급이 한꺼번에 설정될 수 없습니다");
             else if(changeMemberRequestDTO.getPositionName() != null){
-                if(changeMemberRequestDTO.getPositionName().equals("사원"))
-                    changeMemberRequestDTO.setPositionName("STAFF");
-                else if(changeMemberRequestDTO.getPositionName().equals("대리"))
-                    changeMemberRequestDTO.setPositionName("ASSISTANT_MANAGER");
-                else if(changeMemberRequestDTO.getPositionName().equals("과장"))
-                    changeMemberRequestDTO.setPositionName("MANAGER");
-                else if(changeMemberRequestDTO.getPositionName().equals("대표이사"))
-                    changeMemberRequestDTO.setPositionName("CEO");
 
-                member.setPositionCode(positionRepository.findByName
-                        (PositionName.valueOf(changeMemberRequestDTO.getPositionName()))
-                    .orElseThrow(() -> new InvalidDataException("직급이 없습니다"))
-                    .getPositionCode());
+                Position position = positionRepository.findByName(changeMemberRequestDTO.getPositionName())
+                    .orElseThrow(() -> new InvalidDataException("직급이 없습니다"));
+
+                member.setPositionCode(position.getPositionCode());
 
                 memberRepository.save(member);
             } else if(changeMemberRequestDTO.getFranchiseName() != null){
@@ -167,7 +160,7 @@ public class MemberServiceImpl implements MemberService {
         String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
         Member member = memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("조회되는 회원이 없습니다"));
 
-        if(bCryptPasswordEncoder.matches(checkPasswordRequestDTO.getPw(), member.getPassword()))
+        if(bCryptPasswordEncoder.matches(checkPasswordRequestDTO.getPassword(), member.getPassword()))
             return;
         else
             throw new InvalidDataException("비밀번호가 맞지 않습니다");
@@ -180,7 +173,7 @@ public class MemberServiceImpl implements MemberService {
         String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
         Member member = memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("조회되는 회원이 없습니다"));
 
-        member.setPassword(bCryptPasswordEncoder.encode(checkPasswordRequestDTO.getPw()));
+        member.setPassword(bCryptPasswordEncoder.encode(checkPasswordRequestDTO.getPassword()));
 
         memberRepository.save(member);
     }
