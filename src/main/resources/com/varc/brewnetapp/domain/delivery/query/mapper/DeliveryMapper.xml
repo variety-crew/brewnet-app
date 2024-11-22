@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+  <!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.varc.brewnetapp.domain.delivery.query.mapper.DeliveryMapper">
+  
+  <resultMap id="deliveryMap" type="com.varc.brewnetapp.domain.delivery.query.dto.DeliveryDTO">
+    <result property="deliveryKind" column="TYPE"/>
+    <result property="code" column="CODE"/>
+    <result property="deliveryFranchiseName" column="FRANCHISE_NAME"/>
+    <result property="deliveryStatus" column="STATUS"/>
+    <result property="contact" column="CONTACT"/>
+  </resultMap>
+
+  <select id="selectOrderDeliveryList" resultMap="deliveryMap" parameterType="map">
+    WITH LatestOrderStatus AS (
+         SELECT
+                ORDER_CODE
+              , STATUS
+              , CREATED_AT
+              , ROW_NUMBER() OVER (PARTITION BY ORDER_CODE ORDER BY CREATED_AT DESC) AS RN
+           FROM tbl_order_status_history
+          WHERE ACTIVE = TRUE
+    )
+    SELECT
+           'ORDER' AS TYPE
+         , O.ORDER_CODE AS CODE
+         , F.FRANCHISE_NAME
+         , OH.STATUS
+         , F.CONTACT
+      FROM tbl_order O
+     INNER JOIN tbl_franchise F ON O.FRANCHISE_CODE = F.FRANCHISE_CODE
+     INNER JOIN LatestOrderStatus OH ON O.ORDER_CODE = OH.ORDER_CODE
+     WHERE OH.RN = 1 AND O.ACTIVE = TRUE AND OH.STATUS = 'APPROVED'
+     ORDER BY OH.CREATED_AT DESC
+     LIMIT #{pageSize}
+    OFFSET #{offset}
+  </select>
+  
+  <select id="selectOrderDeliveryListCnt" resultType="_int">
+    WITH LatestOrderStatus AS (
+      SELECT
+             ORDER_CODE
+           , STATUS
+           , CREATED_AT
+           , ROW_NUMBER() OVER (PARTITION BY ORDER_CODE ORDER BY CREATED_AT DESC) AS RN
+        FROM tbl_order_status_history
+       WHERE ACTIVE = TRUE
+    )
+    SELECT
+           COUNT(*)
+      FROM tbl_order O
+     INNER JOIN LatestOrderStatus OH ON O.ORDER_CODE = OH.ORDER_CODE
+     WHERE OH.RN = 1 AND O.ACTIVE = TRUE AND OH.STATUS = 'APPROVED'
+  </select>
+
+  <select id="selectPickUpDeliveryList" resultMap="deliveryMap" parameterType="map">
+    WITH LatestExchangeStatus AS (
+      SELECT
+             EXCHANGE_CODE
+           , STATUS
+           , CREATED_AT
+           , ROW_NUMBER() OVER (PARTITION BY EXCHANGE_CODE ORDER BY CREATED_AT DESC) AS RN
+        FROM tbl_exchange_status_history
+       WHERE ACTIVE = TRUE
+    ),
+    LatestReturnStatus AS (
+      SELECT
+             RETURN_CODE
+           , STATUS
+           , CREATED_AT
+           , ROW_NUMBER() OVER (PARTITION BY RETURN_CODE ORDER BY CREATED_AT DESC) AS RN
+        FROM tbl_return_status_history
+       WHERE ACTIVE = TRUE
+    )
+    SELECT
+           'EXCHANGE' AS TYPE
+         , E.EXCHANGE_CODE AS CODE
+         , F.FRANCHISE_NAME
+         , EH.STATUS
+         , F.CONTACT
+         , EH.CREATED_AT AS CREATED_AT
+      FROM tbl_exchange E
+     INNER JOIN tbl_order O ON E.ORDER_CODE = O.ORDER_CODE
+     INNER JOIN tbl_franchise F ON O.FRANCHISE_CODE = F.FRANCHISE_CODE
+     INNER JOIN LatestExchangeStatus EH ON E.EXCHANGE_CODE = EH.EXCHANGE_CODE
+     WHERE EH.RN = 1 AND E.ACTIVE = TRUE AND EH.STATUS = 'APPROVED'
+    UNION ALL
+    SELECT
+           'RETURN' AS TYPE
+         , R.RETURN_CODE AS CODE
+         , F.FRANCHISE_NAME
+         , RH.STATUS
+         , F.CONTACT
+         , RH.CREATED_AT AS CREATED_AT
+      FROM tbl_return R
+     INNER JOIN tbl_order O ON R.ORDER_CODE = O.ORDER_CODE
+     INNER JOIN tbl_franchise F ON O.FRANCHISE_CODE = F.FRANCHISE_CODE
+     INNER JOIN LatestReturnStatus RH ON R.RETURN_CODE = RH.RETURN_CODE
+     WHERE RH.RN = 1 AND R.ACTIVE = TRUE AND RH.STATUS = 'APPROVED'
+     ORDER BY CREATED_AT DESC
+     LIMIT #{ pageSize }
+    OFFSET #{ offset };
+  </select>
+
+  <select id="selectPickUpDeliveryListCnt" resultType="_int">
+    WITH LatestExchangeStatus AS (
+      SELECT
+             EXCHANGE_CODE
+           , STATUS
+           , CREATED_AT
+           , ROW_NUMBER() OVER (PARTITION BY EXCHANGE_CODE ORDER BY CREATED_AT DESC) AS RN
+        FROM tbl_exchange_status_history
+       WHERE ACTIVE = TRUE
+    ),
+    LatestReturnStatus AS (
+      SELECT
+             RETURN_CODE
+           , STATUS
+           , CREATED_AT
+           , ROW_NUMBER() OVER (PARTITION BY RETURN_CODE ORDER BY CREATED_AT DESC) AS RN
+        FROM tbl_return_status_history
+       WHERE ACTIVE = TRUE
+    )
+    SELECT
+           SUM(COUNT)
+      FROM (
+            SELECT
+                   COUNT(*) AS COUNT
+              FROM tbl_exchange E
+             INNER JOIN LatestExchangeStatus EH ON E.EXCHANGE_CODE = EH.EXCHANGE_CODE
+             WHERE EH.RN = 1 AND E.ACTIVE = TRUE AND EH.STATUS = 'APPROVED'
+            UNION ALL
+            SELECT
+                   COUNT(*) AS COUNT
+              FROM tbl_return R
+             INNER JOIN LatestReturnStatus RH ON R.RETURN_CODE = RH.RETURN_CODE
+             WHERE RH.RN = 1 AND R.ACTIVE = TRUE AND RH.STATUS = 'APPROVED'
+            ) AS UNION_RESULT_SET
+  </select>
+
+</mapper>
