@@ -36,4 +36,6 @@ public class Role {
 
     @Column(nullable = false)
     private Boolean active;
+
+
 }
