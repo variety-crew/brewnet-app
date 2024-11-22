@@ -12,6 +12,16 @@
     <result property="contact" column="CONTACT"/>
   </resultMap>
 
+  <resultMap id="deliveryDetailMap" type="com.varc.brewnetapp.domain.delivery.query.dto.DeliveryDetailDTO">
+    <id property="code" column="CODE"/>
+    <result property="deliveryKind" column="KIND"/>
+    <result property="deliveryStatus" column="STATUS"/>
+    <collection property="items" ofType="java.util.HashMap" javaType="java.util.Map">
+      <result property="key" column="ITEM_NAME" />
+      <result property="value" column="QUANTITY" />
+    </collection>
+  </resultMap>
+
   <select id="selectOrderDeliveryList" resultMap="deliveryMap" parameterType="map">
     WITH LatestOrderStatus AS (
          SELECT
@@ -137,6 +147,74 @@
              INNER JOIN LatestReturnStatus RH ON R.RETURN_CODE = RH.RETURN_CODE
              WHERE RH.RN = 1 AND R.ACTIVE = TRUE AND RH.STATUS = 'APPROVED'
             ) AS UNION_RESULT_SET
+  </select>
+
+  <select id="selectMyDeliveryDetail" resultMap="deliveryDetailMap" parameterType="_string">
+    WITH LatestOrderStatus AS (
+      SELECT
+             ORDER_CODE
+           , STATUS
+           , CREATED_AT
+           , ACTIVE
+           , ROW_NUMBER() OVER (PARTITION BY ORDER_CODE ORDER BY CREATED_AT DESC) AS RN
+        FROM tbl_order_status_history
+       WHERE ACTIVE = TRUE
+    ),
+    LatestExchangeStatus AS (
+      SELECT
+             EXCHANGE_CODE
+           , STATUS
+           , CREATED_AT
+           , ACTIVE
+           , ROW_NUMBER() OVER (PARTITION BY EXCHANGE_CODE ORDER BY CREATED_AT DESC) AS RN
+        FROM tbl_exchange_status_history
+       WHERE ACTIVE = TRUE
+    ),
+    LatestReturnStatus AS (
+      SELECT
+             RETURN_CODE
+           , STATUS
+           , CREATED_AT
+           , ACTIVE
+           , ROW_NUMBER() OVER (PARTITION BY RETURN_CODE ORDER BY CREATED_AT DESC) AS RN
+        FROM tbl_return_status_history
+       WHERE ACTIVE = TRUE
+    )
+    SELECT
+           'ORDER' AS KIND
+         , O.ORDER_CODE AS CODE
+      FROM tbl_order O
+     INNER JOIN LatestOrderStatus OH ON O.ORDER_CODE = OH.ORDER_CODE
+     INNER JOIN tbl_member M ON O.MEMBER_CODE = M.MEMBER_CODE
+     WHERE OH.RN = 1 AND O.ACTIVE = TRUE AND OH.ACTIVE = TRUE AND O.DELIVERY_CODE = #{ loginId } AND OH.STATUS = 'SHIPPING'
+    UNION ALL
+    SELECT
+           'EXCHANGE' AS KIND
+         , E.EXCHANGE_CODE AS CODE
+      FROM tbl_exchange E
+     INNER JOIN LatestExchangeStatus EH ON E.EXCHANGE_CODE = EH.EXCHANGE_CODE
+     INNER JOIN tbl_member M ON E.MEMBER_CODE = M.MEMBER_CODE
+     WHERE EH.RN = 1 AND E.ACTIVE = TRUE AND EH.ACTIVE = TRUE AND E.DELIVERY_CODE = #{ loginId } AND (EH.STATUS = 'SHIPPING' OR EH.STATUS = 'PICKING')
+    UNION ALL
+    SELECT
+           'RETURN' AS KIND
+         , R.RETURN_CODE AS CODE
+      FROM tbl_return R
+     INNER JOIN LatestReturnStatus RH ON R.RETURN_CODE = RH.RETURN_CODE
+     INNER JOIN tbl_member M ON R.MEMBER_CODE = M.MEMBER_CODE
+     WHERE RH.RN = 1 AND R.ACTIVE = TRUE AND RH.ACTIVE = TRUE AND R.DELIVERY_CODEs = #{ loginId } AND RH.STATUS = 'PICKING'
+  </select>
+
+  <select id="selectExchangeDelivery" resultMap="deliveryDetailMap" parameterType="_int">
+
+  </select>
+
+  <select id="selectReturnDelivery" resultMap="deliveryDetailMap" parameterType="_int">
+
+  </select>
+
+  <select id="selectOrderDelivery" resultMap="deliveryDetailMap" parameterType="_int">
+
   </select>
 
 </mapper>

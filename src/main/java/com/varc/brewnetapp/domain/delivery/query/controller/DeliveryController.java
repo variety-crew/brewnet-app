@@ -3,6 +3,7 @@ package com.varc.brewnetapp.domain.delivery.query.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.DeliveryKind;
 import com.varc.brewnetapp.domain.delivery.query.dto.DeliveryDTO;
+import com.varc.brewnetapp.domain.delivery.query.dto.DeliveryDetailDTO;
 import com.varc.brewnetapp.domain.delivery.query.service.DeliveryService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,4 +38,14 @@ public class DeliveryController {
         return ResponseEntity.ok(new ResponseMessage<>(
             200, "배송 목록 조회 성공", deliveryService.findDeliveryList(deliveryKind, page)));
     }
+
+    @GetMapping("/detail")
+    @Operation(summary = "주문 배송 조회. 배송 기사만 가능 / token을 주면 현재 진행중인 배송 1개를 반환 ")
+    public ResponseEntity<ResponseMessage<DeliveryDetailDTO>> findDeliveryDetail(@RequestHeader("Authorization") String accessToken) {
+
+        return ResponseEntity.ok(new ResponseMessage<>(
+            200, "주문 배송 조회 성공", deliveryService.findDeliveryDetail(accessToken)));
+    }
+
+
 }

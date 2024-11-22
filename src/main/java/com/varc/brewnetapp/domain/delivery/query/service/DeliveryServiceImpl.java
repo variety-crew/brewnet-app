@@ -2,8 +2,10 @@ package com.varc.brewnetapp.domain.delivery.query.service;
 
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.DeliveryKind;
 import com.varc.brewnetapp.domain.delivery.query.dto.DeliveryDTO;
+import com.varc.brewnetapp.domain.delivery.query.dto.DeliveryDetailDTO;
 import com.varc.brewnetapp.domain.delivery.query.mapper.DeliveryMapper;
 import com.varc.brewnetapp.exception.EmptyDataException;
+import com.varc.brewnetapp.security.utility.JwtUtil;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,10 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeliveryServiceImpl implements DeliveryService {
 
     private final DeliveryMapper deliveryMapper;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public DeliveryServiceImpl(DeliveryMapper deliveryMapper) {
+    public DeliveryServiceImpl(DeliveryMapper deliveryMapper, JwtUtil jwtUtil) {
         this.deliveryMapper = deliveryMapper;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -47,5 +51,28 @@ public class DeliveryServiceImpl implements DeliveryService {
             throw new EmptyDataException("배송 가능한 주문이 없습니다");
 
         return new PageImpl<>(deliveryList, page, count);
+    }
+
+    @Override
+    @Transactional
+    public DeliveryDetailDTO findDeliveryDetail(String accessToken) {
+
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
+
+        DeliveryDetailDTO myDelivery = deliveryMapper.selectMyDeliveryDetail(loginId)
+            .orElseThrow(() -> new EmptyDataException("배송 가능한 주문이 없습니다"));
+
+        DeliveryDetailDTO deliveryDetail = null;
+
+        if(myDelivery.getDeliveryKind().equals(DeliveryKind.ORDER))
+            deliveryDetail = deliveryMapper.selectOrderDelivery(myDelivery.getCode());
+        else if(myDelivery.getDeliveryKind().equals(DeliveryKind.EXCHANGE))
+            deliveryDetail = deliveryMapper.selectExchangeDelivery(myDelivery.getCode());
+        else if(myDelivery.getDeliveryKind().equals(DeliveryKind.RETURN))
+            deliveryDetail = deliveryMapper.selectReturnDelivery(myDelivery.getCode());
+
+
+
+        return null;
     }
 }
