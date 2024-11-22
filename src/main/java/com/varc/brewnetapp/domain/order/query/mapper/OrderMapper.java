@@ -47,7 +47,14 @@ public interface OrderMapper {
             @Param("filter") String filter,
             @Param("sort") String sort,
             @Param("size") int size,
-            @Param("offset") int offset
+            @Param("offset") int offset,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("franchiseCode") int franchiseCode
     );
 
+    int countOrdersForFranchise(
+            @Param("filter") String filter,
+            @Param("franchiseCode") int franchiseCode
+    );
 }

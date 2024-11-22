@@ -49,13 +49,10 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
         // TODO: check if filter value is one of ["UNCONFIRMED", null]
         // TODO: check if sort value is one of ["createdAtDesc", "createdAtAsc", "sumPriceDesc", "sumPriceAsc"]
-        List<HQOrderDTO> HQOrderDTOList = orderMapper.findOrdersForHQBy(filter, sort, size, offset, startDate, endDate);
-        HQOrderDTOList.forEach(
-                HQOrderDTO -> log.debug("HQOrderDTOList: {}", HQOrderDTOList)
-        );
+        List<HQOrderDTO> hqOrderDTOList = orderMapper.findOrdersForHQBy(filter, sort, size, offset, startDate, endDate);
 
         int total = orderMapper.countOrders(filter);
-        return new PageImpl<>(HQOrderDTOList, pageable, total);
+        return new PageImpl<>(hqOrderDTOList, pageable, total);
     }
 
     @Override
@@ -82,7 +79,14 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     // for franchise
     @Override
-    public Page<FranchiseOrderDTO> getOrderListForFranchise(Pageable pageable, String filter, String sort, String startDate, String endDate, int franchiseCode) {
+    public Page<FranchiseOrderDTO> getOrderListForFranchise(
+            Pageable pageable,
+            String filter,
+            String sort,
+            String startDate,
+            String endDate,
+            int franchiseCode
+    ) {
 
         // TODO: check if franchise valid
 
@@ -92,11 +96,13 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
         // TODO: get order list query for franchise
 
-        List<FranchiseOrderDTO> HQOrderDTOList = orderMapper.findOrdersForFranchise(filter, sort, size, offset);
+        List<FranchiseOrderDTO> franchiseOrderDTO = orderMapper.findOrdersForFranchise(
+                filter, sort, size, offset, startDate, endDate, franchiseCode
+        );
 
-        int total = orderMapper.countOrders(filter);
+        int total = orderMapper.countOrdersForFranchise(filter, franchiseCode);
 
-        return new PageImpl<>(HQOrderDTOList, pageable, total);
+        return new PageImpl<>(franchiseOrderDTO, pageable, total);
     }
 
 }
