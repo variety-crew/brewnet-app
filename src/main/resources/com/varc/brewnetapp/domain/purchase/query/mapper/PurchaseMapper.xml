@@ -113,7 +113,7 @@
             </if>
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                    AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+                    AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
             </if>
         </where>
          ORDER BY P.LETTER_OF_PURCHASE_CODE DESC
@@ -147,7 +147,7 @@
             </if>
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                    AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+                    AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
             </if>
         </where>
          ORDER BY P.LETTER_OF_PURCHASE_CODE DESC
@@ -241,7 +241,7 @@
             P.APPROVED = 'APPROVED'
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                    AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+                    AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
             </if>
             <choose>
                 <when test="itemUniqueCode != null">
@@ -280,7 +280,7 @@
             P.APPROVED = 'APPROVED'
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                    AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+                    AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
             </if>
             <choose>
                 <when test="itemUniqueCode != null">
@@ -327,7 +327,7 @@
             AND <![CDATA[K.IN_STOCK > 0]]>
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+                AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
             </if>
             <choose>
                 <when test="itemUniqueCode != null">
@@ -368,7 +368,7 @@
             AND <![CDATA[K.IN_STOCK > 0]]>
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+                AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
             </if>
             <choose>
                 <when test="itemUniqueCode != null">
