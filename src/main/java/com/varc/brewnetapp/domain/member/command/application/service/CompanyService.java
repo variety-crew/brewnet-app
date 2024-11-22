@@ -151,6 +151,7 @@ public class CompanyService {
             String s3Url = s3ImageService.upload(sealImage);
 
             sealList.get(0).setImageUrl(s3Url);
+            sealList.get(0).setActive(true);
 
             sealRepository.save(sealList.get(0));
         } else {

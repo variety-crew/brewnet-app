@@ -70,8 +70,8 @@ public class MemberController {
     }
 
     // 아무나
-    @PutMapping("/member/pw")
-    @Operation(summary = "비밀번호 변경 API / 권한 없는 사람 + 권한 있는 사람 모두 사용 가능")
+    @PutMapping("/auth/pw")
+    @Operation(summary = "(api path 변경됨) 로그인 전인 회원의 비밀번호 변경 API / 권한 없는 사람 + 권한 있는 사람 모두 사용 가능")
     public ResponseEntity<ResponseMessage<Object>> changePassword(@RequestBody ChangePwRequestDTO changePwRequestDTO) {
         if (memberService.changePassword(changePwRequestDTO)) {
             return ResponseEntity.ok(new ResponseMessage<>(200, "비밀번호 변경에 성공했습니다", null));
@@ -99,8 +99,8 @@ public class MemberController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "회원 정보 수정 성공", null));
     }
 
-    @PostMapping("/company")
-    @Operation(summary = "회사 정보 생성 API")
+    @PostMapping("/master/company")
+    @Operation(summary = "(api path 변경됨) 회사 정보 생성 API. master만 가능")
     public ResponseEntity<ResponseMessage<Object>> createCompany(@RequestHeader("Authorization") String accessToken,
         @RequestBody CreateCompanyRequestDTO createCompanyRequestDTO) {
 
@@ -108,8 +108,8 @@ public class MemberController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "회사 정보 생성 성공", null));
     }
 
-    @PutMapping("/company")
-    @Operation(summary = "회사 정보 수정 API")
+    @PutMapping("/master/company")
+    @Operation(summary = "(api path 변경됨) 회사 정보 수정 API. master만 가능")
     public ResponseEntity<ResponseMessage<Object>> updateCompany(@RequestHeader("Authorization") String accessToken,
         @RequestBody CreateCompanyRequestDTO createCompanyRequestDTO) {
 
@@ -117,8 +117,8 @@ public class MemberController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "회사 정보 수정 성공", null));
     }
 
-    @PostMapping("/company/seal")
-    @Operation(summary = "법인 인감 등록 API")
+    @PostMapping("/master/company/seal")
+    @Operation(summary = "(api path 변경됨) 법인 인감 등록 API. master만 가능")
     public ResponseEntity<ResponseMessage<Object>> createSeal(@RequestHeader("Authorization") String accessToken,
         @RequestPart(value = "sealImage") MultipartFile sealImage) {
 
@@ -126,8 +126,8 @@ public class MemberController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "법인 인감 등록 성공", null));
     }
 
-    @PutMapping("/company/seal")
-    @Operation(summary = "법인 인감 수정 API / 법인 인감이 없다면 생성해줌. 즉, POST, DELETE 역할 둘 다 함 / "
+    @PutMapping("/master/company/seal")
+    @Operation(summary = "(api path 변경됨) 법인 인감 수정 API. master만 가능 / 법인 인감이 없다면 생성해줌. 즉, POST, DELETE 역할 둘 다 함 / "
         + "법인 인감 생성 API는 굳이 안써도 됩니다. / 법인 인감 생성 시 기존에 인감 지워진 인감이 있다면 사용 불가")
     public ResponseEntity<ResponseMessage<Object>> updateSeal(@RequestHeader("Authorization") String accessToken,
         @RequestPart(value = "sealImage") MultipartFile sealImage) {
@@ -136,8 +136,8 @@ public class MemberController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "법인 인감 수정 성공", null));
     }
 
-    @DeleteMapping("/company/seal")
-    @Operation(summary = "법인 인감 수정 API")
+    @DeleteMapping("/master/company/seal")
+    @Operation(summary = "법인 인감 삭제 API")
     public ResponseEntity<ResponseMessage<Object>> deleteSeal(@RequestHeader("Authorization") String accessToken) {
 
         companyService.deleteSeal(accessToken);
