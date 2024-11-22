@@ -27,10 +27,11 @@ public class StorageServiceImpl implements StorageService {
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<List<StorageDTO>> selectStorage(String loginId, String storageName,
-                                                        int pageNumber, int pageSize) {
+    public PageResponse<List<StorageDTO>> selectStorage(
+                            String loginId, Integer storageCode, String storageName, int pageNumber, int pageSize) {
 
         SearchStorageCriteria criteria = new SearchStorageCriteria();
+        criteria.setStorageCode(storageCode);
         criteria.setStorageName(storageName);
         criteria.setPageNumber(pageNumber);
         criteria.setPageSize(pageSize);
