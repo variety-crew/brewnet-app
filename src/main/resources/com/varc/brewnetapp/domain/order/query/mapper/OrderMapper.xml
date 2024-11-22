@@ -22,6 +22,29 @@
     </resultMap>
 
     <!-- HQ ResultMap-->
+    <resultMap id="OrderDetailForHQ" type="com.varc.brewnetapp.domain.order.query.dto.OrderDetailForHQDTO">
+        <id property="orderCode" column="ORDER_CODE"/>
+        <result property="createdAt" column="ORDER_CREATED_AT"/>
+        <result property="franchiseName" column="ORDER_FRANCHISE_NAME" />
+        <result property="comment" column="ORDER_COMMENT" />
+        <result property="managerName" column="ORDER_MANAGER_NAME"/>
+        <result property="sumPrice" column="ORDER_SUM_PRICE"/>
+
+        <!-- orderItems-->
+        <collection property="orderItemList"
+                    ofType="com.varc.brewnetapp.domain.order.query.dto.OrderItem"
+                    javaType="java.util.List"
+        >
+            <id property="itemCode" column="ORDER_ITEM_CODE"/>
+            <result property="quantity" column="ORDER_QUANTITY" />
+            <result property="partSum" column="ORDER_PART_SUM" />
+
+            <result property="name" column="ORDER_ITEM_NAME" />
+            <result property="categoryName" column="ORDER_SUB_CATEGORY_NAME" />
+        </collection>
+    </resultMap>
+
+    <!-- OrderList -->
     <resultMap id="OrderDTOResultListForHQ" type="com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO">
         <id property="orderCode" column="ORDER_CODE"/>
         <result property="createdAt" column="ORDER_CREATED_AT"/>
@@ -188,6 +211,35 @@
         LEFT JOIN tbl_sub_category sc ON i.CATEGORY_CODE = sc.SUB_CATEGORY_CODE
     </select>
 
+    <!-- find order detail for HQ-->
+    <select id="findOrderDetailForHqBy" resultMap="OrderDetailForHQ">
+        SELECT
+               o.ORDER_CODE as ORDER_CODE
+             , o.CREATED_AT as ORDER_CREATED_AT
+             , f.FRANCHISE_NAME as ORDER_FRANCHISE_NAME
+             , o.COMMENT as ORDER_COMMENT
+             , m.NAME as ORDER_MANAGER_NAME
+             , o.SUM_PRICE as ORDER_SUM_PRICE
+
+             , oi.ITEM_CODE as ORDER_ITEM_CODE
+             , oi.QUANTITY as ORDER_QUANTITY
+             , oi.PART_SUM_PRICE as ORDER_PART_SUM
+             , i.NAME as ORDER_ITEM_NAME
+             , sc.NAME as ORDER_SUB_CATEGORY_NAME
+
+        FROM (
+        SELECT
+        o.ORDER_CODE as ORDER_CODE
+        FROM tbl_order o
+        WHERE o.ORDER_CODE = #{orderCode}) selected_order
+
+        LEFT JOIN tbl_order o ON selected_order.ORDER_CODE = o.ORDER_CODE
+        LEFT JOIN tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
+        LEFT JOIN tbl_member m ON o.MEMBER_CODE = m.MEMBER_CODE
+        LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
+        LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
+        LEFT JOIN tbl_sub_category sc ON i.CATEGORY_CODE = sc.SUB_CATEGORY_CODE
+    </select>
 
     <!-- for Franchise-->
     <select id="findOrdersForFranchise" resultMap="OrderDTOResultListForFranchise">

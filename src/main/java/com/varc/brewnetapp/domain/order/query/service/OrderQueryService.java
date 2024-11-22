@@ -1,9 +1,6 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
-import com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO;
-import com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderRequestDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
+import com.varc.brewnetapp.domain.order.query.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -50,4 +47,5 @@ public interface OrderQueryService {
                                                      int franchiseCode
     );
 
+    OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode);
 }

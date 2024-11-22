@@ -13,6 +13,7 @@ public class OrderItem {
     // tbl_order_item
     private int itemCode;
     private int quantity;
+    private int partSum;
 
     // tbl_item
     private String name;
