@@ -164,8 +164,21 @@ public class AuthServiceImpl implements AuthService {
             if(!member.getActive())
                 throw new InvalidDataException("권한을 부여하려는 회원이 없습니다");
 
-            Role role = roleRepository.findByRole(RoleType.valueOf(grantAuthRequestDTO.getAuthName()))
-                .orElseThrow(() -> new InvalidDataException("잘못된 권한 값입니다"));
+            Role role = null;
+
+            if(grantAuthRequestDTO.getAuthName().equals("master"))
+                role = roleRepository.findByRole(RoleType.ROLE_MASTER)
+                    .orElseThrow(() -> new InvalidDataException("잘못된 권한 값입니다"));
+            else if(grantAuthRequestDTO.getAuthName().equals("generalAdmin"))
+                role = roleRepository.findByRole(RoleType.ROLE_GENERAL_ADMIN)
+                    .orElseThrow(() -> new InvalidDataException("잘못된 권한 값입니다"));
+            else if(grantAuthRequestDTO.getAuthName().equals("responsibleAdmin"))
+                role = roleRepository.findByRole(RoleType.ROLE_RESPONSIBLE_ADMIN)
+                    .orElseThrow(() -> new InvalidDataException("잘못된 권한 값입니다"));
+            else if(grantAuthRequestDTO.getAuthName().equals("delivery"))
+                role = roleRepository.findByRole(RoleType.ROLE_DELIVERY)
+                    .orElseThrow(() -> new InvalidDataException("잘못된 권한 값입니다"));
+
 
             MemberRolePK memberRolePK = new MemberRolePK(member.getMemberCode(), role.getRoleCode());
             MemberRole existMemberRole = memberRoleRepository.findById(memberRolePK).orElse(null);
