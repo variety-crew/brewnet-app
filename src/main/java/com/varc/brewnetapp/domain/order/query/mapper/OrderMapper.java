@@ -27,6 +27,7 @@ public interface OrderMapper {
     int countOrders(
             @Param("filter") String filter
     );
+    List<OrderStatusHistory> findOrderHistoriesByOrderId(int orderId);
 
 
     // for HQ
@@ -46,5 +47,4 @@ public interface OrderMapper {
             @Param("offset") int offset
     );
 
-    List<OrderStatusHistory> findOrderHistoriesByOrderId(int orderId);
 }

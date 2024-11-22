@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
 import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
 import com.varc.brewnetapp.domain.order.query.mapper.OrderMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -48,15 +49,32 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
         // TODO: check if filter value is one of ["UNCONFIRMED", null]
         // TODO: check if sort value is one of ["createdAtDesc", "createdAtAsc", "sumPriceDesc", "sumPriceAsc"]
-
         List<OrderDTO> orderDTOList = orderMapper.findOrdersForHQBy(filter, sort, size, offset);
-        orderDTOList.forEach(
-                orderDTO -> log.debug("orderDTO: {}", orderDTO)
-        );
-
 
         int total = orderMapper.countOrders(filter);
         return new PageImpl<>(orderDTOList, pageable, total);
+    }
+
+    @Override
+    public Page<OrderDTO> searchOrderListForHQ(Pageable pageable, String filter, String criteria) {
+        int page = pageable.getPageNumber();
+        int size = pageable.getPageSize();
+        int offset = page * size;
+//        List<OrderDTO> searchedList = orderMapper.findOrderListForHQBy(filter, sort, size, offset, criteria);
+
+        int total = orderMapper.countOrders(filter);
+//        return new PageImpl<>(null, pageable, total);
+        return null;
+    }
+
+    @Override
+    public OrderRequestDTO printOrderRequest(int orderCode) {
+
+        // TODO: check is tbl_order.approval_status is 'APPROVED'
+
+        // TODO: get order detail information
+
+        return null;
     }
 
     // for franchise

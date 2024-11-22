@@ -3,6 +3,7 @@ package com.varc.brewnetapp.domain.order.query.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 
 import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderResponseDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
 import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
@@ -62,15 +63,28 @@ public class HQOrderQueryController {
 
     @GetMapping("/search")
     @Operation(summary = "주문 일자(기간) 별로 검색 타입(주문번호, 주문지점, 주문담당자)에 따른 검색")
-    public ResponseEntity<ResponseMessage<List<OrderResponseDTO>>> getOrderListByHqSearch() {
+    public ResponseEntity<ResponseMessage<Page<OrderDTO>>> getOrderListByHqSearch(
+            @PageableDefault(size = 10, page = 0) Pageable pageable,
+            @RequestParam(name = "filter", required = false) String filter,
+            @RequestParam(name = "criteria", required = false) String criteria
+    ) {
+        Page<OrderDTO> orderDTOList = orderQueryService.searchOrderListForHQ(pageable, filter, criteria);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDTOList));
+    }
+
+    @GetMapping("/detail/{orderCode}")
+    @Operation(summary = "주문 코드를 path variable로 활용한 주문 상세 조회")
+    public ResponseEntity<ResponseMessage<OrderResponseDTO>> getOrderInformation(
+            @PathVariable("orderCode") Integer orderCode) {
+//        OrderResponseDTO orderResponseVO = orderService.getOrderDetailByHqWith(Integer.parseInt(orderCode));
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", null));
     }
 
-    @GetMapping("/{orderCode}")
-    @Operation(summary = "주문 코드를 path variable로 활용한 주문 상세 조회")
-    public ResponseEntity<ResponseMessage<OrderResponseDTO>> getOrderInformation(
-            @PathVariable("orderCode") String orderCode) {
-//        OrderResponseDTO orderResponseVO = orderService.getOrderDetailByHqWith(Integer.parseInt(orderCode));
-        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", null));
+    @GetMapping("/detail/{orderCode}/print/order-request")
+    @Operation(summary = "주문 코드를 path variable로 활용한 주문요청서 출력데이터 조회")
+    public ResponseEntity<ResponseMessage<OrderRequestDTO>> printOrderRequest(
+            @PathVariable("orderCode") Integer orderCode) {
+        OrderRequestDTO printedRequestedOrder = orderQueryService.printOrderRequest(orderCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", printedRequestedOrder));
     }
 }
