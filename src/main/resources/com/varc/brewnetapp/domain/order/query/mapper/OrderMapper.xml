@@ -5,7 +5,7 @@
 <mapper namespace="com.varc.brewnetapp.domain.order.query.mapper.OrderMapper">
 
     <!-- resultMaps-->
-    <resultMap id="baseOrderList" type="com.varc.brewnetapp.domain.order.query.dto.OrderDTO">
+    <resultMap id="baseOrderList" type="com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO">
         <id property="orderCode" column="ORDER_CODE"/>
         <result property="comment" column="COMMENT"/>
         <result property="createdAt" column="CREATED_AT"/>
@@ -21,7 +21,7 @@
         <result property="createdAt" column="CREATED_AT"/>
     </resultMap>
 
-    <resultMap id="OrderDTOResultList" type="com.varc.brewnetapp.domain.order.query.dto.OrderDTO">
+    <resultMap id="OrderDTOResultListForHQ" type="com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO">
         <id property="orderCode" column="ORDER_CODE"/>
         <result property="createdAt" column="CREATED_AT"/>
         <result property="active" column="ACTIVE"/>
@@ -96,7 +96,7 @@
 
 
     <!-- for HQ-->
-    <select id="findOrdersForHQBy" resultMap="OrderDTOResultList">
+    <select id="findOrdersForHQBy" resultMap="OrderDTOResultListForHQ">
         SELECT
                o.ORDER_CODE
              , o.CREATED_AT

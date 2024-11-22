@@ -2,7 +2,7 @@ package com.varc.brewnetapp.domain.order.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
 
-import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderResponseDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
@@ -40,7 +40,7 @@ public class HQOrderQueryController {
 
     @GetMapping("/list")
     @Operation(summary = "본사의 주문 리스트 조회")
-    public ResponseEntity<ResponseMessage<Page<OrderDTO>>> getOrderList(
+    public ResponseEntity<ResponseMessage<Page<HQOrderDTO>>> getOrderList(
             @PageableDefault(size = 10, page = 0) Pageable pageable,
             @RequestParam(name = "filter", required = false) String filter,
             @RequestParam(name = "sort", required = false) String sort,
@@ -49,7 +49,7 @@ public class HQOrderQueryController {
     ) {
         log.debug("startDate: {}", startDate);
         log.debug("endDate: {}", endDate);
-        Page<OrderDTO> orderDTOList = orderQueryService.getOrderListForHQ(
+        Page<HQOrderDTO> orderDTOList = orderQueryService.getOrderListForHQ(
                 pageable,
                 filter,
                 sort,
@@ -69,12 +69,12 @@ public class HQOrderQueryController {
 
     @GetMapping("/search")
     @Operation(summary = "주문 일자(기간) 별로 검색 타입(주문번호, 주문지점, 주문담당자)에 따른 검색")
-    public ResponseEntity<ResponseMessage<Page<OrderDTO>>> getOrderListByHqSearch(
+    public ResponseEntity<ResponseMessage<Page<HQOrderDTO>>> getOrderListByHqSearch(
             @PageableDefault(size = 10, page = 0) Pageable pageable,
             @RequestParam(name = "filter", required = false) String filter,
             @RequestParam(name = "criteria", required = false) String criteria
     ) {
-        Page<OrderDTO> orderDTOList = orderQueryService.searchOrderListForHQ(pageable, filter, criteria);
+        Page<HQOrderDTO> orderDTOList = orderQueryService.searchOrderListForHQ(pageable, filter, criteria);
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDTOList));
     }
 

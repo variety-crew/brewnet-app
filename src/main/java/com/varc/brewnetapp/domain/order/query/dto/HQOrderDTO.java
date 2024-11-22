@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class OrderDTO {
+public class HQOrderDTO {
     private int orderCode;
     private String createdAt;
     private boolean active;

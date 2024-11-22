@@ -1,11 +1,11 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
-import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
 import com.varc.brewnetapp.domain.order.query.mapper.OrderMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -23,11 +23,11 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     }
 
     @Override
-    public Page<OrderDTO> getOrderListForTest(Pageable pageable, String filter, String sort) {
+    public Page<HQOrderDTO> getOrderListForTest(Pageable pageable, String filter, String sort) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
         int offset = page * size;
-        List<OrderDTO> orders = orderMapper.findOrdersBy(filter, sort, size, offset);
+        List<HQOrderDTO> orders = orderMapper.findOrdersBy(filter, sort, size, offset);
         int total = orderMapper.countOrders(filter);
         return new PageImpl<>(orders, pageable, total);
     }
@@ -40,7 +40,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     // for HQ
     @Override
-    public Page<OrderDTO> getOrderListForHQ(Pageable pageable, String filter, String sort, String startDate, String endDate) {
+    public Page<HQOrderDTO> getOrderListForHQ(Pageable pageable, String filter, String sort, String startDate, String endDate) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
         int offset = page * size;
@@ -49,14 +49,14 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
         // TODO: check if filter value is one of ["UNCONFIRMED", null]
         // TODO: check if sort value is one of ["createdAtDesc", "createdAtAsc", "sumPriceDesc", "sumPriceAsc"]
-        List<OrderDTO> orderDTOList = orderMapper.findOrdersForHQBy(filter, sort, size, offset, startDate, endDate);
+        List<HQOrderDTO> HQOrderDTOList = orderMapper.findOrdersForHQBy(filter, sort, size, offset, startDate, endDate);
 
         int total = orderMapper.countOrders(filter);
-        return new PageImpl<>(orderDTOList, pageable, total);
+        return new PageImpl<>(HQOrderDTOList, pageable, total);
     }
 
     @Override
-    public Page<OrderDTO> searchOrderListForHQ(Pageable pageable, String filter, String criteria) {
+    public Page<HQOrderDTO> searchOrderListForHQ(Pageable pageable, String filter, String criteria) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
         int offset = page * size;
@@ -79,7 +79,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     // for franchise
     @Override
-    public Page<OrderDTO> getOrderListForFranchise(Pageable pageable, String filter, String sort, String startDate, String endDate, int franchiseCode) {
+    public Page<FranchiseOrderDTO> getOrderListForFranchise(Pageable pageable, String filter, String sort, String startDate, String endDate, int franchiseCode) {
 
         // TODO: check if franchise valid
 
@@ -89,11 +89,11 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
         // TODO: get order list query for franchise
 
-        List<OrderDTO> orderDTOList = orderMapper.findOrdersForFranchise(filter, sort, size, offset);
+        List<FranchiseOrderDTO> HQOrderDTOList = orderMapper.findOrdersForFranchise(filter, sort, size, offset);
 
         int total = orderMapper.countOrders(filter);
 
-        return new PageImpl<>(orderDTOList , pageable, total);
+        return new PageImpl<>(HQOrderDTOList, pageable, total);
     }
 
 }

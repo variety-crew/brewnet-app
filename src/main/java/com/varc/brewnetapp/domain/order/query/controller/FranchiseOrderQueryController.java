@@ -1,8 +1,8 @@
 package com.varc.brewnetapp.domain.order.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
-import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderResponseDTO;
+import com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO;
 import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class FranchiseOrderQueryController {
 
     @GetMapping("/list/{franchiseCode}")
     @Operation(summary = "가맹점의 주문리스트 조회")
-    public ResponseEntity<ResponseMessage<Page<OrderDTO>>> getOrderList(
+    public ResponseEntity<ResponseMessage<Page<FranchiseOrderDTO>>> getOrderList(
             @PageableDefault(size = 10, page = 0) Pageable pageable,
             @PathVariable("franchiseCode") Integer franchiseCode,
             @RequestParam(name = "filter", required = false) String filter,
@@ -35,7 +35,7 @@ public class FranchiseOrderQueryController {
             @RequestParam(name = "startDate", required = false) String startDate,
             @RequestParam(name = "endDate", required = false) String endDate
     ) {
-        Page<OrderDTO> orderDTOList = orderQueryService.getOrderListForFranchise(
+        Page<FranchiseOrderDTO> orderDTOList = orderQueryService.getOrderListForFranchise(
                 pageable,
                 filter,
                 sort,
