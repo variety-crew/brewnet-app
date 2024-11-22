@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.auth.command.application.dto;
 
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.PositionName;
 import lombok.*;
 
 @Getter
@@ -11,5 +12,8 @@ public class SignUpRequestDto {
     private String id;
     private String password;
     private String name;
-    private String nickname;
+    private String email;
+    private String contact;
+    private PositionName positionName;
+    private String FranchiseName;
 }

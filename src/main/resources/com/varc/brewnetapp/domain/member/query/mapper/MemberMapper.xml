@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.varc.brewnetapp.domain.member.query.mapper.MemberMapper">
+
+  <resultMap id="memberResultMap" type="com.varc.brewnetapp.domain.member.query.dto.MemberDTO">
+    <id property="memberCode" column="MEMBER_CODE"/>
+    <result property="id" column="ID"/>
+    <result property="name" column="NAME"/>
+    <result property="email" column="EMAIL"/>
+    <result property="contact" column="CONTACT"/>
+    <result property="signatureUrl" column="SIGNATURE_URL"/>
+    <result property="positionName" column="POSITION_NAME"/>
+    <result property="role" column="ROLE"/>
+  </resultMap>
+  
+  <resultMap id="companyResultMap" type="com.varc.brewnetapp.domain.member.query.dto.CompanyDTO">
+    <id property="companyCode" column="COMPANY_CODE"/>
+    <result property="name" column="NAME"/>
+    <result property="businessNumber" column="BUSINESS_NUMBER"/>
+    <result property="corporateNumber" column="CORPORATE_NUMBER"/>
+    <result property="ceoName" column="CEO_NAME"/>
+    <result property="address" column="ADDRESS"/>
+    <result property="typeOfBusiness" column="TYPE_OF_BUSINESS"/>
+    <result property="contact" column="CONTACT"/>
+    <result property="dateOfEstablishment" column="DATE_OF_ESTABLISHMENT"/>
+  </resultMap>
+
+  <resultMap id="sealResultMap" type="com.varc.brewnetapp.domain.member.query.dto.SealDTO">
+    <id property="sealCode" column="SEAL_CODE"/>
+    <result property="imageUrl" column="IMAGE_URL"/>
+  </resultMap>
+
+  <resultMap id="orderPrintResultMap" type="com.varc.brewnetapp.domain.member.query.dto.OrderPrintDTO">
+    <id property="orderPrintCode" column="ORDER_PRINT_CODE"/>
+    <result property="reason" column="REASON"/>
+    <result property="printedAt" column="PRINTED_AT"/>
+    <result property="memberCode" column="MEMBER_CODE"/>
+    <result property="memberName" column="NAME"/>
+    <result property="memberSignature" column="SIGNATURE"/>
+    <result property="letterOfPurchaseCode" column="LETTER_OF_PURCHASE_CODE"/>
+  </resultMap>
+
+  <select id="selectMemberList" resultMap="memberResultMap" parameterType="map">
+    SELECT
+           M.MEMBER_CODE,
+           M.ID,
+           M.NAME,
+           M.EMAIL,
+           M.CONTACT,
+           M.SIGNATURE_URL,
+           P.NAME AS POSITION_NAME,
+           (SELECT R.ROLE
+              FROM tbl_member_role MR
+            INNER JOIN tbl_role R
+               ON MR.ROLE_CODE = R.ROLE_CODE
+            WHERE MR.MEMBER_CODE = M.MEMBER_CODE
+            ORDER BY R.ROLE_CODE ASC
+            LIMIT 1) AS ROLE
+      FROM tbl_member M
+     INNER JOIN tbl_position P ON M.POSITION_CODE = P.POSITION_CODE
+     WHERE M.ACTIVE = TRUE
+      <if test="search != null and search != ''">
+       AND M.NAME LIKE CONCAT('%', #{search}, '%')
+      </if>
+     ORDER BY M.MEMBER_CODE DESC
+     LIMIT #{ pageSize }
+    OFFSET #{ offset };
+  </select>
+
+
+  <select id="selectMemberListWhereSearchCnt" resultType="int" parameterType="string">
+    SELECT COUNT(*)
+    FROM tbl_member
+    WHERE ACTIVE = TRUE
+    <if test="search != null and search != ''">
+      AND NAME LIKE CONCAT('%', #{search}, '%') AND POSITION_CODE IS NOT NULL
+    </if>
+
+  </select>
+
+
+  <select id="selectCompany" resultMap="companyResultMap">
+    SELECT
+           COMPANY_CODE,
+           NAME,
+           BUSINESS_NUMBER,
+           CORPORATE_NUMBER,
+           CEO_NAME,
+           ADDRESS,
+           TYPE_OF_BUSINESS,
+           CONTACT,
+           DATE_OF_ESTABLISHMENT
+      FROM tbl_company
+     ORDER BY COMPANY_CODE ASC
+     LIMIT 1
+  </select>
+
+  <select id="selectCompanySeal" resultMap="sealResultMap">
+    SELECT
+           SEAL_CODE,
+           IMAGE_URL
+      FROM tbl_seal
+     ORDER BY SEAL_CODE ASC
+     LIMIT 1
+  </select>
+
+  <select id="selectMember" resultMap="memberResultMap" parameterType="string">
+    SELECT
+           M.MEMBER_CODE,
+           M.ID,
+           M.NAME,
+           M.EMAIL,
+           M.CONTACT,
+           M.SIGNATURE_URL,
+           P.NAME AS POSITION_NAME,
+           (SELECT GROUP_CONCAT(R.ROLE SEPARATOR ', ')
+              FROM tbl_member_role MR
+             INNER JOIN tbl_role R
+                ON MR.ROLE_CODE = R.ROLE_CODE
+             WHERE MR.MEMBER_CODE = M.MEMBER_CODE) AS ROLES
+      FROM tbl_member M
+     INNER JOIN tbl_position P ON M.POSITION_CODE = P.POSITION_CODE
+     WHERE M.ACTIVE = TRUE AND M.ID = #{ loginId }
+  </select>
+
+  <select id="selectOrderPrintList" resultMap="orderPrintResultMap" parameterType="map">
+    SELECT
+           OP.ORDER_PRINT_CODE
+         , OP.REASON
+         , DATE_FORMAT(OP.PRINTED_AT, '%Y-%m-%d') AS printed_at
+         , M.MEMBER_CODE
+         , M.NAME
+         , M.SIGNATURE_URL
+         , OP.LETTER_OF_PURCHASE_CODE
+     FROM tbl_order_print OP
+     INNER JOIN tbl_member M ON OP.MEMBER_CODE = M.MEMBER_CODE
+     WHERE OP.ACTIVE = TRUE
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+       AND PRINTED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+     ORDER BY OP.ORDER_PRINT_CODE DESC
+     LIMIT #{ pageSize }
+    OFFSET #{ offset };
+  </select>
+
+  <select id="selectOrderPrintListWhereDateCnt" resultType="int" parameterType="map">
+    SELECT COUNT(*)
+    FROM tbl_order_print
+    WHERE ACTIVE = TRUE AND PRINTED_AT BETWEEN #{startDate} AND #{endDate}
+  </select>
+
+  <select id="selectOrderPrintListCnt" resultType="int" >
+    SELECT COUNT(*)
+    FROM tbl_order_print
+    WHERE ACTIVE = TRUE
+
+  </select>
+
+</mapper>

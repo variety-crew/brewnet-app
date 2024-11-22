@@ -12,7 +12,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -21,14 +23,20 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfiguration {
     private final ObjectMapper objectMapper;
     private final ProviderManager providerManager;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final AccessDeniedHandler accessDeniedHandler;
 
     @Autowired
     public SecurityConfiguration(
             ObjectMapper objectMapper,
-            ProviderManager providerManager
+            ProviderManager providerManager,
+            AuthenticationEntryPoint authenticationEntryPoint,
+            AccessDeniedHandler accessDeniedHandler
     ) {
         this.objectMapper = objectMapper;
         this.providerManager = providerManager;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
@@ -42,14 +50,40 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/check/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/email/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
+
+                        // 가맹점
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/franchise/**")).hasAnyRole("FRANCHISE", "MASTER")
+
+                        // 본사
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/hq/**")).hasAnyRole("MASTER", "GENERAL_ADMIN", "RESPONSIBLE_ADMIN")
+
+                        // 본사책임자
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/responsible/**")).hasAnyRole("MASTER", "RESPONSIBLE_ADMIN")
+
+                        // 마스터
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/master/**")).hasRole("MASTER")
+
+                        // 마스터
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/require-auth/master")).hasRole("MASTER")
+
+                        // 마스터
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/delivery")).hasAnyRole("MASTER", "DELIVERY")
+
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtRefreshTokenFilter(providerManager, objectMapper), UsernamePasswordAuthenticationFilter.class)
+
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint) // 401 UNAUTHORIZED
+                        .accessDeniedHandler(accessDeniedHandler)           // 403 FORBIDDEN
+                )
+
                 .addFilterBefore(new JwtAccessTokenFilter(providerManager), UsernamePasswordAuthenticationFilter.class)
-                .addFilter(new DaoAuthenticationFilter(providerManager, objectMapper))
-        ;
+                .addFilterBefore(new JwtRefreshTokenFilter(providerManager, objectMapper), UsernamePasswordAuthenticationFilter.class)
+                .addFilter(new DaoAuthenticationFilter(providerManager, objectMapper));
+
         return http.build();
     }
 

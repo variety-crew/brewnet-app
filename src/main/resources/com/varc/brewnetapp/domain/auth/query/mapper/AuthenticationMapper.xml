@@ -8,18 +8,17 @@
         <result property="id" column="ID"/>
         <result property="password" column="PASSWORD"/>
         <result property="name" column="MEMBER_NAME"/>
-        <result property="nickname" column="NICKNAME"/>
         <collection property="roleVOSet" ofType="com.varc.brewnetapp.domain.auth.query.vo.RoleVO">
             <result property="role" column="ROLE"/>
         </collection>
     </resultMap>
+
     <select id="selectMemberByIdWithAuthorities" resultMap="memberWithDistinctRolesMap" parameterType="string">
         SELECT
                M.MEMBER_CODE
              , M.ID
              , M.PASSWORD
              , M.NAME AS MEMBER_NAME
-             , M.NICKNAME
              , R.ROLE
           FROM tbl_member M
          INNER JOIN tbl_member_role MR
@@ -29,4 +28,10 @@
          WHERE M.ID = #{ id }
          GROUP BY R.ROLE
     </select>
+
+    <select id="selectAuths" resultType="java.lang.String">
+      SELECT role
+        FROM tbl_Role
+    </select>
+
 </mapper>
