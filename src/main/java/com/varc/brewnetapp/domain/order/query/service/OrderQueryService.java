@@ -1,8 +1,13 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
-import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.OrderRequestDTO;
+import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 
 public interface OrderQueryService {
@@ -16,17 +21,33 @@ public interface OrderQueryService {
     * */
 
     // for test
-    Page<OrderDTO> getOrderListForTest(Pageable pageable, String filter, String sort);
-
-    // searched by hq
-    Page<OrderDTO> getOrderListForHQ(Pageable pageable, String filter, String sort);
-
-    // requested by franchise
-    // TODO: get orders for franchise
-    default Page<OrderDTO> getOrderListForFranchise(Pageable pageable, String filter, String sort) {
-        return null;
-    }
+    Page<HQOrderDTO> getOrderListForTest(Pageable pageable,
+                                         String filter,
+                                         String sort);
 
     // common
+    List<OrderStatusHistory> getOrderHistoryByOrderId(int orderId);
+
+    // requested by hq
+    Page<HQOrderDTO> getOrderListForHQ(Pageable pageable,
+                                       String filter,
+                                       String sort,
+                                       String startDate,
+                                       String endDate
+    );
+    Page<HQOrderDTO> searchOrderListForHQ(Pageable pageable,
+                                          String filter,
+                                          String criteria
+    );
+    OrderRequestDTO printOrderRequest(int orderCode);
+
+    // requested by franchise
+    Page<FranchiseOrderDTO> getOrderListForFranchise(Pageable pageable,
+                                                     String filter,
+                                                     String sort,
+                                                     String startDate,
+                                                     String endDate,
+                                                     int franchiseCode
+    );
 
 }

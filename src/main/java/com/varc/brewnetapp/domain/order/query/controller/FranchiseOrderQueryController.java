@@ -1,18 +1,19 @@
 package com.varc.brewnetapp.domain.order.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
-import com.varc.brewnetapp.domain.order.query.dto.OrderResponseDTO;
+import com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO;
 import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("api/v1/franchise/orders")
 public class FranchiseOrderQueryController {
@@ -24,14 +25,24 @@ public class FranchiseOrderQueryController {
         this.orderQueryService = orderQueryService;
     }
 
-    @GetMapping
-    public ResponseEntity<ResponseMessage<Page<OrderResponseDTO>>> getOrderList(
+    @GetMapping("/list/{franchiseCode}")
+    @Operation(summary = "가맹점의 주문리스트 조회")
+    public ResponseEntity<ResponseMessage<Page<FranchiseOrderDTO>>> getOrderList(
             @PageableDefault(size = 10, page = 0) Pageable pageable,
+            @PathVariable("franchiseCode") Integer franchiseCode,
             @RequestParam(name = "filter", required = false) String filter,
-            @RequestParam(name = "sort", required = false) String sort
+            @RequestParam(name = "sort", required = false) String sort,
+            @RequestParam(name = "startDate", required = false) String startDate,
+            @RequestParam(name = "endDate", required = false) String endDate
     ) {
-        orderQueryService.getOrderListForFranchise(pageable, filter, sort);
-        return null;
+        Page<FranchiseOrderDTO> orderDTOList = orderQueryService.getOrderListForFranchise(
+                pageable,
+                filter,
+                sort,
+                startDate,
+                endDate,
+                franchiseCode
+        );
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDTOList));
     }
-
 }
