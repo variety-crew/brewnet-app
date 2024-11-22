@@ -19,6 +19,7 @@ public class OrderDTO {
     private OrderApprovalStatus approvalStatus;
     private DrafterApproved drafterApproved;
     private int sumPrice;
+    private String managerName;
 
     private OrderFranchise orderFranchise;
     private List<OrderItem> orderItemList;

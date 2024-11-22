@@ -20,20 +20,33 @@ public interface OrderQueryService {
     * */
 
     // for test
-    Page<OrderDTO> getOrderListForTest(Pageable pageable, String filter, String sort);
+    Page<OrderDTO> getOrderListForTest(Pageable pageable,
+                                       String filter,
+                                       String sort);
 
     // common
     List<OrderStatusHistory> getOrderHistoryByOrderId(int orderId);
 
     // requested by hq
-    Page<OrderDTO> getOrderListForHQ(Pageable pageable, String filter, String sort, String startDate, String endDate);
-    Page<OrderDTO> searchOrderListForHQ(Pageable pageable, String filter, String criteria);
+    Page<OrderDTO> getOrderListForHQ(Pageable pageable,
+                                     String filter,
+                                     String sort,
+                                     String startDate,
+                                     String endDate
+    );
+    Page<OrderDTO> searchOrderListForHQ(Pageable pageable,
+                                        String filter,
+                                        String criteria
+    );
     OrderRequestDTO printOrderRequest(int orderCode);
 
     // requested by franchise
-    // TODO: get orders for franchise
-    default Page<OrderDTO> getOrderListForFranchise(Pageable pageable, String filter, String sort) {
-        return null;
-    }
+    Page<OrderDTO> getOrderListForFranchise(Pageable pageable,
+                                            String filter,
+                                            String sort,
+                                            String startDate,
+                                            String endDate,
+                                            int franchiseCode
+    );
 
 }

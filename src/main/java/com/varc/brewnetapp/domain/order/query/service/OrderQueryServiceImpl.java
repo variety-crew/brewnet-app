@@ -79,7 +79,10 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     // for franchise
     @Override
-    public Page<OrderDTO> getOrderListForFranchise(Pageable pageable, String filter, String sort) {
+    public Page<OrderDTO> getOrderListForFranchise(Pageable pageable, String filter, String sort, String startDate, String endDate, int franchiseCode) {
+
+        // TODO: check if franchise valid
+
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
         int offset = page * size;
@@ -92,4 +95,5 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
         return new PageImpl<>(orderDTOList , pageable, total);
     }
+
 }

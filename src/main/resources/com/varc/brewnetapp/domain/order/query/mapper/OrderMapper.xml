@@ -28,6 +28,7 @@
         <result property="approvalStatus" column="APPROVAL_STATUS"/>
         <result property="drafterApproved" column="DRAFTER_APPROVED"/>
         <result property="sumPrice" column="SUM_PRICE"/>
+        <result property="managerName" column="MANAGER_NAME"/>
 
         <!-- orderFranchise-->
         <association property="orderFranchise"
@@ -103,6 +104,7 @@
              , o.APPROVAL_STATUS
              , o.DRAFTER_APPROVED
              , o.SUM_PRICE
+             , m.NAME as MANAGER_NAME
              , f.FRANCHISE_CODE
              , f.FRANCHISE_NAME
              , oi.ITEM_CODE
@@ -117,6 +119,8 @@
 
           LEFT JOIN
                tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
+          LEFT JOIN
+               tbl_member m ON o.MEMBER_CODE = m.MEMBER_CODE
           LEFT JOIN
                tbl_order_status_history oh ON o.ORDER_CODE = oh.ORDER_CODE
           LEFT JOIN
