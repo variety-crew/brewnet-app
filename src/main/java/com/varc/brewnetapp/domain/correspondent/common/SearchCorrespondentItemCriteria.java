@@ -1,4 +1,4 @@
-package com.varc.brewnetapp.domain.storage.common;
+package com.varc.brewnetapp.domain.correspondent.common;
 
 import lombok.*;
 
@@ -7,10 +7,11 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-public class SearchStorageCriteria {
+public class SearchCorrespondentItemCriteria {
 
-    private Integer storageCode;            // 창고 코드
-    private String storageName;             // 창고명
+    private Integer correspondentCode;      // 거래처 코드
+    private String itemUniqueCode;          // 상품 고유코드
+    private String itemName;                // 상품명
 
     private int pageNumber;                 // 현재 페이지 번호
     private int pageSize;                   // 페이지 크기
