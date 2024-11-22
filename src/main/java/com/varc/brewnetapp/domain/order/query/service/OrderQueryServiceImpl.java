@@ -2,6 +2,7 @@ package com.varc.brewnetapp.domain.order.query.service;
 
 import com.varc.brewnetapp.domain.order.query.dto.*;
 import com.varc.brewnetapp.domain.order.query.mapper.OrderMapper;
+import com.varc.brewnetapp.exception.OrderNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -67,7 +68,11 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     @Override
     public OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode) {
         OrderDetailForHQDTO orderDetail = orderMapper.findOrderDetailForHqBy(orderCode);
-        return orderDetail;
+        if (orderDetail == null) {
+            throw new OrderNotFound("Order not found");
+        } else {
+            return orderDetail;
+        }
     }
 
     @Override
