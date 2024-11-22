@@ -27,7 +27,7 @@ public class DocumentController {
 
     @PostMapping("/approver")
     @Operation(summary = "결재 별 결재 직급 설정 API / [positionName]은 대리, 과장, 대표이사만 가능 / "
-        + "[seq]는 1 ~ 4만 가능 / [kind]는 주문, 반품, 교환, 발주 만 가능  "
+        + "[seq]는 1 ~ 4만 가능 / [kind]는 ORDER, RETURN, PURCHASE, EXCHANGE 만 가능  "
         + "또한, kind와 seq가 같은 값은 한 개 밖에 존재못함. 즉, kind와 seq가 같은 값이 DB에 있다면 자동으로 수정됨. \n" 
         + "[해당 API가 생성 및 수정을 담당]")
     public ResponseEntity<ResponseMessage<Object>> createApprover(@RequestHeader("Authorization") String accessToken,
