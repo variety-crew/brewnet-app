@@ -71,7 +71,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         else if(myDelivery.getDeliveryKind().equals(DeliveryKind.RETURN))
             deliveryDetail = deliveryMapper.selectReturnDelivery(myDelivery.getCode());
 
-
+        deliveryDetail.setDeliveryKind(myDelivery.getDeliveryKind());
+        deliveryDetail.setDeliveryStatus(myDelivery.getDeliveryStatus());
+        deliveryDetail.setCode(myDelivery.getCode());
 
         return null;
     }

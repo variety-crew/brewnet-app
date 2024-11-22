@@ -183,6 +183,7 @@
     SELECT
            'ORDER' AS KIND
          , O.ORDER_CODE AS CODE
+         , OH.STATUS AS STATUS
       FROM tbl_order O
      INNER JOIN LatestOrderStatus OH ON O.ORDER_CODE = OH.ORDER_CODE
      INNER JOIN tbl_member M ON O.MEMBER_CODE = M.MEMBER_CODE
@@ -191,6 +192,7 @@
     SELECT
            'EXCHANGE' AS KIND
          , E.EXCHANGE_CODE AS CODE
+         , EH.STATUS AS STATUS
       FROM tbl_exchange E
      INNER JOIN LatestExchangeStatus EH ON E.EXCHANGE_CODE = EH.EXCHANGE_CODE
      INNER JOIN tbl_member M ON E.MEMBER_CODE = M.MEMBER_CODE
@@ -199,14 +201,28 @@
     SELECT
            'RETURN' AS KIND
          , R.RETURN_CODE AS CODE
+         , RH.STATUS AS STATUS
       FROM tbl_return R
      INNER JOIN LatestReturnStatus RH ON R.RETURN_CODE = RH.RETURN_CODE
      INNER JOIN tbl_member M ON R.MEMBER_CODE = M.MEMBER_CODE
      WHERE RH.RN = 1 AND R.ACTIVE = TRUE AND RH.ACTIVE = TRUE AND R.DELIVERY_CODEs = #{ loginId } AND RH.STATUS = 'PICKING'
   </select>
 
-  <select id="selectExchangeDelivery" resultMap="deliveryDetailMap" parameterType="_int">
+  <id property="code" column="CODE"/>
+  <result property="deliveryKind" column="KIND"/>
+  <result property="deliveryStatus" column="STATUS"/>
+  <collection property="items" ofType="java.util.HashMap" javaType="java.util.Map">
+    <result property="key" column="ITEM_NAME" />
+    <result property="value" column="QUANTITY" />
+  </collection>
 
+  <select id="selectExchangeDelivery" resultMap="deliveryDetailMap" parameterType="_int">
+    SELECT
+           I.NAME
+         , EI.QUANTITY
+      FROM tbl_exchange E
+     INNER JOIN tbl_exchange_item EI ON EI.EXCHANGE_CODE = E.EXCHANGE_CODE
+     INNER JOIN tbl_item I ON EI.ITEM_CODE = I.ITEM_CODE
   </select>
 
   <select id="selectReturnDelivery" resultMap="deliveryDetailMap" parameterType="_int">
