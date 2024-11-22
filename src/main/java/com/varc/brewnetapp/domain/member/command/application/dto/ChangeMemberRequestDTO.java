@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.member.command.application.dto;
 
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.PositionName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class ChangeMemberRequestDTO {
     private String name;
     private String email;
     private String contact;
-    private String positionName;
+    private PositionName positionName;
     private String FranchiseName;
 
 }

@@ -12,7 +12,7 @@
     <result property="contact" column="CONTACT"/>
     <result property="signatureUrl" column="SIGNATURE_URL"/>
     <result property="positionName" column="POSITION_NAME"/>
-    <result property="roles" column="ROLES"/>
+    <result property="role" column="ROLE"/>
   </resultMap>
   
   <resultMap id="companyResultMap" type="com.varc.brewnetapp.domain.member.query.dto.CompanyDTO">
@@ -51,11 +51,13 @@
            M.CONTACT,
            M.SIGNATURE_URL,
            P.NAME AS POSITION_NAME,
-           (SELECT GROUP_CONCAT(R.ROLE SEPARATOR ', ')
-           FROM tbl_member_role MR
-           INNER JOIN tbl_role R
-           ON MR.ROLE_CODE = R.ROLE_CODE
-           WHERE MR.MEMBER_CODE = M.MEMBER_CODE) AS ROLES
+           (SELECT R.ROLE
+              FROM tbl_member_role MR
+            INNER JOIN tbl_role R
+               ON MR.ROLE_CODE = R.ROLE_CODE
+            WHERE MR.MEMBER_CODE = M.MEMBER_CODE
+            ORDER BY R.ROLE_CODE ASC
+            LIMIT 1) AS ROLE
       FROM tbl_member M
      INNER JOIN tbl_position P ON M.POSITION_CODE = P.POSITION_CODE
      WHERE M.ACTIVE = TRUE

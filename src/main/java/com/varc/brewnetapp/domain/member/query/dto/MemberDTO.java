@@ -1,5 +1,7 @@
 package com.varc.brewnetapp.domain.member.query.dto;
 
+import com.varc.brewnetapp.domain.auth.command.domain.aggregate.RoleType;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.PositionName;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,6 +27,6 @@ public class MemberDTO {
     private String email;
     private String contact;
     private String signatureUrl;
-    private String positionName;
-    private String roles;
+    private PositionName positionName;
+    private RoleType role;
 }

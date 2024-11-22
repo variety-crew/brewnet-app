@@ -63,37 +63,6 @@ public class MemberServiceImpl implements MemberService {
         if (memberList.isEmpty() || memberList.size() < 0)
             throw new EmptyDataException("조회하려는 회원 정보가 없습니다");
 
-        memberList.stream().forEach(member -> {
-            if(member.getPositionName().equals("STAFF"))
-                member.setPositionName("사원");
-            else if(member.getPositionName().equals("ASSISTANT_MANAGER"))
-                member.setPositionName("대리");
-            else if(member.getPositionName().equals("MANAGER"))
-                member.setPositionName("과장");
-            else if(member.getPositionName().equals("CEO"))
-                member.setPositionName("대표이사");
-
-            Map<String, String> roleMap = Map.of(
-                "ROLE_MASTER", "마스터",
-                "ROLE_GENERAL_ADMIN", "일반 관리자",
-                "ROLE_RESPONSIBLE_ADMIN", "책임 관리자",
-                "ROLE_FRANCHISE", "가맹점",
-                "ROLE_DELIVERY", "배송기사"
-            );
-
-            // 역할 변환
-            String mappedRoles = Optional.ofNullable(member.getRoles()) // null 처리
-                .filter(roles -> !roles.isBlank()) // 빈 문자열 체크
-                .map(roles -> Arrays.stream(roles.split(",")) // 스트림 시작
-                    .map(String::trim) // 공백 제거
-                    .map(roleMap::get) // 매핑된 이름으로 변환
-                    .filter(Objects::nonNull) // 매핑 실패한 값 제외
-                    .collect(Collectors.joining(", "))) // 콤마로 연결
-                .orElse(""); // null 또는 빈 문자열일 경우 기본값
-
-            member.setRoles(mappedRoles);
-        });
-
         // 전체 데이터 개수 조회
         int count = memberMapper.selectMemberListWhereSearchCnt(search);
 

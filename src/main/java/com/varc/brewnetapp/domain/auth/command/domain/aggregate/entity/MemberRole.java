@@ -20,6 +20,7 @@ import lombok.Setter;
 @Table(name = "tbl_member_role")
 @IdClass(MemberRolePK.class)
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
