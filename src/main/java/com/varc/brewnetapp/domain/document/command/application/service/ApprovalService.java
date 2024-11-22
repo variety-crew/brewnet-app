@@ -42,40 +42,15 @@ public class ApprovalService {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
         if (authorities.stream().anyMatch(auth -> "ROLE_MASTER".equals(auth.getAuthority()))) {
-            Integer positionCode = null;
-            ApprovalKind approvalKind = null;
 
-            if(approverRequestDTO.getPositionName().equals("대리")) {
-                positionCode = positionRepository.findByName(PositionName.ASSISTANT_MANAGER)
-                    .orElse(null).getPositionCode();
-            }
-            else if (approverRequestDTO.getPositionName().equals("과장")) {
-                positionCode = positionRepository.findByName(PositionName.MANAGER)
-                    .orElse(null).getPositionCode();
-            }
-            else if (approverRequestDTO.getPositionName().equals("대표이사")) {
-                positionCode = positionRepository.findByName(PositionName.CEO)
-                    .orElse(null).getPositionCode();
-            }
-            else
-                throw new InvalidDataException("잘못된 직급입니다");
+            Integer positionCode = positionRepository.findByName(approverRequestDTO.getPositionName())
+                .orElseThrow(() -> new InvalidDataException("잘못된 직급을 입력하셨습니다")).getPositionCode();
 
-            if(approverRequestDTO.getKind().equals("주문"))
-                approvalKind = ApprovalKind.ORDER;
-            else if (approverRequestDTO.getKind().equals("반품"))
-                approvalKind = ApprovalKind.RETURN;
-            else if (approverRequestDTO.getKind().equals("교환"))
-                approvalKind = ApprovalKind.EXCHANGE;
-            else if (approverRequestDTO.getKind().equals("발주"))
-                approvalKind = ApprovalKind.PURCHASE;
-            else
-                throw new InvalidDataException("잘못된 결재 구분값입니다");
-
-            Approval approval = approvalRepository.findByKindAndSequence(approvalKind, approverRequestDTO.getSeq()).orElse(null);
+            Approval approval = approvalRepository.findByKindAndSequence(approverRequestDTO.getKind(), approverRequestDTO.getSeq()).orElse(null);
 
             if(approval == null){
                 Approval newApproval = Approval.builder()
-                    .kind(approvalKind)
+                    .kind(approverRequestDTO.getKind())
                     .sequence(approverRequestDTO.getSeq())
                     .positionCode(positionCode)
                     .createdAt(LocalDateTime.now())
@@ -100,20 +75,20 @@ public class ApprovalService {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
         if (authorities.stream().anyMatch(auth -> "ROLE_MASTER".equals(auth.getAuthority()))) {
-            ApprovalKind approvalKind = null;
+//            ApprovalKind approvalKind = null;
             
-            if(approverRequestDTO.getKind().equals("주문"))
-                approvalKind = ApprovalKind.ORDER;
-            else if (approverRequestDTO.getKind().equals("반품"))
-                approvalKind = ApprovalKind.RETURN;
-            else if (approverRequestDTO.getKind().equals("교환"))
-                approvalKind = ApprovalKind.EXCHANGE;
-            else if (approverRequestDTO.getKind().equals("발주"))
-                approvalKind = ApprovalKind.PURCHASE;
-            else
-                throw new InvalidDataException("잘못된 결재 구분값입니다");
+//            if(approverRequestDTO.getKind().equals("주문"))
+//                approvalKind = ApprovalKind.ORDER;
+//            else if (approverRequestDTO.getKind().equals("반품"))
+//                approvalKind = ApprovalKind.RETURN;
+//            else if (approverRequestDTO.getKind().equals("교환"))
+//                approvalKind = ApprovalKind.EXCHANGE;
+//            else if (approverRequestDTO.getKind().equals("발주"))
+//                approvalKind = ApprovalKind.PURCHASE;
+//            else
+//                throw new InvalidDataException("잘못된 결재 구분값입니다");
 
-            Approval approval = approvalRepository.findByKindAndSequence(approvalKind, approverRequestDTO.getSeq()).orElse(null);
+            Approval approval = approvalRepository.findByKindAndSequence(approverRequestDTO.getKind(), approverRequestDTO.getSeq()).orElse(null);
 
             if(approval == null)
                 throw new InvalidDataException("잘못된 결재 구분값과 순번 값을 입력하셨습니다");

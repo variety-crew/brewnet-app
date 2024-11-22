@@ -97,19 +97,6 @@ public class AuthServiceImpl implements AuthService {
         if(signUpRequestDto.getPositionName() != null && signUpRequestDto.getFranchiseName() != null)
             throw new InvalidDataException("회원가입 시, 가맹점과 직급이 한꺼번에 설정될 수 없습니다");
         else if(signUpRequestDto.getPositionName() != null){
-            if(signUpRequestDto.getPositionName().equals("사원"))
-                signUpRequestDto.setPositionName("STAFF");
-            else if(signUpRequestDto.getPositionName().equals("대리"))
-                signUpRequestDto.setPositionName("ASSISTANT_MANAGER");
-            else if(signUpRequestDto.getPositionName().equals("과장"))
-                signUpRequestDto.setPositionName("MANAGER");
-            else if(signUpRequestDto.getPositionName().equals("대표"))
-                signUpRequestDto.setPositionName("CEO");
-
-            member.setPositionCode(positionRepository.findByName
-                (PositionName.valueOf(signUpRequestDto.getPositionName())).orElseThrow(() -> new InvalidDataException("직급이 없습니다"))
-                .getPositionCode());
-
             memberRepository.save(member);
         }
         else if(signUpRequestDto.getFranchiseName() != null){
@@ -164,16 +151,18 @@ public class AuthServiceImpl implements AuthService {
             if(!member.getActive())
                 throw new InvalidDataException("권한을 부여하려는 회원이 없습니다");
 
-            Role role = roleRepository.findByRole(RoleType.valueOf(grantAuthRequestDTO.getAuthName()))
+            Role role = roleRepository.findByRole(grantAuthRequestDTO.getAuthName())
                 .orElseThrow(() -> new InvalidDataException("잘못된 권한 값입니다"));
 
             MemberRolePK memberRolePK = new MemberRolePK(member.getMemberCode(), role.getRoleCode());
             MemberRole existMemberRole = memberRoleRepository.findById(memberRolePK).orElse(null);
 
-            if(existMemberRole != null)
-                throw new InvalidDataException("이미 해당 권한이 있는 사용자입니다");
-
-            memberRoleRepository.save(MemberRole.builder()
+            if(existMemberRole != null){
+                existMemberRole.setRoleCode(role.getRoleCode());
+                memberRoleRepository.save(existMemberRole);
+            }
+            else
+                memberRoleRepository.save(MemberRole.builder()
                 .memberCode(member.getMemberCode()).roleCode(role.getRoleCode())
                 .createdAt(LocalDateTime.now()).active(true).build());
         } else

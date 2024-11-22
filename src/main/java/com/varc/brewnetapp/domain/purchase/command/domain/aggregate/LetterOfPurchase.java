@@ -1,6 +1,8 @@
 package com.varc.brewnetapp.domain.purchase.command.domain.aggregate;
 
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.purchase.common.IsApproved;
+import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Storage;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,9 +46,13 @@ public class LetterOfPurchase {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_code", nullable = false)
-    private PurchaseMember member;
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "storage_code", nullable = false)
     private Storage storage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seal_code")
+    private PurchaseSeal seal;
 }

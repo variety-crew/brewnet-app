@@ -9,34 +9,27 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tbl_stock")
-@IdClass(StockId.class)
+@Table(name = "tbl_seal")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Stock {
+public class PurchaseSeal {
 
     @Id
-    @Column(name = "storage_code")
-    private Integer storageCode;
+    @Column(name = "seal_code")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer sealCode;
 
-    @Id
-    @Column(name = "item_code")
-    private Integer itemCode;
-
-    @Column(name = "available_stock")
-    private Integer availableStock;
-
-    @Column(name = "out_stock")
-    private Integer outStock;
-
-    @Column(name = "in_stock")
-    private Integer inStock;
+    @Column(name = "image_url", nullable = false)
+    private String imageUrl;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "active", nullable = false)
     private Boolean active;
+
+    @Column(name = "company_code", nullable = false)
+    private Integer companyCode;
 }

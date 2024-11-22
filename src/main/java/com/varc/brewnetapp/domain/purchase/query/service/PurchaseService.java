@@ -1,16 +1,15 @@
 package com.varc.brewnetapp.domain.purchase.query.service;
 
+import com.varc.brewnetapp.domain.purchase.common.KindOfApproval;
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
-import com.varc.brewnetapp.domain.purchase.query.dto.ApprovedPurchaseItemDTO;
-import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDTO;
-import com.varc.brewnetapp.domain.purchase.query.dto.LetterOfPurchaseDetailDTO;
-import com.varc.brewnetapp.domain.purchase.query.dto.PurchaseApprovalLineDTO;
+import com.varc.brewnetapp.domain.purchase.query.dto.*;
 
 import java.util.List;
 
 public interface PurchaseService {
 
-    PageResponse<List<LetterOfPurchaseDTO>> selectLettersOfPurchase(Integer purchaseCode,
+    PageResponse<List<LetterOfPurchaseDTO>> selectLettersOfPurchase(String loginId,
+                                                                    Integer purchaseCode,
                                                                     String memberName,
                                                                     String correspondentName,
                                                                     String storageName,
@@ -19,11 +18,12 @@ public interface PurchaseService {
                                                                     int pageNumber,
                                                                     int pageSize);
 
-    LetterOfPurchaseDetailDTO selectOneLetterOfPurchase(int letterOfPurchaseCode);
+    LetterOfPurchaseDetailDTO selectOneLetterOfPurchase(String loginId, int letterOfPurchaseCode);
 
-    PurchaseApprovalLineDTO selectApprovalLineOfOnePurchase(int letterOfPurchaseCode);
+    PurchaseApprovalLineDTO selectApprovalLineOfOnePurchase(String loginId, int letterOfPurchaseCode);
 
-    PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItems(Integer itemUniqueCode,
+    PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItems(String loginId,
+                                                                            Integer itemUniqueCode,
                                                                             String itemName,
                                                                             String correspondentName,
                                                                             String storageName,
@@ -32,7 +32,8 @@ public interface PurchaseService {
                                                                             int pageNumber,
                                                                             int pageSize);
 
-    PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItemUncheck(Integer itemUniqueCode,
+    PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItemUncheck(String loginId,
+                                                                                  Integer itemUniqueCode,
                                                                                   String itemName,
                                                                                   String correspondentName,
                                                                                   String storageName,
@@ -40,4 +41,6 @@ public interface PurchaseService {
                                                                                   String endDate,
                                                                                   int pageNumber,
                                                                                   int pageSize);
+
+    List<PurchaseApproverMemberDTO> selectApproverList(String loginId, KindOfApproval approvalLine);
 }
