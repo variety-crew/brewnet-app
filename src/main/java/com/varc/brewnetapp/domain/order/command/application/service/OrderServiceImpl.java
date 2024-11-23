@@ -6,6 +6,7 @@ import com.varc.brewnetapp.common.domain.order.OrderHistoryStatus;
 import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.member.query.service.MemberServiceImpl;
+import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderItemDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
@@ -123,22 +124,24 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional
-    public void rejectOrderByDrafter(int orderCode, String loginId) {
-
-        // 기안자 찿기
-        int drafterMemberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
+    public void rejectOrderByDrafter(int orderCode,
+                                     DrafterRejectOrderRequestDTO drafterRejectOrderRequestDTO,
+                                     String loginId) {
 
         // TODO: 가맹점의 주문 요청 반려
         //  - 주문 테이블에서 데이터 수정:
-        //  tbl_order.APPROVAL_STATUS - 'UNCONFIRMED' -> 'REJECTED'
-        //  tbl_order.DRAFTER_APPROVED - 'NONE' -> 'REJECT'
-        //  tbl_order.COMMENT - 사유 입력
-        //  tbl_order.MEMBER_CODE - 반려자(담당자) 코드 추가
+        //  tbl_order.APPROVAL_STATUS           - 'UNCONFIRMED' -> 'REJECTED'
+        //  tbl_order.DRAFTER_APPROVED          - 'NONE' -> 'REJECT'
+        //  tbl_order.COMMENT                   - 사유 입력
+        //  tbl_order.MEMBER_CODE               - 반려자(담당자) 코드 추가
         //  - 주문 상태 내역 테이블 수정:
-        //  tbl_order_status_history.status - 'REQUESTED' -> 'REJECTED'
+        //  tbl_order_status_history.status     - 'REQUESTED' -> 'REJECTED'
         //  tbl_order_status_history.CREATED_AT
         //  - 주문 별 상품 테이블 수정:
-        //  tbl_order_item.available - 'AVAILABLE' -> 'UNAVAILABLE'
+        //  tbl_order_item.available            - 'AVAILABLE' -> 'UNAVAILABLE'
+
+        String reason = drafterRejectOrderRequestDTO.getReason();
+        int drafterMemberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
     }
 
     // 주문 상태 변화

@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.order.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +19,14 @@ public class HQOrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping("/request/{orderCode}/reject")
+    @PostMapping("/reject/{orderCode}/reject")
     public ResponseEntity<ResponseMessage<Object>> drafterReject(
             @PathVariable("orderCode") Integer orderCode,
-            @RequestAttribute("loginId") String loginId
+            @RequestAttribute("loginId") String loginId,
+            @RequestBody DrafterRejectOrderRequestDTO rejectOrderRequestDTO
     ) {
 
-        orderService.rejectOrderByDrafter(orderCode, loginId);
+        orderService.rejectOrderByDrafter(orderCode, rejectOrderRequestDTO, loginId);
 
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "order request successfully rejected", null)

@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.order.command.application.service;
 
+import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderItemDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
@@ -15,9 +16,12 @@ public interface OrderService {
     );
 
     // 주문별 품목 생성
-    void addItemsPerOrder(int orderCode, List<OrderItemDTO> orderRequestRequestDTO);
+    void addItemsPerOrder(int orderCode,
+                          List<OrderItemDTO> orderRequestRequestDTO);
 
     void cancelOrderRequest(Integer orderCode);
 
-    void rejectOrderByDrafter(int orderCode, String loginId);
+    void rejectOrderByDrafter(int orderCode,
+                              DrafterRejectOrderRequestDTO drafterRejectOrderRequestDTO,
+                              String loginId);
 }
