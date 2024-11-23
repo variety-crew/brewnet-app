@@ -15,4 +15,5 @@ public interface MemberService {
     Page<OrderPrintDTO> findSealHistory(Pageable page, String startDate, String endDate);
 
     FranchiseDTO getFranchiseInfoByLoginId(String loginId);
+    MemberDTO getMemberByLoginId(String loginId);
 }

@@ -108,6 +108,8 @@ public class MemberServiceImpl implements MemberService {
 
     }
 
+    @Override
+    @Transactional
     public FranchiseDTO getFranchiseInfoByLoginId(String loginId) {
         FranchiseDTO franchiseDTO = memberMapper.getFranchiseInfoBy(loginId);
         if (franchiseDTO == null) {
@@ -115,5 +117,11 @@ public class MemberServiceImpl implements MemberService {
         } else {
             return franchiseDTO;
         }
+    }
+
+    @Override
+    @Transactional
+    public MemberDTO getMemberByLoginId(String loginId) {
+        return memberMapper.selectMember(loginId);
     }
 }

@@ -18,4 +18,6 @@ public interface OrderService {
     void addItemsPerOrder(int orderCode, List<OrderItemDTO> orderRequestRequestDTO);
 
     void cancelOrderRequest(Integer orderCode);
+
+    void rejectOrderByDrafter(int orderCode, String loginId);
 }

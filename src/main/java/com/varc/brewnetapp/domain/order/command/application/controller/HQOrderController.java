@@ -18,10 +18,13 @@ public class HQOrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping("/reject/request/{orderCode}")
-    public ResponseEntity<ResponseMessage<Object>> drafterReject(@PathVariable("orderCode") String orderCode) {
+    @PostMapping("/request/{orderCode}/reject")
+    public ResponseEntity<ResponseMessage<Object>> drafterReject(
+            @PathVariable("orderCode") Integer orderCode,
+            @RequestAttribute("loginId") String loginId
+    ) {
 
-//        orderService.rejectOrderByDrafter(orderCode);
+        orderService.rejectOrderByDrafter(orderCode, loginId);
 
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "order request successfully rejected", null)

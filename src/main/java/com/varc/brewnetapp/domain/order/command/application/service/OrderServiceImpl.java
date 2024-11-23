@@ -5,6 +5,7 @@ import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.common.domain.order.OrderHistoryStatus;
 import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
+import com.varc.brewnetapp.domain.member.query.service.MemberServiceImpl;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderItemDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
@@ -31,18 +32,20 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
+    private final MemberServiceImpl queryMemberService;
 
     @Autowired
     public OrderServiceImpl(
             MemberService memberService,
             OrderRepository orderRepository,
             OrderStatusHistoryRepository orderStatusHistoryRepository,
-            OrderItemRepository orderItemRepository
-    ) {
+            OrderItemRepository orderItemRepository,
+            MemberServiceImpl queryMemberService) {
         this.memberService = memberService;
         this.orderRepository = orderRepository;
         this.orderStatusHistoryRepository = orderStatusHistoryRepository;
         this.orderItemRepository = orderItemRepository;
+        this.queryMemberService = queryMemberService;
     }
 
     // 가맹점의 주문요청
@@ -117,6 +120,25 @@ public class OrderServiceImpl implements OrderService {
 
         updateOrderStatusTo(orderCode, OrderHistoryStatus.CANCELED);
         log.debug("order history updated: {}", orderStatusHistoryRepository);
+    }
+
+    @Transactional
+    public void rejectOrderByDrafter(int orderCode, String loginId) {
+
+        // 기안자 찿기
+        int drafterMemberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
+
+        // TODO: 가맹점의 주문 요청 반려
+        //  - 주문 테이블에서 데이터 수정:
+        //  tbl_order.APPROVAL_STATUS - 'UNCONFIRMED' -> 'REJECTED'
+        //  tbl_order.DRAFTER_APPROVED - 'NONE' -> 'REJECT'
+        //  tbl_order.COMMENT - 사유 입력
+        //  tbl_order.MEMBER_CODE - 반려자(담당자) 코드 추가
+        //  - 주문 상태 내역 테이블 수정:
+        //  tbl_order_status_history.status - 'REQUESTED' -> 'REJECTED'
+        //  tbl_order_status_history.CREATED_AT
+        //  - 주문 별 상품 테이블 수정:
+        //  tbl_order_item.available - 'AVAILABLE' -> 'UNAVAILABLE'
     }
 
     // 주문 상태 변화
