@@ -1,6 +1,5 @@
 package com.varc.brewnetapp.domain.delivery.command.application.service;
 
-import com.varc.brewnetapp.common.domain.order.OrderHistoryStatus;
 import com.varc.brewnetapp.domain.delivery.command.application.dto.CreateDeliveryStatusRequestDTO;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.DeliveryKind;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.DeliveryStatus;
@@ -12,8 +11,6 @@ import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.Deliv
 import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryExchangeStatusHistoryRepository;
 import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryOrderStatusHistoryRepository;
 import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryReturnStatusHistoryRepository;
-import com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.OrderStatusHistory;
-import com.varc.brewnetapp.domain.order.command.domain.repository.OrderStatusHistoryRepository;
 import com.varc.brewnetapp.exception.DuplicateException;
 import com.varc.brewnetapp.exception.InvalidDataException;
 import java.time.LocalDateTime;
@@ -47,8 +44,11 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED)))
                 status = DeliveryOrderStatusHistory.OrderStatus.SHIPPED;
-            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING)))
+            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING))){
                 status = DeliveryOrderStatusHistory.OrderStatus.SHIPPING;
+
+                // 출고 예정 재고 감소
+            }
             else 
                 throw new InvalidDataException("잘못된 상태값을 입력하셨습니다");
 
@@ -72,8 +72,11 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             ExchangeStatus status = null;
 
-            if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED)))
+            if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED))){
                 status = ExchangeStatus.SHIPPED;
+                
+                // 출고 예정 재고 감소
+            }
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING)))
                 status = ExchangeStatus.SHIPPING;
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKED)))
