@@ -65,7 +65,8 @@ public class HQOrderQueryController {
     }
 
     @GetMapping("/detail/{orderCode}")
-    @Operation(summary = "주문 코드를 path variable로 활용한 주문 상세 조회")
+    @Operation(summary = "주문 코드를 path variable로 활용한 주문 상세 조회" +
+            "cf: doneDate는 orderStatus가 생성된 날짜이며, 가장 최신의 orderStatus만 가져온다.")
     public ResponseEntity<ResponseMessage<OrderDetailForHQDTO>> getOrderInformation(
             @PathVariable("orderCode") Integer orderCode) {
         OrderDetailForHQDTO orderDetailDTO = orderQueryService.getOrderDetailForHqBy(orderCode);
