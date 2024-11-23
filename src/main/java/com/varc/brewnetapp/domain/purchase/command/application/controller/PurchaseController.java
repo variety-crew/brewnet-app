@@ -68,11 +68,11 @@ public class PurchaseController {
 
     @PutMapping("/in-stock")
     @Operation(summary = "발주 상품 입고 처리 API (입고예정재고 -> 가용재고)")
-    public ResponseEntity<ResponseMessage<Object>> changeInStockToAvailable(@RequestAttribute("loginId") String loginId,
-                                                                            @RequestParam int itemCode,
-                                                                            @RequestParam int purchaseCode) {
+    public ResponseEntity<ResponseMessage<Object>> changeInStockToAvailable(
+                                                        @RequestAttribute("loginId") String loginId,
+                                                        @RequestBody ChangeInStockToAvailableRequestDTO bringIn) {
 
-        purchaseService.changeInStockToAvailable(loginId, itemCode, purchaseCode);
+        purchaseService.changeInStockToAvailable(loginId, bringIn);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "발주한 상품 입고 처리 성공", null));
     }

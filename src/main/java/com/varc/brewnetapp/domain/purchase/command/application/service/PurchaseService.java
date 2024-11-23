@@ -12,7 +12,7 @@ public interface PurchaseService {
 
     void rejectLetterOfPurchase(String loginId, int letterOfPurchaseCode, PurchaseApprovalRequestDTO request);
 
-    void changeInStockToAvailable(String loginId, int itemCode, int purchaseCode);
+    void changeInStockToAvailable(String loginId, ChangeInStockToAvailableRequestDTO bringIn);
 
     PurchasePrintResponseDTO exportPurchasePrint(String loginId,
                                                  int letterOfPurchaseCode,
