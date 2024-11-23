@@ -1,9 +1,6 @@
 package com.varc.brewnetapp.domain.order.query.mapper;
 
-import com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO;
-import com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderDetailForHQDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory;
+import com.varc.brewnetapp.domain.order.query.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -59,5 +56,6 @@ public interface OrderMapper {
             @Param("filter") String filter,
             @Param("franchiseCode") int franchiseCode
     );
+    OrderDetailForFranchiseDTO findOrderDetailForFranchiseBy(int orderCode);
 
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.varc.brewnetapp.domain.order.query.mapper.OrderValidateMapper">
+    <select id="checkIsOrderFrom" resultType="boolean">
+        SELECT
+               CASE WHEN COUNT(*) > 0 THEN true ELSE false END
+          FROM tbl_order o
+         WHERE o.order_code = #{orderCode}
+               AND
+               o.franchise_code = #{franchiseCode}
+    </select>
+</mapper>

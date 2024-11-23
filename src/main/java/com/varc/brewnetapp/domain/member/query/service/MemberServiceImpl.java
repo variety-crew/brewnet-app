@@ -2,14 +2,12 @@ package com.varc.brewnetapp.domain.member.query.service;
 
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
-import com.varc.brewnetapp.domain.member.query.dto.CompanyDTO;
-import com.varc.brewnetapp.domain.member.query.dto.MemberDTO;
-import com.varc.brewnetapp.domain.member.query.dto.OrderPrintDTO;
-import com.varc.brewnetapp.domain.member.query.dto.SealDTO;
+import com.varc.brewnetapp.domain.member.query.dto.*;
 import com.varc.brewnetapp.domain.member.query.mapper.MemberMapper;
 import com.varc.brewnetapp.exception.EmptyDataException;
 import com.varc.brewnetapp.exception.InvalidDataException;
 import com.varc.brewnetapp.exception.MemberNotFoundException;
+import com.varc.brewnetapp.exception.MemberNotInFranchiseException;
 import com.varc.brewnetapp.security.utility.JwtUtil;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -110,5 +108,12 @@ public class MemberServiceImpl implements MemberService {
 
     }
 
-
+    public FranchiseDTO getFranchiseInfoByLoginId(String loginId) {
+        FranchiseDTO franchiseDTO = memberMapper.getFranchiseInfoBy(loginId);
+        if (franchiseDTO == null) {
+            throw new MemberNotInFranchiseException("id: " + loginId + " is not a member of franchises");
+        } else {
+            return franchiseDTO;
+        }
+    }
 }
