@@ -1,5 +1,7 @@
 package com.varc.brewnetapp.domain.document.command.application.dto;
 
+import com.varc.brewnetapp.domain.document.command.domain.aggregate.ApprovalKind;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.PositionName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +15,7 @@ import lombok.ToString;
 @ToString
 public class ApproverRequestDTO {
 
-    private String positionName;
-    private String kind;
+    private PositionName positionName;
+    private ApprovalKind kind;
     private Integer seq;
 }

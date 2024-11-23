@@ -3,7 +3,7 @@ package com.varc.brewnetapp.domain.order.command.application.service;
 import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
 import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.common.domain.order.OrderHistoryStatus;
-import com.varc.brewnetapp.common.domain.order.OrderStatus;
+import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderItemDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
@@ -55,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
                         .createdAt(LocalDateTime.now())
                         .active(true)
                         .drafterApproved(DrafterApproved.NONE)
-                        .approvalStatus(OrderStatus.UNCONFIRMED)
+                        .approvalStatus(OrderApprovalStatus.UNCONFIRMED)
                         .sumPrice(orderedSum)
                         .franchiseCode(requestFranchiseCode)
                         .build()

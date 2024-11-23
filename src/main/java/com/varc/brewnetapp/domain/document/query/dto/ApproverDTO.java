@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.document.query.dto;
 
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.PositionName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,5 +13,5 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class ApproverDTO {
-    private String positionName;
+    private PositionName positionName;
 }

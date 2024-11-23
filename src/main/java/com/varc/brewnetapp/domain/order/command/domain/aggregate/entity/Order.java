@@ -1,7 +1,7 @@
 package com.varc.brewnetapp.domain.order.command.domain.aggregate.entity;
 
 import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
-import com.varc.brewnetapp.common.domain.order.OrderStatus;
+import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,7 +30,7 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "approval_status", nullable = false)
-    private OrderStatus approvalStatus;
+    private OrderApprovalStatus approvalStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "drafter_approved", nullable = false)

@@ -1,10 +1,17 @@
 package com.varc.brewnetapp.domain.purchase.command.application.service;
 
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
+import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
+import com.varc.brewnetapp.domain.member.command.domain.repository.PositionRepository;
 import com.varc.brewnetapp.domain.purchase.command.application.dto.*;
 import com.varc.brewnetapp.domain.purchase.command.domain.aggregate.*;
 import com.varc.brewnetapp.domain.purchase.command.domain.repository.*;
 import com.varc.brewnetapp.domain.purchase.common.IsApproved;
 import com.varc.brewnetapp.domain.purchase.common.Status;
+import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
+import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Storage;
+import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
+import com.varc.brewnetapp.domain.storage.command.domain.repository.StorageRepository;
 import com.varc.brewnetapp.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -23,7 +30,6 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     private final ModelMapper modelMapper;
     private final LetterOfPurchaseRepository letterOfPurchaseRepository;
-    private final PurchaseMemberRepository purchaseMemberRepository;
     private final PurchaseStatusHistoryRepository purchaseStatusHistoryRepository;
     private final StockRepository stockRepository;
     private final CorrespondentRepository correspondentRepository;
@@ -31,17 +37,16 @@ public class PurchaseServiceImpl implements PurchaseService {
     private final PurchaseItemRepository purchaseItemRepository;
     private final CorrespondentItemRepository correspondentItemRepository;
     private final LetterOfPurchaseItemRepository letterOfPurchaseItemRepository;
-    private final PurchaseApprovalRepository purchaseApprovalRepository;
     private final LetterOfPurchaseApproverRepository letterOfPurchaseApproverRepository;
-    private final PurchasePositionRepository purchasePositionRepository;
     private final PurchaseSealRepository purchaseSealRepository;
     private final PurchasePrintRepository purchasePrintRepository;
     private final CompanyTempRepository companyTempRepository;
+    private final MemberRepository memberRepository;
+    private final PurchasePositionRepository purchasePositionRepository;
 
     @Autowired
     public PurchaseServiceImpl(ModelMapper modelMapper,
                                LetterOfPurchaseRepository letterOfPurchaseRepository,
-                               PurchaseMemberRepository purchaseMemberRepository,
                                PurchaseStatusHistoryRepository purchaseStatusHistoryRepository,
                                StockRepository stockRepository,
                                CorrespondentRepository correspondentRepository,
@@ -49,15 +54,13 @@ public class PurchaseServiceImpl implements PurchaseService {
                                PurchaseItemRepository purchaseItemRepository,
                                CorrespondentItemRepository correspondentItemRepository,
                                LetterOfPurchaseItemRepository letterOfPurchaseItemRepository,
-                               PurchaseApprovalRepository purchaseApprovalRepository,
                                LetterOfPurchaseApproverRepository letterOfPurchaseApproverRepository,
-                               PurchasePositionRepository purchasePositionRepository,
                                PurchaseSealRepository purchaseSealRepository,
                                PurchasePrintRepository purchasePrintRepository,
-                               CompanyTempRepository companyTempRepository) {
+                               CompanyTempRepository companyTempRepository,
+                               MemberRepository memberRepository, PositionRepository positionRepository, PurchasePositionRepository purchasePositionRepository) {
         this.modelMapper = modelMapper;
         this.letterOfPurchaseRepository = letterOfPurchaseRepository;
-        this.purchaseMemberRepository = purchaseMemberRepository;
         this.purchaseStatusHistoryRepository = purchaseStatusHistoryRepository;
         this.stockRepository = stockRepository;
         this.correspondentRepository = correspondentRepository;
@@ -65,20 +68,21 @@ public class PurchaseServiceImpl implements PurchaseService {
         this.purchaseItemRepository = purchaseItemRepository;
         this.correspondentItemRepository = correspondentItemRepository;
         this.letterOfPurchaseItemRepository = letterOfPurchaseItemRepository;
-        this.purchaseApprovalRepository = purchaseApprovalRepository;
         this.letterOfPurchaseApproverRepository = letterOfPurchaseApproverRepository;
-        this.purchasePositionRepository = purchasePositionRepository;
         this.purchaseSealRepository = purchaseSealRepository;
         this.purchasePrintRepository = purchasePrintRepository;
         this.companyTempRepository = companyTempRepository;
+        this.memberRepository = memberRepository;
+        this.purchasePositionRepository = purchasePositionRepository;
     }
 
     @Transactional
     @Override
-    public void createLetterOfPurchase(PurchaseRequestDTO newPurchase) {
+    public Integer createLetterOfPurchase(String loginId, PurchaseRequestDTO newPurchase) {
+
         LetterOfPurchase letterOfPurchase = modelMapper.map(newPurchase, LetterOfPurchase.class);
 
-        PurchaseMember member = purchaseMemberRepository.findById(newPurchase.getMemberCode())
+        Member member = memberRepository.findById(loginId)
                 .orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
 
         Correspondent correspondent = correspondentRepository.findById(newPurchase.getCorrespondentCode())
@@ -125,7 +129,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         savedPurchase.setSumPrice(totalPrice);
 
         // 해당 구매품의서의 결재자 설정
-        PurchaseMember approver = purchaseMemberRepository.findById(newPurchase.getApproverCode())
+        Member approver = memberRepository.findById(newPurchase.getApproverCode())
                                     .orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
         LetterOfPurchaseApprover purchaseApprover = new LetterOfPurchaseApprover();
         purchaseApprover.setMemberCode(approver.getMemberCode());
@@ -143,13 +147,24 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchaseStatusHistory.setActive(true);
         purchaseStatusHistory.setLetterOfPurchase(savedPurchase);
         purchaseStatusHistoryRepository.save(purchaseStatusHistory);
+
+        // 새로 등록된 구매품의서의 구매품의서 코드 반환
+        return savedPurchase.getLetterOfPurchaseCode();
     }
 
     @Transactional
     @Override
-    public void cancelLetterOfPurchase(int letterOfPurchaseCode) {
+    public void cancelLetterOfPurchase(String loginId, int letterOfPurchaseCode) {
+
         LetterOfPurchase purchase = letterOfPurchaseRepository.findById(letterOfPurchaseCode)
                                     .orElseThrow(() -> new PurchaseNotFoundException("존재하지 않는 구매품의서입니다."));
+
+        Member member = memberRepository.findById(loginId)
+                .orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
+
+        // 로그인한 사용자가 기안자가 아니면 결재 요청 취소 불가
+        if (!member.getMemberCode().equals(purchase.getMember().getMemberCode()))
+            throw new AccessDeniedException("기안자가 아니면 결재 요청을 취소할 수 없습니다.");
 
         // 결재 처리 전까지만 결재 요청 취소 가능
         if (!purchase.getApproved().equals(IsApproved.UNCONFIRMED)) {
@@ -170,22 +185,24 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional
     @Override
-    public void approveLetterOfPurchase(int letterOfPurchaseCode, PurchaseApprovalRequestDTO request) {
+    public void approveLetterOfPurchase(String loginId, int letterOfPurchaseCode, PurchaseApprovalRequestDTO request) {
+
         LetterOfPurchase requestedPurchase = letterOfPurchaseRepository.findById(letterOfPurchaseCode)
                                     .orElseThrow(() -> new PurchaseNotFoundException("존재하지 않는 구매품의서입니다."));
 
         LetterOfPurchaseApprover approver = letterOfPurchaseApproverRepository
                                             .findByLetterOfPurchaseCode(letterOfPurchaseCode);
 
+        Member member = memberRepository.findById(loginId)
+                .orElseThrow(()-> new MemberNotFoundException("존재하지 않는 회원입니다."));
+
         // 결재자가 맞는지 체크
-        if (request.getApproverCode() != (approver.getMemberCode())) {
+        if (!member.getMemberCode().equals(approver.getMemberCode()))
             throw new InvalidDataException("해당 구매품의서의 결재자가 아닙니다.");
-        }
 
         // 아직 결재 전인 내역이 맞는지 체크
-        if (!requestedPurchase.getApproved().equals(IsApproved.UNCONFIRMED)) {
+        if (!requestedPurchase.getApproved().equals(IsApproved.UNCONFIRMED))
             throw new InvalidDataException("이미 결재 처리가 완료된 구매품의서입니다.");
-        }
 
         // 결재 관련 정보 업데이트
         approver.setApproved(IsApproved.APPROVED);
@@ -215,22 +232,24 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional
     @Override
-    public void rejectLetterOfPurchase(int letterOfPurchaseCode, PurchaseApprovalRequestDTO request) {
+    public void rejectLetterOfPurchase(String loginId, int letterOfPurchaseCode, PurchaseApprovalRequestDTO request) {
+
         LetterOfPurchase requestedPurchase = letterOfPurchaseRepository.findById(letterOfPurchaseCode)
                                     .orElseThrow(() -> new PurchaseNotFoundException("존재하지 않는 구매품의서입니다."));
 
         LetterOfPurchaseApprover approver = letterOfPurchaseApproverRepository
                                             .findByLetterOfPurchaseCode(letterOfPurchaseCode);
 
+        Member member = memberRepository.findById(loginId)
+                .orElseThrow(()-> new MemberNotFoundException("존재하지 않는 회원입니다."));
+
         // 결재자가 맞는지 체크
-        if (request.getApproverCode() != (approver.getMemberCode())) {
+        if (member.getMemberCode().equals(approver.getMemberCode()))
             throw new InvalidDataException("해당 구매품의서의 결재자가 아닙니다.");
-        }
 
         // 아직 결재 전인 내역이 맞는지 체크
-        if (!requestedPurchase.getApproved().equals(IsApproved.UNCONFIRMED)) {
+        if (!requestedPurchase.getApproved().equals(IsApproved.UNCONFIRMED))
             throw new InvalidDataException("이미 결재 처리가 완료된 구매품의서입니다.");
-        }
 
         // 결재 관련 정보 업데이트
         approver.setApproved(IsApproved.REJECTED);
@@ -249,7 +268,8 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional
     @Override
-    public void changeInStockToAvailable(int itemCode, int purchaseCode) {
+    public void changeInStockToAvailable(String loginId, int itemCode, int purchaseCode) {
+
         LetterOfPurchase approvedPurchase = letterOfPurchaseRepository
                                             .findByLetterOfPurchaseCodeAndActiveTrue(purchaseCode);
 
@@ -286,7 +306,8 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional
     @Override
-    public PurchasePrintResponseDTO exportPurchasePrint(int letterOfPurchaseCode,
+    public PurchasePrintResponseDTO exportPurchasePrint(String loginId,
+                                                        int letterOfPurchaseCode,
                                                         ExportPurchasePrintRequestDTO printRequest) {
 
         LetterOfPurchase letterOfPurchase = letterOfPurchaseRepository
@@ -300,8 +321,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new InvalidDataException("결재 승인되지 않은 발주서입니다.");
         }
 
-        PurchaseMember member = purchaseMemberRepository.findById(printRequest.getMemberCode())
-                                .orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
+        Member member = memberRepository.findById(loginId)
+                .orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
 
         // 외부용 발주서 출력 내역 먼저 저장
         PurchasePrint purchasePrint = new PurchasePrint();
@@ -320,9 +341,12 @@ public class PurchaseServiceImpl implements PurchaseService {
         Correspondent correspondent = letterOfPurchase.getCorrespondent();
         Storage storage = letterOfPurchase.getStorage();
 
+        PurchasePosition position = purchasePositionRepository.findById(member.getPositionCode())
+                .orElseThrow(() -> new PositionNotFoundException("존재하지 않는 직급입니다."));
+
         List<PurchasePrintItemDTO> printItems = new ArrayList<>();
         List<LetterOfPurchaseItem> purchaseItems = letterOfPurchaseItemRepository
-                                            .findByLetterOfPurchaseCode(letterOfPurchaseCode);
+                                                    .findByLetterOfPurchaseCode(letterOfPurchaseCode);
 
         // 발주서의 상품 목록 불러오기
         for (LetterOfPurchaseItem purchaseItem : purchaseItems) {
@@ -348,7 +372,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         printResponse.setCreatedAt((letterOfPurchase.getCreatedAt())
                                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         printResponse.setMemberName(letterOfPurchase.getMember().getName());
-        printResponse.setPositionName(letterOfPurchase.getMember().getPurchasePosition().getName());
+        printResponse.setPositionName(position.getName());
         printResponse.setCompanyName(company.getName());
         printResponse.setBusinessNumber(company.getBusinessNumber());
         printResponse.setCorporateNumber(company.getCorporateNumber());
@@ -370,8 +394,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional
     @Override
-    public PurchasePrintResponseDTO takeInHousePurchasePrint(int letterOfPurchaseCode,
-                                                             InHousePurchasePrintRequestDTO printRequest) {
+    public PurchasePrintResponseDTO takeInHousePurchasePrint(String loginId, int letterOfPurchaseCode) {
 
         LetterOfPurchase letterOfPurchase = letterOfPurchaseRepository
                                             .findByLetterOfPurchaseCodeAndActiveTrue(letterOfPurchaseCode);
@@ -385,8 +408,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
         // 존재하는 회원인지 체크
-        if (!purchaseMemberRepository.existsById(printRequest.getMemberCode()))
-            throw new MemberNotFoundException("존재하지 않는 회원입니다.");
+        Member member = memberRepository.findById(loginId)
+                .orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
 
         // 내부용 발주서로 변경되어 연결된 법인 인감 코드 제거
         letterOfPurchase.setSeal(null);
@@ -394,6 +417,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         CompanyTemp company = companyTempRepository.findTopByActiveTrueOrderByCompanyCodeDesc();
         Correspondent correspondent = letterOfPurchase.getCorrespondent();
         Storage storage = letterOfPurchase.getStorage();
+
+        PurchasePosition position = purchasePositionRepository.findById(member.getPositionCode())
+                .orElseThrow(() -> new PositionNotFoundException("존재하지 않는 직급입니다."));
 
         List<PurchasePrintItemDTO> printItems = new ArrayList<>();
         List<LetterOfPurchaseItem> purchaseItems = letterOfPurchaseItemRepository
@@ -423,7 +449,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         printResponse.setCreatedAt((letterOfPurchase.getCreatedAt())
                                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         printResponse.setMemberName(letterOfPurchase.getMember().getName());
-        printResponse.setPositionName(letterOfPurchase.getMember().getPurchasePosition().getName());
+        printResponse.setPositionName(position.getName());
         printResponse.setCompanyName(company.getName());
         printResponse.setBusinessNumber(company.getBusinessNumber());
         printResponse.setCorporateNumber(company.getCorporateNumber());
@@ -445,7 +471,8 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional
     @Override
-    public void sendLetterOfPurchase(int letterOfPurchaseCode) {
+    public void sendLetterOfPurchase(String loginId, int letterOfPurchaseCode) {
+
         LetterOfPurchase letterOfPurchase = letterOfPurchaseRepository
                                             .findByLetterOfPurchaseCodeAndActiveTrue(letterOfPurchaseCode);
 

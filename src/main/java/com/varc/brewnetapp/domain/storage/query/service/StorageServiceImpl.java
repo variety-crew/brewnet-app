@@ -1,7 +1,9 @@
 package com.varc.brewnetapp.domain.storage.query.service;
 
 import com.varc.brewnetapp.domain.storage.common.PageResponse;
+import com.varc.brewnetapp.domain.storage.common.SearchItemStockCriteria;
 import com.varc.brewnetapp.domain.storage.common.SearchStorageCriteria;
+import com.varc.brewnetapp.domain.storage.query.dto.StockDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageDetailDTO;
 import com.varc.brewnetapp.domain.storage.query.dto.StorageNameDTO;
@@ -25,9 +27,11 @@ public class StorageServiceImpl implements StorageService {
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<List<StorageDTO>> selectStorage(String loginId, String storageName, int pageNumber, int pageSize) {
+    public PageResponse<List<StorageDTO>> selectStorage(
+                            String loginId, Integer storageCode, String storageName, int pageNumber, int pageSize) {
 
         SearchStorageCriteria criteria = new SearchStorageCriteria();
+        criteria.setStorageCode(storageCode);
         criteria.setStorageName(storageName);
         criteria.setPageNumber(pageNumber);
         criteria.setPageSize(pageSize);
@@ -63,5 +67,26 @@ public class StorageServiceImpl implements StorageService {
         if (storageNames == null) throw new StorageNotFoundException("창고가 존재하지 않습니다.");
 
         return storageNames;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PageResponse<List<StockDTO>> selectAllStock(
+                                String loginId, Integer storageCode, String itemName, int pageNumber, int pageSize) {
+
+        SearchItemStockCriteria criteria = new SearchItemStockCriteria();
+        criteria.setStorageCode(storageCode);
+        criteria.setItemName(itemName);
+        criteria.setPageNumber(pageNumber);
+        criteria.setPageSize(pageSize);
+
+        int offset = (pageNumber - 1) * pageSize;
+        criteria.setOffset(offset);
+
+        List<StockDTO> stockList = storageMapper.searchStockOfStorage(criteria);
+        int totalCount = storageMapper.getTotalStorageStockCount(criteria);
+        PageResponse<List<StockDTO>> response = new PageResponse<>(stockList, pageNumber, pageSize, totalCount);
+
+        return response;
     }
 }

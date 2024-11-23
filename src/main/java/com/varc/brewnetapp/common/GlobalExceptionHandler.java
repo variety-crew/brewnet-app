@@ -21,6 +21,7 @@ public class GlobalExceptionHandler {
             MemberNotFoundException.class,
             InvalidStatusException.class,
             InvalidApiRequestException.class,
+            InvalidConditionException.class,
             IllegalArgumentException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
@@ -30,7 +31,8 @@ public class GlobalExceptionHandler {
 
     // 401: 권한 없는 사용자
     @ExceptionHandler({
-            UnauthorizedAccessException.class
+            UnauthorizedAccessException.class,
+            AccessDeniedException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleUnAuthorizedException(Exception e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -41,6 +43,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             ExchangeNotFoundException.class,
             EmptyDataException.class,
+            ApprovalNotFoundException.class,
+            CorrespondentNotFoundException.class,
+            ItemNotFoundException.class,
+            OrderNotFound.class,
+            PositionNotFoundException.class,
+            PurchaseNotFoundException.class,
+            SealNotFoundException.class,
+            StorageNotFoundException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleNotFoundException(Exception e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

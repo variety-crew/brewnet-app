@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.purchase.command.domain.aggregate;
 
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,7 +33,7 @@ public class PurchasePrint {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_code", nullable = false)
-    private PurchaseMember member;
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "letter_of_purchase_code", nullable = false)

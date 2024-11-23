@@ -27,7 +27,8 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<List<LetterOfPurchaseDTO>> selectLettersOfPurchase(Integer purchaseCode,
+    public PageResponse<List<LetterOfPurchaseDTO>> selectLettersOfPurchase(String loginId,
+                                                                           Integer purchaseCode,
                                                                            String memberName,
                                                                            String correspondentName,
                                                                            String storageName,
@@ -65,7 +66,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional(readOnly = true)
     @Override
-    public LetterOfPurchaseDetailDTO selectOneLetterOfPurchase(int letterOfPurchaseCode) {
+    public LetterOfPurchaseDetailDTO selectOneLetterOfPurchase(String loginId, int letterOfPurchaseCode) {
 
         LetterOfPurchaseDetailDTO letterOfPurchase = purchaseMapper
                                                     .selectLetterOfPurchaseByPurchaseCode(letterOfPurchaseCode);
@@ -78,7 +79,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional(readOnly = true)
     @Override
-    public PurchaseApprovalLineDTO selectApprovalLineOfOnePurchase(int letterOfPurchaseCode) {
+    public PurchaseApprovalLineDTO selectApprovalLineOfOnePurchase(String loginId, int letterOfPurchaseCode) {
 
         LetterOfPurchaseDetailDTO purchase = purchaseMapper
                                             .selectLetterOfPurchaseByPurchaseCode(letterOfPurchaseCode);
@@ -94,7 +95,8 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItems(Integer itemUniqueCode,
+    public PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItems(String loginId,
+                                                                                   String itemUniqueCode,
                                                                                    String itemName,
                                                                                    String correspondentName,
                                                                                    String storageName,
@@ -132,7 +134,8 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItemUncheck(Integer itemUniqueCode,
+    public PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItemUncheck(String loginId,
+                                                                                         String itemUniqueCode,
                                                                                          String itemName,
                                                                                          String correspondentName,
                                                                                          String storageName,
@@ -169,7 +172,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     @Override
-    public List<PurchaseApproverMemberDTO> selectApproverList(KindOfApproval approvalLine) {
+    public List<PurchaseApproverMemberDTO> selectApproverList(String loginId, KindOfApproval approvalLine) {
 
         List<PurchaseApproverMemberDTO> approvers = purchaseMapper.selectApproversByKind(approvalLine);
         if (approvers == null) throw new ApprovalNotFoundException("존재하지 않는 결재라인입니다.");

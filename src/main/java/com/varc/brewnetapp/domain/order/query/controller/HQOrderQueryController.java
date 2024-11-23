@@ -2,8 +2,7 @@ package com.varc.brewnetapp.domain.order.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
 
-import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderResponseDTO;
+import com.varc.brewnetapp.domain.order.query.dto.*;
 import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -27,33 +26,32 @@ public class HQOrderQueryController {
         this.orderQueryService = orderQueryService;
     }
 
-    @GetMapping("health")
+    @GetMapping("/{orderCode}/history")
     @Operation(summary = "테스트 for 본사의 주문 조회")
-    public ResponseEntity<ResponseMessage<Page<OrderDTO>>> healthcheck(
+    public ResponseEntity<ResponseMessage<List<OrderStatusHistory>>> healthcheck(
+            @PathVariable("orderCode") Integer orderCode
+    ) {
+        List<OrderStatusHistory> orderHistoryList = orderQueryService.getOrderHistoryByOrderId(orderCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderHistoryList));
+    }
+
+    @GetMapping("/list")
+    @Operation(summary = "본사의 주문 리스트 조회")
+    public ResponseEntity<ResponseMessage<Page<HQOrderDTO>>> getOrderList(
             @PageableDefault(size = 10, page = 0) Pageable pageable,
             @RequestParam(name = "filter", required = false) String filter,
             @RequestParam(name = "sort", required = false) String sort,
-            @RequestAttribute(name = "loginId") String loginId
+            @RequestParam(name = "startDate", required = false) String startDate,
+            @RequestParam(name = "endDate", required = false) String endDate
     ) {
-        Page<OrderDTO> orderDTOList = orderQueryService.getOrderListForTest(
+        log.debug("startDate: {}", startDate);
+        log.debug("endDate: {}", endDate);
+        Page<HQOrderDTO> orderDTOList = orderQueryService.getOrderListForHQ(
                 pageable,
                 filter,
-                sort
-        );
-        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDTOList));
-    }
-
-    @GetMapping
-    @Operation(summary = "본사의 주문 리스트 조회")
-    public ResponseEntity<ResponseMessage<Page<OrderDTO>>> getOrderList(
-            @PageableDefault(size = 10, page = 0) Pageable pageable,
-            @RequestParam(name = "filter", required = false) String filter,
-            @RequestParam(name = "sort", required = false) String sort
-    ) {
-        Page<OrderDTO> orderDTOList = orderQueryService.getOrderListForHQ(
-                pageable,
-                filter,
-                sort
+                sort,
+                startDate,
+                endDate
         );
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDTOList));
     }
@@ -68,15 +66,28 @@ public class HQOrderQueryController {
 
     @GetMapping("/search")
     @Operation(summary = "주문 일자(기간) 별로 검색 타입(주문번호, 주문지점, 주문담당자)에 따른 검색")
-    public ResponseEntity<ResponseMessage<List<OrderResponseDTO>>> getOrderListByHqSearch() {
-        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", null));
+    public ResponseEntity<ResponseMessage<Page<HQOrderDTO>>> getOrderListByHqSearch(
+            @PageableDefault(size = 10, page = 0) Pageable pageable,
+            @RequestParam(name = "filter", required = false) String filter,
+            @RequestParam(name = "criteria", required = false) String criteria
+    ) {
+        Page<HQOrderDTO> orderDTOList = orderQueryService.searchOrderListForHQ(pageable, filter, criteria);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDTOList));
     }
 
-    @GetMapping("/{orderCode}")
+    @GetMapping("/detail/{orderCode}")
     @Operation(summary = "주문 코드를 path variable로 활용한 주문 상세 조회")
-    public ResponseEntity<ResponseMessage<OrderResponseDTO>> getOrderInformation(
-            @PathVariable("orderCode") String orderCode) {
-//        OrderResponseDTO orderResponseVO = orderService.getOrderDetailByHqWith(Integer.parseInt(orderCode));
-        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", null));
+    public ResponseEntity<ResponseMessage<OrderDetailForHQDTO>> getOrderInformation(
+            @PathVariable("orderCode") Integer orderCode) {
+        OrderDetailForHQDTO orderDetailDTO = orderQueryService.getOrderDetailForHqBy(orderCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDetailDTO));
+    }
+
+    @GetMapping("/detail/{orderCode}/print/order-request")
+    @Operation(summary = "주문 코드를 path variable로 활용한 주문요청서 출력데이터 조회")
+    public ResponseEntity<ResponseMessage<OrderRequestDTO>> printOrderRequest(
+            @PathVariable("orderCode") Integer orderCode) {
+        OrderRequestDTO printedRequestedOrder = orderQueryService.printOrderRequest(orderCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", printedRequestedOrder));
     }
 }

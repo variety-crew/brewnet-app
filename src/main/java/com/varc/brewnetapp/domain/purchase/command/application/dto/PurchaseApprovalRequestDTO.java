@@ -9,6 +9,5 @@ import lombok.*;
 @ToString
 public class PurchaseApprovalRequestDTO {
 
-    private int approverCode;
-    private String comment;
+    private String comment;     // 결재자 첨언
 }
