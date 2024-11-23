@@ -1,12 +1,15 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
+import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.query.dto.*;
 import com.varc.brewnetapp.domain.order.query.mapper.OrderMapper;
+import com.varc.brewnetapp.exception.NoAccessAuthoritiesException;
 import com.varc.brewnetapp.exception.OrderNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,9 +18,16 @@ import java.util.List;
 @Service
 public class OrderQueryServiceImpl implements OrderQueryService {
     private final OrderMapper orderMapper;
+    private final OrderValidateService orderValidateService;
+    private final MemberService memberService;
 
-    public OrderQueryServiceImpl(OrderMapper orderMapper) {
+
+    public OrderQueryServiceImpl(OrderMapper orderMapper,
+                                 OrderValidateService orderValidateService,
+                                 MemberService memberService) {
         this.orderMapper = orderMapper;
+        this.orderValidateService = orderValidateService;
+        this.memberService = memberService;
     }
 
     @Override
@@ -113,4 +123,23 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         return new PageImpl<>(franchiseOrderDTO, pageable, total);
     }
 
+    @Override
+    public OrderDetailForFranchiseDTO getOrderDetailForFranchiseBy(int orderCode, String loginId) {
+        int franchiseCode = getFranchiseCodeByLoginId(loginId);
+
+        boolean isOrderFromFranchise = orderValidateService.isOrderFromFranchise(
+                franchiseCode,
+                orderCode
+        );
+
+        if (isOrderFromFranchise) {
+            return orderMapper.findOrderDetailForFranchiseBy(orderCode);
+        } else {
+            throw new NoAccessAuthoritiesException("No Authorization for order " + orderCode + ", franchiseCode: " + franchiseCode);
+        }
+    }
+
+    private int getFranchiseCodeByLoginId(String loginId) {
+        return memberService.getFranchiseInfoByLoginId(loginId).getFranchiseCode();
+    }
 }
