@@ -13,5 +13,5 @@ public interface StorageService {
 
     void deleteStorage(String loginId, int storageCode);
 
-    void changeStock(String loginId, int storageCode, List<ChangeStockRequestDTO> changes);
+    void changeStock(String loginId, List<ChangeStockRequestDTO> changes);
 }

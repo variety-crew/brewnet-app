@@ -96,7 +96,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Transactional(readOnly = true)
     @Override
     public PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItems(String loginId,
-                                                                                   Integer itemUniqueCode,
+                                                                                   String itemUniqueCode,
                                                                                    String itemName,
                                                                                    String correspondentName,
                                                                                    String storageName,
@@ -135,7 +135,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Transactional(readOnly = true)
     @Override
     public PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItemUncheck(String loginId,
-                                                                                         Integer itemUniqueCode,
+                                                                                         String itemUniqueCode,
                                                                                          String itemName,
                                                                                          String correspondentName,
                                                                                          String storageName,

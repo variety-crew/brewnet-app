@@ -23,7 +23,7 @@ public interface PurchaseService {
     PurchaseApprovalLineDTO selectApprovalLineOfOnePurchase(String loginId, int letterOfPurchaseCode);
 
     PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItems(String loginId,
-                                                                            Integer itemUniqueCode,
+                                                                            String itemUniqueCode,
                                                                             String itemName,
                                                                             String correspondentName,
                                                                             String storageName,
@@ -33,7 +33,7 @@ public interface PurchaseService {
                                                                             int pageSize);
 
     PageResponse<List<ApprovedPurchaseItemDTO>> selectApprovedPurchaseItemUncheck(String loginId,
-                                                                                  Integer itemUniqueCode,
+                                                                                  String itemUniqueCode,
                                                                                   String itemName,
                                                                                   String correspondentName,
                                                                                   String storageName,

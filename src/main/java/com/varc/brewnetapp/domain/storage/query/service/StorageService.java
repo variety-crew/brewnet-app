@@ -10,12 +10,12 @@ import java.util.List;
 
 public interface StorageService {
 
-    PageResponse<List<StorageDTO>> selectStorage(String loginId, String storageName, int pageNumber, int pageSize);
+    PageResponse<List<StorageDTO>> selectStorage(String loginId, Integer storageCode, String storageName, int pageNumber, int pageSize);
 
     StorageDetailDTO selectOneStorage(String loginId, int storageCode);
 
     List<StorageNameDTO> selectStorageList(String loginId);
 
     PageResponse<List<StockDTO>> selectAllStock(
-                                    String loginId, int storageCode, String itemName, int pageNumber, int pageSize);
+                                    String loginId, Integer storageCode, String itemName, int pageNumber, int pageSize);
 }

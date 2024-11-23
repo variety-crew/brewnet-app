@@ -1,6 +1,6 @@
 package com.varc.brewnetapp.domain.order.query.mapper;
 
-import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,7 +15,7 @@ public interface OrderMapper {
 // 주문 금액 낮은 순
 
     // test
-    List<OrderDTO> findOrdersBy(
+    List<HQOrderDTO> findOrdersBy(
             @Param("filter") String filter,
             @Param("sort") String sort,
             @Param("size") int size,
@@ -23,25 +23,39 @@ public interface OrderMapper {
     );
 
     // common
-    int countOrders(
-            @Param("filter") String filter
-    );
+    List<OrderStatusHistory> findOrderHistoriesByOrderId(int orderId);
 
 
     // for HQ
-    List<OrderDTO> findOrdersForHQBy(
+    List<HQOrderDTO> findOrdersForHQBy(
             @Param("filter") String filter,
             @Param("sort") String sort,
             @Param("size") int size,
-            @Param("offset") int offset
+            @Param("offset") int offset,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate
     );
+    int countOrdersForHq(
+            @Param("filter") String filter
+    );
+    OrderDetailForHQDTO findOrderDetailForHqBy(int orderCode);
 
 
     // for FRANCHISE
-    List<OrderDTO> findOrdersForFranchise(
+    List<FranchiseOrderDTO> findOrdersForFranchise(
             @Param("filter") String filter,
             @Param("sort") String sort,
             @Param("size") int size,
-            @Param("offset") int offset
+            @Param("offset") int offset,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("franchiseCode") int franchiseCode
     );
+
+    int countOrdersForFranchise(
+            @Param("filter") String filter,
+            @Param("franchiseCode") int franchiseCode
+    );
+    OrderDetailForFranchiseDTO findOrderDetailForFranchiseBy(int orderCode);
+
 }

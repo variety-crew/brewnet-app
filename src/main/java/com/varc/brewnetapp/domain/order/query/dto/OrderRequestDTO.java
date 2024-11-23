@@ -7,6 +7,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class OrderFranchiseDTO {
-    private String franchiseName;
+public class OrderRequestDTO {
+    private String orderId;
 }

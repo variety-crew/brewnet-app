@@ -49,9 +49,17 @@
           FROM TBL_STORAGE S
         <where>
             S.ACTIVE = TRUE
-            <if test="storageName != null">
-                AND S.NAME LIKE CONCAT('%', #{storageName}, '%')
-            </if>
+            <choose>
+                <when test="storageCode != null">
+                    AND S.STORAGE_CODE = #{storageCode}
+                </when>
+                <when test="storageName != null">
+                    AND S.NAME LIKE CONCAT('%', #{storageName}, '%')
+                </when>
+                <otherwise>
+                    AND 1 = 1
+                </otherwise>
+            </choose>
         </where>
          ORDER BY S.STORAGE_CODE ASC
          LIMIT #{pageSize} OFFSET #{offset}
@@ -66,9 +74,17 @@
           FROM TBL_STORAGE S
         <where>
             S.ACTIVE = TRUE
-            <if test="storageName != null">
-                AND S.NAME LIKE CONCAT('%', #{storageName}, '%')
-            </if>
+            <choose>
+                <when test="storageCode != null">
+                    AND S.STORAGE_CODE = #{storageCode}
+                </when>
+                <when test="storageName != null">
+                    AND S.NAME LIKE CONCAT('%', #{storageName}, '%')
+                </when>
+                <otherwise>
+                    AND 1 = 1
+                </otherwise>
+            </choose>
         </where>
          ORDER BY S.STORAGE_CODE ASC
     </select>

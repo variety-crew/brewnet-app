@@ -3,7 +3,9 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.varc.brewnetapp.domain.order.query.mapper.OrderMapper">
-    <resultMap id="baseOrderList" type="com.varc.brewnetapp.domain.order.query.dto.OrderDTO">
+
+    <!-- resultMaps-->
+    <resultMap id="baseOrderList" type="com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO">
         <id property="orderCode" column="ORDER_CODE"/>
         <result property="comment" column="COMMENT"/>
         <result property="createdAt" column="CREATED_AT"/>
@@ -13,7 +15,127 @@
         <result property="sumPrice" column="SUM_PRICE"/>
     </resultMap>
 
-<!--    test-->
+    <resultMap id="orderHistoryList" type="com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory">
+        <id property="orderStatusHistoryCode" column="ORDER_CODE"/>
+        <result property="orderHistoryStatus" column="STATUS"/>
+        <result property="createdAt" column="CREATED_AT"/>
+    </resultMap>
+
+    <!-- HQ ResultMap-->
+    <resultMap id="OrderDetailForHQ" type="com.varc.brewnetapp.domain.order.query.dto.OrderDetailForHQDTO">
+        <id property="orderCode" column="ORDER_CODE"/>
+        <result property="createdAt" column="ORDER_CREATED_AT"/>
+        <result property="franchiseName" column="ORDER_FRANCHISE_NAME" />
+        <result property="comment" column="ORDER_COMMENT" />
+        <result property="managerName" column="ORDER_MANAGER_NAME"/>
+        <result property="sumPrice" column="ORDER_SUM_PRICE"/>
+
+        <!-- orderItems-->
+        <collection property="orderItemList"
+                    ofType="com.varc.brewnetapp.domain.order.query.dto.OrderItem"
+                    javaType="java.util.List"
+        >
+            <id property="itemCode" column="ORDER_ITEM_CODE"/>
+            <result property="quantity" column="ORDER_QUANTITY" />
+            <result property="partSum" column="ORDER_PART_SUM" />
+
+            <result property="name" column="ORDER_ITEM_NAME" />
+            <result property="categoryName" column="ORDER_SUB_CATEGORY_NAME" />
+        </collection>
+    </resultMap>
+
+    <!-- OrderList -->
+    <resultMap id="OrderDTOResultListForHQ" type="com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO">
+        <id property="orderCode" column="ORDER_CODE"/>
+        <result property="createdAt" column="ORDER_CREATED_AT"/>
+        <result property="active" column="ORDER_ACTIVE"/>
+        <result property="approvalStatus" column="ORDER_APPROVAL_STATUS"/>
+        <result property="drafterApproved" column="ORDER_DRAFTER_APPROVED"/>
+        <result property="sumPrice" column="ORDER_SUM_PRICE"/>
+        <result property="managerName" column="ORDER_MANAGER_NAME"/>
+
+        <!-- orderFranchise-->
+        <association property="orderFranchise"
+                     javaType="com.varc.brewnetapp.domain.order.query.dto.OrderFranchise">
+            <id property="franchiseCode" column="ORDER_FRANCHISE_CODE" />
+            <result property="franchiseName" column="ORDER_FRANCHISE_NAME" />
+        </association>
+
+        <!-- orderItems-->
+        <collection property="orderItemList"
+                    ofType="com.varc.brewnetapp.domain.order.query.dto.OrderItem"
+                    javaType="java.util.List"
+        >
+            <id property="itemCode" column="ORDER_ITEM_CODE"/>
+            <result property="quantity" column="ORDER_QUANTITY" />
+
+            <result property="name" column="ORDER_ITEM_NAME" />
+            <result property="categoryName" column="ORDER_SUB_CATEGORY_NAME" />
+        </collection>
+
+        <!-- orderStatusHistories-->
+        <collection property="orderStatusHistoryList"
+                    ofType="com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory"
+                    javaType="java.util.List"
+        >
+            <id property="orderStatusHistoryCode" column="ORDER_STATUS_HISTORY_CODE"/>
+            <result property="orderHistoryStatus" column="ORDER_HISTORY_STATUS" />
+            <result property="createdAt" column="HISTORY_CREATED_AT" />
+        </collection>
+    </resultMap>
+
+    <!-- franchise ResultMap-->
+    <resultMap id="OrderDTOResultListForFranchise" type="com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO">
+        <id property="orderCode" column="ORDER_CODE"/>
+        <result property="createdAt" column="ORDER_CREATED_AT"/>
+        <result property="sumPrice" column="ORDER_SUM_PRICE"/>
+
+        <!-- orderItems-->
+        <collection property="orderItemList"
+                    ofType="com.varc.brewnetapp.domain.order.query.dto.OrderItem"
+                    javaType="java.util.List"
+        >
+            <id property="itemCode" column="ORDER_ITEM_CODE"/>
+            <result property="quantity" column="ORDER_QUANTITY" />
+
+            <result property="name" column="ORDER_ITEM_NAME" />
+        </collection>
+
+        <!-- orderStatusHistories-->
+        <collection property="orderStatusHistoryList"
+                    ofType="com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory"
+                    javaType="java.util.List"
+        >
+            <id property="orderStatusHistoryCode" column="ORDER_STATUS_HISTORY_CODE"/>
+            <result property="orderHistoryStatus" column="ORDER_HISTORY_STATUS" />
+            <result property="createdAt" column="HISTORY_CREATED_AT" />
+        </collection>
+    </resultMap>
+
+    <resultMap id="OrderDetailForFranchise" type="com.varc.brewnetapp.domain.order.query.dto.OrderDetailForFranchiseDTO">
+        <id property="orderCode" column="ORDER_CODE"/>
+        <result property="createdAt" column="ORDER_CREATED_AT"/>
+        <result property="sumPrice" column="ORDER_SUM_PRICE"/>
+        <result property="orderStatus" column="ORDER_LATEST_STATUS"/>
+        <result property="doneDate" column="ORDER_LATEST_DATE"/>
+
+        <!-- orderItems-->
+        <collection property="orderItemList"
+                    ofType="com.varc.brewnetapp.domain.order.query.dto.OrderItem"
+                    javaType="java.util.List"
+        >
+            <id property="itemCode" column="ORDER_ITEM_CODE"/>
+            <result property="quantity" column="ORDER_QUANTITY" />
+            <result property="partSum" column="ORDER_PART_SUM" />
+
+            <result property="name" column="ORDER_ITEM_NAME" />
+        </collection>
+    </resultMap>
+
+
+
+    <!-- Queries-->
+    <!-- test-->
     <select id="findOrdersBy" resultMap="baseOrderList">
         SELECT
               O.ORDER_CODE
@@ -27,51 +149,220 @@
         ORDER BY CREATED_AT
     </select>
 
-<!--    common-->
-    <select id="countOrders" resultType="int">
+    <!-- common-->
+    <select id="countOrdersForHq" resultType="int">
         SELECT COUNT(*)
         FROM tbl_order O
         WHERE 1=1
+        AND O.ACTIVE = 1
         <if test="filter == 'UNCONFIRMED'">
             AND O.APPROVED = #{filter}
         </if>
     </select>
 
-<!--    for HQ-->
-    <select id="findOrdersForHQBy" resultMap="baseOrderList">
+    <select id="findOrderHistoriesByOrderId" resultMap="orderHistoryList">
         SELECT
-               O.ORDER_CODE
-             , O.COMMENT
-             , O.CREATED_AT
-             , O.ACTIVE
-             , O.APPROVAL_STATUS
-             , O.DRAFTER_APPROVED
-             , O.SUM_PRICE
-          FROM tbl_order O
-         WHERE O.ACTIVE = 1
-        <if test="filter == 'UNCONFIRMED'">
-           AND O.APPROVED = #{filter}
-        </if>
+               oh.ORDER_STATUS_HISTORY_CODE
+             , oh.STATUS
+             , oh.CREATED_AT
+          FROM tbl_order_status_history oh
+    </select>
 
+
+    <!-- for HQ-->
+    <select id="findOrdersForHQBy" resultMap="OrderDTOResultListForHQ">
+        SELECT
+               o.ORDER_CODE as ORDER_CODE
+             , o.CREATED_AT as ORDER_CREATED_AT
+             , o.ACTIVE as ORDER_ACTIVE
+             , o.APPROVAL_STATUS as ORDER_APPROVAL_STATUS
+             , o.DRAFTER_APPROVED as ORDER_DRAFTER_APPROVED
+             , o.SUM_PRICE as ORDER_SUM_PRICE
+             , m.NAME as ORDER_MANAGER_NAME
+             , f.FRANCHISE_CODE as ORDER_FRANCHISE_CODE
+             , f.FRANCHISE_NAME as ORDER_FRANCHISE_NAME
+             , oi.ITEM_CODE as ORDER_ITEM_CODE
+             , oi.QUANTITY as ORDER_QUANTITY
+             , i.NAME as ORDER_ITEM_NAME
+             , sc.NAME as ORDER_SUB_CATEGORY_NAME
+             , oh.ORDER_STATUS_HISTORY_CODE as ORDER_STATUS_HISTORY_CODE
+             , oh.STATUS as ORDER_HISTORY_STATUS
+             , oh.CREATED_AT as HISTORY_CREATED_AT
+          FROM (
+        SELECT
+               o.ORDER_CODE
+          FROM tbl_order o
+         WHERE o.ACTIVE = 1
+        <if test="filter == 'UNCONFIRMED'">
+            AND o.APPROVED = #{filter}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
         <choose>
             <when test="sort == 'createdAtDesc'">
-                ORDER BY O.CREATED_AT DESC
+                ORDER BY o.CREATED_AT DESC
             </when>
             <when test="sort == 'createdAtAsc'">
-                ORDER BY O.CREATED_AT ASC
+                ORDER BY o.CREATED_AT ASC
             </when>
             <when test="sort == 'sumPriceDesc'">
-                ORDER BY O.SUM_PRICE DESC
+                ORDER BY o.SUM_PRICE DESC
             </when>
             <when test="sort == 'sumPriceAsc'">
-                ORDER BY O.SUM_PRICE ASC
+                ORDER BY o.SUM_PRICE ASC
             </when>
             <otherwise>
+
                 <!-- 기본 정렬 -->
-                ORDER BY O.CREATED_AT DESC
+                ORDER BY o.CREATED_AT DESC
+            </otherwise>
+        </choose>
+         LIMIT #{size} OFFSET #{offset}
+        ) filtered_orders
+        LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
+        LEFT JOIN tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
+        LEFT JOIN tbl_member m ON o.MEMBER_CODE = m.MEMBER_CODE
+        LEFT JOIN tbl_order_status_history oh ON o.ORDER_CODE = oh.ORDER_CODE
+        LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
+        LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
+        LEFT JOIN tbl_sub_category sc ON i.CATEGORY_CODE = sc.SUB_CATEGORY_CODE
+    </select>
+
+    <!-- find order detail for HQ-->
+    <select id="findOrderDetailForHqBy" resultMap="OrderDetailForHQ">
+        SELECT
+               o.ORDER_CODE as ORDER_CODE
+             , o.CREATED_AT as ORDER_CREATED_AT
+             , f.FRANCHISE_NAME as ORDER_FRANCHISE_NAME
+             , o.COMMENT as ORDER_COMMENT
+             , m.NAME as ORDER_MANAGER_NAME
+             , o.SUM_PRICE as ORDER_SUM_PRICE
+
+             , oi.ITEM_CODE as ORDER_ITEM_CODE
+             , oi.QUANTITY as ORDER_QUANTITY
+             , oi.PART_SUM_PRICE as ORDER_PART_SUM
+             , i.NAME as ORDER_ITEM_NAME
+             , sc.NAME as ORDER_SUB_CATEGORY_NAME
+
+        FROM (
+        SELECT
+        o.ORDER_CODE as ORDER_CODE
+        FROM tbl_order o
+        WHERE o.ORDER_CODE = #{orderCode}) selected_order
+
+        LEFT JOIN tbl_order o ON selected_order.ORDER_CODE = o.ORDER_CODE
+        LEFT JOIN tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
+        LEFT JOIN tbl_member m ON o.MEMBER_CODE = m.MEMBER_CODE
+        LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
+        LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
+        LEFT JOIN tbl_sub_category sc ON i.CATEGORY_CODE = sc.SUB_CATEGORY_CODE
+    </select>
+
+    <!-- for Franchise-->
+    <select id="findOrdersForFranchise" resultMap="OrderDTOResultListForFranchise">
+        SELECT
+        o.ORDER_CODE as ORDER_CODE
+        , o.CREATED_AT as ORDER_CREATED_AT
+        , o.SUM_PRICE as ORDER_SUM_PRICE
+        , oi.ITEM_CODE as ORDER_ITEM_CODE
+        , oi.QUANTITY as ORDER_QUANTITY
+        , i.NAME as ORDER_ITEM_NAME
+        , oh.ORDER_STATUS_HISTORY_CODE as ORDER_STATUS_HISTORY_CODE
+        , oh.STATUS as ORDER_HISTORY_STATUS
+        , oh.CREATED_AT as HISTORY_CREATED_AT
+        FROM (
+        SELECT
+        o.ORDER_CODE
+        FROM tbl_order o
+        WHERE o.FRANCHISE_CODE = #{franchiseCode}
+          AND o.ACTIVE = 1
+        <if test="filter == 'SHIPPED'">
+            AND oh.STATUS = #{filter}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <choose>
+            <when test="sort == 'createdAtDesc'">
+                ORDER BY o.CREATED_AT DESC
+            </when>
+            <when test="sort == 'createdAtAsc'">
+                ORDER BY o.CREATED_AT ASC
+            </when>
+            <when test="sort == 'sumPriceDesc'">
+                ORDER BY o.SUM_PRICE DESC
+            </when>
+            <when test="sort == 'sumPriceAsc'">
+                ORDER BY o.SUM_PRICE ASC
+            </when>
+            <otherwise>
+
+                <!-- 기본 정렬 -->
+                ORDER BY o.CREATED_AT DESC
             </otherwise>
         </choose>
         LIMIT #{size} OFFSET #{offset}
+        ) filtered_orders
+        LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
+        LEFT JOIN tbl_order_status_history oh ON o.ORDER_CODE = oh.ORDER_CODE
+        LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
+        LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
     </select>
 
+    <select id="countOrdersForFranchise" resultType="int">
+        SELECT COUNT(*)
+        FROM tbl_order O
+        WHERE O.FRANCHISE_CODE = #{franchiseCode}
+        AND O.ACTIVE = 1
+        <if test="filter == 'UNCONFIRMED'">
+            AND O.APPROVED = #{filter}
+        </if>
+    </select>
+
+    <!-- find order detail for Franchise-->
+    <select id="findOrderDetailForFranchiseBy" resultMap="OrderDetailForFranchise">
+        SELECT
+               o.ORDER_CODE as ORDER_CODE
+             , o.CREATED_AT as ORDER_CREATED_AT
+             , o.SUM_PRICE as ORDER_SUM_PRICE
+
+             , oi.ITEM_CODE as ORDER_ITEM_CODE
+             , oi.QUANTITY as ORDER_QUANTITY
+             , oi.PART_SUM_PRICE as ORDER_PART_SUM
+             , i.NAME as ORDER_ITEM_NAME
+
+             , last_status.STATUS as ORDER_LATEST_STATUS
+             , last_status.CREATED_AT as ORDER_LATEST_DATE
+
+          FROM (
+                SELECT
+                o.ORDER_CODE as ORDER_CODE
+                FROM tbl_order o
+                WHERE o.ORDER_CODE = #{orderCode}
+               ) selected_order
+
+        LEFT JOIN tbl_order o ON selected_order.ORDER_CODE = o.ORDER_CODE
+        LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
+        LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
+
+        LEFT JOIN (SELECT
+                          h.ORDER_CODE
+                        , h.STATUS
+                        , h.CREATED_AT
+                     FROM tbl_order_status_history h
+                    WHERE (h.ORDER_CODE, h.CREATED_AT) IN (
+                                                  SELECT h1.ORDER_CODE, MAX(h1.CREATED_AT)
+                                                  FROM tbl_order_status_history h1
+                                                  GROUP BY h1.ORDER_CODE
+                                                 )
+                  ) last_status ON o.ORDER_CODE
+
+    </select>
 </mapper>
