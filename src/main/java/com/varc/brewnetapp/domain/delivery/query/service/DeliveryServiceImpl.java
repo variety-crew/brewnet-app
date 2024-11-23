@@ -46,11 +46,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(deliveryKind.equals(DeliveryKind.ORDER)){
             deliveryList = deliveryMapper.selectOrderDeliveryList(offset, pageSize);
             count = deliveryMapper.selectOrderDeliveryListCnt();
-
+            deliveryList.stream().forEach(deliveryDTO -> {
+                deliveryDTO.setDeliveryStatus("배송 시작");
+            });
         }
         else if(deliveryKind.equals(DeliveryKind.EXCHANGE) || deliveryKind.equals(DeliveryKind.RETURN)){
             deliveryList = deliveryMapper.selectPickUpDeliveryList(offset, pageSize);
             count = deliveryMapper.selectPickUpDeliveryListCnt();
+            deliveryList.stream().forEach(deliveryDTO -> {
+                if (deliveryDTO.getDeliveryStatus().equals("APPROVED"))
+                    deliveryDTO.setDeliveryStatus("회수 시작");
+                else if(deliveryDTO.getDeliveryStatus().equals("PICKED"))
+                    deliveryDTO.setDeliveryStatus("배송 시작");
+            });
         }
 
         if(deliveryList == null || deliveryList.size() == 0)

@@ -31,7 +31,8 @@ public class DeliveryController {
     @GetMapping("")
     @Operation(summary = "주문 배송 목록 조회. 배송 기사만 가능 / " 
         + "deliveryKind는 ORDER나 EXCHANGE, RETURN 값만 가능합니다 "
-        + "/ RETURN과 EXCHANGE는 각각의 배송 목록 결과가 합쳐져 response 됩니다")
+        + "/ RETURN과 EXCHANGE는 각각의 배송 목록 결과가 합쳐져 response 됩니다" 
+        + "/ Response로 드리는 값 중 deliveryStatus는 화면에 보이는 결재 코드입니다. 한국어로 변환해서 바로 드립니다")
     public ResponseEntity<ResponseMessage<Page<DeliveryDTO>>> findDeliveryList(@PageableDefault(page = 0, size = 10) Pageable page,
         @RequestParam DeliveryKind deliveryKind) {
 
