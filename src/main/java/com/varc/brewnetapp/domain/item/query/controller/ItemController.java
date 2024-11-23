@@ -29,7 +29,7 @@ public class ItemController {
     @GetMapping("")
     @Operation(summary = "상품 목록 조회 API / query param으로 page와 size를 키값으로 데이터 보내주시면 됩니다 "
         + "/ page는 0부터 시작 / itemName은 상품명. 필수는 X / itemCode는 상품 코드(String 값입니다). 필수는 X "
-        + "sort 값은 codeAsc, codeDESC, nameASC, nameDESC "
+        + "sort 값은 codeASC, codeDESC, nameASC, nameDESC "
         + "Response 중 itemCode는 DB 내부적인 식별자이고 itemUniqueCode가 화면상의 품목 코드입니다 /")
     public ResponseEntity<ResponseMessage<Page<ItemDTO>>> findMemberList(@PageableDefault(page = 0, size = 10) Pageable page,
         @RequestParam(name = "itemName", required = false) String itemName,
