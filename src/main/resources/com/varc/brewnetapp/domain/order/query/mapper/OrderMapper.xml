@@ -84,6 +84,16 @@
         </collection>
     </resultMap>
 
+    <resultMap id="OrderApprovalHistory" type="com.varc.brewnetapp.domain.order.query.dto.OrderApprovalHistoryDTO">
+        <id property="orderCode" column="ORDER_CODE"/>
+        <result property="approved" column="ORDER_APPROVED"/>
+        <result property="createdAt" column="ORDER_CREATED_AT"/>
+        <result property="comment" column="ORDER_COMMENT"/>
+
+        <result property="approverName" column="APPROVER_NAME"/>
+        <result property="position" column="APPROVER_POSITION"/>
+    </resultMap>
+
     <!-- franchise ResultMap-->
     <resultMap id="OrderDTOResultListForFranchise" type="com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO">
         <id property="orderCode" column="ORDER_CODE"/>
@@ -166,6 +176,7 @@
              , oh.STATUS
              , oh.CREATED_AT
           FROM tbl_order_status_history oh
+         WHERE oh.orderId = #{orderID}
     </select>
 
 
@@ -260,6 +271,25 @@
         LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
         LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
         LEFT JOIN tbl_sub_category sc ON i.CATEGORY_CODE = sc.SUB_CATEGORY_CODE
+    </select>
+
+    <!-- order approval histories-->
+    <select id="findOrderApprovalHistoriesBy" resultMap="OrderApprovalHistory">
+        SELECT
+               oa.ORDER_CODE as ORDER_CODE
+             , oa.APPROVED as ORDER_APPROVED
+             , oa.CREATED_AT as ORDER_CREATED_AT
+             , oa.COMMENT as ORDER_COMMENT
+
+             , m.NAME as APPROVER_NAME
+             , p.name as APPROVER_POSITION
+          FROM tbl_order_approver oa
+
+          LEFT JOIN tbl_member m ON m.MEMBER_CODE = oa.MEMBER_CODE
+          LEFT JOIN tbl_position p ON p.POSITION_CODE = m.POSITION_CODE
+
+         WHERE oa.ORDER_CODE = #{orderCode}
+           AND oa.ACTIVE = 1
     </select>
 
     <!-- for Franchise-->
@@ -362,7 +392,7 @@
                                                   FROM tbl_order_status_history h1
                                                   GROUP BY h1.ORDER_CODE
                                                  )
-                  ) last_status ON o.ORDER_CODE
+                  ) last_status ON o.ORDER_CODE = last_status.ORDER_CODE
 
     </select>
 </mapper>
