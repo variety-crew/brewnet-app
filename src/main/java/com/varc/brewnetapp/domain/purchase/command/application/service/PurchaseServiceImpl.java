@@ -268,10 +268,10 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional
     @Override
-    public void changeInStockToAvailable(String loginId, int itemCode, int purchaseCode) {
+    public void changeInStockToAvailable(String loginId, ChangeInStockToAvailableRequestDTO bringIn) {
 
         LetterOfPurchase approvedPurchase = letterOfPurchaseRepository
-                                            .findByLetterOfPurchaseCodeAndActiveTrue(purchaseCode);
+                                            .findByLetterOfPurchaseCodeAndActiveTrue(bringIn.getLetterOfPurchaseCode());
 
         // 해당 구매품의서가 정상적으로 결재 승인된 상태인지 체크
         if (approvedPurchase == null) {
@@ -281,8 +281,10 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new InvalidDataException("결재 승인되지 않은 구매품의서입니다.");
         }
 
+        // 해당 구매품의서의 상품인지 체크
         LetterOfPurchaseItem purchaseItem = letterOfPurchaseItemRepository
-                                            .findByLetterOfPurchaseCodeAndItemCode(purchaseCode, itemCode);
+                                            .findByLetterOfPurchaseCodeAndItemCode(bringIn.getLetterOfPurchaseCode(),
+                                                                                    bringIn.getItemCode());
 
         if (purchaseItem == null) throw new InvalidDataException("발주하지 않은 상품입니다.");
 

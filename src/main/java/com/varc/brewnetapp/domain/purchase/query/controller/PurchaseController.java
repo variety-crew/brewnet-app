@@ -74,7 +74,7 @@ public class PurchaseController {
             " 상품명, 거래처명, 창고명, 기간으로 검색 가능) - pageNumber의 default값은 1, pageSize의 default값은 10")
     public ResponseEntity<ResponseMessage<PageResponse<List<ApprovedPurchaseItemDTO>>>> selectApprovedPurchaseItems(
                                             @RequestAttribute("loginId") String loginId,
-                                            @RequestParam(required = false) Integer itemUniqueCode,
+                                            @RequestParam(required = false) String itemUniqueCode,
                                             @RequestParam(required = false) String itemName,
                                             @RequestParam(required = false) String correspondentName,
                                             @RequestParam(required = false) String storageName,
@@ -96,7 +96,7 @@ public class PurchaseController {
     public ResponseEntity<ResponseMessage<PageResponse<List<ApprovedPurchaseItemDTO>>>>
         selectApprovedPurchaseItemUncheck(
                                             @RequestAttribute("loginId") String loginId,
-                                            @RequestParam(required = false) Integer itemUniqueCode,
+                                            @RequestParam(required = false) String itemUniqueCode,
                                             @RequestParam(required = false) String itemName,
                                             @RequestParam(required = false) String correspondentName,
                                             @RequestParam(required = false) String storageName,
