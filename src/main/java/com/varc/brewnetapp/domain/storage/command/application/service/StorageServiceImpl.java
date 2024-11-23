@@ -117,18 +117,17 @@ public class StorageServiceImpl implements StorageService{
 
     @Transactional
     @Override
-    public void changeStock(String loginId, int storageCode, List<ChangeStockRequestDTO> changes) {
+    public void changeStock(String loginId, List<ChangeStockRequestDTO> changes) {
 
         // 로그인한 사용자 체크
         memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
 
-        // 창고 선택
-        Storage storage = storageRepository.findByStorageCodeAndActiveTrue(storageCode);
-        if (storage == null) throw new StorageNotFoundException("삭제되었거나 존재하지 않는 창고입니다.");
-
         for (ChangeStockRequestDTO change : changes) {
+            Storage storage = storageRepository.findByStorageCodeAndActiveTrue(change.getStorageCode());
+            if (storage == null) throw new StorageNotFoundException("삭제되었거나 존재하지 않는 창고입니다.");
+
             Stock itemStock = stockRepository
-                                .findByStorageCodeAndItemCode(storage.getStorageCode(), change.getItemCode());
+                                .findByStorageCodeAndItemCode(change.getStorageCode(), change.getItemCode());
 
             if (itemStock == null) throw new ItemNotFoundException("창고에 존재하지 않는 상품입니다.");
             if (!(itemStock.getActive()).equals(true)) throw new ItemNotFoundException("창고에서 삭제된 상품입니다.");

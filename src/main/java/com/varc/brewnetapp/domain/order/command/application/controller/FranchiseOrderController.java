@@ -24,11 +24,12 @@ public class FranchiseOrderController {
     // 주문 요청
     @PostMapping
     public ResponseEntity<ResponseMessage<OrderRequestResponseDTO>> franchiseOrder(
-            @RequestBody OrderRequestDTO orderRequestDTO
+            @RequestBody OrderRequestDTO orderRequestDTO,
+            @RequestAttribute("loginId") String loginId
     ) {
 
         // TODO: is member from target franchise
-        OrderRequestResponseDTO orderRequestResponse = orderService.orderRequestByFranchise(orderRequestDTO);
+        OrderRequestResponseDTO orderRequestResponse = orderService.orderRequestByFranchise(orderRequestDTO, loginId);
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "본사로의 주문요청이 완료됐습니다.", orderRequestResponse)
         );

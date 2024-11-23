@@ -1,9 +1,7 @@
 package com.varc.brewnetapp.domain.member.query.mapper;
 
-import com.varc.brewnetapp.domain.member.query.dto.CompanyDTO;
-import com.varc.brewnetapp.domain.member.query.dto.MemberDTO;
-import com.varc.brewnetapp.domain.member.query.dto.OrderPrintDTO;
-import com.varc.brewnetapp.domain.member.query.dto.SealDTO;
+import com.varc.brewnetapp.domain.member.query.dto.*;
+
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -24,4 +22,6 @@ public interface MemberMapper {
     int selectMemberListWhereSearchCnt(String search);
 
     int selectOrderPrintListWhereDateCnt(String startDate, String endDate);
+
+    FranchiseDTO getFranchiseInfoBy(String loginId);
 }

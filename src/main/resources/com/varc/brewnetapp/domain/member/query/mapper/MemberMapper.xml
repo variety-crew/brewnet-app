@@ -42,6 +42,11 @@
     <result property="letterOfPurchaseCode" column="LETTER_OF_PURCHASE_CODE"/>
   </resultMap>
 
+  <resultMap id="FranchiseInfo" type="com.varc.brewnetapp.domain.member.query.dto.FranchiseDTO">
+      <id property="franchiseCode" column="FRANCHISE_CODE"/>
+      <result property="franchiseName" column="FRANCHISE_NAME"/>
+  </resultMap>
+
   <select id="selectMemberList" resultMap="memberResultMap" parameterType="map">
     SELECT
            M.MEMBER_CODE,
@@ -156,6 +161,19 @@
     FROM tbl_order_print
     WHERE ACTIVE = TRUE
 
+  </select>
+
+  <select id="getFranchiseInfoBy" resultMap="FranchiseInfo">
+      SELECT
+             f.FRANCHISE_CODE
+           , f.FRANCHISE_NAME
+        FROM (SELECT
+              m.MEMBER_CODE
+              FROM tbl_member m
+              WHERE m.ID = #{loginID}) m
+        LEFT JOIN tbl_franchise_member fm ON m.MEMBER_CODE = fm.MEMBER_CODE
+        LEFT JOIN tbl_franchise f ON fm.FRANCHISE_CODE = f.FRANCHISE_CODE
+       WHERE f.ACTIVE = 1
   </select>
 
 </mapper>

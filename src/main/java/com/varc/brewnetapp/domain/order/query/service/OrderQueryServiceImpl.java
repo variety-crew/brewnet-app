@@ -1,13 +1,16 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
+import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.query.dto.*;
 import com.varc.brewnetapp.domain.order.query.mapper.OrderMapper;
+import com.varc.brewnetapp.exception.NoAccessAuthoritiesException;
 import com.varc.brewnetapp.exception.OrderNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,12 +18,20 @@ import java.util.List;
 @Service
 public class OrderQueryServiceImpl implements OrderQueryService {
     private final OrderMapper orderMapper;
+    private final OrderValidateService orderValidateService;
+    private final MemberService memberService;
 
-    public OrderQueryServiceImpl(OrderMapper orderMapper) {
+
+    public OrderQueryServiceImpl(OrderMapper orderMapper,
+                                 OrderValidateService orderValidateService,
+                                 MemberService memberService) {
         this.orderMapper = orderMapper;
+        this.orderValidateService = orderValidateService;
+        this.memberService = memberService;
     }
 
     @Override
+    @Transactional
     public Page<HQOrderDTO> getOrderListForTest(Pageable pageable, String filter, String sort) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
@@ -32,12 +43,14 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     // for common
     @Override
+    @Transactional
     public List<OrderStatusHistory> getOrderHistoryByOrderId(int orderId) {
         return orderMapper.findOrderHistoriesByOrderId(orderId);
     }
 
     // for HQ
     @Override
+    @Transactional
     public Page<HQOrderDTO> getOrderListForHQ(Pageable pageable, String filter, String sort, String startDate, String endDate) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
@@ -54,6 +67,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     }
 
     @Override
+    @Transactional
     public Page<HQOrderDTO> searchOrderListForHQ(Pageable pageable, String filter, String criteria) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
@@ -66,6 +80,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     }
 
     @Override
+    @Transactional
     public OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode) {
         OrderDetailForHQDTO orderDetail = orderMapper.findOrderDetailForHqBy(orderCode);
         if (orderDetail == null) {
@@ -87,6 +102,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     // for franchise
     @Override
+    @Transactional
     public Page<FranchiseOrderDTO> getOrderListForFranchise(
             Pageable pageable,
             String filter,
@@ -113,4 +129,25 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         return new PageImpl<>(franchiseOrderDTO, pageable, total);
     }
 
+    @Override
+    @Transactional
+    public OrderDetailForFranchiseDTO getOrderDetailForFranchiseBy(int orderCode, String loginId) {
+        int franchiseCode = getFranchiseCodeByLoginId(loginId);
+
+        boolean isOrderFromFranchise = orderValidateService.isOrderFromFranchise(
+                franchiseCode,
+                orderCode
+        );
+
+        if (isOrderFromFranchise) {
+            return orderMapper.findOrderDetailForFranchiseBy(orderCode);
+        } else {
+            throw new NoAccessAuthoritiesException("No Authorization for order " + orderCode + ", franchiseCode: " + franchiseCode);
+        }
+    }
+
+    @Transactional
+    public int getFranchiseCodeByLoginId(String loginId) {
+        return memberService.getFranchiseInfoByLoginId(loginId).getFranchiseCode();
+    }
 }

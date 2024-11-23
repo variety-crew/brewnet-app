@@ -12,6 +12,5 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class OrderRequestDTO {
-    private int franchiseCode;
     private List<OrderItemDTO> orderList;
 }

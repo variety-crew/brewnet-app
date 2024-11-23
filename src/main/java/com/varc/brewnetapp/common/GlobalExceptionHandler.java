@@ -22,6 +22,7 @@ public class GlobalExceptionHandler {
             InvalidStatusException.class,
             InvalidApiRequestException.class,
             InvalidConditionException.class,
+            MemberNotInFranchiseException.class,
             IllegalArgumentException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
@@ -37,6 +38,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseMessage<Object>> handleUnAuthorizedException(Exception e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ResponseMessage<>(401, e.getMessage(), null));
+    }
+
+    // 403: FORBIDDEN
+    @ExceptionHandler({
+            NoAccessAuthoritiesException.class
+    })
+    public ResponseEntity<ResponseMessage<Object>> handleNoAccessException(Exception e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ResponseMessage<>(
+                        HttpStatus.UNAUTHORIZED.value(),
+                        e.getMessage(),
+                        null));
     }
 
     // 404: Not Found

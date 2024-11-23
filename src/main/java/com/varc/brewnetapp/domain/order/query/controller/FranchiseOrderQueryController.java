@@ -3,7 +3,9 @@ package com.varc.brewnetapp.domain.order.query.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO;
 import com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.OrderDetailForFranchiseDTO;
 import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
+import com.varc.brewnetapp.domain.order.query.service.OrderValidateService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,9 @@ public class FranchiseOrderQueryController {
     private final OrderQueryService orderQueryService;
 
     @Autowired
-    public FranchiseOrderQueryController(OrderQueryService orderQueryService) {
+    public FranchiseOrderQueryController(
+            OrderQueryService orderQueryService
+    ) {
         this.orderQueryService = orderQueryService;
     }
 
@@ -44,5 +48,16 @@ public class FranchiseOrderQueryController {
                 franchiseCode
         );
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDTOList));
+    }
+
+    @GetMapping("/detail/{orderCode}")
+    @Operation(summary = "가맹점의 주문 상세 정보 조회")
+    public ResponseEntity<ResponseMessage<OrderDetailForFranchiseDTO>> getOrderDetail(
+            @PathVariable("orderCode") int orderCode,
+            @RequestAttribute("loginId") String loginId
+    ) {
+        OrderDetailForFranchiseDTO orderDetailForFranchiseDTO = orderQueryService.getOrderDetailForFranchiseBy(orderCode, loginId);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDetailForFranchiseDTO));
     }
 }

@@ -1,9 +1,7 @@
 package com.varc.brewnetapp.domain.member.query.service;
 
-import com.varc.brewnetapp.domain.member.query.dto.CompanyDTO;
-import com.varc.brewnetapp.domain.member.query.dto.MemberDTO;
-import com.varc.brewnetapp.domain.member.query.dto.OrderPrintDTO;
-import com.varc.brewnetapp.domain.member.query.dto.SealDTO;
+import com.varc.brewnetapp.domain.member.query.dto.*;
+
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,4 +13,6 @@ public interface MemberService {
     MemberDTO findMember(String accessToken);
 
     Page<OrderPrintDTO> findSealHistory(Pageable page, String startDate, String endDate);
+
+    FranchiseDTO getFranchiseInfoByLoginId(String loginId);
 }

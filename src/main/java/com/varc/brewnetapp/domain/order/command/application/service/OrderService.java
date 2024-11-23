@@ -9,7 +9,10 @@ import java.util.List;
 public interface OrderService {
 
     // 가맹점의 주문요청
-    OrderRequestResponseDTO orderRequestByFranchise(OrderRequestDTO orderRequestRequestDTO);
+    OrderRequestResponseDTO orderRequestByFranchise(
+            OrderRequestDTO orderRequestRequestDTO,
+            String loginId
+    );
 
     // 주문별 품목 생성
     void addItemsPerOrder(int orderCode, List<OrderItemDTO> orderRequestRequestDTO);

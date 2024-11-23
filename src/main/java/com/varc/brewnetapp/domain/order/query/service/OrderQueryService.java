@@ -37,6 +37,7 @@ public interface OrderQueryService {
                                           String criteria
     );
     OrderRequestDTO printOrderRequest(int orderCode);
+    OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode);
 
     // requested by franchise
     Page<FranchiseOrderDTO> getOrderListForFranchise(Pageable pageable,
@@ -46,6 +47,6 @@ public interface OrderQueryService {
                                                      String endDate,
                                                      int franchiseCode
     );
+    OrderDetailForFranchiseDTO getOrderDetailForFranchiseBy(int orderCode, String loginId);
 
-    OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode);
 }
