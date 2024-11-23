@@ -16,5 +16,8 @@ public class FranchiseOrderDTO {
     private int sumPrice;
 
     private List<OrderItem> orderItemList;
-    private List<OrderStatusHistory> orderStatusHistoryList;
+
+//    private List<OrderStatusHistory> orderStatusHistoryList;
+    private String orderStatus;
+    private String statusCreatedAt;
 }

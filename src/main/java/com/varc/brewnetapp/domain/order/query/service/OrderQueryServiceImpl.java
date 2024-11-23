@@ -100,6 +100,11 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         return null;
     }
 
+    @Override
+    public List<OrderApprovalHistoryDTO> getOrderApprovalHistories(Integer orderCode) {
+        return orderMapper.findOrderApprovalHistoriesBy(orderCode);
+    }
+
     // for franchise
     @Override
     @Transactional

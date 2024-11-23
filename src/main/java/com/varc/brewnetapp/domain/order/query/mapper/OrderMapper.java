@@ -23,7 +23,9 @@ public interface OrderMapper {
     );
 
     // common
-    List<OrderStatusHistory> findOrderHistoriesByOrderId(int orderId);
+    List<OrderStatusHistory> findOrderHistoriesByOrderId(
+            @Param("orderId") int orderId
+    );
 
 
     // for HQ
@@ -58,4 +60,5 @@ public interface OrderMapper {
     );
     OrderDetailForFranchiseDTO findOrderDetailForFranchiseBy(int orderCode);
 
+    List<OrderApprovalHistoryDTO> findOrderApprovalHistoriesBy(int orderCode);
 }
