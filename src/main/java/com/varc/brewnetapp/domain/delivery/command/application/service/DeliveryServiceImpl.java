@@ -47,7 +47,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING))){
                 status = DeliveryOrderStatusHistory.OrderStatus.SHIPPING;
 
-                // 출고 예정 재고 감소
+                // 출고 예정 재고 감소 -> 어떤 창고의 데이터를 깎아야 하는지 모름. 그냥 1번 창고에서 깎는걸로 합시다
             }
             else 
                 throw new InvalidDataException("잘못된 상태값을 입력하셨습니다");
@@ -75,7 +75,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED))){
                 status = ExchangeStatus.SHIPPED;
                 
-                // 출고 예정 재고 감소
+                // 출고 예정 재고 감소 -> 어떤 창고의 데이터를 깎아야 하는지 모름. 그냥 1번 창고에서 깎는걸로 합시다
             }
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING)))
                 status = ExchangeStatus.SHIPPING;
