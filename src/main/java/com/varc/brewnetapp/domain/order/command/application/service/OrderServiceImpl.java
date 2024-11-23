@@ -4,6 +4,7 @@ import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
 import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.common.domain.order.OrderHistoryStatus;
 import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
+import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderItemDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
@@ -12,6 +13,7 @@ import com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.composit
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderItemRepository;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderRepository;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderStatusHistoryRepository;
+import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
 import com.varc.brewnetapp.exception.OrderNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import java.util.List;
 @Slf4j
 @Service(value = "commandOrderService")
 public class OrderServiceImpl implements OrderService {
+    private final MemberService memberService;
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
@@ -31,10 +34,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     public OrderServiceImpl(
+            MemberService memberService,
             OrderRepository orderRepository,
             OrderStatusHistoryRepository orderStatusHistoryRepository,
             OrderItemRepository orderItemRepository
     ) {
+        this.memberService = memberService;
         this.orderRepository = orderRepository;
         this.orderStatusHistoryRepository = orderStatusHistoryRepository;
         this.orderItemRepository = orderItemRepository;
@@ -43,8 +48,8 @@ public class OrderServiceImpl implements OrderService {
     // 가맹점의 주문요청
     @Transactional
     @Override
-    public OrderRequestResponseDTO orderRequestByFranchise(OrderRequestDTO orderRequestDTO) {
-        int requestFranchiseCode = orderRequestDTO.getFranchiseCode();
+    public OrderRequestResponseDTO orderRequestByFranchise(OrderRequestDTO orderRequestDTO, String loginId) {
+        int requestFranchiseCode = memberService.getFranchiseInfoByLoginId(loginId).getFranchiseCode();
         List<OrderItemDTO> requestedOrderItemDTOList = orderRequestDTO.getOrderList();
         log.debug("requestedOrderItemDTOList: {}", requestedOrderItemDTOList);
 
