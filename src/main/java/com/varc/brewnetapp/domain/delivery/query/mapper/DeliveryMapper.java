@@ -2,6 +2,7 @@ package com.varc.brewnetapp.domain.delivery.query.mapper;
 
 import com.varc.brewnetapp.domain.delivery.query.dto.DeliveryDTO;
 import com.varc.brewnetapp.domain.delivery.query.dto.DeliveryDetailDTO;
+import com.varc.brewnetapp.domain.delivery.query.dto.ItemDTO;
 import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
@@ -17,11 +18,11 @@ public interface DeliveryMapper {
 
     int selectPickUpDeliveryListCnt();
 
-    DeliveryDetailDTO selectOrderDelivery(int code);
+    List<ItemDTO> selectOrderDelivery(int code);
 
-    DeliveryDetailDTO selectExchangeDelivery(int code);
+    List<ItemDTO> selectExchangeDelivery(int code);
 
-    DeliveryDetailDTO selectReturnDelivery(int code);
+    List<ItemDTO> selectReturnDelivery(int code);
 
-    Optional<DeliveryDetailDTO> selectMyDeliveryDetail(String accessToken);
+    Optional<DeliveryDetailDTO> selectMyDeliveryDetail(int deliveryMemberCode);
 }

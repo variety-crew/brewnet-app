@@ -16,10 +16,15 @@
     <id property="code" column="CODE"/>
     <result property="deliveryKind" column="KIND"/>
     <result property="deliveryStatus" column="STATUS"/>
-    <collection property="items" ofType="java.util.HashMap" javaType="java.util.Map">
-      <result property="key" column="ITEM_NAME" />
-      <result property="value" column="QUANTITY" />
+    <collection property="items" ofType="com.varc.brewnetapp.domain.delivery.query.dto.ItemDTO">
+      <result property="itemName" column="ITEM_NAME" />
+      <result property="quantity" column="QUANTITY" />
     </collection>
+  </resultMap>
+
+  <resultMap id="itemMap" type= "com.varc.brewnetapp.domain.delivery.query.dto.ItemDTO">
+    <result property="itemName" column="ITEM_NAME" />
+    <result property="quantity" column="QUANTITY" />
   </resultMap>
 
   <select id="selectOrderDeliveryList" resultMap="deliveryMap" parameterType="map">
@@ -149,7 +154,7 @@
             ) AS UNION_RESULT_SET
   </select>
 
-  <select id="selectMyDeliveryDetail" resultMap="deliveryDetailMap" parameterType="_string">
+  <select id="selectMyDeliveryDetail" resultMap="deliveryDetailMap" parameterType="_int">
     WITH LatestOrderStatus AS (
       SELECT
              ORDER_CODE
@@ -184,53 +189,63 @@
            'ORDER' AS KIND
          , O.ORDER_CODE AS CODE
          , OH.STATUS AS STATUS
+         , OH.CREATED_AT AS CREATED_AT
       FROM tbl_order O
      INNER JOIN LatestOrderStatus OH ON O.ORDER_CODE = OH.ORDER_CODE
      INNER JOIN tbl_member M ON O.MEMBER_CODE = M.MEMBER_CODE
-     WHERE OH.RN = 1 AND O.ACTIVE = TRUE AND OH.ACTIVE = TRUE AND O.DELIVERY_CODE = #{ loginId } AND OH.STATUS = 'SHIPPING'
+     WHERE OH.RN = 1 AND O.ACTIVE = TRUE AND OH.ACTIVE = TRUE AND O.DELIVERY_CODE = #{ deliveryMemberCode } AND OH.STATUS = 'SHIPPING'
     UNION ALL
     SELECT
            'EXCHANGE' AS KIND
          , E.EXCHANGE_CODE AS CODE
          , EH.STATUS AS STATUS
+         , EH.CREATED_AT AS CREATED_AT
       FROM tbl_exchange E
      INNER JOIN LatestExchangeStatus EH ON E.EXCHANGE_CODE = EH.EXCHANGE_CODE
      INNER JOIN tbl_member M ON E.MEMBER_CODE = M.MEMBER_CODE
-     WHERE EH.RN = 1 AND E.ACTIVE = TRUE AND EH.ACTIVE = TRUE AND E.DELIVERY_CODE = #{ loginId } AND (EH.STATUS = 'SHIPPING' OR EH.STATUS = 'PICKING')
+     WHERE EH.RN = 1 AND E.ACTIVE = TRUE AND EH.ACTIVE = TRUE AND E.DELIVERY_CODE = #{ deliveryMemberCode } AND (EH.STATUS = 'SHIPPING' OR EH.STATUS = 'PICKING')
     UNION ALL
     SELECT
            'RETURN' AS KIND
          , R.RETURN_CODE AS CODE
          , RH.STATUS AS STATUS
+         , RH.CREATED_AT AS CREATED_AT
       FROM tbl_return R
      INNER JOIN LatestReturnStatus RH ON R.RETURN_CODE = RH.RETURN_CODE
      INNER JOIN tbl_member M ON R.MEMBER_CODE = M.MEMBER_CODE
-     WHERE RH.RN = 1 AND R.ACTIVE = TRUE AND RH.ACTIVE = TRUE AND R.DELIVERY_CODEs = #{ loginId } AND RH.STATUS = 'PICKING'
+     WHERE RH.RN = 1 AND R.ACTIVE = TRUE AND RH.ACTIVE = TRUE AND R.DELIVERY_CODE = #{ deliveryMemberCode } AND RH.STATUS = 'PICKING'
+     ORDER BY CREATED_AT
+     LIMIT 1
   </select>
 
-  <id property="code" column="CODE"/>
-  <result property="deliveryKind" column="KIND"/>
-  <result property="deliveryStatus" column="STATUS"/>
-  <collection property="items" ofType="java.util.HashMap" javaType="java.util.Map">
-    <result property="key" column="ITEM_NAME" />
-    <result property="value" column="QUANTITY" />
-  </collection>
-
-  <select id="selectExchangeDelivery" resultMap="deliveryDetailMap" parameterType="_int">
+  <select id="selectExchangeDelivery" resultMap="itemMap" parameterType="_int">
     SELECT
-           I.NAME
-         , EI.QUANTITY
+           I.NAME AS ITEM_NAME
+         , EI.QUANTITY AS QUANTITY
       FROM tbl_exchange E
      INNER JOIN tbl_exchange_item EI ON EI.EXCHANGE_CODE = E.EXCHANGE_CODE
      INNER JOIN tbl_item I ON EI.ITEM_CODE = I.ITEM_CODE
+     WHERE E.EXCHANGE_CODE = #{ code }
   </select>
 
-  <select id="selectReturnDelivery" resultMap="deliveryDetailMap" parameterType="_int">
-
+  <select id="selectReturnDelivery" resultMap="itemMap" parameterType="_int">
+    SELECT
+           I.NAME AS ITEM_NAME
+         , RI.QUANTITY
+      FROM tbl_RETURN R AS QUANTITY
+     INNER JOIN tbl_return_item RI ON RI.RETURN_CODE = R.RETURN_CODE
+     INNER JOIN tbl_item I ON RI.ITEM_CODE = I.ITEM_CODE
+     WHERE R.RETURN_CODE = #{ code }
   </select>
 
-  <select id="selectOrderDelivery" resultMap="deliveryDetailMap" parameterType="_int">
-
+  <select id="selectOrderDelivery" resultMap="itemMap" parameterType="_int">
+    SELECT
+           I.NAME AS ITEM_NAME
+         , OI.QUANTITY AS QUANTITY
+      FROM tbl_order O
+     INNER JOIN tbl_order_item OI ON OI.ORDER_CODE = O.ORDER_CODE
+     INNER JOIN tbl_item I ON OI.ITEM_CODE = I.ITEM_CODE
+     WHERE O.ORDER_CODE = #{ code }
   </select>
 
 </mapper>

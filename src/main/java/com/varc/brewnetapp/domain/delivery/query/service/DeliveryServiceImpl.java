@@ -3,8 +3,12 @@ package com.varc.brewnetapp.domain.delivery.query.service;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.DeliveryKind;
 import com.varc.brewnetapp.domain.delivery.query.dto.DeliveryDTO;
 import com.varc.brewnetapp.domain.delivery.query.dto.DeliveryDetailDTO;
+import com.varc.brewnetapp.domain.delivery.query.dto.ItemDTO;
 import com.varc.brewnetapp.domain.delivery.query.mapper.DeliveryMapper;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
+import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.exception.EmptyDataException;
+import com.varc.brewnetapp.exception.MemberNotFoundException;
 import com.varc.brewnetapp.security.utility.JwtUtil;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +23,13 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     private final DeliveryMapper deliveryMapper;
     private final JwtUtil jwtUtil;
+    private final MemberRepository memberRepository;
 
     @Autowired
-    public DeliveryServiceImpl(DeliveryMapper deliveryMapper, JwtUtil jwtUtil) {
+    public DeliveryServiceImpl(DeliveryMapper deliveryMapper, JwtUtil jwtUtil, MemberRepository memberRepository) {
         this.deliveryMapper = deliveryMapper;
         this.jwtUtil = jwtUtil;
+        this.memberRepository = memberRepository;
     }
 
     @Override
@@ -58,23 +64,25 @@ public class DeliveryServiceImpl implements DeliveryService {
     public DeliveryDetailDTO findDeliveryDetail(String accessToken) {
 
         String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
+        Member member = memberRepository.findById(loginId)
+            .orElseThrow(() -> new MemberNotFoundException("회원의 토큰이 잘못되었습니다"));
 
-        DeliveryDetailDTO myDelivery = deliveryMapper.selectMyDeliveryDetail(loginId)
+        int deliveryMemberCode = member.getMemberCode();
+
+        DeliveryDetailDTO myDelivery = deliveryMapper.selectMyDeliveryDetail(deliveryMemberCode)
             .orElseThrow(() -> new EmptyDataException("배송 가능한 주문이 없습니다"));
 
-        DeliveryDetailDTO deliveryDetail = null;
+        List<ItemDTO> items = null;
 
         if(myDelivery.getDeliveryKind().equals(DeliveryKind.ORDER))
-            deliveryDetail = deliveryMapper.selectOrderDelivery(myDelivery.getCode());
+            items = deliveryMapper.selectOrderDelivery(myDelivery.getCode());
         else if(myDelivery.getDeliveryKind().equals(DeliveryKind.EXCHANGE))
-            deliveryDetail = deliveryMapper.selectExchangeDelivery(myDelivery.getCode());
+            items = deliveryMapper.selectExchangeDelivery(myDelivery.getCode());
         else if(myDelivery.getDeliveryKind().equals(DeliveryKind.RETURN))
-            deliveryDetail = deliveryMapper.selectReturnDelivery(myDelivery.getCode());
+            items = deliveryMapper.selectReturnDelivery(myDelivery.getCode());
 
-        deliveryDetail.setDeliveryKind(myDelivery.getDeliveryKind());
-        deliveryDetail.setDeliveryStatus(myDelivery.getDeliveryStatus());
-        deliveryDetail.setCode(myDelivery.getCode());
+        myDelivery.setItems(items);
 
-        return null;
+        return myDelivery;
     }
 }
