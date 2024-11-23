@@ -14,10 +14,10 @@ public class FranchiseOrderDTO {
     private int orderCode;
     private String createdAt;
     private int sumPrice;
+    private String recentOrderStatus;
+    private String recentOrderStatusCreatedAt;
 
     private List<OrderItem> orderItemList;
 
 //    private List<OrderStatusHistory> orderStatusHistoryList;
-    private String orderStatus;
-    private String statusCreatedAt;
 }

@@ -37,8 +37,8 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         int size = pageable.getPageSize();
         int offset = page * size;
         List<HQOrderDTO> orders = orderMapper.findOrdersBy(filter, sort, size, offset);
-        int total = orderMapper.countOrdersForHq(filter);
-        return new PageImpl<>(orders, pageable, total);
+//        int total = orderMapper.countOrdersForHq(filter);
+        return new PageImpl<>(orders, pageable, 0);
     }
 
     // for common
@@ -51,18 +51,24 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     // for HQ
     @Override
     @Transactional
-    public Page<HQOrderDTO> getOrderListForHQ(Pageable pageable, String filter, String sort, String startDate, String endDate) {
+    public Page<HQOrderDTO> getOrderListForHQ(Pageable pageable,
+                                              String filter,
+                                              String sort,
+                                              String startDate,
+                                              String endDate
+    ) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
         int offset = page * size;
-        log.debug("filter: {}", filter);
-        log.debug("page: {}, size: {}", page, size);
 
         // TODO: check if filter value is one of ["UNCONFIRMED", null]
         // TODO: check if sort value is one of ["createdAtDesc", "createdAtAsc", "sumPriceDesc", "sumPriceAsc"]
         List<HQOrderDTO> hqOrderDTOList = orderMapper.findOrdersForHQBy(filter, sort, size, offset, startDate, endDate);
+        hqOrderDTOList.forEach(
+                hqOrderDTO -> log.debug("hqOrderDTO: {}", hqOrderDTO)
+        );
 
-        int total = orderMapper.countOrdersForHq(filter);
+        int total = orderMapper.countOrdersForHq(filter, startDate, endDate);
         return new PageImpl<>(hqOrderDTOList, pageable, total);
     }
 
@@ -74,7 +80,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         int offset = page * size;
 //        List<OrderDTO> searchedList = orderMapper.findOrderListForHQBy(filter, sort, size, offset, criteria);
 
-        int total = orderMapper.countOrdersForHq(filter);
+//        int total = orderMapper.countOrdersForHq(filter);
 //        return new PageImpl<>(null, pageable, total);
         return null;
     }
@@ -126,10 +132,16 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         // TODO: get order list query for franchise
 
         List<FranchiseOrderDTO> franchiseOrderDTO = orderMapper.findOrdersForFranchise(
-                filter, sort, size, offset, startDate, endDate, franchiseCode
+                filter,
+                sort,
+                size,
+                offset,
+                startDate,
+                endDate,
+                franchiseCode
         );
 
-        int total = orderMapper.countOrdersForFranchise(filter, franchiseCode);
+        int total = orderMapper.countOrdersForFranchise(filter, franchiseCode, startDate, endDate);
 
         return new PageImpl<>(franchiseOrderDTO, pageable, total);
     }

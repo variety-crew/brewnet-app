@@ -38,7 +38,9 @@ public interface OrderMapper {
             @Param("endDate") String endDate
     );
     int countOrdersForHq(
-            @Param("filter") String filter
+            @Param("filter") String filter,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate
     );
     OrderDetailForHQDTO findOrderDetailForHqBy(int orderCode);
 
@@ -56,7 +58,9 @@ public interface OrderMapper {
 
     int countOrdersForFranchise(
             @Param("filter") String filter,
-            @Param("franchiseCode") int franchiseCode
+            @Param("franchiseCode") int franchiseCode,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate
     );
     OrderDetailForFranchiseDTO findOrderDetailForFranchiseBy(int orderCode);
 
