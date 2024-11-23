@@ -100,6 +100,11 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         return null;
     }
 
+    @Override
+    public List<OrderApprovalHistoryDTO> getOrderApprovalHistories(Integer orderCode) {
+        return orderMapper.findOrderApprovalHistoriesBy(orderCode);
+    }
+
     // for franchise
     @Override
     @Transactional
@@ -121,7 +126,13 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         // TODO: get order list query for franchise
 
         List<FranchiseOrderDTO> franchiseOrderDTO = orderMapper.findOrdersForFranchise(
-                filter, sort, size, offset, startDate, endDate, franchiseCode
+                filter,
+                sort,
+                size,
+                offset,
+                startDate,
+                endDate,
+                franchiseCode
         );
 
         int total = orderMapper.countOrdersForFranchise(filter, franchiseCode);

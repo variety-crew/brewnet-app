@@ -38,6 +38,8 @@ public interface OrderQueryService {
     );
     OrderRequestDTO printOrderRequest(int orderCode);
     OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode);
+    List<OrderApprovalHistoryDTO> getOrderApprovalHistories(Integer orderCode);
+
 
     // requested by franchise
     Page<FranchiseOrderDTO> getOrderListForFranchise(Pageable pageable,

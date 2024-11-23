@@ -26,15 +26,6 @@ public class HQOrderQueryController {
         this.orderQueryService = orderQueryService;
     }
 
-    @GetMapping("/{orderCode}/history")
-    @Operation(summary = "테스트 for 본사의 주문 조회")
-    public ResponseEntity<ResponseMessage<List<OrderStatusHistory>>> healthcheck(
-            @PathVariable("orderCode") Integer orderCode
-    ) {
-        List<OrderStatusHistory> orderHistoryList = orderQueryService.getOrderHistoryByOrderId(orderCode);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderHistoryList));
-    }
-
     @GetMapping("/list")
     @Operation(summary = "본사의 주문 리스트 조회")
     public ResponseEntity<ResponseMessage<Page<HQOrderDTO>>> getOrderList(
@@ -44,8 +35,6 @@ public class HQOrderQueryController {
             @RequestParam(name = "startDate", required = false) String startDate,
             @RequestParam(name = "endDate", required = false) String endDate
     ) {
-        log.debug("startDate: {}", startDate);
-        log.debug("endDate: {}", endDate);
         Page<HQOrderDTO> orderDTOList = orderQueryService.getOrderListForHQ(
                 pageable,
                 filter,
@@ -76,11 +65,30 @@ public class HQOrderQueryController {
     }
 
     @GetMapping("/detail/{orderCode}")
-    @Operation(summary = "주문 코드를 path variable로 활용한 주문 상세 조회")
+    @Operation(summary = "주문 코드를 path variable로 활용한 주문 상세 조회" +
+            "cf: doneDate는 orderStatus가 생성된 날짜이며, 가장 최신의 orderStatus만 가져온다.")
     public ResponseEntity<ResponseMessage<OrderDetailForHQDTO>> getOrderInformation(
             @PathVariable("orderCode") Integer orderCode) {
         OrderDetailForHQDTO orderDetailDTO = orderQueryService.getOrderDetailForHqBy(orderCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDetailDTO));
+    }
+
+    @GetMapping("/detail/{orderCode}/history")
+    @Operation(summary = "본사의 주문 히스토리 조회")
+    public ResponseEntity<ResponseMessage<List<OrderStatusHistory>>> healthcheck(
+            @PathVariable("orderCode") Integer orderCode
+    ) {
+        List<OrderStatusHistory> orderHistoryList = orderQueryService.getOrderHistoryByOrderId(orderCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderHistoryList));
+    }
+
+    @GetMapping("/detail/{orderCode}/history/approval")
+    @Operation(summary = "해당 주문건에 대한 본사의 결재 히스토리(내역) 조회")
+    public ResponseEntity<ResponseMessage<List<OrderApprovalHistoryDTO>>> getApprovalHistories(
+            @PathVariable("orderCode") Integer orderCode
+    ) {
+        List<OrderApprovalHistoryDTO> orderApprovalHistoryDTOList = orderQueryService.getOrderApprovalHistories(orderCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderApprovalHistoryDTOList));
     }
 
     @GetMapping("/detail/{orderCode}/print/order-request")

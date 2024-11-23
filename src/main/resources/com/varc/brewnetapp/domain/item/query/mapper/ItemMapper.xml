@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.varc.brewnetapp.domain.item.query.mapper.ItemMapper">
+
+  <resultMap id="itemResultMap" type="com.varc.brewnetapp.domain.item.query.dto.ItemDTO">
+    <id property="itemCode" column="ITEM_CODE"/>
+    <result property="itemUniqueCode" column="ITEM_UNIQUE_CODE"/>
+    <result property="name" column="NAME"/>
+    <result property="purchasePrice" column="PURCHASE_PRICE"/>
+    <result property="sellingPrice" column="SELLING_PRICE"/>
+    <result property="imageUrl" column="IMAGE_URL"/>
+    <result property="correspondentName" column="CORRESPONDENT_NAME"/>
+    <result property="safetyStock" column="SAFETY_STOCK"/>
+    <result property="active" column="ACTIVE"/>
+    <result property="categoryName" column="CATEGORY_NAME"/>
+  </resultMap>
+
+  <select id="selectItemList" resultMap="itemResultMap" parameterType="map">
+    SELECT
+           I.ITEM_CODE,
+           I.ITEM_UNIQUE_CODE,
+           I.NAME,
+           I.PURCHASE_PRICE,
+           I.SELLING_PRICE,
+           I.IMAGE_URL,
+           I.SAFETY_STOCK,
+           I.ACTIVE,
+           SC.NAME AS CATEGORY_NAME,
+           C.NAME AS CORRESPONDENT_NAME
+      FROM tbl_item I
+     INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
+     INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+     INNER JOIN tbl_sub_category SC ON SC.SUB_CATEGORY_CODE = I.CATEGORY_CODE
+    WHERE I.ITEM_CODE IS NOT NULL
+    <if test="itemName != null and itemName != ''">
+      AND I.NAME LIKE CONCAT('%', #{itemName}, '%')
+    </if>
+    <if test="itemCode != null and itemCode != ''">
+      AND I.ITEM_UNIQUE_CODE LIKE CONCAT('%', #{itemCode}, '%')
+    </if>
+    <if test="categoryCode != null and categoryCode != ''">
+      AND SC.SUB_CATEGORY_CODE = ${categoryCode}
+    </if>
+    <if test="correspondentCode != null and correspondentCode != ''">
+      AND C.CORRESPONDENT_CODE = #{correspondentCode}
+    </if>
+    <choose>
+      <when test="sort == 'codeAsc'">
+        ORDER BY I.ITEM_UNIQUE_CODE ASC
+      </when>
+      <when test="sort == 'codeDESC'">
+        ORDER BY I.ITEM_UNIQUE_CODE DESC
+      </when>
+      <when test="sort == 'nameASC'">
+        ORDER BY I.NAME ASC
+      </when>
+      <when test="sort == 'nameDESC'">
+        ORDER BY I.NAME DESC
+      </when>
+      <otherwise>
+
+        <!-- 기본 정렬 -->
+        ORDER BY I.CREATED_AT DESC
+      </otherwise>
+    </choose>
+    LIMIT #{ pageSize }
+    OFFSET #{ offset };
+  </select>
+
+
+  <select id="selectItemListCnt" resultType="int" parameterType="map">
+    SELECT
+           COUNT(*)
+      FROM tbl_item I
+     INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
+     INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+     INNER JOIN tbl_sub_category SC ON SC.SUB_CATEGORY_CODE = I.CATEGORY_CODE
+     WHERE I.ITEM_CODE IS NOT NULL
+    <if test="itemName != null and itemName != ''">
+      AND I.NAME LIKE CONCAT('%', #{itemName}, '%')
+    </if>
+    <if test="itemCode != null and itemCode != ''">
+      AND I.ITEM_UNIQUE_CODE LIKE CONCAT('%', #{itemCode}, '%')
+    </if>
+    <if test="categoryCode != null and categoryCode != ''">
+      AND SC.SUB_CATEGORY_CODE = ${categoryCode}
+    </if>
+    <if test="correspondentCode != null and correspondentCode != ''">
+      AND C.CORRESPONDENT_CODE = #{correspondentCode}
+    </if>
+
+  </select>
+
+
+
+</mapper>
