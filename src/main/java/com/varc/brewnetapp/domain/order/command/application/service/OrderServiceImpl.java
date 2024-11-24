@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -114,6 +115,20 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void cancelOrderRequest(Integer orderCode) {
         Order order = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
+        orderRepository.save(
+                Order.builder()
+                        .orderCode(order.getOrderCode())
+                        .comment("가맹점의 주문 요청 취소")
+                        .createdAt(order.getCreatedAt())
+                        .active(order.isActive())
+                        .approvalStatus(OrderApprovalStatus.CANCELED)
+                        .drafterApproved(order.getDrafterApproved())
+                        .sumPrice(order.getSumPrice())
+                        .franchiseCode(order.getFranchiseCode())
+                        .memberCode(order.getMemberCode())
+                        .deliveryCode(order.getDeliveryCode())
+                        .build()
+        );
 
         // TODO: validate
         //  1. If member_code in tbl_order is null
@@ -142,6 +157,53 @@ public class OrderServiceImpl implements OrderService {
 
         String reason = drafterRejectOrderRequestDTO.getReason();
         int drafterMemberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
+        Order targetOrder = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
+        List<OrderItem> orderItemList = orderItemRepository.findByOrderItemCode_OrderCode(orderCode);
+
+
+
+        orderRepository.save(
+                Order.builder()
+                        .orderCode(targetOrder.getOrderCode())
+                        .comment(reason)
+                        .createdAt(targetOrder.getCreatedAt())
+                        .active(targetOrder.isActive())
+                        .approvalStatus(OrderApprovalStatus.REJECTED)
+                        .drafterApproved(DrafterApproved.REJECT)
+                        .sumPrice(targetOrder.getSumPrice())
+                        .franchiseCode(targetOrder.getFranchiseCode())
+                        .memberCode(drafterMemberCode)
+                        .build()
+        );
+
+        orderStatusHistoryRepository.save(
+                OrderStatusHistory.builder()
+                        .status(OrderHistoryStatus.REJECTED)
+                        .createdAt(LocalDateTime.now())
+                        .active(true)
+                        .orderCode(orderCode)
+                        .build()
+        );
+
+        List<OrderItem> newOrderItemList = new ArrayList<>();
+        orderItemList.forEach(
+                orderItem ->
+                    newOrderItemList.add(
+                            OrderItem.builder()
+                                    .orderItemCode(
+                                            OrderItemCode.builder()
+                                                    .orderCode(orderItem.getOrderItemCode().getOrderCode())
+                                                    .itemCode(orderItem.getOrderItemCode().getItemCode())
+                                                    .build()
+                                    )
+                                    .quantity(orderItem.getQuantity())
+                                    .available(Available.UNAVAILABLE)
+                                    .partSumPrice(orderItem.getPartSumPrice())
+                                    .build()
+                    )
+        );
+        orderItemRepository.saveAll(newOrderItemList);
+
     }
 
     // 주문 상태 변화
