@@ -33,7 +33,7 @@ public interface OrderService {
                                 OrderApproveRequestDTO orderApproveRequestDTO);
 
     // 상신된 주문에 대한 승인
-    boolean approveOrderDraft(String orderCode, int memberCode, OrderRequestApproveDTO orderRequestApproveDTO);
+    boolean approveOrderDraft(int orderCode, int memberCode, OrderRequestApproveDTO orderRequestApproveDTO);
 
     // 상신된 주문에 대한 반려
     boolean rejectOrderDraft(String orderCode, int memberCode, OrderRequestRejectDTO orderRequestRejectDTO);

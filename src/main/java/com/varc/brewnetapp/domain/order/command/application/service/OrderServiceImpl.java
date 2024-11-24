@@ -5,7 +5,7 @@ import com.varc.brewnetapp.common.domain.order.ApprovalStatus;
 import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.common.domain.order.OrderHistoryStatus;
 import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
-import com.varc.brewnetapp.domain.item.query.service.ItemServiceImpl;
+import com.varc.brewnetapp.domain.item.query.service.ItemService;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderApproveRequestDTO;
@@ -22,10 +22,8 @@ import com.varc.brewnetapp.domain.order.command.domain.repository.OrderItemRepos
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderRepository;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderStatusHistoryRepository;
 import com.varc.brewnetapp.domain.order.query.service.OrderValidateService;
-import com.varc.brewnetapp.exception.InvalidOrderItems;
-import com.varc.brewnetapp.exception.OrderApprovalAlreadyExist;
-import com.varc.brewnetapp.exception.OrderItemNotFound;
-import com.varc.brewnetapp.exception.OrderNotFound;
+import com.varc.brewnetapp.domain.storage.command.application.service.StorageService;
+import com.varc.brewnetapp.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +44,8 @@ public class OrderServiceImpl implements OrderService {
 
     private final MemberService memberService;
     private final OrderValidateService orderValidateService;
-    private final ItemServiceImpl queryItemService;
+    private final ItemService itemService;
+    private final StorageService storageService;
 
     @Autowired
     public OrderServiceImpl(
@@ -56,14 +55,16 @@ public class OrderServiceImpl implements OrderService {
             OrderApprovalRepository orderApprovalRepository,
             MemberService memberService,
             OrderValidateService orderValidateService,
-            ItemServiceImpl queryItemService) {
+            ItemService itemService,
+            StorageService storageService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.orderStatusHistoryRepository = orderStatusHistoryRepository;
         this.orderApprovalRepository = orderApprovalRepository;
         this.memberService = memberService;
         this.orderValidateService = orderValidateService;
-        this.queryItemService = queryItemService;
+        this.itemService = itemService;
+        this.storageService = storageService;
     }
 
     // 가맹점의 주문요청
@@ -227,19 +228,76 @@ public class OrderServiceImpl implements OrderService {
     // 주문요청 상신에 책임 관리자의 승인
     @Transactional
     @Override
-    public boolean approveOrderDraft(String orderCode, int memberCode, OrderRequestApproveDTO orderRequestApproveDTO) {
+    public boolean approveOrderDraft(int orderCode, int memberCode, OrderRequestApproveDTO orderRequestApproveDTO) {
 
         // TODO: 책임 관리자의 상신에 대한 승인 처리
-        //  - tbl_order_approver 수정
-        //    - approved UNCONFIRMED -> APPROVED
-        //    - CREATED_AT -> 수정
-        //    - COMMENT -> 수정
-        //  - tbl_order 수정
-        //    - approval_status -> APPROVED
-        //  - tbl_order_status_history 추가
-        //    - STATUS -> APPROVED
+        //  - tbl_order_approver 수정              [DONE]
+        //    - approved UNCONFIRMED -> APPROVED  [DONE]
+        //    - CREATED_AT -> 수정                 [DONE]
+        //    - COMMENT -> 수정                    [DONE]
+        //  - tbl_order 수정                       [DONE]
+        //    - approval_status -> APPROVED       [DONE]
+        //  - tbl_order_status_history 추가        [DONE]
+        //    - STATUS -> APPROVED                [DONE]
+
+        OrderApprover orderApprover = orderApprovalRepository.findById(
+                OrderApprovalCode.builder()
+                        .memberCode(memberCode)
+                        .orderCode(orderCode)
+                        .build()
+        ).orElseThrow(() -> new OrderApprovalNotFound("Order approval not found"));
+        log.info("책임 관리자의 승인 전 tbl_order_approver.approved: {}", orderApprover.getApprovalStatus());
+
+        if (orderApprover.getApprovalStatus().equals(ApprovalStatus.APPROVED)) {
+            throw new OrderDraftAlreadyApproved("order draft already approved. orderCode: " + orderCode + ", approvedManagerMemberCode: " + memberCode);
+        }
+
+        Order order = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
+        log.info("책임 관리자의 승인 전 tbl_order.approval_status: {}", order.getApprovalStatus());
+        log.info("책임 관리자의 승인 전 tbl_order.drafter_approved: {}", order.getDrafterApproved());
+
+        String requestedComment = orderRequestApproveDTO.getComment();
+
+        List<OrderItem> orderItemList = getOrderItemsByOrderCode(order.getOrderCode());
+
+        orderApprovalRepository.save(
+                OrderApprover.builder()
+                        .orderApprovalCode(orderApprover.getOrderApprovalCode())
+                        .approvalStatus(ApprovalStatus.APPROVED)
+                        .createdAt(LocalDateTime.now())
+                        .comment(requestedComment)
+                        .active(orderApprover.isActive())
+                        .build()
+        );
+
+        orderRepository.save(
+                Order.builder()
+                        .orderCode(order.getOrderCode())
+                        .comment(order.getComment())
+                        .createdAt(order.getCreatedAt())
+                        .active(order.isActive())
+                        .approvalStatus(OrderApprovalStatus.APPROVED)
+                        .drafterApproved(order.getDrafterApproved())
+                        .sumPrice(order.getSumPrice())
+                        .franchiseCode(order.getFranchiseCode())
+                        .memberCode(order.getMemberCode())
+                        .build()
+        );
+
+        recordOrderStatusHistory(orderCode, OrderHistoryStatus.APPROVED);
 
         // TODO: 재고 변화
+        //  현재 가용재고에 존재하는 재고에서 주문 요청 완료건에 대한 상품의 수 만큼 재고 수 변경 [DONE]
+        //  시연을 위한 storageCode=1로, 추후 변경 필요
+        orderItemList.forEach(
+                orderItem -> storageService.setStockReadyToDepart(
+                        1,      // 추후 변경 필요
+                        orderItem.getOrderItemCode().getItemCode(),
+                        orderItem.getQuantity()
+                )
+        );
+
+
         return true;
     }
 
@@ -350,6 +408,7 @@ public class OrderServiceImpl implements OrderService {
                                 OrderItem.builder()
                                         .orderItemCode(orderItem.getOrderItemCode())
                                         .quantity(orderItem.getQuantity())
+                                        .partSumPrice(orderItem.getPartSumPrice())
                                         .available(availableStatus)
                                         .build()
                         )
@@ -392,7 +451,7 @@ public class OrderServiceImpl implements OrderService {
 
     // 주문 아이템 부분 합 구하기
     private int getPartSumPrice(int itemCode, int quantity) {
-        int sellingPrice = queryItemService.findItemSellingPriceByItemCode(itemCode);
+        int sellingPrice = itemService.findItemSellingPriceByItemCode(itemCode);
         log.debug("itemCode: {}", itemCode);
         log.debug("quantity: {}", quantity);
         return sellingPrice * quantity;
