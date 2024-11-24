@@ -74,7 +74,6 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItemDTO> requestedOrderItemDTOList = orderRequestDTO.getOrderList();
         log.debug("requestedOrderItemDTOList: {}", requestedOrderItemDTOList);
 
-        int orderedSum = getOrderTotalSum(requestedOrderItemDTOList);
 
         int orderedCode = orderRepository.save(
                 Order.builder()
@@ -82,14 +81,26 @@ public class OrderServiceImpl implements OrderService {
                         .active(true)
                         .drafterApproved(DrafterApproved.NONE)
                         .approvalStatus(OrderApprovalStatus.UNCONFIRMED)
-                        .sumPrice(orderedSum)
+                        .sumPrice(0)
                         .franchiseCode(requestFranchiseCode)
                         .build()
         ).getOrderCode();
-        log.debug("orderedCode: {}", orderedCode);
 
         // 주문별 품목 추가
         addItemsPerOrder(orderedCode, requestedOrderItemDTOList);
+
+        // 주문 총 합계 update
+        orderRepository.save(
+                Order.builder()
+                        .orderCode(orderedCode)
+                        .createdAt(LocalDateTime.now())
+                        .active(true)
+                        .drafterApproved(DrafterApproved.NONE)
+                        .approvalStatus(OrderApprovalStatus.UNCONFIRMED)
+                        .sumPrice(getOrderTotalSum(requestedOrderItemDTOList))
+                        .franchiseCode(requestFranchiseCode)
+                        .build()
+        );
 
         // 주문 내역 수정
         recordOrderStatusHistory(orderedCode, OrderHistoryStatus.REQUESTED);
@@ -308,11 +319,7 @@ public class OrderServiceImpl implements OrderService {
                     orderItemDTO -> {
                         int itemCode = orderItemDTO.getItemCode();
                         int orderQuantity = orderItemDTO.getQuantity();
-
-                        // TODO:
-                        //  int itemPrice = ItemService.findItemPriceByItemCode(itemCode);
-                        //  int partPriceSum = itemPrice * orderQuantity;
-                        int partPriceSum = 0;
+                        int partPriceSum = getPartSumPrice(itemCode, orderQuantity);
 
                         orderItemRepository.save(
                                 OrderItem.builder()
@@ -363,22 +370,31 @@ public class OrderServiceImpl implements OrderService {
     }
 
     // 주문 합계 구하기
-    private int getOrderTotalSum(List<OrderItemDTO> requestedOrderItemDTOList) {
+    private int getOrderTotalSum(List<OrderItemDTO> orderItemDTOList) {
         int totalSum = 0;
-        for (OrderItemDTO orderItemDTO : requestedOrderItemDTOList) {
+        for (OrderItemDTO orderItemDTO : orderItemDTOList) {
 
             /* TODO: itemCode로 Item 가격 찾기                                [DONE]
             *   int itemCode = orderItem.getItemCode();                    [DONE]
             *   int itemPrice = itemService.getItemPriceByCode(itemCode);  [DONE]
             */
-
             int itemCode = orderItemDTO.getItemCode();
-            int itemPrice = queryItemService.findItemSellingPriceByItemCode(itemCode);
             int quantity = orderItemDTO.getQuantity();
 
-            totalSum += itemPrice * quantity;
+            totalSum += getPartSumPrice(itemCode, quantity);
+
+            log.debug("itemCode: {}", itemCode);
+            log.debug("quantity: {}", quantity);
+            log.debug("totalSum: {}", totalSum);
         }
         return totalSum;
     }
 
+    // 주문 아이템 부분 합 구하기
+    private int getPartSumPrice(int itemCode, int quantity) {
+        int sellingPrice = queryItemService.findItemSellingPriceByItemCode(itemCode);
+        log.debug("itemCode: {}", itemCode);
+        log.debug("quantity: {}", quantity);
+        return sellingPrice * quantity;
+    }
 }

@@ -93,7 +93,7 @@
 
   </select>
 
-    <select id="findItemSellingPriceById" resultType="int">
+    <select id="findItemPriceById" resultType="int">
         SELECT
                i.SELLING_PRICE
           FROM tbl_item i

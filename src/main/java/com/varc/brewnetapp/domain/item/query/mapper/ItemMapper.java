@@ -11,5 +11,5 @@ public interface ItemMapper {
 
     int selectItemListCnt(String itemName, String itemCode, String categoryCode, String correspondentCode);
 
-    int findItemById(int itemCode);
+    int findItemPriceById(int itemCode);
 }

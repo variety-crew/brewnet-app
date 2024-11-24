@@ -44,6 +44,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public int findItemSellingPriceByItemCode(int itemCode) {
-        return itemMapper.findItemById(itemCode);
+        return itemMapper.findItemPriceById(itemCode);
     }
 }
