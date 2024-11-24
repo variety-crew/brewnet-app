@@ -28,5 +28,6 @@ public class MemberDTO {
     private String contact;
     private String signatureUrl;
     private PositionName positionName;
+    private String franchiseName;
     private RoleType role;
 }
