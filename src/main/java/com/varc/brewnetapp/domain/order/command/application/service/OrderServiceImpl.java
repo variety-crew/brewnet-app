@@ -8,6 +8,7 @@ import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.member.query.service.MemberServiceImpl;
 import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderApproveRequestDTO;
+import com.varc.brewnetapp.domain.order.command.application.dto.OrderRequestApproveDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderItemDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
@@ -137,6 +138,7 @@ public class OrderServiceImpl implements OrderService {
         log.debug("order history updated: {}", orderStatusHistoryRepository);
     }
 
+    // 가맹점 주문 요청에 대한 일반 관리자의 상신
     @Transactional
     @Override
     public boolean requestApproveOrder(
@@ -148,13 +150,35 @@ public class OrderServiceImpl implements OrderService {
 
         // TODO: 일반 관리자의 상신
         //  - tbl_order 수정
-        //    - approval_status UNCONFIRMED인지 확인
+        //    - approval_status UNCONFIRMED인지 확인 (validate)
+        //    - member_code(기안자) 할당된 바 있는지 확인 (validate)
         //    - member_code(기안자) 할당
-        //  - tbl_order_status_history
+        //    - drafter_approved NONE -> APPROVE
+        //  - tbl_order_status_history 추가
         //    - status REQUESTED -> PENDING
         //  - tbl_order_approver 추가
         //    - approved -> UNCONFIRMED
+        //  - tbl_order_item 수정
+        //    - 해당 order_item의 available -> UNAVAILABLE
+//        orderStatusHistoryRepository.save()
         return true;
+    }
+
+    // 일반 관리자의 주문 승인 상신 요청에 대한 책임 관리자의 승인
+    @Transactional
+    @Override
+    public boolean approveOrderDraft(String orderCode, int memberCode, OrderRequestApproveDTO orderRequestApproveDTO) {
+
+        // TODO: 책임 관리자의 상신에 대한 승인 처리
+        //  - tbl_order_approver 수정
+        //    - approved UNCONFIRMED -> APPROVED
+        //    - CREATED_AT -> 수정
+        //    - COMMENT -> 수정
+        //  - tbl_order 수정
+        //    - approval_status -> APPROVED
+        //  - tbl_order_status_history 추가
+        //    - STATUS -> APPROVED
+        return false;
     }
 
     @Transactional
