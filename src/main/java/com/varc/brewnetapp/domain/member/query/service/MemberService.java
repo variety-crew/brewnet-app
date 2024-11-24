@@ -20,4 +20,5 @@ public interface MemberService {
     Page<ApprovalDTO> findMyDraft(Pageable page, String dateSort, String approval, String startDate, String endDate, String accessToken);
 
     Page<ApprovalDTO> findMyApproval(Pageable page, String dateSort, String approval, String startDate, String endDate, String accessToken);
+    MemberDTO getMemberByLoginId(String loginId);
 }
