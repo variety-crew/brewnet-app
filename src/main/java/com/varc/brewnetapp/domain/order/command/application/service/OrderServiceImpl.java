@@ -5,7 +5,6 @@ import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.common.domain.order.OrderHistoryStatus;
 import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
-import com.varc.brewnetapp.domain.member.query.service.MemberServiceImpl;
 import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderApproveRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderRequestApproveDTO;
@@ -18,7 +17,7 @@ import com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.composit
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderItemRepository;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderRepository;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderStatusHistoryRepository;
-import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
+import com.varc.brewnetapp.domain.order.query.service.OrderValidateService;
 import com.varc.brewnetapp.exception.OrderNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,18 +36,21 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
+    private final OrderValidateService orderValidateService;
 
     @Autowired
     public OrderServiceImpl(
             MemberService memberService,
             OrderRepository orderRepository,
             OrderStatusHistoryRepository orderStatusHistoryRepository,
-            OrderItemRepository orderItemRepository
+            OrderItemRepository orderItemRepository,
+            OrderValidateService orderValidateService
     ) {
         this.memberService = memberService;
         this.orderRepository = orderRepository;
         this.orderStatusHistoryRepository = orderStatusHistoryRepository;
         this.orderItemRepository = orderItemRepository;
+        this.orderValidateService = orderValidateService;
     }
 
     // 가맹점의 주문요청
@@ -84,31 +86,36 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public void addItemsPerOrder(int orderedCode, List<OrderItemDTO> orderRequestRequestDTO) {
-        orderRequestRequestDTO.forEach(
-                orderItemDTO -> {
-                    int itemCode = orderItemDTO.getItemCode();
-                    int orderQuantity = orderItemDTO.getQuantity();
 
-                    // TODO:
-                    //  int itemPrice = ItemService.findItemPriceByItemCode(itemCode);
-                    //  int partPriceSum = itemPrice * orderQuantity;
-                    int partPriceSum = 0;
+        if (orderValidateService.isOrderItemsMoreThenOne(orderedCode)) {
+            orderRequestRequestDTO.forEach(
+                    orderItemDTO -> {
+                        int itemCode = orderItemDTO.getItemCode();
+                        int orderQuantity = orderItemDTO.getQuantity();
 
-                    orderItemRepository.save(
-                            OrderItem.builder()
-                                    .orderItemCode(
-                                            OrderItemCode.builder()
-                                                    .itemCode(itemCode)
-                                                    .orderCode(orderedCode)
-                                                    .build()
-                                    )
-                                    .quantity(orderQuantity)
-                                    .available(Available.AVAILABLE)
-                                    .partSumPrice(partPriceSum)
-                                    .build()
-                    );
-                }
-        );
+                        // TODO:
+                        //  int itemPrice = ItemService.findItemPriceByItemCode(itemCode);
+                        //  int partPriceSum = itemPrice * orderQuantity;
+                        int partPriceSum = 0;
+
+                        orderItemRepository.save(
+                                OrderItem.builder()
+                                        .orderItemCode(
+                                                OrderItemCode.builder()
+                                                        .itemCode(itemCode)
+                                                        .orderCode(orderedCode)
+                                                        .build()
+                                        )
+                                        .quantity(orderQuantity)
+                                        .available(Available.AVAILABLE)
+                                        .partSumPrice(partPriceSum)
+                                        .build()
+                        );
+                    }
+            );
+        } else {
+            throw new OrderNotFound("Order Items should be more then one order. orderCode: " + orderedCode);
+        }
     }
 
     // 주문 요청 취소
