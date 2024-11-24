@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.order.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.member.query.service.MemberServiceImpl;
 import com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO;
 import com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderDetailForFranchiseDTO;
@@ -21,24 +22,29 @@ import org.springframework.web.bind.annotation.*;
 public class FranchiseOrderQueryController {
 
     private final OrderQueryService orderQueryService;
+    private final MemberServiceImpl queryMemberService;
 
     @Autowired
     public FranchiseOrderQueryController(
-            OrderQueryService orderQueryService
-    ) {
+            OrderQueryService orderQueryService,
+            MemberServiceImpl queryMemberService) {
         this.orderQueryService = orderQueryService;
+        this.queryMemberService = queryMemberService;
     }
 
-    @GetMapping("/list/{franchiseCode}")
+    @GetMapping("/list")
     @Operation(summary = "가맹점의 주문리스트 조회")
     public ResponseEntity<ResponseMessage<Page<FranchiseOrderDTO>>> getOrderList(
             @PageableDefault(size = 10, page = 0) Pageable pageable,
-            @PathVariable("franchiseCode") Integer franchiseCode,
+            @RequestAttribute("loginId") String loginId,
             @RequestParam(name = "filter", required = false) String filter,
             @RequestParam(name = "sort", required = false) String sort,
             @RequestParam(name = "startDate", required = false) String startDate,
             @RequestParam(name = "endDate", required = false) String endDate
     ) {
+        int franchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
+                .getFranchiseCode();
+
         Page<FranchiseOrderDTO> orderDTOList = orderQueryService.getOrderListForFranchise(
                 pageable,
                 filter,

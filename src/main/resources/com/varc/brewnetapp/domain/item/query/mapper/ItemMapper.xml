@@ -47,7 +47,7 @@
       AND C.CORRESPONDENT_CODE = #{correspondentCode}
     </if>
     <choose>
-      <when test="sort == 'codeAsc'">
+      <when test="sort == 'codeASC'">
         ORDER BY I.ITEM_UNIQUE_CODE ASC
       </when>
       <when test="sort == 'codeDESC'">
