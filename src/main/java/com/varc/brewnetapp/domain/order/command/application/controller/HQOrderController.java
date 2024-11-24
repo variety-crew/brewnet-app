@@ -31,12 +31,9 @@ public class HQOrderController {
             @RequestAttribute(name = "loginId") String loginId,
             @RequestBody OrderApproveRequestDTO orderApproveRequestDTO
     ) {
-        log.debug("orderCode: {}", orderCode);
-        log.debug("loginId: {}", loginId);
-        log.debug("orderApproveRequestDTO: {}", orderApproveRequestDTO);
         int memberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
 
-        boolean done = orderService.requestApproveOrder(orderCode, memberCode, orderApproveRequestDTO);
+        boolean isDrafted = orderService.requestApproveOrder(orderCode, memberCode, orderApproveRequestDTO);
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "order approval requested successfully", null)
         );

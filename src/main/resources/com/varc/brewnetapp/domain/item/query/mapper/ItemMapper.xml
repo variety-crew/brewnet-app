@@ -93,6 +93,13 @@
 
   </select>
 
+    <select id="findItemSellingPriceById" resultType="int">
+        SELECT
+               i.SELLING_PRICE
+          FROM tbl_item i
+         WHERE i.ACTIVE = 1
+           AND i.ITEM_CODE = #{itemCode}
+    </select>
 
 
 </mapper>

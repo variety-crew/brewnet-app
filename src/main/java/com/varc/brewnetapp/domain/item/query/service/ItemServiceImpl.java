@@ -42,5 +42,8 @@ public class ItemServiceImpl implements ItemService {
         return new PageImpl<>(itemList, page, count);
     }
 
-
+    @Override
+    public int findItemSellingPriceByItemCode(int itemCode) {
+        return itemMapper.findItemById(itemCode);
+    }
 }

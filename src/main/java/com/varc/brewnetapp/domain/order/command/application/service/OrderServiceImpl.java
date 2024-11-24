@@ -5,6 +5,7 @@ import com.varc.brewnetapp.common.domain.order.ApprovalStatus;
 import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.common.domain.order.OrderHistoryStatus;
 import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
+import com.varc.brewnetapp.domain.item.query.service.ItemServiceImpl;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderApproveRequestDTO;
@@ -45,6 +46,7 @@ public class OrderServiceImpl implements OrderService {
 
     private final MemberService memberService;
     private final OrderValidateService orderValidateService;
+    private final ItemServiceImpl queryItemService;
 
     @Autowired
     public OrderServiceImpl(
@@ -53,14 +55,15 @@ public class OrderServiceImpl implements OrderService {
             OrderStatusHistoryRepository orderStatusHistoryRepository,
             OrderApprovalRepository orderApprovalRepository,
             MemberService memberService,
-            OrderValidateService orderValidateService
-    ) {
+            OrderValidateService orderValidateService,
+            ItemServiceImpl queryItemService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.orderStatusHistoryRepository = orderStatusHistoryRepository;
         this.orderApprovalRepository = orderApprovalRepository;
         this.memberService = memberService;
         this.orderValidateService = orderValidateService;
+        this.queryItemService = queryItemService;
     }
 
     // 가맹점의 주문요청
@@ -132,18 +135,18 @@ public class OrderServiceImpl implements OrderService {
         int targetManagerMemberCode = orderApproveRequestDTO.getSuperManagerMemberCode();
 
         // TODO: 일반 관리자의 상신
-        //  - 상신된 주문 결재 요청이 있는지 확인 (validate) [DONE]
+        //  - 상신된 주문 결재 요청이 있는지 확인 (validate)              [DONE]
         //  - 요청 대상자(책임 관리자)가 결재 라인에 있는지 확인 (validate)
-        //  - tbl_order 수정 [DONE]
-        //    - member_code(기안자) 할당된 바 있는지 확인 (validate) [DONE]
-        //    - member_code(기안자) 할당 [DONE]
-        //    - drafter_approved NONE -> APPROVE [DONE]
-        //  - tbl_order_status_history 추가 [DONE]
-        //    - status - PENDING [DONE]
-        //  - tbl_order_approver 추가 [DONE]
-        //    - approved -> UNCONFIRMED [DONE]
-        //  - tbl_order_item 수정 [DONE]
-        //    - 해당 order_item의 available -> UNAVAILABLE [DONE]
+        //  - tbl_order 수정                                      [DONE]
+        //    - member_code(기안자) 할당된 바 있는지 확인 (validate)    [DONE]
+        //    - member_code(기안자) 할당                            [DONE]
+        //    - drafter_approved NONE -> APPROVE                 [DONE]
+        //  - tbl_order_status_history 추가                       [DONE]
+        //    - status - PENDING                                 [DONE]
+        //  - tbl_order_approver 추가                             [DONE]
+        //    - approved -> UNCONFIRMED                          [DONE]
+        //  - tbl_order_item 수정                                 [DONE]
+        //    - 해당 order_item의 available -> UNAVAILABLE         [DONE]
 
         Optional<OrderApprover> optionalOrderApprover = orderApprovalRepository.findById(
                 OrderApprovalCode.builder()
@@ -253,16 +256,16 @@ public class OrderServiceImpl implements OrderService {
                                      String loginId) {
 
         // TODO: 가맹점의 주문 요청 반려
-        //  - 주문 테이블에서 데이터 수정:
-        //  tbl_order.APPROVAL_STATUS           - 'UNCONFIRMED' -> 'REJECTED'
-        //  tbl_order.DRAFTER_APPROVED          - 'NONE' -> 'REJECT'
-        //  tbl_order.COMMENT                   - 사유 입력
-        //  tbl_order.MEMBER_CODE               - 반려자(담당자) 코드 추가
-        //  - 주문 상태 내역 테이블 수정:
-        //  tbl_order_status_history.status     - 'REQUESTED' -> 'REJECTED'
-        //  tbl_order_status_history.CREATED_AT
-        //  - 주문 별 상품 테이블 수정:
-        //  tbl_order_item.available            - 'AVAILABLE' -> 'UNAVAILABLE'
+        //  - 주문 테이블에서 데이터 수정:                                            [DONE]
+        //  tbl_order.APPROVAL_STATUS           - 'UNCONFIRMED' -> 'REJECTED'   [DONE]
+        //  tbl_order.DRAFTER_APPROVED          - 'NONE' -> 'REJECT'            [DONE]
+        //  tbl_order.COMMENT                   - 사유 입력                       [DONE]
+        //  tbl_order.MEMBER_CODE               - 반려자(담당자) 코드 추가           [DONE]
+        //  - 주문 상태 내역 테이블 수정:                                             [DONE]
+        //  tbl_order_status_history.status     - 'REQUESTED' -> 'REJECTED'     [DONE]
+        //  tbl_order_status_history.CREATED_AT                                 [DONE]
+        //  - 주문 별 상품 테이블 수정:                                               [DONE]
+        //  tbl_order_item.available            - 'AVAILABLE' -> 'UNAVAILABLE'  [DONE]
 
         String reason = drafterRejectOrderRequestDTO.getReason();
         int drafterMemberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
@@ -282,28 +285,8 @@ public class OrderServiceImpl implements OrderService {
                         .memberCode(drafterMemberCode)
                         .build()
         );
-
         recordOrderStatusHistory(orderCode, OrderHistoryStatus.REJECTED);
-
-        List<OrderItem> newOrderItemList = new ArrayList<>();
-        orderItemList.forEach(
-                orderItem ->
-                        newOrderItemList.add(
-                                OrderItem.builder()
-                                        .orderItemCode(
-                                                OrderItemCode.builder()
-                                                        .orderCode(orderItem.getOrderItemCode().getOrderCode())
-                                                        .itemCode(orderItem.getOrderItemCode().getItemCode())
-                                                        .build()
-                                        )
-                                        .quantity(orderItem.getQuantity())
-                                        .available(Available.UNAVAILABLE)
-                                        .partSumPrice(orderItem.getPartSumPrice())
-                                        .build()
-                        )
-        );
-        orderItemRepository.saveAll(newOrderItemList);
-
+        updateOrderedItemListStatusTo(orderItemList, Available.UNAVAILABLE);
     }
 
     // 주문 별 아이템 조회
@@ -318,7 +301,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     // 주문 별 아이템 추가
-    @Transactional
     public void addItemsPerOrder(int orderedCode, List<OrderItemDTO> orderRequestRequestDTO) {
 
         if (!orderRequestRequestDTO.isEmpty()) {
@@ -353,7 +335,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     // 주문 별 아이템 교환/반품 요청 가능 여부 수정
-    public void updateOrderedItemListStatusTo(List<OrderItem> orderedItemList, Available available) {
+    public void updateOrderedItemListStatusTo(List<OrderItem> orderedItemList, Available availableStatus) {
         List<OrderItem> targetOrderedItemList = new ArrayList<>();
         orderedItemList.forEach(
                 orderItem ->
@@ -361,7 +343,7 @@ public class OrderServiceImpl implements OrderService {
                                 OrderItem.builder()
                                         .orderItemCode(orderItem.getOrderItemCode())
                                         .quantity(orderItem.getQuantity())
-                                        .available(available)
+                                        .available(availableStatus)
                                         .build()
                         )
         );
@@ -385,15 +367,16 @@ public class OrderServiceImpl implements OrderService {
         int totalSum = 0;
         for (OrderItemDTO orderItemDTO : requestedOrderItemDTOList) {
 
-            /* TODO: itemCode로 Item 가격 찾기
-            *   int itemCode = orderItem.getItemCode();
-            *   int itemPrice = itemService.getItemPriceByCode(itemCode);
+            /* TODO: itemCode로 Item 가격 찾기                                [DONE]
+            *   int itemCode = orderItem.getItemCode();                    [DONE]
+            *   int itemPrice = itemService.getItemPriceByCode(itemCode);  [DONE]
             */
 
-            int itemPrice = 100;
-
+            int itemCode = orderItemDTO.getItemCode();
+            int itemPrice = queryItemService.findItemSellingPriceByItemCode(itemCode);
             int quantity = orderItemDTO.getQuantity();
-            totalSum += itemPrice *quantity;
+
+            totalSum += itemPrice * quantity;
         }
         return totalSum;
     }
