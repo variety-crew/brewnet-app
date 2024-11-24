@@ -13,17 +13,4 @@
                AND
                o.ACTIVE = 1
     </select>
-
-    <select id="checkIsOrderItemMoreThenOne" resultType="boolean">
-        SELECT
-               CASE
-                    WHEN COUNT(*) > 0
-                         THEN true
-                         ELSE false
-               END
-          FROM tbl_order_item oi
-         WHERE oi.order_code = #{orderCode}
-               AND
-               oi.ACTIVE = 1
-    </select>
 </mapper>

@@ -10,4 +10,5 @@ import lombok.*;
 @ToString
 public class OrderApproveRequestDTO {
     private int superManagerMemberCode;
+    private String comment;
 }

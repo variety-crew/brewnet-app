@@ -22,7 +22,9 @@ public class GlobalExceptionHandler {
             InvalidStatusException.class,
             InvalidApiRequestException.class,
             InvalidConditionException.class,
-            MemberNotInFranchiseException.class
+            MemberNotInFranchiseException.class,
+            InvalidOrderItems.class,
+            OrderApprovalAlreadyExist.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

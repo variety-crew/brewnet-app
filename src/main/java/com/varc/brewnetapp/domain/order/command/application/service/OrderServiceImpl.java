@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.order.command.application.service;
 
 import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
+import com.varc.brewnetapp.common.domain.order.ApprovalStatus;
 import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.common.domain.order.OrderHistoryStatus;
 import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
@@ -13,11 +14,16 @@ import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.Ord
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
 import com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.*;
+import com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.compositionkey.OrderApprovalCode;
 import com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.compositionkey.OrderItemCode;
+import com.varc.brewnetapp.domain.order.command.domain.repository.OrderApprovalRepository;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderItemRepository;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderRepository;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderStatusHistoryRepository;
 import com.varc.brewnetapp.domain.order.query.service.OrderValidateService;
+import com.varc.brewnetapp.exception.InvalidOrderItems;
+import com.varc.brewnetapp.exception.OrderApprovalAlreadyExist;
+import com.varc.brewnetapp.exception.OrderItemNotFound;
 import com.varc.brewnetapp.exception.OrderNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,29 +33,33 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service(value = "commandOrderService")
 public class OrderServiceImpl implements OrderService {
-    private final MemberService memberService;
-
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
+    private final OrderApprovalRepository orderApprovalRepository;
+
+    private final MemberService memberService;
     private final OrderValidateService orderValidateService;
 
     @Autowired
     public OrderServiceImpl(
-            MemberService memberService,
             OrderRepository orderRepository,
-            OrderStatusHistoryRepository orderStatusHistoryRepository,
             OrderItemRepository orderItemRepository,
+            OrderStatusHistoryRepository orderStatusHistoryRepository,
+            OrderApprovalRepository orderApprovalRepository,
+            MemberService memberService,
             OrderValidateService orderValidateService
     ) {
-        this.memberService = memberService;
         this.orderRepository = orderRepository;
-        this.orderStatusHistoryRepository = orderStatusHistoryRepository;
         this.orderItemRepository = orderItemRepository;
+        this.orderStatusHistoryRepository = orderStatusHistoryRepository;
+        this.orderApprovalRepository = orderApprovalRepository;
+        this.memberService = memberService;
         this.orderValidateService = orderValidateService;
     }
 
@@ -79,14 +89,7 @@ public class OrderServiceImpl implements OrderService {
         addItemsPerOrder(orderedCode, requestedOrderItemDTOList);
 
         // 주문 내역 수정
-        orderStatusHistoryRepository.save(
-                OrderStatusHistory.builder()
-                        .orderCode(orderedCode)
-                        .status(OrderHistoryStatus.REQUESTED)
-                        .createdAt(LocalDateTime.now())
-                        .active(true)
-                        .build()
-        );
+        recordOrderStatusHistory(orderedCode, OrderHistoryStatus.REQUESTED);
         return new OrderRequestResponseDTO(orderedCode);
     }
 
@@ -113,41 +116,97 @@ public class OrderServiceImpl implements OrderService {
         // TODO: validate
         //  1. If member_code in tbl_order is null
         //  2. If the status column in tbl_order_status_history is 'REQUEST'
+        //  3. tbl_order_item 목록 수정 available, active -> UNAVAILABLE, false
 
-        orderStatusHistoryRepository.save(
-                OrderStatusHistory.builder()
-                        .orderCode(orderCode)
-                        .status(OrderHistoryStatus.CANCELED)
-                        .createdAt(LocalDateTime.now())
-                        .active(true)
-                        .build()
-        );
-        log.debug("order history updated: {}", orderStatusHistoryRepository);
+        recordOrderStatusHistory(orderCode, OrderHistoryStatus.CANCELED);
     }
 
     // 가맹점 주문 요청에 대한 일반 관리자의 상신
     @Transactional
     @Override
     public boolean requestApproveOrder(
-            int orderCode,
-            int memberCode,
-            OrderApproveRequestDTO orderApproveRequestDTO
+            int orderCode,  // 주문 번호
+            int memberCode, // 기안자 코드
+            OrderApproveRequestDTO orderApproveRequestDTO   // 주문 상신 DTO
     ) {
-        Order order = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
+        int targetManagerMemberCode = orderApproveRequestDTO.getSuperManagerMemberCode();
 
         // TODO: 일반 관리자의 상신
-        //  - tbl_order 수정
-        //    - approval_status UNCONFIRMED인지 확인 (validate)
-        //    - member_code(기안자) 할당된 바 있는지 확인 (validate)
-        //    - member_code(기안자) 할당
-        //    - drafter_approved NONE -> APPROVE
-        //  - tbl_order_status_history 추가
-        //    - status REQUESTED -> PENDING
-        //  - tbl_order_approver 추가
-        //    - approved -> UNCONFIRMED
-        //  - tbl_order_item 수정
-        //    - 해당 order_item의 available -> UNAVAILABLE
-//        orderStatusHistoryRepository.save()
+        //  - 상신된 주문 결재 요청이 있는지 확인 (validate) [DONE]
+        //  - 요청 대상자(책임 관리자)가 결재 라인에 있는지 확인 (validate)
+        //  - tbl_order 수정 [DONE]
+        //    - member_code(기안자) 할당된 바 있는지 확인 (validate) [DONE]
+        //    - member_code(기안자) 할당 [DONE]
+        //    - drafter_approved NONE -> APPROVE [DONE]
+        //  - tbl_order_status_history 추가 [DONE]
+        //    - status - PENDING [DONE]
+        //  - tbl_order_approver 추가 [DONE]
+        //    - approved -> UNCONFIRMED [DONE]
+        //  - tbl_order_item 수정 [DONE]
+        //    - 해당 order_item의 available -> UNAVAILABLE [DONE]
+
+        Optional<OrderApprover> optionalOrderApprover = orderApprovalRepository.findById(
+                OrderApprovalCode.builder()
+                        .orderCode(orderCode)
+                        .memberCode(targetManagerMemberCode)
+                        .build()
+        );
+
+        if (optionalOrderApprover.isPresent()) {
+            OrderApprover orderApprover = optionalOrderApprover.get();
+            throw new OrderApprovalAlreadyExist(
+                    "order approval already exist. " +
+                            "already requested by memberCode:" + orderApprover.getOrderApprovalCode().getMemberCode() +
+                            ", orderCode: " + orderApprover.getOrderApprovalCode().getOrderCode() + ", superManager: " + orderApprover.getOrderApprovalCode().getMemberCode()
+            );
+        }
+
+        Order order = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
+        List<OrderItem> orderItemList = getOrderItemsByOrderCode(order.getOrderCode());
+
+        Integer presentOrderDrafterMemberCode = order.getMemberCode();
+        log.debug("order.getMemberCode() - 기존 기안자: {}", presentOrderDrafterMemberCode);
+
+        OrderApprovalStatus presentOrderStatus = order.getApprovalStatus();
+        log.debug("order.getApprovalStatus() - 기존 주문 결재 상태: {}", presentOrderStatus);
+
+        DrafterApproved presentDraftedApprovedStatus = order.getDrafterApproved();
+        log.debug("order.getDrafterApproved() - 기존 기안자의 승인 상태: {}", presentDraftedApprovedStatus);
+
+
+
+        orderRepository.save(
+                Order.builder()
+                        .orderCode(order.getOrderCode())
+                        .comment(orderApproveRequestDTO.getComment()) // 상신 요청 첨언
+                        .createdAt(order.getCreatedAt())
+                        .active(order.isActive())
+                        .approvalStatus(order.getApprovalStatus())
+                        .drafterApproved(DrafterApproved.APPROVE)
+                        .sumPrice(order.getSumPrice())
+                        .franchiseCode(order.getFranchiseCode())
+                        .memberCode(memberCode)     // 기안자
+                        .build()
+        );
+
+        recordOrderStatusHistory(orderCode, OrderHistoryStatus.PENDING);
+
+        orderApprovalRepository.save(
+                OrderApprover.builder()
+                        .orderApprovalCode(
+                                OrderApprovalCode.builder()
+                                        .orderCode(order.getOrderCode())
+                                        .memberCode(targetManagerMemberCode)
+                                        .build()
+                        )
+                        .approvalStatus(ApprovalStatus.UNCONFIRMED)
+                        .createdAt(LocalDateTime.now())
+                        .active(true)
+                        .build()
+        );
+
+        updateOrderedItemListStatusTo(orderItemList, Available.UNAVAILABLE);
+
         return true;
     }
 
@@ -224,14 +283,7 @@ public class OrderServiceImpl implements OrderService {
                         .build()
         );
 
-        orderStatusHistoryRepository.save(
-                OrderStatusHistory.builder()
-                        .status(OrderHistoryStatus.REJECTED)
-                        .createdAt(LocalDateTime.now())
-                        .active(true)
-                        .orderCode(orderCode)
-                        .build()
-        );
+        recordOrderStatusHistory(orderCode, OrderHistoryStatus.REJECTED);
 
         List<OrderItem> newOrderItemList = new ArrayList<>();
         orderItemList.forEach(
@@ -254,11 +306,22 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+    // 주문 별 아이템 조회
+    @Transactional
+    public List<OrderItem> getOrderItemsByOrderCode(int orderCode) {
+        List<OrderItem> orderItemList = orderItemRepository.findByOrderItemCode_OrderCode(orderCode);
+        if (!orderItemList.isEmpty()) {
+            return orderItemList;
+        } else {
+            throw new OrderItemNotFound("Order not found");
+        }
+    }
+
     // 주문 별 아이템 추가
     @Transactional
     public void addItemsPerOrder(int orderedCode, List<OrderItemDTO> orderRequestRequestDTO) {
 
-        if (orderValidateService.isOrderItemsMoreThenOne(orderedCode)) {
+        if (!orderRequestRequestDTO.isEmpty()) {
             orderRequestRequestDTO.forEach(
                     orderItemDTO -> {
                         int itemCode = orderItemDTO.getItemCode();
@@ -285,8 +348,36 @@ public class OrderServiceImpl implements OrderService {
                     }
             );
         } else {
-            throw new OrderNotFound("Order Items should be more then one order. orderCode: " + orderedCode);
+            throw new InvalidOrderItems("Order Items should be more then one order. orderCode: " + orderedCode);
         }
+    }
+
+    // 주문 별 아이템 교환/반품 요청 가능 여부 수정
+    public void updateOrderedItemListStatusTo(List<OrderItem> orderedItemList, Available available) {
+        List<OrderItem> targetOrderedItemList = new ArrayList<>();
+        orderedItemList.forEach(
+                orderItem ->
+                        targetOrderedItemList.add(
+                                OrderItem.builder()
+                                        .orderItemCode(orderItem.getOrderItemCode())
+                                        .quantity(orderItem.getQuantity())
+                                        .available(available)
+                                        .build()
+                        )
+        );
+        orderItemRepository.saveAll(targetOrderedItemList);
+    }
+
+    // 주문 내역 기록
+    public void recordOrderStatusHistory(int orderCode, OrderHistoryStatus newStatus) {
+        orderStatusHistoryRepository.save(
+                OrderStatusHistory.builder()
+                        .status(newStatus)
+                        .createdAt(LocalDateTime.now())
+                        .active(true)
+                        .orderCode(orderCode)
+                        .build()
+        );
     }
 
     // 주문 합계 구하기
@@ -306,4 +397,5 @@ public class OrderServiceImpl implements OrderService {
         }
         return totalSum;
     }
+
 }
