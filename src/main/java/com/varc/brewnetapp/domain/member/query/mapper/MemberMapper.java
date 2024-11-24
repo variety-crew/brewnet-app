@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.member.query.mapper;
 
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.ApprovalStatus;
 import com.varc.brewnetapp.domain.member.query.dto.*;
 
 import java.util.List;
@@ -24,4 +25,12 @@ public interface MemberMapper {
     int selectOrderPrintListWhereDateCnt(String startDate, String endDate);
 
     FranchiseDTO getFranchiseInfoBy(String loginId);
+
+    List<ApprovalDTO> selectDraftList(long pageSize, long offset, String dateSort, String approval, String startDate, String endDate, int memberCode);
+
+    int selectDraftListCnt(long pageSize, long offset, String approval, String startDate, String endDate, int memberCode);
+
+    List<ApprovalDTO> selectApprovalList(long pageSize, long offset, String dateSort, String approval, String startDate, String endDate, int memberCode);
+
+    int selectApprovalListCnt(long pageSize, long offset, String approval, String startDate, String endDate, int memberCode);
 }
