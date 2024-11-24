@@ -3,6 +3,7 @@ package com.varc.brewnetapp.domain.order.command.application.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderRequestApproveDTO;
+import com.varc.brewnetapp.domain.order.command.application.dto.OrderRequestRejectDTO;
 import com.varc.brewnetapp.domain.order.command.application.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,21 @@ public class HQSuperController {
         boolean approved = orderService.approveOrderDraft(orderCode, memberCode, orderRequestApproveDTO);
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "successfully approved order request", null)
+        );
+    }
+
+    @PostMapping("/reject/{orderCode}")
+    @Operation(summary = "책임 관리자가 상신된 주문 요청에 대한 거절")
+    public ResponseEntity<ResponseMessage<Object>> rejectOrderRequest(
+            @PathVariable String orderCode,
+            @RequestAttribute String loginId,
+            @RequestBody OrderRequestRejectDTO orderRequestRejectDTO
+    ) {
+        int memberCode = memberservice.getMemberByLoginId(loginId).getMemberCode();
+
+        boolean rejected = orderService.rejectOrderDraft(orderCode, memberCode, orderRequestRejectDTO);
+        return  ResponseEntity.ok(
+                new ResponseMessage<>(200, "successfully rejected order request", null)
         );
     }
 }

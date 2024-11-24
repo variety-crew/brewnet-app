@@ -9,6 +9,7 @@ import com.varc.brewnetapp.domain.member.query.service.MemberServiceImpl;
 import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderApproveRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderRequestApproveDTO;
+import com.varc.brewnetapp.domain.order.command.application.dto.OrderRequestRejectDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderItemDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
@@ -178,7 +179,25 @@ public class OrderServiceImpl implements OrderService {
         //    - approval_status -> APPROVED
         //  - tbl_order_status_history 추가
         //    - STATUS -> APPROVED
-        return false;
+
+        // TODO: 재고 변화
+        return true;
+    }
+
+    @Transactional
+    @Override
+    public boolean rejectOrderDraft(String orderCode, int memberCode, OrderRequestRejectDTO orderRequestRejectDTO) {
+
+        // TODO: 책임 관리자의 상신에 대한 반려 처리
+        //  - tbl_order_approver 수정
+        //    - approved UNCONFIRMED -> APPROVED
+        //    - CREATED_AT -> 수정
+        //    - COMMENT -> 수정
+        //  - tbl_order 수정
+        //    - approval_status -> APPROVED
+        //  - tbl_order_status_history 추가
+        //    - STATUS -> APPROVED
+        return true;
     }
 
     @Transactional
