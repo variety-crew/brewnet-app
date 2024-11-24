@@ -64,7 +64,8 @@ public class GlobalExceptionHandler {
             PositionNotFoundException.class,
             PurchaseNotFoundException.class,
             SealNotFoundException.class,
-            StorageNotFoundException.class
+            StorageNotFoundException.class,
+            OrderApprovalNotFound.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleNotFoundException(Exception e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
