@@ -40,6 +40,7 @@ public class HQOrderController {
     }
 
     @PostMapping("/reject/{orderCode}/reject")
+    @Operation(summary = "가맹점 주문 요청건에 대한 일반 관리자의 반려")
     public ResponseEntity<ResponseMessage<Object>> drafterReject(
             @PathVariable("orderCode") Integer orderCode,
             @RequestAttribute("loginId") String loginId,

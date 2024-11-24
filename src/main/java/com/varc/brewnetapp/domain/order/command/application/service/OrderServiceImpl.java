@@ -79,43 +79,15 @@ public class OrderServiceImpl implements OrderService {
         addItemsPerOrder(orderedCode, requestedOrderItemDTOList);
 
         // 주문 내역 수정
-        updateOrderStatusTo(orderedCode, OrderHistoryStatus.REQUESTED);
+        orderStatusHistoryRepository.save(
+                OrderStatusHistory.builder()
+                        .orderCode(orderedCode)
+                        .status(OrderHistoryStatus.REQUESTED)
+                        .createdAt(LocalDateTime.now())
+                        .active(true)
+                        .build()
+        );
         return new OrderRequestResponseDTO(orderedCode);
-    }
-
-    @Transactional
-    @Override
-    public void addItemsPerOrder(int orderedCode, List<OrderItemDTO> orderRequestRequestDTO) {
-
-        if (orderValidateService.isOrderItemsMoreThenOne(orderedCode)) {
-            orderRequestRequestDTO.forEach(
-                    orderItemDTO -> {
-                        int itemCode = orderItemDTO.getItemCode();
-                        int orderQuantity = orderItemDTO.getQuantity();
-
-                        // TODO:
-                        //  int itemPrice = ItemService.findItemPriceByItemCode(itemCode);
-                        //  int partPriceSum = itemPrice * orderQuantity;
-                        int partPriceSum = 0;
-
-                        orderItemRepository.save(
-                                OrderItem.builder()
-                                        .orderItemCode(
-                                                OrderItemCode.builder()
-                                                        .itemCode(itemCode)
-                                                        .orderCode(orderedCode)
-                                                        .build()
-                                        )
-                                        .quantity(orderQuantity)
-                                        .available(Available.AVAILABLE)
-                                        .partSumPrice(partPriceSum)
-                                        .build()
-                        );
-                    }
-            );
-        } else {
-            throw new OrderNotFound("Order Items should be more then one order. orderCode: " + orderedCode);
-        }
     }
 
     // 주문 요청 취소
@@ -142,7 +114,14 @@ public class OrderServiceImpl implements OrderService {
         //  1. If member_code in tbl_order is null
         //  2. If the status column in tbl_order_status_history is 'REQUEST'
 
-        updateOrderStatusTo(orderCode, OrderHistoryStatus.CANCELED);
+        orderStatusHistoryRepository.save(
+                OrderStatusHistory.builder()
+                        .orderCode(orderCode)
+                        .status(OrderHistoryStatus.CANCELED)
+                        .createdAt(LocalDateTime.now())
+                        .active(true)
+                        .build()
+        );
         log.debug("order history updated: {}", orderStatusHistoryRepository);
     }
 
@@ -172,7 +151,7 @@ public class OrderServiceImpl implements OrderService {
         return true;
     }
 
-    // 일반 관리자의 주문 승인 상신 요청에 대한 책임 관리자의 승인
+    // 주문요청 상신에 책임 관리자의 승인
     @Transactional
     @Override
     public boolean approveOrderDraft(String orderCode, int memberCode, OrderRequestApproveDTO orderRequestApproveDTO) {
@@ -191,6 +170,7 @@ public class OrderServiceImpl implements OrderService {
         return true;
     }
 
+    // 주문요청 상신에 책임 관리자의 반려
     @Transactional
     @Override
     public boolean rejectOrderDraft(String orderCode, int memberCode, OrderRequestRejectDTO orderRequestRejectDTO) {
@@ -207,6 +187,7 @@ public class OrderServiceImpl implements OrderService {
         return true;
     }
 
+    // 일반 관리자의 가맹점의 주문 요청 반려
     @Transactional
     public void rejectOrderByDrafter(int orderCode,
                                      DrafterRejectOrderRequestDTO drafterRejectOrderRequestDTO,
@@ -228,8 +209,6 @@ public class OrderServiceImpl implements OrderService {
         int drafterMemberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
         Order targetOrder = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
         List<OrderItem> orderItemList = orderItemRepository.findByOrderItemCode_OrderCode(orderCode);
-
-
 
         orderRepository.save(
                 Order.builder()
@@ -275,17 +254,39 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
-    // 주문 상태 변화
+    // 주문 별 아이템 추가
     @Transactional
-    public void updateOrderStatusTo(int orderCode, OrderHistoryStatus newOrderHistoryStatus) {
-        orderStatusHistoryRepository.save(
-                OrderStatusHistory.builder()
-                        .orderCode(orderCode)
-                        .status(newOrderHistoryStatus)
-                        .createdAt(LocalDateTime.now())
-                        .active(true)
-                        .build()
-        );
+    public void addItemsPerOrder(int orderedCode, List<OrderItemDTO> orderRequestRequestDTO) {
+
+        if (orderValidateService.isOrderItemsMoreThenOne(orderedCode)) {
+            orderRequestRequestDTO.forEach(
+                    orderItemDTO -> {
+                        int itemCode = orderItemDTO.getItemCode();
+                        int orderQuantity = orderItemDTO.getQuantity();
+
+                        // TODO:
+                        //  int itemPrice = ItemService.findItemPriceByItemCode(itemCode);
+                        //  int partPriceSum = itemPrice * orderQuantity;
+                        int partPriceSum = 0;
+
+                        orderItemRepository.save(
+                                OrderItem.builder()
+                                        .orderItemCode(
+                                                OrderItemCode.builder()
+                                                        .itemCode(itemCode)
+                                                        .orderCode(orderedCode)
+                                                        .build()
+                                        )
+                                        .quantity(orderQuantity)
+                                        .available(Available.AVAILABLE)
+                                        .partSumPrice(partPriceSum)
+                                        .build()
+                        );
+                    }
+            );
+        } else {
+            throw new OrderNotFound("Order Items should be more then one order. orderCode: " + orderedCode);
+        }
     }
 
     // 주문 합계 구하기
