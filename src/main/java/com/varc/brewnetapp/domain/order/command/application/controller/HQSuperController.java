@@ -35,6 +35,7 @@ public class HQSuperController {
         int memberCode = memberservice.getMemberByLoginId(loginId).getMemberCode();
 
         boolean approved = orderService.approveOrderDraft(orderCode, memberCode, orderRequestApproveDTO);
+
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "successfully approved order request", null)
         );
