@@ -138,6 +138,26 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional
+    @Override
+    public boolean requestApproveOrder(
+            int orderCode,
+            int memberCode,
+            OrderApproveRequestDTO orderApproveRequestDTO
+    ) {
+        Order order = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
+
+        // TODO: 일반 관리자의 상신
+        //  - tbl_order 수정
+        //    - approval_status UNCONFIRMED인지 확인
+        //    - member_code(기안자) 할당
+        //  - tbl_order_status_history
+        //    - status REQUESTED -> PENDING
+        //  - tbl_order_approver 추가
+        //    - approved -> UNCONFIRMED
+        return true;
+    }
+
+    @Transactional
     public void rejectOrderByDrafter(int orderCode,
                                      DrafterRejectOrderRequestDTO drafterRejectOrderRequestDTO,
                                      String loginId) {
@@ -187,40 +207,22 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItem> newOrderItemList = new ArrayList<>();
         orderItemList.forEach(
                 orderItem ->
-                    newOrderItemList.add(
-                            OrderItem.builder()
-                                    .orderItemCode(
-                                            OrderItemCode.builder()
-                                                    .orderCode(orderItem.getOrderItemCode().getOrderCode())
-                                                    .itemCode(orderItem.getOrderItemCode().getItemCode())
-                                                    .build()
-                                    )
-                                    .quantity(orderItem.getQuantity())
-                                    .available(Available.UNAVAILABLE)
-                                    .partSumPrice(orderItem.getPartSumPrice())
-                                    .build()
-                    )
+                        newOrderItemList.add(
+                                OrderItem.builder()
+                                        .orderItemCode(
+                                                OrderItemCode.builder()
+                                                        .orderCode(orderItem.getOrderItemCode().getOrderCode())
+                                                        .itemCode(orderItem.getOrderItemCode().getItemCode())
+                                                        .build()
+                                        )
+                                        .quantity(orderItem.getQuantity())
+                                        .available(Available.UNAVAILABLE)
+                                        .partSumPrice(orderItem.getPartSumPrice())
+                                        .build()
+                        )
         );
         orderItemRepository.saveAll(newOrderItemList);
 
-    }
-
-    @Transactional
-    @Override
-    public boolean requestApproveOrder(
-            int orderCode,
-            int memberCode,
-            OrderApproveRequestDTO orderApproveRequestDTO
-    ) {
-        // TODO: 일반 관리자의 상신
-        //  - tbl_order 수정
-        //    - approval_status UNCONFIRMED인지 확인
-        //    - member_code(기안자) 할당
-        //  - tbl_order_status_history
-        //    - status REQUESTED -> PENDING
-        //  - tbl_order_approver 추가
-        //    - approved -> UNCONFIRMED
-        return true;
     }
 
     // 주문 상태 변화
