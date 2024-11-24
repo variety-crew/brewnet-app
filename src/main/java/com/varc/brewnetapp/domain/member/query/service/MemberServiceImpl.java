@@ -119,6 +119,8 @@ public class MemberServiceImpl implements MemberService {
 
     }
 
+    @Override
+    @Transactional
     public FranchiseDTO getFranchiseInfoByLoginId(String loginId) {
         FranchiseDTO franchiseDTO = memberMapper.getFranchiseInfoBy(loginId);
         if (franchiseDTO == null) {
@@ -172,5 +174,11 @@ public class MemberServiceImpl implements MemberService {
             startDate, endDate, memberCode);
 
         return new PageImpl<>(approvalList, page, count);
+    }
+
+    @Override
+    @Transactional
+    public MemberDTO getMemberByLoginId(String loginId) {
+        return memberMapper.selectMember(loginId);
     }
 }
