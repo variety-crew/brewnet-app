@@ -76,12 +76,19 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public MemberDTO findMember(String accessToken) {
         String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
-        MemberDTO member = memberMapper.selectMember(loginId);
+        Member member = memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("조회하려는 멤버 정보가 없습니다"));
 
-        if(member == null)
+        MemberDTO memberDTO = null;
+
+        if(member.getPositionCode() != null)
+            memberDTO = memberMapper.selectMember(loginId);
+        else
+            memberDTO = memberMapper.selectFranchiseMember(loginId);
+
+        if(memberDTO == null)
             throw new MemberNotFoundException("조회하려는 멤버 정보가 없습니다");
 
-        return member;
+        return memberDTO;
         
     }
 
