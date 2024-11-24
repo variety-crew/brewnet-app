@@ -7,6 +7,7 @@ import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.member.query.service.MemberServiceImpl;
 import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
+import com.varc.brewnetapp.domain.order.command.application.dto.OrderApproveRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderItemDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
@@ -34,20 +35,18 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
-    private final MemberServiceImpl queryMemberService;
 
     @Autowired
     public OrderServiceImpl(
             MemberService memberService,
             OrderRepository orderRepository,
             OrderStatusHistoryRepository orderStatusHistoryRepository,
-            OrderItemRepository orderItemRepository,
-            MemberServiceImpl queryMemberService) {
+            OrderItemRepository orderItemRepository
+    ) {
         this.memberService = memberService;
         this.orderRepository = orderRepository;
         this.orderStatusHistoryRepository = orderStatusHistoryRepository;
         this.orderItemRepository = orderItemRepository;
-        this.queryMemberService = queryMemberService;
     }
 
     // 가맹점의 주문요청
@@ -204,6 +203,24 @@ public class OrderServiceImpl implements OrderService {
         );
         orderItemRepository.saveAll(newOrderItemList);
 
+    }
+
+    @Transactional
+    @Override
+    public boolean requestApproveOrder(
+            int orderCode,
+            int memberCode,
+            OrderApproveRequestDTO orderApproveRequestDTO
+    ) {
+        // TODO: 일반 관리자의 상신
+        //  - tbl_order 수정
+        //    - approval_status UNCONFIRMED인지 확인
+        //    - member_code(기안자) 할당
+        //  - tbl_order_status_history
+        //    - status REQUESTED -> PENDING
+        //  - tbl_order_approver 추가
+        //    - approved -> UNCONFIRMED
+        return true;
     }
 
     // 주문 상태 변화

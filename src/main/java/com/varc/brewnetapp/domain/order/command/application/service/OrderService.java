@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.order.command.application.service;
 
 import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
+import com.varc.brewnetapp.domain.order.command.application.dto.OrderApproveRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderItemDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
@@ -24,4 +25,9 @@ public interface OrderService {
     void rejectOrderByDrafter(int orderCode,
                               DrafterRejectOrderRequestDTO drafterRejectOrderRequestDTO,
                               String loginId);
+
+    // 주문 결재 상신
+    boolean requestApproveOrder(int orderCode,
+                                int memberCode,
+                                OrderApproveRequestDTO orderApproveRequestDTO);
 }
