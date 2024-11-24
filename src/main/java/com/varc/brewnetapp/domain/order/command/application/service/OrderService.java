@@ -18,7 +18,6 @@ public interface OrderService {
             String loginId
     );
 
-    // 주문별 품목 생성
     void addItemsPerOrder(int orderCode,
                           List<OrderItemDTO> orderRequestRequestDTO);
 

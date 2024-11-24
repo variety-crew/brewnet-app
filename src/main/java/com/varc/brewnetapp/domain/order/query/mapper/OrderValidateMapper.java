@@ -9,8 +9,4 @@ public interface OrderValidateMapper {
             @Param("franchiseCode") int franchiseCode,
             @Param("orderCode") int orderCode
     );
-
-    boolean checkIsOrderItemMoreThenOne(
-            @Param("orderCode") int orderCode
-    );
 }

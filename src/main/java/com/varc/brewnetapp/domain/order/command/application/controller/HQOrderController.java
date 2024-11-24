@@ -27,10 +27,13 @@ public class HQOrderController {
     @PostMapping("/request/{orderCode}")
     @Operation(summary = "가맹점 주문 요청건에 대한 일반 관리자의 상신")
     public ResponseEntity<ResponseMessage<Object>> requestApproveOrder(
-            @PathVariable Integer orderCode,
-            @RequestAttribute("loginId") String loginId,
+            @PathVariable(name = "orderCode") Integer orderCode,
+            @RequestAttribute(name = "loginId") String loginId,
             @RequestBody OrderApproveRequestDTO orderApproveRequestDTO
     ) {
+        log.debug("orderCode: {}", orderCode);
+        log.debug("loginId: {}", loginId);
+        log.debug("orderApproveRequestDTO: {}", orderApproveRequestDTO);
         int memberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
 
         boolean done = orderService.requestApproveOrder(orderCode, memberCode, orderApproveRequestDTO);
@@ -40,6 +43,7 @@ public class HQOrderController {
     }
 
     @PostMapping("/reject/{orderCode}/reject")
+    @Operation(summary = "가맹점 주문 요청건에 대한 일반 관리자의 반려")
     public ResponseEntity<ResponseMessage<Object>> drafterReject(
             @PathVariable("orderCode") Integer orderCode,
             @RequestAttribute("loginId") String loginId,
