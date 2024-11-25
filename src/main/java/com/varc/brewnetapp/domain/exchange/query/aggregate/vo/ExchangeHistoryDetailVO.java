@@ -1,7 +1,7 @@
 package com.varc.brewnetapp.domain.exchange.query.aggregate.vo;
 
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeHistoryStatus;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeReason;
+import com.varc.brewnetapp.common.domain.exchange.ExchangeHistoryStatus;
+import com.varc.brewnetapp.common.domain.exchange.ExchangeReason;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

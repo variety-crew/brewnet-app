@@ -1,4 +1,4 @@
-package com.varc.brewnetapp.domain.exchange.enums;
+package com.varc.brewnetapp.common.domain.exchange;
 public enum ExchangeHistoryStatus {
     TOTAL_INBOUND("전체입고"),
     TOTAL_DISPOSAL("전체폐기"),

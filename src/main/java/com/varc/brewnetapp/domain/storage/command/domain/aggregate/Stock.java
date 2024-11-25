@@ -1,16 +1,15 @@
 package com.varc.brewnetapp.domain.storage.command.domain.aggregate;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Builder(toBuilder = true)
 @Entity
 @Table(name = "tbl_stock")
 @IdClass(StockId.class)
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

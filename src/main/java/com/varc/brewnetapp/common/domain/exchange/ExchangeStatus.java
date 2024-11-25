@@ -1,7 +1,8 @@
-package com.varc.brewnetapp.domain.exchange.enums;
+package com.varc.brewnetapp.common.domain.exchange;
 
 public enum ExchangeStatus {
     REQUESTED("교환요청"),
+    PENDING("진행중"),
     CANCELED("교환취소"),
     APPROVED("교환승인"),
     REJECTED("교환반려"),
