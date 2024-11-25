@@ -8,6 +8,7 @@ import com.varc.brewnetapp.domain.delivery.query.mapper.DeliveryMapper;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.exception.EmptyDataException;
+import com.varc.brewnetapp.exception.InvalidDataException;
 import com.varc.brewnetapp.exception.MemberNotFoundException;
 import com.varc.brewnetapp.security.utility.JwtUtil;
 import java.util.List;
@@ -88,6 +89,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             items = deliveryMapper.selectExchangeDelivery(myDelivery.getCode());
         else if(myDelivery.getDeliveryKind().equals(DeliveryKind.RETURN))
             items = deliveryMapper.selectReturnDelivery(myDelivery.getCode());
+        else
+            throw new InvalidDataException("배송 가능한 주문이 없습니다");
 
         myDelivery.setItems(items);
 
