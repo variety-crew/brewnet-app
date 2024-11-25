@@ -4,5 +4,5 @@ import com.varc.brewnetapp.domain.delivery.command.application.dto.CreateDeliver
 
 public interface DeliveryService {
 
-    void createDeliveryStatus(CreateDeliveryStatusRequestDTO createDeliveryStatusRequestDTO);
+    void createDeliveryStatus(CreateDeliveryStatusRequestDTO createDeliveryStatusRequestDTO, String accessToken);
 }
