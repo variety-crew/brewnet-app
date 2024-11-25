@@ -35,4 +35,12 @@ public class ExchangeController {
         exchangeService.managerExchange(loginId, exchangeCode, exchangeApproveReqVO);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재신청 성공", null));
     }
+
+    @PostMapping("/other/complete/{exchangeStockHistoryCode}")
+    @Operation(summary = "[본사] 타부서 교환처리내역 상세조회 - 교환완료 API")
+    public ResponseEntity<ResponseMessage<Integer>> completeExchange(@RequestAttribute("loginId") String loginId,
+                                                                    @PathVariable("exchangeStockHistoryCode") int exchangeStockHistoryCode) {
+        exchangeService.completeExchange(loginId, exchangeStockHistoryCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재신청 성공", null));
+    }
 }

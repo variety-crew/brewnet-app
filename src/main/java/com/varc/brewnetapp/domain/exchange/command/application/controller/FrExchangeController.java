@@ -21,7 +21,7 @@ public class FrExchangeController {
     @Operation(summary = "[가맹점] 교환신청 API")
     public ResponseEntity<ResponseMessage<ExchangeReqVO>> registExchange(@RequestAttribute("loginId") String loginId,
                                                                          @RequestBody ExchangeReqVO exchangeReqVO) {
-        exchangeService.createExchange(loginId, exchangeReqVO);
+        exchangeService.franCreateExchange(loginId, exchangeReqVO);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환신청 성공", null));
     }
 
@@ -29,7 +29,7 @@ public class FrExchangeController {
     @Operation(summary = "[가맹점] 교환취소 API")
     public ResponseEntity<ResponseMessage<Integer>> cancelExchange(@RequestAttribute("loginId") String loginId,
                                                                    @PathVariable("exchangeCode") Integer exchangeCode) {
-        exchangeService.cancelExchange(loginId, exchangeCode);
+        exchangeService.franCancelExchange(loginId, exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환취소 성공", exchangeCode));
     }
 }

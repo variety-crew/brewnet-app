@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.exchange.command.application.service;
 
+import com.varc.brewnetapp.common.domain.approve.Confirmed;
 import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
 import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.domain.exchange.command.application.repository.*;
@@ -15,10 +16,9 @@ import com.varc.brewnetapp.common.domain.approve.Approval;
 import com.varc.brewnetapp.common.domain.exchange.ExchangeStatus;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
-import com.varc.brewnetapp.exception.ExchangeNotFoundException;
-import com.varc.brewnetapp.exception.InvalidStatusException;
-import com.varc.brewnetapp.exception.MemberNotFoundException;
-import com.varc.brewnetapp.exception.UnauthorizedAccessException;
+import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
+import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
+import com.varc.brewnetapp.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,10 +41,13 @@ public class ExchangeServiceImpl implements ExchangeService {
     private final ExchangeStatusHistoryRepository exchangeStatusHistoryRepository;
     private final com.varc.brewnetapp.domain.exchange.query.service.ExchangeServiceImpl exchangeServiceQuery;
     private final ExchangeApproverRepository exchangeApproverRepository;
+    private final ExchangeStockHistoryRepository exchangeStockHistoryRepository;
+    private final ExchangeItemStatusRepository exchangeItemStatusRepository;
+    private final StockRepository stockRepository;
 
     @Override
     @Transactional
-    public void createExchange(String loginId, ExchangeReqVO exchangeReqVO) {
+    public void franCreateExchange(String loginId, ExchangeReqVO exchangeReqVO) {
         /*
          * 교환 신청 시 변하는 상태값
          * [1] 교환 결재 상태           - tbl_exchange : approvalStatus = UNCONFIRMED
@@ -125,7 +128,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 
     @Override
     @Transactional
-    public boolean cancelExchange(String loginId, Integer exchangeCode) {
+    public void franCancelExchange(String loginId, Integer exchangeCode) {
         /*
          * 교환 취소 시 변하는 상태값
          * [1] 교환상태                - tbl_exchange_status_history : status = CANCELED (내역 추가됨)
@@ -181,7 +184,6 @@ public class ExchangeServiceImpl implements ExchangeService {
                     exOrderItemRepository.save(orderItem);
                 }
 
-                return true;
             } else {
                 throw new InvalidStatusException("교환신청 취소가 불가능합니다. 교환상태가 '교환요청'인 경우에만 취소할 수 있습니다");
             }
@@ -237,6 +239,154 @@ public class ExchangeServiceImpl implements ExchangeService {
             throw new InvalidStatusException("최초 기안자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
         }
     }
+    @Override
+    @Transactional
+    public void managerExchange(String loginId, int exchangeCode, ExchangeManagerApproveReqVO exchangeApproveReqVO) {
+        /*
+         * 교환결재(결재자) 시 변하는 상태값
+         * [1] 교환 결재 상태            - tbl_exchange : approval_status = APPROVED / REJECTED
+         * [2] 교환상태                 - tbl_exchange_status_history : status = APPROVED / REJECTED (내역 추가됨)
+         * [3] 승인여부                 - tbl_exchange_approver : approved = APPROVED / REJECTED
+         * [4] 결재일시                 - tbl_exchange_approver : created_at = 현재일시
+         * */
+
+        /*
+         * 교환결재(결재자)
+         * - 결재가 가능한 조건:
+         *   1. 교환 별 결재자들(tbl_exchange_approver) 테이블 회원코드(member_code) == 현재 회원 코드
+         *   2. 교환 별 결재자들(tbl_exchange_approver) 테이블 교환코드(exchange_code) == 교환 코드
+         *   3. 교환 상태 이력 (tbl_exchange_status_history) 테이블 교환상태(status) == PENDING
+         *   3. 교환 별 결재자들(tbl_exchange_approver) 테이블 승인여부(approved) == UNCONFIRMED
+        * */
+
+        // 1. 교환 결재가 가능한지 확인
+        Member member = memberRepository.findById(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("멤버 코드가 존재하지 않습니다"));
+        Exchange exchange = exchangeRepository.findById(exchangeCode)
+                .orElseThrow(() -> new ExchangeNotFoundException("교환 코드가 존재하지 않습니다."));
+
+        ExchangeApproverCode exchangeApproverCode = ExchangeApproverCode.builder()
+                .exchangeCode(exchangeCode)
+                .memberCode(member.getMemberCode())
+                .build();
+        ExchangeApprover exchangeApprover = exchangeApproverRepository.findById(exchangeApproverCode)
+                .orElseThrow(() -> new IllegalArgumentException("\"결재가 불가능합니다. 결재 요청이 존재하지 않습니다."));
+
+        ExchangeStatus status = exchangeServiceQuery.findExchangeLatestStatus(exchangeCode);
+        if (status != ExchangeStatus.PENDING) {
+            throw new InvalidStatusException("결재가 불가능합니다. 교환 상태가 '진행중'이 아닙니다.");
+        } else if (exchange.getApprovalStatus() != Approval.UNCONFIRMED) {
+            throw new InvalidStatusException("결재가 불가능합니다. 교환 결재 상태가 '미확인'이 아닙니다.");
+        }
+
+
+
+        if (exchangeApproveReqVO.getApproval() == Approval.APPROVED) {
+            // 2. 교환(tbl_exchange) 테이블 '교환 결재 상태(approval_status)' 변경
+            exchange = exchange.toBuilder()
+                    .approvalStatus(Approval.APPROVED)
+                    .build();
+            exchangeRepository.save(exchange);
+
+            // 3. 교환 상태 이력(tbl_exchange_status_history) 테이블 내역 추가
+            saveExchangeStatusHistory(ExchangeStatus.APPROVED, exchange);
+
+            // 4. 교환 별 결재자들(tbl_exchange_approver) 테이블 승인여부, 결재일시 변경
+            exchangeApprover = exchangeApprover.toBuilder()
+                    .approved(Approval.APPROVED)
+                    .createdAt(String.valueOf(LocalDateTime.now()))
+                    .build();
+            exchangeApproverRepository.save(exchangeApprover);
+
+
+        } else if (exchangeApproveReqVO.getApproval() == Approval.REJECTED) {
+            // 2. 교환(tbl_exchange) 테이블 '교환 결재 상태(approval_status)' 변경
+            exchange = exchange.toBuilder()
+                    .approvalStatus(Approval.REJECTED)
+                    .build();
+            exchangeRepository.save(exchange);
+
+            // 3. 교환 상태 이력(tbl_exchange_status_history) 테이블 내역 추가
+            saveExchangeStatusHistory(ExchangeStatus.REJECTED, exchange);
+
+            // 4. 교환 별 결재자들(tbl_exchange_approver) 테이블 승인여부, 결재일시 변경
+            exchangeApprover = exchangeApprover.toBuilder()
+                    .approved(Approval.REJECTED)
+                    .createdAt(String.valueOf(LocalDateTime.now()))
+                    .build();
+            exchangeApproverRepository.save(exchangeApprover);
+        } else {
+            throw new IllegalArgumentException("결재자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void completeExchange(String loginId, int exchangeStockHistoryCode) {
+        /*
+         * 교환완료 시 변하는 상태값
+         * [1] 교환상태                   - tbl_exchange_status_history : status = COMPLETED (내역 추가됨)
+         * [2] 내역 확인 여부              - tbl_exchange_stock_history : confirmed = CONFIRMED
+         * [3] 교환완료된 상품의 재고        - tbl_stock : available_stock 추가 (가용재고 추가됨)
+         * [4] 반품/교환요청 가능여부        - tbl_order_item : available = AVAILABLE
+         * */
+
+        /*
+         * 교환완료
+         * - 교환완료가 가능한 조건:
+         *   1. 교환 별 재고 처리 완료 내역(tbl_exchange_stock_history) 테이블 내역확인여부(confirmed) == UNCONFIRMED
+         *
+         * - 추가사항: 교환상태가 SHIPPED 아닐 때에도 완료처리 가능한 예외상황이 있을 수 있다고 판단해 교한상태로 완료가능 판단 X
+         * */
+
+        // 1. 교환 완료가 가능한지 확인
+        ExchangeStockHistory exchangeStockHistory = exchangeStockHistoryRepository.findById(exchangeStockHistoryCode)
+                .orElseThrow(() -> new IllegalArgumentException("타부서의 교환 별 재고 처리 완료 내역이 존재하지 않습니다."));
+        if (exchangeStockHistory.getConfirmed() != Confirmed.UNCONFIRMED) {
+            throw new IllegalArgumentException("교환 완료가 불가합니다. 이미 교환 완료된 내역입니다.");
+        }
+
+        // 2. 교환 상태 이력(tbl_exchange_status_history) 테이블 교환상태에 교환상태(status) COMPLETED 내역 추가
+        saveExchangeStatusHistory(ExchangeStatus.COMPLETED, exchangeStockHistory.getExchange());
+
+        // 3. 교환 별 재고 처리 완료 내역(tbl_exchange_stock_history) 테이블 내역확인여부(confirmed) CONFIRMED 변경
+        exchangeStockHistory = exchangeStockHistory.toBuilder()
+                .confirmed(Confirmed.CONFIRMED)
+                .build();
+        exchangeStockHistoryRepository.save(exchangeStockHistory);
+
+
+        // 4. 재고(tbl_stock) 테이블 가용재고(available_stock) 증가
+
+        // 4-1. 교환 별 재고 처리 완료 내역(tbl_exchange_stock_history) 테이블의 교환완료내역코드(exchange_stock_history_code)로
+        //      교환 완료 상품 상태(tbl_exchange_item_status) 조회
+        List<ExchangeItemStatus> exchangeItemStatusList = exchangeItemStatusRepository
+                .findByExchangeItemStatusCode_ExchangeStockHistoryCode(exchangeStockHistory.getExchangeStockHistoryCode());
+
+        // 4-2. 교환완료상품상태(tbl_exchange_item_status) 테이블의 상품코드(item_code)로 재고(tbl_stock) 조회
+        //      창고코드(storage_code)=1인 재고 -> 임시로 창고코드 1인 재고만 조회
+        for (ExchangeItemStatus exchangeItemStatus : exchangeItemStatusList ) {
+            Stock stock = stockRepository.findByStorageCodeAndItemCode(1, exchangeItemStatus.getExchangeItemStatusCode().getItemCode());
+
+            // 4-4. 교환완료상품상태(tbl_exchange_item_status) 테이블의 재입고수량(restock_quantity) 만큼 재고(tbl_stock) 테이블의 가용재고(available_stock) 증가
+            stock = stock.toBuilder()
+                    .availableStock(stock.getAvailableStock() + exchangeItemStatus.getRestock_quantity())
+                    .build();
+            stockRepository.save(stock);
+        }
+
+
+        // 5. 주문 별 상품(tbl_order_item) 테이블 반품/교환요청 가능여부(available) AVAILABLE 변경
+        List<ExOrderItem> exOrderItemList = exOrderItemRepository.findByOrderItemCode_orderCode(exchangeStockHistory.getExchange().getOrder().getOrderCode())
+                .orElseThrow(() -> new OrderNotFound("완료 처리와 연관된 주문 별 상품 내역을 찾을 수 없습니다."));
+        for (ExOrderItem exOrderItem : exOrderItemList) {
+            exOrderItem = exOrderItem.toBuilder()
+                    .available(Available.AVAILABLE)
+                    .build();
+            exOrderItemRepository.save(exOrderItem);
+        }
+    }
+
 
     private void drafterApproveExchange(ExchangeDrafterApproveReqVO exchangeApproveReqVO, Exchange exchange, Member member) {
         // [1] 교환(tbl_exchange) 테이블 '기안자의 교환 승인 여부(drafter_approved)'가 APPROVE 라면
@@ -313,86 +463,4 @@ public class ExchangeServiceImpl implements ExchangeService {
         exchangeStatusHistoryRepository.save(exchangeStatusHistory);
     }
 
-
-
-    @Override
-    @Transactional
-    public void managerExchange(String loginId, int exchangeCode, ExchangeManagerApproveReqVO exchangeApproveReqVO) {
-        /*
-         * 교환결재(결재자) 시 변하는 상태값
-         * [1] 교환 결재 상태            - tbl_exchange : approval_status = APPROVED / REJECTED
-         * [2] 교환상태                 - tbl_exchange_status_history : status = APPROVED / REJECTED (내역 추가됨)
-         * [3] 승인여부                 - tbl_exchange_approver : approved = APPROVED / REJECTED
-         * [3] 결재일시                 - tbl_exchange_approver : created_at = 현재일시
-         * */
-
-        /*
-         * 교환결재(최초기안자)
-         * - 결재가 가능한 조건:
-         *   1. 교환 별 결재자들(tbl_exchange_approver) 테이블 회원코드(member_code) == 현재 회원 코드
-         *   2. 교환 별 결재자들(tbl_exchange_approver) 테이블 교환코드(exchange_code) == 교환 코드
-         *   3. 교환 상태 이력 (tbl_exchange_status_history) 테이블 교환상태(status) == PENDING
-         *   3. 교환 별 결재자들(tbl_exchange_approver) 테이블 승인여부(approved) == UNCONFIRMED
-        * */
-
-        // 1. 교환 결재가 가능한지 확인
-        Member member = memberRepository.findById(loginId)
-                .orElseThrow(() -> new IllegalArgumentException("멤버 코드가 존재하지 않습니다"));
-        Exchange exchange = exchangeRepository.findById(exchangeCode)
-                .orElseThrow(() -> new ExchangeNotFoundException("교환 코드가 존재하지 않습니다."));
-
-        ExchangeApproverCode exchangeApproverCode = ExchangeApproverCode.builder()
-                .exchangeCode(exchangeCode)
-                .memberCode(member.getMemberCode())
-                .build();
-        ExchangeApprover exchangeApprover = exchangeApproverRepository.findById(exchangeApproverCode)
-                .orElseThrow(() -> new IllegalArgumentException("\"결재가 불가능합니다. 결재 요청이 존재하지 않습니다."));
-
-        ExchangeStatus status = exchangeServiceQuery.findExchangeLatestStatus(exchangeCode);
-        if (status != ExchangeStatus.PENDING) {
-            throw new InvalidStatusException("결재가 불가능합니다. 교환 상태가 '진행중'이 아닙니다.");
-        } else if (exchange.getApprovalStatus() != Approval.UNCONFIRMED) {
-            throw new InvalidStatusException("결재가 불가능합니다. 교환 결재 상태가 '미확인'이 아닙니다.");
-        }
-
-
-
-        if (exchangeApproveReqVO.getApproval() == Approval.APPROVED) {
-            // 2. 교환(tbl_exchange) 테이블 '교환 결재 상태(approval_status)' 변경
-            exchange = exchange.toBuilder()
-                    .approvalStatus(Approval.APPROVED)
-                    .build();
-            exchangeRepository.save(exchange);
-
-            // 3. 교환 상태 이력(tbl_exchange_status_history) 테이블 내역 추가
-            saveExchangeStatusHistory(ExchangeStatus.APPROVED, exchange);
-
-            // 4. 교환 별 결재자들(tbl_exchange_approver) 테이블 승인여부, 결재일시 변경
-            exchangeApprover = exchangeApprover.toBuilder()
-                    .approved(Approval.APPROVED)
-                    .createdAt(String.valueOf(LocalDateTime.now()))
-                    .build();
-            exchangeApproverRepository.save(exchangeApprover);
-
-
-        } else if (exchangeApproveReqVO.getApproval() == Approval.REJECTED) {
-            // 2. 교환(tbl_exchange) 테이블 '교환 결재 상태(approval_status)' 변경
-            exchange = exchange.toBuilder()
-                    .approvalStatus(Approval.REJECTED)
-                    .build();
-            exchangeRepository.save(exchange);
-
-            // 3. 교환 상태 이력(tbl_exchange_status_history) 테이블 내역 추가
-            saveExchangeStatusHistory(ExchangeStatus.REJECTED, exchange);
-
-            // 4. 교환 별 결재자들(tbl_exchange_approver) 테이블 승인여부, 결재일시 변경
-            exchangeApprover = exchangeApprover.toBuilder()
-                    .approved(Approval.REJECTED)
-                    .createdAt(String.valueOf(LocalDateTime.now()))
-                    .build();
-            exchangeApproverRepository.save(exchangeApprover);
-        } else {
-            throw new IllegalArgumentException("결재자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
-        }
-    }
 }
