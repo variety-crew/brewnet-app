@@ -18,7 +18,7 @@ public class ExchangeController {
 
     private final ExchangeServiceImpl exchangeService;
 
-    @PostMapping("{exchangeCode}/drafter-approve")
+    @PostMapping("/{exchangeCode}/drafter-approve")
     @Operation(summary = "[본사] 교환 결재신청(기안자) API")
     public ResponseEntity<ResponseMessage<Integer>> drafterApproveExchange(@RequestAttribute("loginId") String loginId,
                                                                            @PathVariable("exchangeCode") int exchangeCode,
@@ -27,7 +27,7 @@ public class ExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재신청 성공", null));
     }
 
-    @PostMapping("{exchangeCode}/manager-approve")
+    @PostMapping("/{exchangeCode}/manager-approve")
     @Operation(summary = "[본사] 교환 결재승인(결재자) API")
     public ResponseEntity<ResponseMessage<Integer>> approveExchange(@RequestAttribute("loginId") String loginId,
                                                                     @PathVariable("exchangeCode") int exchangeCode,
