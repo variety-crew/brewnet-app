@@ -3,12 +3,13 @@ package com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Builder(toBuilder = true)
 @Data
 @Getter
 //@Setter
 @Entity
 @Table(name = "tbl_exchange_img")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString
 public class ExchangeImg {

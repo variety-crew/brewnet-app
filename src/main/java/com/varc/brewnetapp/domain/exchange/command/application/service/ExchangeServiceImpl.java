@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.exchange.command.application.service;
 
+import com.varc.brewnetapp.common.S3ImageService;
 import com.varc.brewnetapp.common.domain.approve.Confirmed;
 import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
 import com.varc.brewnetapp.common.domain.order.Available;
@@ -15,16 +16,21 @@ import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeR
 import com.varc.brewnetapp.common.domain.approve.Approval;
 import com.varc.brewnetapp.common.domain.exchange.ExchangeStatus;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Seal;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
 import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
 import com.varc.brewnetapp.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Service("ExchangeServiceCommand")
@@ -44,10 +50,12 @@ public class ExchangeServiceImpl implements ExchangeService {
     private final ExchangeStockHistoryRepository exchangeStockHistoryRepository;
     private final ExchangeItemStatusRepository exchangeItemStatusRepository;
     private final StockRepository stockRepository;
+    private final ExchangeImgRepository exchangeImgRepository;
+    private final S3ImageService s3ImageService;
 
     @Override
     @Transactional
-    public Integer franCreateExchange(String loginId, ExchangeReqVO exchangeReqVO) {
+    public Integer franCreateExchange(String loginId, ExchangeReqVO exchangeReqVO, List<MultipartFile> exchangeImageList) {
         /*
          * 교환 신청 시 변하는 상태값
          * [1] 교환 결재 상태           - tbl_exchange : approvalStatus = UNCONFIRMED
@@ -120,6 +128,16 @@ public class ExchangeServiceImpl implements ExchangeService {
             saveExchangeStatusHistory(ExchangeStatus.REQUESTED, exchange);
 
             // 6. 교환품목사진 저장
+            for (MultipartFile image : exchangeImageList) {
+                String s3Url = s3ImageService.upload(image);
+                ExchangeImg exchangeImg = ExchangeImg.builder()
+                        .imageUrl(s3Url)
+                        .exchange(exchange)
+                        .build();
+
+                exchangeImgRepository.save(exchangeImg);
+            }
+
 
             // 7. 교환코드(exchangeCode) 리턴 - 프론트엔드 상세페이지 이동 위해
             return exchange.getExchangeCode();

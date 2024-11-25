@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController("FrExchangeControllerCommand")
 @RequiredArgsConstructor
@@ -20,8 +23,9 @@ public class FrExchangeController {
     @PostMapping("/")
     @Operation(summary = "[가맹점] 교환신청 API")
     public ResponseEntity<ResponseMessage<Integer>> registExchange(@RequestAttribute("loginId") String loginId,
-                                                                         @RequestBody ExchangeReqVO exchangeReqVO) {
-        int exchangeCode = exchangeService.franCreateExchange(loginId, exchangeReqVO);
+                                                                   @RequestPart("exchangeReqVO") ExchangeReqVO exchangeReqVO,
+                                                                   @RequestParam("exchangeImage") List<MultipartFile> exchangeImageList) {
+        int exchangeCode = exchangeService.franCreateExchange(loginId, exchangeReqVO, exchangeImageList);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환신청 성공", exchangeCode));
     }
 
