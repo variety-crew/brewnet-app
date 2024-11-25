@@ -1,7 +1,6 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
 import com.varc.brewnetapp.domain.order.query.mapper.OrderValidateMapper;
-import com.varc.brewnetapp.exception.UnauthorizedAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,5 +19,10 @@ public class OrderValidateServiceImpl implements OrderValidateService {
     @Override
     public boolean isOrderFromFranchise(int franchiseCode, int orderCode) {
         return orderValidateMapper.checkIsOrderFrom(franchiseCode, orderCode);
+    }
+
+    @Override
+    public boolean isOrderDrafted(Integer orderCode) {
+        return orderValidateMapper.checkIsOrderDrafted(orderCode);
     }
 }

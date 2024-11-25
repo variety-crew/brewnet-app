@@ -9,4 +9,8 @@ public interface OrderValidateMapper {
             @Param("franchiseCode") int franchiseCode,
             @Param("orderCode") int orderCode
     );
+
+    boolean checkIsOrderDrafted(
+            @Param("orderCode") int orderCode
+    );
 }

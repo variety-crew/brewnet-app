@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.order.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.member.query.service.MemberServiceImpl;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
@@ -16,10 +17,10 @@ import org.springframework.web.bind.annotation.*;
 public class FranchiseOrderController {
 
     private final OrderService orderService;
-    private final MemberServiceImpl queryMemberService;
+    private final MemberService queryMemberService;
 
     @Autowired
-    public FranchiseOrderController(OrderService orderService, MemberServiceImpl queryMemberService) {
+    public FranchiseOrderController(OrderService orderService, MemberService queryMemberService) {
         this.orderService = orderService;
         this.queryMemberService = queryMemberService;
     }
@@ -44,6 +45,8 @@ public class FranchiseOrderController {
             @PathVariable(name = "orderCode") Integer orderCode,
             @RequestAttribute(name = "loginId") String loginId
     ) {
+        log.info("orderCode: {}", orderCode);
+        log.info("loginId: {}", loginId);
         int requestMemberFranchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
                 .getFranchiseCode();
 

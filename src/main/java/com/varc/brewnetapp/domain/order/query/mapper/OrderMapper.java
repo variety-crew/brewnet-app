@@ -22,11 +22,6 @@ public interface OrderMapper {
             @Param("offset") int offset
     );
 
-    // common
-    List<OrderStatusHistory> findOrderHistoriesByOrderId(
-            @Param("orderId") int orderId
-    );
-
 
     // for HQ
     List<HQOrderDTO> findOrdersForHQBy(
@@ -37,11 +32,13 @@ public interface OrderMapper {
             @Param("startDate") String startDate,
             @Param("endDate") String endDate
     );
+
     int countOrdersForHq(
             @Param("filter") String filter,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate
     );
+
     OrderDetailForHQDTO findOrderDetailForHqBy(int orderCode);
 
 
@@ -62,7 +59,18 @@ public interface OrderMapper {
             @Param("startDate") String startDate,
             @Param("endDate") String endDate
     );
+
     OrderDetailForFranchiseDTO findOrderDetailForFranchiseBy(int orderCode);
 
+
+    // common
     List<OrderApprovalHistoryDTO> findOrderApprovalHistoriesBy(int orderCode);
+
+    OrderStatusHistory findRecentHistoryByOrderId(
+            @Param("orderCode") int orderCode
+    );
+
+    List<OrderStatusHistory> findOrderHistoriesByOrderId(
+            @Param("orderId") int orderId
+    );
 }
