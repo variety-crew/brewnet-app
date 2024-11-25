@@ -7,6 +7,7 @@ import com.varc.brewnetapp.common.domain.order.OrderHistoryStatus;
 import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
 import com.varc.brewnetapp.domain.item.query.service.ItemService;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
+import com.varc.brewnetapp.domain.member.query.service.MemberServiceImpl;
 import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderApproveRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderRequestApproveDTO;
@@ -21,6 +22,7 @@ import com.varc.brewnetapp.domain.order.command.domain.repository.OrderApprovalR
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderItemRepository;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderRepository;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderStatusHistoryRepository;
+import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
 import com.varc.brewnetapp.domain.order.query.service.OrderValidateService;
 import com.varc.brewnetapp.domain.storage.command.application.service.StorageService;
 import com.varc.brewnetapp.exception.*;
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -43,9 +46,11 @@ public class OrderServiceImpl implements OrderService {
     private final OrderApprovalRepository orderApprovalRepository;
 
     private final MemberService memberService;
+    private final OrderQueryService orderQueryService;
     private final OrderValidateService orderValidateService;
     private final ItemService itemService;
     private final StorageService storageService;
+    private final MemberServiceImpl queryMemberService;
 
     @Autowired
     public OrderServiceImpl(
@@ -54,27 +59,32 @@ public class OrderServiceImpl implements OrderService {
             OrderStatusHistoryRepository orderStatusHistoryRepository,
             OrderApprovalRepository orderApprovalRepository,
             MemberService memberService,
+            OrderQueryService orderQueryService,
             OrderValidateService orderValidateService,
             ItemService itemService,
-            StorageService storageService) {
+            StorageService storageService, MemberServiceImpl queryMemberService
+    ) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.orderStatusHistoryRepository = orderStatusHistoryRepository;
         this.orderApprovalRepository = orderApprovalRepository;
         this.memberService = memberService;
+        this.orderQueryService = orderQueryService;
         this.orderValidateService = orderValidateService;
         this.itemService = itemService;
         this.storageService = storageService;
+        this.queryMemberService = queryMemberService;
     }
 
     // 가맹점의 주문요청
     @Transactional
     @Override
-    public OrderRequestResponseDTO orderRequestByFranchise(OrderRequestDTO orderRequestDTO, String loginId) {
+    public OrderRequestResponseDTO orderRequestByFranchise(
+            OrderRequestDTO orderRequestDTO, String loginId
+    ) {
         int requestFranchiseCode = memberService.getFranchiseInfoByLoginId(loginId).getFranchiseCode();
         List<OrderItemDTO> requestedOrderItemDTOList = orderRequestDTO.getOrderList();
         log.debug("requestedOrderItemDTOList: {}", requestedOrderItemDTOList);
-
 
         int orderedCode = orderRepository.save(
                 Order.builder()
@@ -111,8 +121,37 @@ public class OrderServiceImpl implements OrderService {
     // 주문 요청 취소
     @Transactional
     @Override
-    public void cancelOrderRequest(Integer orderCode) {
+    public void cancelOrderRequest(Integer orderCode, Integer requestMemberFranchiseCode) {
         Order order = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
+
+        int targetFranchiseCode = order.getFranchiseCode();
+
+        // TODO: validate
+        //  If the requester is from target franchise  [DONE]
+        if (!Objects.equals(targetFranchiseCode, requestMemberFranchiseCode)) {
+            throw new UnauthorizedAccessException(
+                    "Unauthorized access." + "OrderCode: " + orderCode + " is from franchiseCode: " + targetFranchiseCode + ". Your franchise code is: " + requestMemberFranchiseCode
+            );
+        }
+
+        // TODO: validate
+        //  1. check if member_code in tbl_order is null and the order is valid(.active=1) [DONE]
+        //  2. If the status column in tbl_order_status_history is 'REQUESTED'             [DONE]
+
+        // TODO: Order Item 상태 수정
+        //  3. tbl_order_item 목록 수정 available, active -> UNAVAILABLE, false              [DONE]
+
+        if (orderValidateService.isOrderDrafted(orderCode)) {
+            throw new OrderApprovalAlreadyExist("Order already drafted. Order code is: " + orderCode + ". Unable to cancel the order.");
+        }
+
+        String recentOrderStatus = orderQueryService.getOrderStatusHistoryByOrderCode(orderCode).getOrderHistoryStatus();
+        if (!recentOrderStatus.equals(OrderHistoryStatus.REQUESTED.getValue())) {
+            throw new UnexpectedOrderStatus("expected status: " + OrderHistoryStatus.REQUESTED + " but got " + recentOrderStatus);
+        }
+
+        updateOrderedItemListStatusTo(getOrderItemsByOrderCode(orderCode), Available.UNAVAILABLE);
+
         orderRepository.save(
                 Order.builder()
                         .orderCode(order.getOrderCode())
@@ -127,11 +166,6 @@ public class OrderServiceImpl implements OrderService {
                         .deliveryCode(order.getDeliveryCode())
                         .build()
         );
-
-        // TODO: validate
-        //  1. If member_code in tbl_order is null
-        //  2. If the status column in tbl_order_status_history is 'REQUEST'
-        //  3. tbl_order_item 목록 수정 available, active -> UNAVAILABLE, false
 
         recordOrderStatusHistory(orderCode, OrderHistoryStatus.CANCELED);
     }

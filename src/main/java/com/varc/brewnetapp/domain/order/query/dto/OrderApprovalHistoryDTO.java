@@ -9,6 +9,8 @@ import lombok.*;
 @ToString
 public class OrderApprovalHistoryDTO {
     private int orderCode;
+    private int approverMemberCode;
+
     private String approved;
     private String createdAt;
     private String comment;

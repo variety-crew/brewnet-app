@@ -1,6 +1,5 @@
-package com.varc.brewnetapp.domain.purchase.query.dto;
+package com.varc.brewnetapp.domain.document.query.dto;
 
-import com.varc.brewnetapp.domain.purchase.common.IsApproved;
 import com.varc.brewnetapp.domain.purchase.common.PositionNameEx;
 import lombok.*;
 
@@ -9,7 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-public class PurchaseApproverMemberDTO {
+public class ApproverMemberDTO {
 
     private int approverCode;               // 결재자 회원코드
     private String approverName;            // 결재자명

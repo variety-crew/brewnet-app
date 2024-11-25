@@ -231,8 +231,8 @@
   <select id="selectReturnDelivery" resultMap="itemMap" parameterType="_int">
     SELECT
            I.NAME AS ITEM_NAME
-         , RI.QUANTITY
-      FROM tbl_RETURN R AS QUANTITY
+         , RI.QUANTITY AS QUANTITY
+      FROM tbl_RETURN R
      INNER JOIN tbl_return_item RI ON RI.RETURN_CODE = R.RETURN_CODE
      INNER JOIN tbl_item I ON RI.ITEM_CODE = I.ITEM_CODE
      WHERE R.RETURN_CODE = #{ code }

@@ -20,4 +20,9 @@ public class OrderValidateServiceImpl implements OrderValidateService {
     public boolean isOrderFromFranchise(int franchiseCode, int orderCode) {
         return orderValidateMapper.checkIsOrderFrom(franchiseCode, orderCode);
     }
+
+    @Override
+    public boolean isOrderDrafted(Integer orderCode) {
+        return orderValidateMapper.checkIsOrderDrafted(orderCode);
+    }
 }

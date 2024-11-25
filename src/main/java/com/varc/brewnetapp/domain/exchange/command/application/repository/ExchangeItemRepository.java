@@ -2,6 +2,7 @@ package com.varc.brewnetapp.domain.exchange.command.application.repository;
 
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity.ExchangeItem;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExItem;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
