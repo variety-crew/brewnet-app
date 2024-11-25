@@ -14,6 +14,11 @@
     <result property="positionName" column="NAME"/>
   </resultMap>
 
+  <resultMap id="approverListResultMap" type="com.varc.brewnetapp.domain.document.query.dto.ApproverMemberDTO">
+    <id property="approverCode" column="MEMBER_CODE"/>
+    <result property="approverName" column="MEMBER_NAME"/>
+    <result property="positionName" column="POSITION_NAME"/>
+  </resultMap>
 
   <select id="selectApprovalList" resultMap="approvalResultMap">
     SELECT
@@ -30,5 +35,22 @@
            NAME
       FROM tbl_position
      WHERE NAME != 'STAFF'
+  </select>
+
+  <!-- 결재 구분으로 해당 결재라인에 속한 결재자들 조회 -->
+  <select id="selectApproversByKind"
+          parameterType="com.varc.brewnetapp.domain.purchase.common.KindOfApproval"
+          resultMap="approverListResultMap">
+    SELECT
+           M.MEMBER_CODE,
+           M.NAME AS MEMBER_NAME,
+           P.NAME AS POSITION_NAME
+      FROM TBL_MEMBER M
+      JOIN TBL_POSITION P ON M.POSITION_CODE = P.POSITION_CODE
+      JOIN TBL_APPROVAL A ON P.POSITION_CODE = A.POSITION_CODE
+    <where>
+        A.KIND = #{approvalLine}
+    </where>
+     ORDER BY M.NAME ASC
   </select>
 </mapper>
