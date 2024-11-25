@@ -44,7 +44,7 @@ public class ExchangeController {
 
         // 페이지네이션
         Page<ExchangeListVO> result = exchangeService.findRequestedExchangeList(page);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "미결재되면 교환요청 목록 조회 성공", result));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "미결재된 교환요청 목록 조회 성공", result));
     }
 
     @GetMapping("/search")

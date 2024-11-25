@@ -6,6 +6,7 @@
 
     <!-- ========== resultMap ========== -->
 
+    <!-- 본사 교환요청 목록조회 ResultMap -->
     <resultMap id="exchangeListResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO">
         <result property="exchangeCode" column="exchange_code"/>
         <result property="franchiseName" column="franchise_name"/>
