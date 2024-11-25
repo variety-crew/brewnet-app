@@ -4,23 +4,36 @@ package com.varc.brewnetapp.domain.delivery.command.application.service;
 import com.varc.brewnetapp.domain.delivery.command.application.dto.CreateDeliveryStatusRequestDTO;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.DeliveryKind;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.DeliveryStatus;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryExchange;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryExchangeStatusHistory;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryExchangeStatusHistory.ExchangeStatus;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryOrder;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryOrderStatusHistory;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryReturn;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryReturnStatusHistory;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryReturnStatusHistory.ReturnStatus;
+import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryExchangeRepository;
 import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryExchangeStatusHistoryRepository;
+import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryOrderRepository;
 import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryOrderStatusHistoryRepository;
+import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryReturnRepository;
 import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryReturnStatusHistoryRepository;
 import com.varc.brewnetapp.domain.exchange.command.application.repository.ExchangeItemRepository;
+import com.varc.brewnetapp.domain.exchange.command.application.repository.ExchangeRepository;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity.ExchangeItem;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
+import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
+import com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.Order;
 import com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.OrderItem;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderItemRepository;
+import com.varc.brewnetapp.domain.order.command.domain.repository.OrderRepository;
 import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
 import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
 import com.varc.brewnetapp.exception.DuplicateException;
 import com.varc.brewnetapp.exception.EmptyDataException;
 import com.varc.brewnetapp.exception.InvalidDataException;
+import com.varc.brewnetapp.exception.MemberNotFoundException;
+import com.varc.brewnetapp.security.utility.JwtUtil;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -38,28 +51,44 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final StockRepository stockRepository;
     private final OrderItemRepository orderItemRepository;
     private final ExchangeItemRepository exchangeItemRepository;
-
-
+    private final DeliveryOrderRepository deliveryOrderRepository;
+    private final DeliveryExchangeRepository deliveryExchangeRepository;
+    private final DeliveryReturnRepository deliveryReturnRepository;
+    private final JwtUtil jwtUtil;
+    private final MemberRepository memberRepository;
 
     @Autowired
-    public DeliveryServiceImpl(DeliveryOrderStatusHistoryRepository deliveryOrderStatusHistoryRepository,
+    public DeliveryServiceImpl(
+        DeliveryOrderStatusHistoryRepository deliveryOrderStatusHistoryRepository,
         DeliveryExchangeStatusHistoryRepository deliveryExchangeStatusHistoryRepository,
         DeliveryReturnStatusHistoryRepository deliveryReturnStatusHistoryRepository,
-        StockRepository stockRepository,
-        OrderItemRepository orderItemRepository,
-        ExchangeItemRepository exchangeItemRepository) {
+        StockRepository stockRepository, OrderItemRepository orderItemRepository,
+        ExchangeItemRepository exchangeItemRepository,
+        DeliveryOrderRepository deliveryOrderRepository,
+        DeliveryExchangeRepository deliveryExchangeRepository,
+        DeliveryReturnRepository deliveryReturnRepository, JwtUtil jwtUtil,
+        MemberRepository memberRepository) {
         this.deliveryOrderStatusHistoryRepository = deliveryOrderStatusHistoryRepository;
         this.deliveryExchangeStatusHistoryRepository = deliveryExchangeStatusHistoryRepository;
         this.deliveryReturnStatusHistoryRepository = deliveryReturnStatusHistoryRepository;
         this.stockRepository = stockRepository;
         this.orderItemRepository = orderItemRepository;
         this.exchangeItemRepository = exchangeItemRepository;
+        this.deliveryOrderRepository = deliveryOrderRepository;
+        this.deliveryExchangeRepository = deliveryExchangeRepository;
+        this.deliveryReturnRepository = deliveryReturnRepository;
+        this.jwtUtil = jwtUtil;
+        this.memberRepository = memberRepository;
     }
 
     @Transactional
     @Override
     public void createDeliveryStatus(
-        CreateDeliveryStatusRequestDTO createDeliveryStatusRequestDTO) {
+        CreateDeliveryStatusRequestDTO createDeliveryStatusRequestDTO, String accessToken) {
+
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
+        Member member = memberRepository.findById(loginId)
+            .orElseThrow(() -> new MemberNotFoundException("회원의 토큰이 잘못되었습니다"));
 
         if(createDeliveryStatusRequestDTO.getDeliveryKind().equals(DeliveryKind.ORDER)){
             DeliveryOrderStatusHistory.OrderStatus status = null;
@@ -68,7 +97,12 @@ public class DeliveryServiceImpl implements DeliveryService {
                 status = DeliveryOrderStatusHistory.OrderStatus.SHIPPED;
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING))){
                 status = DeliveryOrderStatusHistory.OrderStatus.SHIPPING;
+                DeliveryOrder order = deliveryOrderRepository.findById(createDeliveryStatusRequestDTO.getCode())
+                    .orElseThrow(() -> new InvalidDataException("주문 코드를 잘못 입력했습니다"));
 
+                order.setDeliveryCode(member.getMemberCode());
+
+                deliveryOrderRepository.save(order);
                 List<OrderItem> orderItems = orderItemRepository.findByOrderItemCode_OrderCode(createDeliveryStatusRequestDTO.getCode());
 
                 if(orderItems.isEmpty() || orderItems == null)
@@ -109,10 +143,26 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             ExchangeStatus status = null;
 
-            if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED)))
+            if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED))){
                 status = ExchangeStatus.SHIPPED;
+
+                DeliveryExchange exchange = deliveryExchangeRepository.findById(createDeliveryStatusRequestDTO.getCode())
+                    .orElseThrow(() -> new InvalidDataException("교환 코드를 잘못 입력했습니다"));
+
+                exchange.setDeliveryCode(null);
+
+                deliveryExchangeRepository.save(exchange);
+            }
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING))){
                 status = ExchangeStatus.SHIPPING;
+
+                DeliveryExchange exchange = deliveryExchangeRepository.findById(createDeliveryStatusRequestDTO.getCode())
+                    .orElseThrow(() -> new InvalidDataException("교환 코드를 잘못 입력했습니다"));
+
+                exchange.setDeliveryCode(member.getMemberCode());
+
+                deliveryExchangeRepository.save(exchange);
+
                 List<ExchangeItem> exchangeItems = exchangeItemRepository.findByExchangeItemCode_ExchangeCode(createDeliveryStatusRequestDTO.getCode());
 
                 if(exchangeItems.isEmpty() || exchangeItems == null)
@@ -158,8 +208,17 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKED)))
                 status = ReturnStatus.PICKED;
-            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKING)))
+            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKING))){
                 status = ReturnStatus.PICKING;
+
+                DeliveryReturn deliveryReturn = deliveryReturnRepository.findById(createDeliveryStatusRequestDTO.getCode())
+                    .orElseThrow(() -> new InvalidDataException("잘못된 반품 코드를 입력했습니다"));
+
+                deliveryReturn.setDeliveryCode(member.getMemberCode());
+
+                deliveryReturnRepository.save(deliveryReturn);
+            }
+
             else
                 throw new InvalidDataException("잘못된 상태값을 입력하셨습니다");
 
