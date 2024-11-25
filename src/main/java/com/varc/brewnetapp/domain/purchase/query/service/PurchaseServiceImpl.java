@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.purchase.query.service;
 
+import com.varc.brewnetapp.domain.document.query.dto.ApproverMemberDTO;
 import com.varc.brewnetapp.domain.purchase.common.KindOfApproval;
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria;
@@ -169,14 +170,5 @@ public class PurchaseServiceImpl implements PurchaseService {
                                                                 purchaseItems, pageNumber, pageSize, totalCount);
 
         return response;
-    }
-
-    @Override
-    public List<PurchaseApproverMemberDTO> selectApproverList(String loginId, KindOfApproval approvalLine) {
-
-        List<PurchaseApproverMemberDTO> approvers = purchaseMapper.selectApproversByKind(approvalLine);
-        if (approvers == null) throw new ApprovalNotFoundException("존재하지 않는 결재라인입니다.");
-
-        return approvers;
     }
 }
