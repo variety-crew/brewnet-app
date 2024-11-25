@@ -15,7 +15,11 @@ public interface ExchangeMapper {
 
     List<ExchangeListVO> selectAllExchangeList();
 
+    int selectRequestedExchangeListCnt();
+
     List<ExchangeListVO> selectRequestedExchangeList(long offset, long pageSize);
+
+    int selectSearchExchangeHistoryListCnt(String searchFilter, String searchWord, String startDate, String endDate);
 
     List<ExchangeListVO> selectSearchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 

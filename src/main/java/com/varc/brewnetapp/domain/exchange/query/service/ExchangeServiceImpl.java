@@ -64,7 +64,7 @@ public class ExchangeServiceImpl implements ExchangeService {
         List<ExchangeListVO> exchangeList = exchangeMapper.selectRequestedExchangeList(offset, pageSize);
 
         // 전체 데이터 개수 조회
-        int count = exchangeMapper.selectExchangeListCnt();
+        int count = exchangeMapper.selectRequestedExchangeListCnt();
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(exchangeList, page, count);
@@ -119,7 +119,7 @@ public class ExchangeServiceImpl implements ExchangeService {
         List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectSearchExchangeHistoryList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
 
         // 전체 데이터 개수 조회
-        int count = exchangeMapper.selectExchangeHistoryListCnt();
+        int count = exchangeMapper.selectSearchExchangeHistoryListCnt(searchFilter, searchWord, startDate, endDate);
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(exchangeHistoryList, page, count);
