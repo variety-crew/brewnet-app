@@ -12,27 +12,48 @@ import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.Deliv
 import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryExchangeStatusHistoryRepository;
 import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryOrderStatusHistoryRepository;
 import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryReturnStatusHistoryRepository;
+import com.varc.brewnetapp.domain.exchange.command.application.repository.ExchangeItemRepository;
+import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity.ExchangeItem;
+import com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.OrderItem;
+import com.varc.brewnetapp.domain.order.command.domain.repository.OrderItemRepository;
+import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
+import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
 import com.varc.brewnetapp.exception.DuplicateException;
+import com.varc.brewnetapp.exception.EmptyDataException;
 import com.varc.brewnetapp.exception.InvalidDataException;
 import java.time.LocalDateTime;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service(value = "commandDeliveryService")
+@Slf4j
 public class DeliveryServiceImpl implements DeliveryService {
 
     private final DeliveryOrderStatusHistoryRepository deliveryOrderStatusHistoryRepository;
     private final DeliveryExchangeStatusHistoryRepository deliveryExchangeStatusHistoryRepository;
     private final DeliveryReturnStatusHistoryRepository deliveryReturnStatusHistoryRepository;
+    private final StockRepository stockRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final ExchangeItemRepository exchangeItemRepository;
+
+
 
     @Autowired
     public DeliveryServiceImpl(DeliveryOrderStatusHistoryRepository deliveryOrderStatusHistoryRepository,
         DeliveryExchangeStatusHistoryRepository deliveryExchangeStatusHistoryRepository,
-        DeliveryReturnStatusHistoryRepository deliveryReturnStatusHistoryRepository) {
+        DeliveryReturnStatusHistoryRepository deliveryReturnStatusHistoryRepository,
+        StockRepository stockRepository,
+        OrderItemRepository orderItemRepository,
+        ExchangeItemRepository exchangeItemRepository) {
         this.deliveryOrderStatusHistoryRepository = deliveryOrderStatusHistoryRepository;
         this.deliveryExchangeStatusHistoryRepository = deliveryExchangeStatusHistoryRepository;
         this.deliveryReturnStatusHistoryRepository = deliveryReturnStatusHistoryRepository;
+        this.stockRepository = stockRepository;
+        this.orderItemRepository = orderItemRepository;
+        this.exchangeItemRepository = exchangeItemRepository;
     }
 
     @Transactional
@@ -48,7 +69,22 @@ public class DeliveryServiceImpl implements DeliveryService {
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING))){
                 status = DeliveryOrderStatusHistory.OrderStatus.SHIPPING;
 
-                // 출고 예정 재고 감소 -> 어떤 창고의 데이터를 깎아야 하는지 모름. 그냥 1번 창고에서 깎는걸로 합시다
+                List<OrderItem> orderItems = orderItemRepository.findByOrderItemCode_OrderCode(createDeliveryStatusRequestDTO.getCode());
+
+                if(orderItems.isEmpty() || orderItems == null)
+                    throw new EmptyDataException("주문 건에 대해서 재고를 감소할 상품이 없습니다");
+
+                for (OrderItem orderItem : orderItems) {
+                    Stock stock = stockRepository.findByStorageCodeAndItemCode(1, orderItem.getOrderItemCode().getItemCode());
+
+                    if(stock == null)
+                        throw new EmptyDataException("감소하려는 상품에 대한 재고 정보가 존재하지 않습니다");
+
+                    stock.setOutStock(stock.getOutStock() - orderItem.getQuantity());
+
+                    stockRepository.save(stock);
+                }
+
             }
             else 
                 throw new InvalidDataException("잘못된 상태값을 입력하셨습니다");
@@ -73,13 +109,25 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             ExchangeStatus status = null;
 
-            if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED))){
+            if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED)))
                 status = ExchangeStatus.SHIPPED;
-                
-                // 출고 예정 재고 감소 -> 어떤 창고의 데이터를 깎아야 하는지 모름. 그냥 1번 창고에서 깎는걸로 합시다
-            }
-            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING)))
+            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING))){
                 status = ExchangeStatus.SHIPPING;
+                List<ExchangeItem> exchangeItems = exchangeItemRepository.findByExchangeItemCode_ExchangeCode(createDeliveryStatusRequestDTO.getCode());
+
+                if(exchangeItems.isEmpty() || exchangeItems == null)
+                    throw new EmptyDataException("교환 건에 대해서 재고를 감소할 상품이 없습니다");
+                for (ExchangeItem exchangeItem : exchangeItems) {
+                    Stock stock = stockRepository.findByStorageCodeAndItemCode(1, exchangeItem.getExchangeItemCode().getItemCode());
+
+                    if(stock == null)
+                        throw new EmptyDataException("감소하려는 상품에 대한 재고 정보가 존재하지 않습니다");
+
+                    stock.setOutStock(stock.getOutStock() - exchangeItem.getQuantity());
+
+                    stockRepository.save(stock);
+                }
+            }
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKED)))
                 status = ExchangeStatus.PICKED;
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKING)))
