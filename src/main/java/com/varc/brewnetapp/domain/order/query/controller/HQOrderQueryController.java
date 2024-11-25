@@ -78,7 +78,7 @@ public class HQOrderQueryController {
     public ResponseEntity<ResponseMessage<List<OrderStatusHistory>>> healthcheck(
             @PathVariable("orderCode") Integer orderCode
     ) {
-        List<OrderStatusHistory> orderHistoryList = orderQueryService.getOrderHistoryByOrderId(orderCode);
+        List<OrderStatusHistory> orderHistoryList = orderQueryService.getOrderHistoryByOrderCode(orderCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderHistoryList));
     }
 
