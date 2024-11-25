@@ -21,7 +21,7 @@ public interface OrderService {
     void addItemsPerOrder(int orderCode,
                           List<OrderItemDTO> orderRequestRequestDTO);
 
-    void cancelOrderRequest(Integer orderCode);
+    void cancelOrderRequest(Integer orderCode, Integer franchiseCode);
 
     void rejectOrderByDrafter(int orderCode,
                               DrafterRejectOrderRequestDTO drafterRejectOrderRequestDTO,

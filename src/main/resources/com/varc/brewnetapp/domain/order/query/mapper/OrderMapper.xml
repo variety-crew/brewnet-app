@@ -15,7 +15,7 @@
         <result property="sumPrice" column="SUM_PRICE"/>
     </resultMap>
 
-    <resultMap id="orderHistoryList" type="com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory">
+    <resultMap id="orderHistory" type="com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory">
         <id property="orderStatusHistoryCode" column="ORDER_CODE"/>
         <result property="orderHistoryStatus" column="STATUS"/>
         <result property="createdAt" column="CREATED_AT"/>
@@ -161,31 +161,6 @@
         ORDER BY CREATED_AT
     </select>
 
-    <!-- common-->
-    <select id="countOrdersForHq" resultType="int">
-        SELECT COUNT(*)
-        FROM tbl_order O
-        WHERE 1=1
-        AND O.ACTIVE = 1
-        <if test="startDate != null and startDate != ''">
-            AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
-        </if>
-        <if test="endDate != null and endDate != ''">
-            AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
-        </if>
-        <if test="filter == 'UNCONFIRMED'">
-            AND O.APPROVED = #{filter}
-        </if>
-    </select>
-
-    <select id="findOrderHistoriesByOrderId" resultMap="orderHistoryList">
-        SELECT
-               oh.ORDER_STATUS_HISTORY_CODE
-             , oh.STATUS
-             , oh.CREATED_AT
-          FROM tbl_order_status_history oh
-         WHERE oh.orderId = #{orderID}
-    </select>
 
 
     <!-- for HQ-->
@@ -435,4 +410,45 @@
                   ) last_status ON o.ORDER_CODE = last_status.ORDER_CODE
 
     </select>
+
+
+    <!-- common-->
+    <select id="countOrdersForHq" resultType="int">
+        SELECT COUNT(*)
+        FROM tbl_order O
+        WHERE 1=1
+        AND O.ACTIVE = 1
+        <if test="startDate != null and startDate != ''">
+            AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <if test="filter == 'UNCONFIRMED'">
+            AND O.APPROVED = #{filter}
+        </if>
+    </select>
+
+    <select id="findOrderHistoriesByOrderId" resultMap="orderHistory">
+        SELECT
+        oh.ORDER_STATUS_HISTORY_CODE
+        , oh.STATUS
+        , oh.CREATED_AT
+        FROM tbl_order_status_history oh
+        WHERE oh.ORDER_CODE = #{orderID}
+    </select>
+
+    <select id="findRecentHistoryByOrderId" resultMap="orderHistory">
+        SELECT
+               h.ORDER_CODE
+             , h.STATUS
+             , h.CREATED_AT
+          FROM tbl_order_status_history h
+         WHERE (h.ORDER_CODE, h.CREATED_AT) IN (SELECT h1.ORDER_CODE, MAX(h1.CREATED_AT)
+                                                FROM tbl_order_status_history h1
+                                                GROUP BY h1.ORDER_CODE)
+                AND h.ACTIVE = 1
+                AND h.ORDER_CODE = #{orderCode}
+    </select>
+
 </mapper>

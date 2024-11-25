@@ -41,13 +41,6 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         return new PageImpl<>(orders, pageable, 0);
     }
 
-    // for common
-    @Override
-    @Transactional
-    public List<OrderStatusHistory> getOrderHistoryByOrderId(int orderId) {
-        return orderMapper.findOrderHistoriesByOrderId(orderId);
-    }
-
     // for HQ
     @Override
     @Transactional
@@ -106,11 +99,6 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         return null;
     }
 
-    @Override
-    public List<OrderApprovalHistoryDTO> getOrderApprovalHistories(Integer orderCode) {
-        return orderMapper.findOrderApprovalHistoriesBy(orderCode);
-    }
-
     // for franchise
     @Override
     @Transactional
@@ -161,6 +149,29 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         } else {
             throw new NoAccessAuthoritiesException("No Authorization for order " + orderCode + ", franchiseCode: " + franchiseCode);
         }
+    }
+
+    // 해당 주문의 결재 히스토리 조회
+    @Override
+    public List<OrderApprovalHistoryDTO> getOrderApprovalHistories(Integer orderCode) {
+        return orderMapper.findOrderApprovalHistoriesBy(orderCode);
+    }
+
+
+
+    // for common
+    // 해당 주문의 모든 상태 변경 내역 조회
+    @Override
+    @Transactional
+    public List<OrderStatusHistory> getOrderHistoryByOrderCode(int orderId) {
+        return orderMapper.findOrderHistoriesByOrderId(orderId);
+    }
+
+    // 해당 주문의 최신 상태 조회
+    @Override
+    @Transactional
+    public OrderStatusHistory getOrderStatusHistoryByOrderCode(int orderCode) {
+        return orderMapper.findRecentHistoryByOrderId(orderCode);
     }
 
     @Transactional

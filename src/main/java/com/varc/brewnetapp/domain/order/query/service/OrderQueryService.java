@@ -22,8 +22,6 @@ public interface OrderQueryService {
                                          String filter,
                                          String sort);
 
-    // common
-    List<OrderStatusHistory> getOrderHistoryByOrderId(int orderId);
 
     // requested by hq
     Page<HQOrderDTO> getOrderListForHQ(Pageable pageable,
@@ -51,4 +49,8 @@ public interface OrderQueryService {
     );
     OrderDetailForFranchiseDTO getOrderDetailForFranchiseBy(int orderCode, String loginId);
 
+
+    // common
+    List<OrderStatusHistory> getOrderHistoryByOrderCode(int orderCode);
+    OrderStatusHistory getOrderStatusHistoryByOrderCode(int orderCode);
 }
