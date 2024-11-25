@@ -1,4 +1,4 @@
-package com.varc.brewnetapp.domain.exchange.enums;
+package com.varc.brewnetapp.common.domain.position;
 
 public enum Position {
     STAFF("사원"),

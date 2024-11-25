@@ -1,6 +1,6 @@
-package com.varc.brewnetapp.domain.exchange.enums;
+package com.varc.brewnetapp.common.domain.approve;
 
-public enum ExchangeApproval {
+public enum Approval {
     APPROVED("승인"),
     CANCELED("취소"),
     UNCONFIRMED("미확인"),
@@ -8,7 +8,7 @@ public enum ExchangeApproval {
 
     private String krName;
 
-    ExchangeApproval(String krName) {
+    Approval(String krName) {
         this.krName = krName;
     }
 

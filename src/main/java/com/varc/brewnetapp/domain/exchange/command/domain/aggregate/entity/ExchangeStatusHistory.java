@@ -1,14 +1,15 @@
 package com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity;
 
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
+import com.varc.brewnetapp.common.domain.exchange.ExchangeStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Builder(toBuilder = true)
 @Getter
-@Setter
+//@Setter
 @Entity
 @Table(name = "tbl_exchange_status_history")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString
 public class ExchangeStatusHistory {

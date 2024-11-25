@@ -6,16 +6,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
 
+@Builder(toBuilder = true)
 @Getter
-@Setter
+//@Setter
 @Entity
 @Table(name = "tbl_exchange_item_status")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString
 public class ExchangeItemStatus {
     @EmbeddedId
-    private ExchangeItemStatusCode exchangeItemStatusId;  // (복합키) 교환완료 내역 코드, 상품코드
+    private ExchangeItemStatusCode exchangeItemStatusCode;  // (복합키) 교환완료 내역 코드, 상품코드
 
     @Column(name = "quantity", nullable = false)
     private int quantity;               // 총수량

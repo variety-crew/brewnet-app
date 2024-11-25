@@ -6,6 +6,7 @@ public enum DeliveryStatus {
     PICKED,
     START_DELIVERY,
     SHIPPING,
-    SHIPPED
+    SHIPPED,
+    APPROVED;
 
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.varc.brewnetapp.domain.order.query.mapper.OrderValidateMapper">
+    <select id="existMemberCodeInFranchise" resultType="boolean">
+        SELECT
+               CASE WHEN COUNT(*) > 0
+                         THEN true
+                         ELSE false
+                    END
+          FROM tbl_franchise_member fm
+         WHERE fm.MEMBER_CODE = #{memberCode}
+               AND fm.FRANCHISE_CODE = #{franchiseCode}
+               AND o.ACTIVE = 1
+    </select>
+</mapper>

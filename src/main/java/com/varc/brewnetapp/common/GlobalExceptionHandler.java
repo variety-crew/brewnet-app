@@ -26,7 +26,8 @@ public class GlobalExceptionHandler {
             InvalidOrderItems.class,
             OrderApprovalAlreadyExist.class,
             OrderDraftAlreadyApproved.class,
-            UnexpectedOrderStatus.class
+            UnexpectedOrderStatus.class,
+            IllegalArgumentException.class,
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
