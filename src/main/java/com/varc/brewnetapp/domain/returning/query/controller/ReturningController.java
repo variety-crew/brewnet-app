@@ -12,6 +12,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController("ReturningControllerQuery")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/hq/return")
@@ -21,12 +23,19 @@ public class ReturningController {
     private final ReturningServiceImpl returningService;
 
     @GetMapping("")
-    @Operation(summary = "[본사] 교환요청 목록 조회 API")
+    @Operation(summary = "[본사] 반품요청 목록 조회 API")
     public ResponseEntity<ResponseMessage<Page<ReturningListVO>>> findReturningList(
             @PageableDefault(value = 10) Pageable page) {
 
         // 페이지네이션
         Page<ReturningListVO> result = returningService.findReturningList(page);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 목록 조회 성공", result));
+    }
+
+    @GetMapping("/excel-data")
+    @Operation(summary = "[본사] 반품요청 엑셀 데이터(전체 반품내역) 조회 API")
+    public ResponseEntity<ResponseMessage<List<ReturningListVO>>> findReturningExcelList() {
+        List <ReturningListVO> result = returningService.findAllReturningList();
         return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 목록 조회 성공", result));
     }
 

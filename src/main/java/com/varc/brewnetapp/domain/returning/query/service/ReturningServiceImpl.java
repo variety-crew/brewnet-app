@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.returning.query.service;
 
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO;
 import com.varc.brewnetapp.domain.exchange.query.mapper.ExchangeMapper;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.mapper.ReturningMapper;
@@ -41,5 +42,11 @@ public class ReturningServiceImpl implements ReturningService {
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(returningList, page, count);
+    }
+
+    @Override
+    public List<ReturningListVO> findAllReturningList() {
+        List<ReturningListVO> returningList = returningMapper.selectAllReturningList();
+        return returningList;
     }
 }
