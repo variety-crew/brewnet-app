@@ -38,13 +38,13 @@ public class FranchiseOrderController {
     // 주문 요청 취소
     @DeleteMapping("/{orderCode}")
     public ResponseEntity<ResponseMessage<Void>> cancelOrder(
-            @PathVariable("orderCode") String orderCode
+            @PathVariable("orderCode") Integer orderCode
     ) {
 
         // TODO: validate
         //  If the requester is from target franchise
 
-        orderService.cancelOrderRequest(Integer.parseInt(orderCode));
+        orderService.cancelOrderRequest(orderCode);
         return ResponseEntity.ok(
                 new ResponseMessage<>(204, "주문 요청이 취소되었습니다.", null)
         );
