@@ -158,7 +158,7 @@ public class OrderServiceImpl implements OrderService {
                         .comment("가맹점의 주문 요청 취소")
                         .createdAt(order.getCreatedAt())
                         .active(order.isActive())
-                        .approvalStatus(OrderApprovalStatus.CANCELED)
+                        .approvalStatus(order.getApprovalStatus())
                         .drafterApproved(order.getDrafterApproved())
                         .sumPrice(order.getSumPrice())
                         .franchiseCode(order.getFranchiseCode())
