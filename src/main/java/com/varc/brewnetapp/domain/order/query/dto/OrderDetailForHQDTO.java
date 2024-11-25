@@ -17,6 +17,9 @@ public class OrderDetailForHQDTO {
     private String comment;
     private String managerName;
     private int sumPrice;
+    private String orderStatus;
+    private String statusDate;
+
 
     private List<OrderItem> orderItemList;
 }
