@@ -23,6 +23,9 @@ public class GlobalExceptionHandler {
             InvalidApiRequestException.class,
             InvalidConditionException.class,
             MemberNotInFranchiseException.class,
+            InvalidOrderItems.class,
+            OrderApprovalAlreadyExist.class,
+            OrderDraftAlreadyApproved.class,
             IllegalArgumentException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
@@ -63,7 +66,8 @@ public class GlobalExceptionHandler {
             PositionNotFoundException.class,
             PurchaseNotFoundException.class,
             SealNotFoundException.class,
-            StorageNotFoundException.class
+            StorageNotFoundException.class,
+            OrderApprovalNotFound.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleNotFoundException(Exception e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

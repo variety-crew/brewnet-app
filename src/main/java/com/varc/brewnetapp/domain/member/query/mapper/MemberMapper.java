@@ -33,4 +33,6 @@ public interface MemberMapper {
     List<ApprovalDTO> selectApprovalList(long pageSize, long offset, String dateSort, String approval, String startDate, String endDate, int memberCode);
 
     int selectApprovalListCnt(long pageSize, long offset, String approval, String startDate, String endDate, int memberCode);
+
+    MemberDTO selectFranchiseMember(String loginId);
 }

@@ -138,4 +138,23 @@ public class StorageServiceImpl implements StorageService{
             itemStock.setAvailableStock(changedStock);
         }
     }
+
+    @Transactional
+    @Override
+    public Stock setStockReadyToDepart(int storageCode, int itemCode, int quantity) {
+
+        Stock stock = stockRepository.findStockByStorageCodeAndItemCodeAndActiveIsTrue(storageCode, itemCode)
+                .orElseThrow(() -> new InvalidStockException("Invalid stock. storageCode: " + storageCode + ", itemCode: " + itemCode));
+        return stockRepository.save(
+                new Stock(
+                        storageCode,
+                        itemCode,
+                        stock.getAvailableStock() - quantity,
+                        stock.getOutStock() + quantity,
+                        stock.getInStock(),
+                        stock.getCreatedAt(),
+                        stock.getActive()
+                )
+        );
+    }
 }

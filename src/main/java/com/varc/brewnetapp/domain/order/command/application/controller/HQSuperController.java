@@ -28,13 +28,14 @@ public class HQSuperController {
     @PostMapping("/approve/{orderCode}")
     @Operation(summary = "책임 관리자가 상신된 주문 요청에 대한 승인")
     public ResponseEntity<ResponseMessage<Object>> approveOrderRequest(
-            @PathVariable String orderCode,
-            @RequestAttribute String loginId,
+            @PathVariable(name = "orderCode") Integer orderCode,
+            @RequestAttribute(name = "loginId") String loginId,
             @RequestBody OrderRequestApproveDTO orderRequestApproveDTO
     ) {
         int memberCode = memberservice.getMemberByLoginId(loginId).getMemberCode();
 
         boolean approved = orderService.approveOrderDraft(orderCode, memberCode, orderRequestApproveDTO);
+
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "successfully approved order request", null)
         );

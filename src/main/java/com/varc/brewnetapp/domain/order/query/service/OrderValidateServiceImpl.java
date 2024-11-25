@@ -20,10 +20,4 @@ public class OrderValidateServiceImpl implements OrderValidateService {
     public boolean isOrderFromFranchise(int franchiseCode, int orderCode) {
         return orderValidateMapper.checkIsOrderFrom(franchiseCode, orderCode);
     }
-
-    @Transactional
-    @Override
-    public boolean isOrderItemsMoreThenOne(int orderCode) {
-        return orderValidateMapper.checkIsOrderItemMoreThenOne(orderCode);
-    }
 }
