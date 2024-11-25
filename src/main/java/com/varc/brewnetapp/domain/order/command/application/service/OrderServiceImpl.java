@@ -7,7 +7,6 @@ import com.varc.brewnetapp.common.domain.order.OrderHistoryStatus;
 import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
 import com.varc.brewnetapp.domain.item.query.service.ItemService;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
-import com.varc.brewnetapp.domain.member.query.service.MemberServiceImpl;
 import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderApproveRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderRequestApproveDTO;
@@ -50,7 +49,6 @@ public class OrderServiceImpl implements OrderService {
     private final OrderValidateService orderValidateService;
     private final ItemService itemService;
     private final StorageService storageService;
-    private final MemberServiceImpl queryMemberService;
 
     @Autowired
     public OrderServiceImpl(
@@ -62,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
             OrderQueryService orderQueryService,
             OrderValidateService orderValidateService,
             ItemService itemService,
-            StorageService storageService, MemberServiceImpl queryMemberService
+            StorageService storageService
     ) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
@@ -73,7 +71,6 @@ public class OrderServiceImpl implements OrderService {
         this.orderValidateService = orderValidateService;
         this.itemService = itemService;
         this.storageService = storageService;
-        this.queryMemberService = queryMemberService;
     }
 
     // 가맹점의 주문요청
@@ -84,15 +81,13 @@ public class OrderServiceImpl implements OrderService {
     ) {
         int requestFranchiseCode = memberService.getFranchiseInfoByLoginId(loginId).getFranchiseCode();
         List<OrderItemDTO> requestedOrderItemDTOList = orderRequestDTO.getOrderList();
-        log.debug("requestedOrderItemDTOList: {}", requestedOrderItemDTOList);
-
         int orderedCode = orderRepository.save(
                 Order.builder()
                         .createdAt(LocalDateTime.now())
                         .active(true)
                         .drafterApproved(DrafterApproved.NONE)
                         .approvalStatus(OrderApprovalStatus.UNCONFIRMED)
-                        .sumPrice(0)
+                        .sumPrice(getOrderTotalSum(requestedOrderItemDTOList))
                         .franchiseCode(requestFranchiseCode)
                         .build()
         ).getOrderCode();
@@ -115,6 +110,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 주문 내역 수정
         recordOrderStatusHistory(orderedCode, OrderHistoryStatus.REQUESTED);
+
         return new OrderRequestResponseDTO(orderedCode);
     }
 
@@ -221,8 +217,6 @@ public class OrderServiceImpl implements OrderService {
 
         DrafterApproved presentDraftedApprovedStatus = order.getDrafterApproved();
         log.debug("order.getDrafterApproved() - 기존 기안자의 승인 상태: {}", presentDraftedApprovedStatus);
-
-
 
         orderRepository.save(
                 Order.builder()
@@ -359,16 +353,16 @@ public class OrderServiceImpl implements OrderService {
                                      String loginId) {
 
         // TODO: 가맹점의 주문 요청 반려
-        //  - 주문 테이블에서 데이터 수정:                                            [DONE]
-        //  tbl_order.APPROVAL_STATUS           - 'UNCONFIRMED' -> 'REJECTED'   [DONE]
-        //  tbl_order.DRAFTER_APPROVED          - 'NONE' -> 'REJECT'            [DONE]
-        //  tbl_order.COMMENT                   - 사유 입력                       [DONE]
-        //  tbl_order.MEMBER_CODE               - 반려자(담당자) 코드 추가           [DONE]
-        //  - 주문 상태 내역 테이블 수정:                                             [DONE]
-        //  tbl_order_status_history.status     - 'REQUESTED' -> 'REJECTED'     [DONE]
-        //  tbl_order_status_history.CREATED_AT                                 [DONE]
-        //  - 주문 별 상품 테이블 수정:                                               [DONE]
-        //  tbl_order_item.available            - 'AVAILABLE' -> 'UNAVAILABLE'  [DONE]
+        //  - 주문 테이블에서 데이터 수정:                                             [DONE]
+        //   tbl_order.APPROVAL_STATUS           - 'UNCONFIRMED' -> 'REJECTED'   [DONE]
+        //   tbl_order.DRAFTER_APPROVED          - 'NONE' -> 'REJECT'            [DONE]
+        //   tbl_order.COMMENT                   - 사유 입력                       [DONE]
+        //   tbl_order.MEMBER_CODE               - 반려자(담당자) 코드 추가            [DONE]
+        //  - 주문 상태 내역 테이블 수정:                                              [DONE]
+        //   tbl_order_status_history.status     - 'REQUESTED' -> 'REJECTED'     [DONE]
+        //   tbl_order_status_history.CREATED_AT                                 [DONE]
+        //  - 주문 별 상품 테이블 수정:                                                [DONE]
+        //   tbl_order_item.available            - 'AVAILABLE' -> 'UNAVAILABLE'  [DONE]
 
         String reason = drafterRejectOrderRequestDTO.getReason();
         int drafterMemberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
