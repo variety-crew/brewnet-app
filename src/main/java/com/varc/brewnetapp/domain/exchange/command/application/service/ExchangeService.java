@@ -5,7 +5,7 @@ import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeM
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeReqVO;
 
 public interface ExchangeService {
-    void franCreateExchange(String loginId, ExchangeReqVO exchangeReqVO);
+    Integer franCreateExchange(String loginId, ExchangeReqVO exchangeReqVO);
 
     void franCancelExchange(String loginId, Integer exchangeCode);
 
