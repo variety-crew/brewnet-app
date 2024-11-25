@@ -34,7 +34,6 @@ public class GlobalExceptionHandler {
 
     // 401: 권한 없는 사용자
     @ExceptionHandler({
-            UnauthorizedAccessException.class,
             AccessDeniedException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleUnAuthorizedException(Exception e) {
@@ -44,6 +43,7 @@ public class GlobalExceptionHandler {
 
     // 403: FORBIDDEN
     @ExceptionHandler({
+            UnauthorizedAccessException.class,
             NoAccessAuthoritiesException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleNoAccessException(Exception e) {

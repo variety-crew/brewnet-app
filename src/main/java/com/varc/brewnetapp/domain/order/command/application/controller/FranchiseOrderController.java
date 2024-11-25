@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.order.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.member.query.service.MemberServiceImpl;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
 import com.varc.brewnetapp.domain.order.command.application.service.OrderService;
@@ -15,10 +16,12 @@ import org.springframework.web.bind.annotation.*;
 public class FranchiseOrderController {
 
     private final OrderService orderService;
+    private final MemberServiceImpl queryMemberService;
 
     @Autowired
-    public FranchiseOrderController(OrderService orderService) {
+    public FranchiseOrderController(OrderService orderService, MemberServiceImpl queryMemberService) {
         this.orderService = orderService;
+        this.queryMemberService = queryMemberService;
     }
 
     // 주문 요청
@@ -38,13 +41,13 @@ public class FranchiseOrderController {
     // 주문 요청 취소
     @DeleteMapping("/{orderCode}")
     public ResponseEntity<ResponseMessage<Void>> cancelOrder(
-            @PathVariable("orderCode") Integer orderCode
+            @PathVariable(name = "orderCode") Integer orderCode,
+            @RequestAttribute(name = "loginId") String loginId
     ) {
+        int requestMemberFranchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
+                .getFranchiseCode();
 
-        // TODO: validate
-        //  If the requester is from target franchise
-
-        orderService.cancelOrderRequest(orderCode);
+        orderService.cancelOrderRequest(orderCode, requestMemberFranchiseCode);
         return ResponseEntity.ok(
                 new ResponseMessage<>(204, "주문 요청이 취소되었습니다.", null)
         );

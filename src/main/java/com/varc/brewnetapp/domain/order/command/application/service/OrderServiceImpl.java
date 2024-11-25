@@ -111,8 +111,18 @@ public class OrderServiceImpl implements OrderService {
     // 주문 요청 취소
     @Transactional
     @Override
-    public void cancelOrderRequest(Integer orderCode) {
+    public void cancelOrderRequest(Integer orderCode, Integer requestMemberFranchiseCode) {
         Order order = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
+        int targetFranchiseCode = order.getFranchiseCode();
+
+        // TODO: validate
+        //  If the requester is from target franchise  [DONE]
+        if (!requestMemberFranchiseCode.equals(targetFranchiseCode)) {
+            throw new UnauthorizedAccessException(
+                    "Unauthorized access: " + "orderCode: " + orderCode + "is from franchiseCode: " + targetFranchiseCode + ". Your franchise code is: " + requestMemberFranchiseCode
+            );
+        }
+
         orderRepository.save(
                 Order.builder()
                         .orderCode(order.getOrderCode())
@@ -129,7 +139,7 @@ public class OrderServiceImpl implements OrderService {
         );
 
         // TODO: validate
-        //  1. If member_code in tbl_order is null and the order is valid(.active=1)
+        //  1-1. check if member_code in tbl_order is null and the order is valid(.active=1)
         //  2. If the status column in tbl_order_status_history is 'REQUESTED'
         //  3. tbl_order_item 목록 수정 available, active -> UNAVAILABLE, false
 
