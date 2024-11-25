@@ -61,6 +61,9 @@ public class SecurityConfiguration {
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/hq/**")).hasAnyRole("MASTER", "GENERAL_ADMIN", "RESPONSIBLE_ADMIN")
 
                         // 본사책임자
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/super/**")).hasRole("RESPONSIBLE_ADMIN")
+
+                        // 본사책임자
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/responsible/**")).hasAnyRole("MASTER", "RESPONSIBLE_ADMIN")
 
                         // 마스터

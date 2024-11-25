@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.member.query.service;
 
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.ApprovalStatus;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.domain.member.query.dto.*;
@@ -34,16 +35,19 @@ public class MemberServiceImpl implements MemberService {
     private final MemberMapper memberMapper;
     private final JwtUtil jwtUtil;
     private final ModelMapper modelMapper;
+    private final MemberRepository memberRepository;
 
     @Autowired
     public MemberServiceImpl
         (
             MemberMapper memberMapper,
             JwtUtil jwtUtil,
-            ModelMapper modelMapper) {
+            ModelMapper modelMapper,
+            MemberRepository memberRepository) {
         this.memberMapper = memberMapper;
         this.jwtUtil = jwtUtil;
         this.modelMapper = modelMapper;
+        this.memberRepository = memberRepository;
     }
 
     @Override
@@ -72,12 +76,19 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public MemberDTO findMember(String accessToken) {
         String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
-        MemberDTO member = memberMapper.selectMember(loginId);
+        Member member = memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("조회하려는 멤버 정보가 없습니다"));
 
-        if(member == null)
+        MemberDTO memberDTO = null;
+
+        if(member.getPositionCode() != null)
+            memberDTO = memberMapper.selectMember(loginId);
+        else
+            memberDTO = memberMapper.selectFranchiseMember(loginId);
+
+        if(memberDTO == null)
             throw new MemberNotFoundException("조회하려는 멤버 정보가 없습니다");
 
-        return member;
+        return memberDTO;
         
     }
 
@@ -108,6 +119,8 @@ public class MemberServiceImpl implements MemberService {
 
     }
 
+    @Override
+    @Transactional
     public FranchiseDTO getFranchiseInfoByLoginId(String loginId) {
         FranchiseDTO franchiseDTO = memberMapper.getFranchiseInfoBy(loginId);
         if (franchiseDTO == null) {
@@ -115,5 +128,57 @@ public class MemberServiceImpl implements MemberService {
         } else {
             return franchiseDTO;
         }
+    }
+
+    @Override
+    @Transactional
+    public Page<ApprovalDTO> findMyDraft(Pageable page, String dateSort, String approval,
+        String startDate, String endDate, String accessToken) {
+
+        long pageSize = page.getPageSize();
+        long pageNumber = page.getPageNumber();
+        long offset = pageNumber * pageSize;
+
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
+
+        int memberCode = memberRepository.findById(loginId)
+            .orElseThrow(() -> new MemberNotFoundException("토큰에 맞는회원 정보가 없습니다")).getMemberCode();
+
+        List<ApprovalDTO> draftList = memberMapper.selectDraftList(pageSize, offset, dateSort, approval,
+            startDate, endDate, memberCode);
+
+        int count = memberMapper.selectDraftListCnt(pageSize, offset, approval,
+            startDate, endDate, memberCode);
+
+        return new PageImpl<>(draftList, page, count);
+    }
+
+    @Override
+    @Transactional
+    public Page<ApprovalDTO> findMyApproval(Pageable page, String dateSort, String approval,
+        String startDate, String endDate, String accessToken) {
+
+        long pageSize = page.getPageSize();
+        long pageNumber = page.getPageNumber();
+        long offset = pageNumber * pageSize;
+
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
+
+        int memberCode = memberRepository.findById(loginId)
+            .orElseThrow(() -> new MemberNotFoundException("토큰에 맞는회원 정보가 없습니다")).getMemberCode();
+
+        List<ApprovalDTO> approvalList = memberMapper.selectApprovalList(pageSize, offset, dateSort, approval,
+            startDate, endDate, memberCode);
+
+        int count = memberMapper.selectApprovalListCnt(pageSize, offset, approval,
+            startDate, endDate, memberCode);
+
+        return new PageImpl<>(approvalList, page, count);
+    }
+
+    @Override
+    @Transactional
+    public MemberDTO getMemberByLoginId(String loginId) {
+        return memberMapper.selectMember(loginId);
     }
 }

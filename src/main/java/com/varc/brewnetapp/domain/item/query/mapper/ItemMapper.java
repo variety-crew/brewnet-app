@@ -10,4 +10,6 @@ public interface ItemMapper {
     List<ItemDTO> selectItemList(long offset, long pageSize, String itemName, String itemCode, String sort, String categoryCode, String correspondentCode);
 
     int selectItemListCnt(String itemName, String itemCode, String categoryCode, String correspondentCode);
+
+    int findItemPriceById(int itemCode);
 }
