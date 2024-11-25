@@ -129,8 +129,8 @@ public class OrderServiceImpl implements OrderService {
         );
 
         // TODO: validate
-        //  1. If member_code in tbl_order is null
-        //  2. If the status column in tbl_order_status_history is 'REQUEST'
+        //  1. If member_code in tbl_order is null and the order is valid(.active=1)
+        //  2. If the status column in tbl_order_status_history is 'REQUESTED'
         //  3. tbl_order_item 목록 수정 available, active -> UNAVAILABLE, false
 
         recordOrderStatusHistory(orderCode, OrderHistoryStatus.CANCELED);
