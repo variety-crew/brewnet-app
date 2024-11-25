@@ -88,8 +88,12 @@
         </collection>
     </resultMap>
 
-    <resultMap id="OrderApprovalHistory" type="com.varc.brewnetapp.domain.order.query.dto.OrderApprovalHistoryDTO">
+    <resultMap id="OrderApprovalHistory"
+               type="com.varc.brewnetapp.domain.order.query.dto.OrderApprovalHistoryDTO"
+    >
         <id property="orderCode" column="ORDER_CODE"/>
+        <result property="approverMemberCode" column="APPROVER_MEMBER_CODE"/>
+
         <result property="approved" column="ORDER_APPROVED"/>
         <result property="createdAt" column="ORDER_CREATED_AT"/>
         <result property="comment" column="ORDER_COMMENT"/>
@@ -295,6 +299,7 @@
     <select id="findOrderApprovalHistoriesBy" resultMap="OrderApprovalHistory">
         SELECT
                oa.ORDER_CODE as ORDER_CODE
+             , oa.MEMBER_CODE as APPROVER_MEMBER_CODE
              , oa.APPROVED as ORDER_APPROVED
              , oa.CREATED_AT as ORDER_CREATED_AT
              , oa.COMMENT as ORDER_COMMENT
