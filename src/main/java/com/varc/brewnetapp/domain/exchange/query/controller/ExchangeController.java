@@ -37,6 +37,13 @@ public class ExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 목록 조회 성공", result));
     }
 
+    @GetMapping("/excel-data")
+    @Operation(summary = "[본사] 교환요청 엑셀 데이터(전체 교환내역) 조회 API")
+    public ResponseEntity<ResponseMessage<List<ExchangeListVO>>> findExchangeExcelList() {
+        List <ExchangeListVO> result = exchangeService.findAllExchangeList();
+        return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 목록 조회 성공", result));
+    }
+
     @GetMapping("/status-requested")
     @Operation(summary = "[본사] 미결재된 교환요청 목록 조회 API")
     public ResponseEntity<ResponseMessage<Page<ExchangeListVO>>> findRequestedExchangeList(

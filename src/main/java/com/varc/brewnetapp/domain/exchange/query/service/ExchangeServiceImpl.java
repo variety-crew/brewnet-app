@@ -49,6 +49,12 @@ public class ExchangeServiceImpl implements ExchangeService {
     }
 
     @Override
+    public List<ExchangeListVO> findAllExchangeList() {
+        List<ExchangeListVO> exchangeList = exchangeMapper.selectAllExchangeList();
+        return exchangeList;
+    }
+
+    @Override
     public Page<ExchangeListVO> findRequestedExchangeList(Pageable page) {
         // 페이징 정보 추가
         long offset = page.getOffset();
@@ -273,5 +279,4 @@ public class ExchangeServiceImpl implements ExchangeService {
             throw new UnauthorizedAccessException("로그인한 가맹점에서 신청한 주문의 상품 리스트만 조회할 수 있습니다");
         }
     }
-
 }

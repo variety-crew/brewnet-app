@@ -11,6 +11,8 @@ import java.util.List;
 public interface ExchangeService {
     Page<ExchangeListVO> findExchangeList(Pageable page);
 
+    List<ExchangeListVO> findAllExchangeList();
+
     Page<ExchangeListVO> findRequestedExchangeList(Pageable page);
 
     Page<ExchangeListVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
