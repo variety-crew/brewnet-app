@@ -19,10 +19,10 @@ public class FrExchangeController {
 
     @PostMapping("/")
     @Operation(summary = "[가맹점] 교환신청 API")
-    public ResponseEntity<ResponseMessage<ExchangeReqVO>> registExchange(@RequestAttribute("loginId") String loginId,
+    public ResponseEntity<ResponseMessage<Integer>> registExchange(@RequestAttribute("loginId") String loginId,
                                                                          @RequestBody ExchangeReqVO exchangeReqVO) {
-        exchangeService.franCreateExchange(loginId, exchangeReqVO);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "교환신청 성공", null));
+        int exchangeCode = exchangeService.franCreateExchange(loginId, exchangeReqVO);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "교환신청 성공", exchangeCode));
     }
 
     @PostMapping("/cancel/{exchangeCode}")

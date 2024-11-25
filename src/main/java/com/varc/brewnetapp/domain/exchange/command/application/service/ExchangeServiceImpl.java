@@ -47,7 +47,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 
     @Override
     @Transactional
-    public void franCreateExchange(String loginId, ExchangeReqVO exchangeReqVO) {
+    public Integer franCreateExchange(String loginId, ExchangeReqVO exchangeReqVO) {
         /*
          * 교환 신청 시 변하는 상태값
          * [1] 교환 결재 상태           - tbl_exchange : approvalStatus = UNCONFIRMED
@@ -120,6 +120,9 @@ public class ExchangeServiceImpl implements ExchangeService {
             saveExchangeStatusHistory(ExchangeStatus.REQUESTED, exchange);
 
             // 6. 교환품목사진 저장
+
+            // 7. 교환코드(exchangeCode) 리턴 - 프론트엔드 상세페이지 이동 위해
+            return exchange.getExchangeCode();
 
         } else {
             throw new UnauthorizedAccessException("로그인한 가맹점에서 작성한 주문에 대해서만 교환 요청할 수 있습니다");
