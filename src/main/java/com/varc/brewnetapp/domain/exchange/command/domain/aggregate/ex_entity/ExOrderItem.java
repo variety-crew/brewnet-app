@@ -1,6 +1,6 @@
 package com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity;
 
-import com.varc.brewnetapp.common.domain.exchange.Availability;
+import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.compositionkey.OrderItemCode;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,7 +22,7 @@ public class ExOrderItem {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "available", nullable = false)
-    private Availability available;         // 반품/교환요청 가능여부
+    private Available available;         // 반품/교환요청 가능여부
 
     @Column(name = "part_sum_price", nullable = false)
     private Integer partSumPrice;           // 주문 품목별 총액

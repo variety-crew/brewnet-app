@@ -10,8 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ExchangeApproveReqVO {
-    private int exchangeCode;               // 교환코드
+public class ExchangeDrafterApproveReqVO {
     private DrafterApproved approval;       // 승인여부
     private String comment;                 // 첨언(비고사항)
 

@@ -4,7 +4,7 @@ import com.varc.brewnetapp.common.domain.approve.Approval;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Builder
+@Builder(toBuilder = true)
 @Data
 @Getter
 //@Setter
