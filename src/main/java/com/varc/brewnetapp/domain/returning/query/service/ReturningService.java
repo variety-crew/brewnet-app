@@ -10,4 +10,6 @@ public interface ReturningService {
     Page<ReturningListVO> findReturningList(Pageable page);
 
     List<ReturningListVO> findAllReturningList();
+
+    Page<ReturningListVO> findRequestedReturningList(Pageable page);
 }

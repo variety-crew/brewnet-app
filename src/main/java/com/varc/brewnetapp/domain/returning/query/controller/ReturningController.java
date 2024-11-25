@@ -39,15 +39,15 @@ public class ReturningController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 목록 조회 성공", result));
     }
 
-//    @GetMapping("/status-requested")
-//    @Operation(summary = "[본사] 미결재된 교환요청 목록 조회 API")
-//    public ResponseEntity<ResponseMessage<Page<ReturningListVO>>> findRequestedReturningList(
-//            @PageableDefault(value = 10) Pageable page) {
-//
-//        // 페이지네이션
-//        Page<ReturningListVO> result = returningService.findRequestedReturningList(page);
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "미결재된 반품요청 목록 조회 성공", result));
-//    }
+    @GetMapping("/status-requested")
+    @Operation(summary = "[본사] 미결재된 반품요청 목록 조회 API")
+    public ResponseEntity<ResponseMessage<Page<ReturningListVO>>> findRequestedReturningList(
+            @PageableDefault(value = 10) Pageable page) {
+
+        // 페이지네이션
+        Page<ReturningListVO> result = returningService.findRequestedReturningList(page);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "미결재된 반품요청 목록 조회 성공", result));
+    }
 //
 //    @GetMapping("/search")
 //    @Operation(summary = "[본사] 교환요청 목록 검색 API",

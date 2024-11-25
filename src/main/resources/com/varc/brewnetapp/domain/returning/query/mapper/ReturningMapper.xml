@@ -109,4 +109,58 @@
         GROUP BY A.return_code, A.created_at
         ORDER BY A.created_at DESC;
     </select>
+
+    <!-- 미결재된 반품내역 목록조회 페이지네이션용 cnt 쿼리 -->
+    <select id="selectRequestedReturningListCnt" resultType="int">
+        SELECT
+                COUNT(*)
+          FROM (
+                SELECT
+                      A.return_code
+         FROM tbl_return A
+              JOIN tbl_order B ON A.order_code = B.order_code
+              JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
+              JOIN tbl_return_item D ON A.return_code = D.return_code
+              JOIN tbl_item E ON D.item_code = E.item_code
+              LEFT JOIN tbl_member F ON A.member_code = F.member_code
+              JOIN tbl_return_status_history G ON A.return_code = G.return_code
+              JOIN (
+                    SELECT return_code, MAX(created_at) AS max_created_at
+                    FROM tbl_return_status_history
+                    GROUP BY return_code
+                    ) latest_status ON G.return_code = latest_status.return_code
+                AND G.created_at = latest_status.max_created_at
+              WHERE G.status = 'REQUESTED'
+              GROUP BY A.return_code, A.created_at ) AS grouped_results;
+    </select>
+
+    <!-- 미결재된 반품내역 목록조회 쿼리 -->
+    <select id="selectRequestedReturningList" resultMap="returningListResultMap">
+        SELECT
+                A.return_code
+              , C.franchise_name
+              , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
+              , A.reason
+              , F.name AS member_name
+              , A.created_at
+              , G.status
+              , A.approval_status
+         FROM tbl_return A
+              JOIN tbl_order B ON A.order_code = B.order_code
+              JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
+              JOIN tbl_return_item D ON A.return_code = D.return_code
+              JOIN tbl_item E ON D.item_code = E.item_code
+              LEFT JOIN tbl_member F ON A.member_code = F.member_code
+              JOIN tbl_return_status_history G ON A.return_code = G.return_code
+              JOIN (
+                    SELECT return_code, MAX(created_at) AS max_created_at
+                    FROM tbl_return_status_history
+                    GROUP BY return_code
+                    ) latest_status ON G.return_code = latest_status.return_code
+          AND G.created_at = latest_status.max_created_at
+        WHERE G.status = 'REQUESTED'
+        GROUP BY A.return_code, A.created_at
+        ORDER BY A.created_at DESC
+        LIMIT #{ offset }, #{ pageSize };
+    </select>
 </mapper>

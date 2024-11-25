@@ -14,4 +14,7 @@ public interface ReturningMapper {
 
     List<ReturningListVO> selectAllReturningList();
 
+    int selectRequestedReturningListCnt();
+
+    List<ReturningListVO> selectRequestedReturningList(long offset, long pageSize);
 }

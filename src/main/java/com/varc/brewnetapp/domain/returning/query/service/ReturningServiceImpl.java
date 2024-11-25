@@ -49,4 +49,20 @@ public class ReturningServiceImpl implements ReturningService {
         List<ReturningListVO> returningList = returningMapper.selectAllReturningList();
         return returningList;
     }
+
+    @Override
+    public Page<ReturningListVO> findRequestedReturningList(Pageable page) {
+        // 페이징 정보 추가
+        long offset = page.getOffset();
+        long pageSize = page.getPageSize();
+
+        // DB에서 교환 목록 조회
+        List<ReturningListVO> returningList = returningMapper.selectRequestedReturningList(offset, pageSize);
+
+        // 전체 데이터 개수 조회
+        int count = returningMapper.selectReturningListCnt();
+
+        // PageImpl 객체로 감싸서 반환
+        return new PageImpl<>(returningList, page, count);
+    }
 }
