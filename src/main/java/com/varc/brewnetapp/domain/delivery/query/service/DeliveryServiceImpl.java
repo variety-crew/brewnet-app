@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.delivery.query.service;
 
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.DeliveryKind;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.DeliveryStatus;
 import com.varc.brewnetapp.domain.delivery.query.dto.DeliveryDTO;
 import com.varc.brewnetapp.domain.delivery.query.dto.DeliveryDetailDTO;
 import com.varc.brewnetapp.domain.delivery.query.dto.ItemDTO;
@@ -48,7 +49,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             deliveryList = deliveryMapper.selectOrderDeliveryList(offset, pageSize);
             count = deliveryMapper.selectOrderDeliveryListCnt();
             deliveryList.stream().forEach(deliveryDTO -> {
-                deliveryDTO.setDeliveryStatus("배송 시작");
+                deliveryDTO.setDeliveryStatus(DeliveryStatus.START_DELIVERY);
             });
         }
         else if(deliveryKind.equals(DeliveryKind.EXCHANGE) || deliveryKind.equals(DeliveryKind.RETURN)){
@@ -56,9 +57,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             count = deliveryMapper.selectPickUpDeliveryListCnt();
             deliveryList.stream().forEach(deliveryDTO -> {
                 if (deliveryDTO.getDeliveryStatus().equals("APPROVED"))
-                    deliveryDTO.setDeliveryStatus("회수 시작");
+                    deliveryDTO.setDeliveryStatus(DeliveryStatus.START_PICK);
                 else if(deliveryDTO.getDeliveryStatus().equals("PICKED"))
-                    deliveryDTO.setDeliveryStatus("배송 시작");
+                    deliveryDTO.setDeliveryStatus(DeliveryStatus.START_DELIVERY);
             });
         }
 

@@ -18,6 +18,6 @@ public class DeliveryDTO {
     private String deliveryKind;
     private Integer code;
     private String deliveryFranchiseName;
-    private String deliveryStatus;
+    private DeliveryStatus deliveryStatus;
     private String contact;
 }
