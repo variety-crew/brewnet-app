@@ -29,6 +29,8 @@
         <result property="comment" column="ORDER_COMMENT" />
         <result property="managerName" column="ORDER_MANAGER_NAME"/>
         <result property="sumPrice" column="ORDER_SUM_PRICE"/>
+        <result property="orderStatus" column="ORDER_HISTORY_STATUS"/>
+        <result property="statusDate" column="HISTORY_CREATED_AT"/>
 
         <!-- orderItems-->
         <collection property="orderItemList"
@@ -256,6 +258,9 @@
              , m.NAME as ORDER_MANAGER_NAME
              , o.SUM_PRICE as ORDER_SUM_PRICE
 
+             , last_status.STATUS as ORDER_HISTORY_STATUS
+             , last_status.CREATED_AT as HISTORY_CREATED_AT
+
              , oi.ITEM_CODE as ORDER_ITEM_CODE
              , oi.QUANTITY as ORDER_QUANTITY
              , oi.PART_SUM_PRICE as ORDER_PART_SUM
@@ -274,6 +279,16 @@
         LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
         LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
         LEFT JOIN tbl_sub_category sc ON i.CATEGORY_CODE = sc.SUB_CATEGORY_CODE
+
+        LEFT JOIN (SELECT
+        h.ORDER_CODE,
+        h.STATUS,
+        h.CREATED_AT
+        FROM tbl_order_status_history h
+        WHERE (h.ORDER_CODE, h.CREATED_AT) IN (SELECT h1.ORDER_CODE, MAX(h1.CREATED_AT)
+        FROM tbl_order_status_history h1
+        GROUP BY h1.ORDER_CODE)
+        ) last_status ON o.ORDER_CODE = last_status.ORDER_CODE
     </select>
 
     <!-- order approval histories-->
