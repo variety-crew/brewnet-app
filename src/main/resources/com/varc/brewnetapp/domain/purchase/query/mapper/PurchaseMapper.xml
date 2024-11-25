@@ -55,6 +55,7 @@
             <id property="approverCode" column="APPROVER_CODE"/>
             <result property="approved" column="APPROVED"/>
             <result property="approvedAt" column="APPROVED_AT"/>
+            <result property="comment" column="COMMENT"/>
             <result property="approverName" column="APPROVER_NAME"/>
             <result property="positionName" column="POSITION_NAME"/>
         </collection>
@@ -199,6 +200,7 @@
                A.MEMBER_CODE AS APPROVER_CODE,
                A.APPROVED,
                A.APPROVED_AT,
+               A.COMMENT,
                B.NAME AS APPROVER_NAME,
                O.NAME AS POSITION_NAME
           FROM TBL_LETTER_OF_PURCHASE P

@@ -10,10 +10,11 @@ import lombok.*;
 @ToString
 public class PurchaseApproverDTO {
 
-    private int letterOfPurchaseCode;
+    private int letterOfPurchaseCode;       // 구매품의서 코드
     private int approverCode;               // 결재자 회원코드
-    private IsApproved approved;
-    private String approvedAt;
-    private String approverName;
-    private String positionName;
+    private IsApproved approved;            // 결재자의 결재 상태
+    private String approvedAt;              // 결재일시
+    private String comment;                 // 결재자의 첨언
+    private String approverName;            // 결재자명
+    private String positionName;            // 결재자의 직급명
 }
