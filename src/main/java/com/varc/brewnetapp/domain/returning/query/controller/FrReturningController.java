@@ -1,13 +1,82 @@
 package com.varc.brewnetapp.domain.returning.query.controller;
 
+import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.returning.query.service.ReturningServiceImpl;
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningListVO;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController("FrReturningControllerQuery")
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/hq/return")
+@RequestMapping("/api/v1/franchise/return")
 @Slf4j
 public class FrReturningController {
+    private final ReturningServiceImpl returningService;
+
+    @GetMapping("")
+    @Operation(summary = "[가맹점] 교환요청 목록조회 API")
+        public ResponseEntity<ResponseMessage<Page<FranReturningListVO>>> findFranReturningList(@RequestAttribute("loginId") String loginId,
+                                                                                                @PageableDefault(value = 10) Pageable page) {
+        Page<FranReturningListVO> result = returningService.findFranReturningList(loginId, page);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 반품요청 목록조회 성공", result));
+    }
+
+//    @GetMapping("/search")
+//    @Operation(summary = "[가맹점] 교환요청 목록 검색 API",
+//            description = "searchFilter에 들어갈 수 있는 값은 exchangeCode(교환번호), itemName(품목명) 2가지<br>" +
+//                    "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
+//                    "2가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
+//    public ResponseEntity<ResponseMessage<Page<FranExchangeListVO>>> searchFranExchangeList(
+//            @RequestAttribute("loginId") String loginId,
+//            @RequestParam(required = false) String searchFilter,
+//            @RequestParam(required = false) String searchWord,
+//            @RequestParam(required = false) String startDate,
+//            @RequestParam(required = false) String endDate,
+//            @PageableDefault(value = 10) Pageable page) {
+//
+//        Page<FranExchangeListVO> result = returningService.searchFranExchangeList(loginId, searchFilter, searchWord, startDate, endDate, page);
+//
+//        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 목록 검색 성공", result));
+//    }
+//
+//    @GetMapping("/{exchangeCode}")
+//    @Operation(summary = "[가맹점] 교환요청 상세조회 API")
+//    public ResponseEntity<ResponseMessage<FranExchangeDetailVO>> findFranExchangeDetail(@RequestAttribute("loginId") String loginId,
+//                                                                                        @PathVariable("exchangeCode") Integer exchangeCode) {
+//
+//        FranExchangeDetailVO result = returningService.findFranExchangeDetailBy(loginId, exchangeCode);
+//        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 상세조회 성공", result));
+//    }
+//
+//    @GetMapping("/status/{exchangeCode}")
+//    @Operation(summary = "[가맹점] 교환요청 상세조회 - 교환상태조회 API")
+//    public ResponseEntity<ResponseMessage<List<FranExchangeStatusVO>>> findFranExchangeStatus(@RequestAttribute("loginId") String loginId,
+//                                                                                              @PathVariable("exchangeCode") Integer exchangeCode) {
+//
+//        List<FranExchangeStatusVO> result = returningService.findFranExchangeStatusBy(loginId, exchangeCode);
+//        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 상세조회 성공", result));
+//    }
+//
+//    @GetMapping("/available-orders")
+//    @Operation(summary = "[가맹점] 교환신청 - 1. 교환신청 가능한 주문 목록 조회 API")
+//    public ResponseEntity<ResponseMessage<List<Integer>>> findFranAvailableExchangeBy(@RequestAttribute("loginId") String loginId) {
+//        List<Integer> result = returningService.findFranAvailableExchangeBy(loginId);
+//        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환신청 가능한 주문 목록 조회 성공", result));
+//    }
+//
+//    @GetMapping("/available-items/{orderCode}")
+//    @Operation(summary = "[가맹점] 교환신청 - 2. 교환신청할 주문의 상품목록 조회 API")
+//    public ResponseEntity<ResponseMessage<List<FranExchangeItemVO>>> findFranAvailableExchangeItemBy(@RequestAttribute("loginId") String loginId,
+//                                                                                                     @PathVariable("orderCode") int orderCode) {
+//        List<FranExchangeItemVO> result = returningService.findFranAvailableExchangeItemBy(loginId, orderCode);
+//        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환신청할 주문의 상품목록 조회 성공", result));
+//    }
 }

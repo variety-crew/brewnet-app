@@ -46,11 +46,20 @@
                     select="selectReturningDetailImageBy" column="return_code"/>
     </resultMap>
 
-
+    <!-- 가맹점 반품요청 목록조회 ResultMap -->
+    <resultMap id="franReturningListResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningListVO">
+        <result property="returningCode" column="return_code"/>
+        <result property="status" column="status"/>
+        <result property="orderCode" column="order_code"/>
+        <result property="itemName" column="item_name"/>
+        <result property="sumPrice" column="sum_price"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="completedAt" column="completed_at"/>
+    </resultMap>
 
     <!-- ========== Query ========== -->
 
-    <!-- ===== Query 1. 교환내역 ===== -->
+    <!-- ===== Query 1. 본사 반품내역 ===== -->
 
     <!-- 본사 반품내역 목록조회 페이지네이션용 cnt 쿼리 -->
     <select id="selectReturningListCnt" resultType="int">
@@ -325,5 +334,70 @@
         JOIN tbl_sub_category C ON B.category_code = C.sub_category_code
         JOIN tbl_super_category D ON C.super_category_code = D.super_category_code
         WHERE A.return_code = #{ returningCode };
+    </select>
+
+    <!-- ===== Query 2. 타부서 반품내역 ===== -->
+
+
+    <!-- ===== Query 3. 가맹점 반품내역 ===== -->
+
+    <!--  가맹점 반품내역 조회용 cnt 쿼리 -->
+    <select id="selectFranReturningListCnt" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM (
+        SELECT
+        A.return_code
+        , B.status
+        , C.order_code
+        , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
+        , A.sum_price
+        , A.created_at
+        , CASE WHEN B.status = 'COMPLETED' THEN B.created_at ELSE NULL END AS completed_at
+        FROM tbl_return A
+        JOIN tbl_return_status_history B ON A.return_code = B.return_code
+        JOIN (
+        SELECT return_code, MAX(created_at) AS max_created_at
+        FROM tbl_return_status_history
+        GROUP BY return_code
+        ) latest_status ON B.return_code = latest_status.return_code
+        AND B.created_at = latest_status.max_created_at
+        JOIN tbl_order C ON A.order_code = C.order_code
+        JOIN tbl_return_item D ON A.return_code = D.return_code
+        JOIN tbl_item E ON D.item_code = E.item_code
+        JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
+        WHERE F.franchise_code = ( SELECT B.franchise_code FROM tbl_member A JOIN tbl_franchise_member B ON A.member_code = B.member_code
+        WHERE A.id = #{ loginId } )
+        GROUP BY A.return_code, A.created_at
+        ) AS grouped_result;
+    </select>
+
+    <!--  가맹점 반품내역 조회 쿼리 -->
+    <select id="selectFranReturningList" resultMap="franReturningListResultMap">
+        SELECT
+        A.return_code
+        , B.status
+        , C.order_code
+        , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
+        , A.sum_price
+        , A.created_at
+        , CASE WHEN B.status = 'COMPLETED' THEN B.created_at ELSE NULL END AS completed_at
+        FROM tbl_return A
+        JOIN tbl_return_status_history B ON A.return_code = B.return_code
+        JOIN (
+        SELECT return_code, MAX(created_at) AS max_created_at
+        FROM tbl_return_status_history
+        GROUP BY return_code
+        ) latest_status ON B.return_code = latest_status.return_code
+        AND B.created_at = latest_status.max_created_at
+        JOIN tbl_order C ON A.order_code = C.order_code
+        JOIN tbl_return_item D ON A.return_code = D.return_code
+        JOIN tbl_item E ON D.item_code = E.item_code
+        JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
+        WHERE F.franchise_code = ( SELECT B.franchise_code FROM tbl_member A JOIN tbl_franchise_member B ON A.member_code = B.member_code
+        WHERE A.id = #{ loginId })
+        GROUP BY A.return_code, A.created_at
+        ORDER BY A.created_at DESC
+        LIMIT #{ offset }, #{ pageSize };
     </select>
 </mapper>

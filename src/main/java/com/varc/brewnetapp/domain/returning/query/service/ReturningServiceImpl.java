@@ -4,6 +4,7 @@ import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO;
 import com.varc.brewnetapp.domain.exchange.query.mapper.ExchangeMapper;
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.mapper.ReturningMapper;
@@ -89,5 +90,21 @@ public class ReturningServiceImpl implements ReturningService {
     public ReturningDetailVO findReturningDetailBy(Integer returningCode) {
         ReturningDetailVO returningDetail = returningMapper.selectReturningDetailBy(returningCode);
         return returningDetail;
+    }
+
+    @Override
+    public Page<FranReturningListVO> findFranReturningList(String loginId, Pageable page) {
+        // 페이징 정보 추가
+        long offset = page.getOffset();
+        long pageSize = page.getPageSize();
+
+        // DB에서 교환 목록 조회
+        List<FranReturningListVO> franReturningList = returningMapper.selectFranReturningList(loginId, offset, pageSize);
+
+        // 전체 데이터 개수 조회
+        int count = returningMapper.selectFranReturningListCnt(loginId);
+
+        // PageImpl 객체로 감싸서 반환
+        return new PageImpl<>(franReturningList, page, count);
     }
 }

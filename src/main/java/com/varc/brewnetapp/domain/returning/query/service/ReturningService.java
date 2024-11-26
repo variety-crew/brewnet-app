@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.returning.query.service;
 
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
 import org.springframework.data.domain.Page;
@@ -17,4 +18,6 @@ public interface ReturningService {
     Page<ReturningListVO> searchReturningList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
 
     ReturningDetailVO findReturningDetailBy(Integer returningCode);
+
+    Page<FranReturningListVO> findFranReturningList(String loginId, Pageable page);
 }
