@@ -219,7 +219,7 @@ public class ExchangeServiceImpl implements ExchangeService {
         /*
          * 교환결재신청(최초기안자) 시 변하는 상태값
          * [1] 기안자의 교환 승인 여부    - tbl_exchange : drafter_approved = REJECT / APPROVE
-         * [2] 교환 결재 상태            - tbl_exchange : approval_status = CANCELED / UNCONFIRMED
+         * [2] 교환 결재 상태            - tbl_exchange : approval_status =  UNCONFIRMED (변화 X)
          * [3] 교환상태                 - tbl_exchange_status_history : status = REJECTED / PENDING (내역 추가됨)
          * [4] 승인여부                 - tbl_exchange_approver : approved = REJECTED / APPROVED & UNCONFIRMED (결재자 등록됨)
         * */

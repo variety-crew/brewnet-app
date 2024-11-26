@@ -1,8 +1,10 @@
 package com.varc.brewnetapp.domain.returning.query.service;
 
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO;
 import com.varc.brewnetapp.domain.exchange.query.mapper.ExchangeMapper;
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.mapper.ReturningMapper;
 import lombok.RequiredArgsConstructor;
@@ -81,5 +83,11 @@ public class ReturningServiceImpl implements ReturningService {
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(exchangeList, page, count);
+    }
+
+    @Override
+    public ReturningDetailVO findReturningDetailBy(Integer returningCode) {
+        ReturningDetailVO returningDetail = returningMapper.selectReturningDetailBy(returningCode);
+        return returningDetail;
     }
 }

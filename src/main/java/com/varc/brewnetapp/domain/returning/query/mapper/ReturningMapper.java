@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.returning.query.mapper;
 
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO;
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -21,4 +22,6 @@ public interface ReturningMapper {
     int selectSearchReturningListCnt(String searchFilter, String searchWord, String startDate, String endDate);
 
     List<ReturningListVO> selectSearchReturningList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
+
+    ReturningDetailVO selectReturningDetailBy(int returningCode);
 }

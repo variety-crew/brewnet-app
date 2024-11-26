@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.returning.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.service.ReturningServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -65,13 +66,13 @@ public class ReturningController {
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 목록 검색 성공", result));
     }
-//
-//    @GetMapping("/{returningCode}")
-//    @Operation(summary = "[본사] 반품요청 상세조회 API")
-//    public ResponseEntity<ResponseMessage<ReturningDetailVO>> findReturningBy(@PathVariable("returningCode") Integer returningCode) {
-//
-//        ReturningDetailVO result = returningService.findReturningDetailBy(returningCode);
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 상세조회 성공", result));
-//    }
+
+    @GetMapping("/{returningCode}")
+    @Operation(summary = "[본사] 반품요청 상세조회 API")
+    public ResponseEntity<ResponseMessage<ReturningDetailVO>> findReturningBy(@PathVariable("returningCode") Integer returningCode) {
+
+        ReturningDetailVO result = returningService.findReturningDetailBy(returningCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 상세조회 성공", result));
+    }
 
 }
