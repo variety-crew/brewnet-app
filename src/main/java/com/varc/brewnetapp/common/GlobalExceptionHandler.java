@@ -49,9 +49,9 @@ public class GlobalExceptionHandler {
             NoAccessAuthoritiesException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleNoAccessException(Exception e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ResponseMessage<>(
-                        HttpStatus.UNAUTHORIZED.value(),
+                        HttpStatus.FORBIDDEN.value(),
                         e.getMessage(),
                         null));
     }
