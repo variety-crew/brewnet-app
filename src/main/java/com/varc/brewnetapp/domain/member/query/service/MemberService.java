@@ -13,7 +13,7 @@ public interface MemberService {
 
     MemberDTO findMember(String accessToken);
 
-    Page<OrderPrintDTO> findSealHistory(Pageable page, String startDate, String endDate);
+    Page<OrderPrintDTO> findSealHistory(Pageable page, String startDate, String endDate, String sort);
 
     FranchiseDTO getFranchiseInfoByLoginId(String loginId);
 
