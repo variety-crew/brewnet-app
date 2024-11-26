@@ -16,7 +16,7 @@ public interface MemberMapper {
 
     MemberDTO selectMember(String loginId);
 
-    List<OrderPrintDTO> selectOrderPrintList(long offset, long pageSize, String startDate, String endDate);
+    List<OrderPrintDTO> selectOrderPrintList(long offset, long pageSize, String startDate, String endDate, String sort);
 
     int selectOrderPrintListCnt();
 

@@ -191,7 +191,17 @@
     <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
        AND PRINTED_AT BETWEEN #{startDate} AND #{endDate}
     </if>
-     ORDER BY OP.ORDER_PRINT_CODE DESC
+    <choose>
+      <when test="sort == 'nameASC'">
+        ORDER BY M.NAME ASC
+      </when>
+      <when test="sort == 'nameDESC'">
+        ORDER BY M.NAME DESC
+      </when>
+      <otherwise>
+        ORDER BY OP.ORDER_PRINT_CODE DESC
+      </otherwise>
+    </choose>
      LIMIT #{ pageSize }
     OFFSET #{ offset }
   </select>

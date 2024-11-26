@@ -94,7 +94,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public Page<OrderPrintDTO> findSealHistory(Pageable page, String startDate, String endDate) {
+    public Page<OrderPrintDTO> findSealHistory(Pageable page, String startDate, String endDate, String sort) {
         long pageSize = page.getPageSize();
         long pageNumber = page.getPageNumber();
         long offset = pageNumber * pageSize;
@@ -103,7 +103,7 @@ public class MemberServiceImpl implements MemberService {
             throw new InvalidDataException("시작일자와 종료일자는 모두 입력되거나, 둘 다 비어 있어야 합니다.");
 
         // DB에서 교환 목록 조회
-        List<OrderPrintDTO> orderPrintList = memberMapper.selectOrderPrintList(offset, pageSize, startDate, endDate);
+        List<OrderPrintDTO> orderPrintList = memberMapper.selectOrderPrintList(offset, pageSize, startDate, endDate, sort);
 
         if (orderPrintList.isEmpty() || orderPrintList.size() < 0)
             throw new EmptyDataException("조회하려는 법인 인감 사용 내역이 없습니다");
