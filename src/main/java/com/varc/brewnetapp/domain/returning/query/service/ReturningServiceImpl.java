@@ -1,14 +1,9 @@
 package com.varc.brewnetapp.domain.returning.query.service;
 
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO;
-import com.varc.brewnetapp.domain.exchange.query.mapper.ExchangeMapper;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.mapper.ReturningMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -103,6 +98,22 @@ public class ReturningServiceImpl implements ReturningService {
 
         // 전체 데이터 개수 조회
         int count = returningMapper.selectFranReturningListCnt(loginId);
+
+        // PageImpl 객체로 감싸서 반환
+        return new PageImpl<>(franReturningList, page, count);
+    }
+
+    @Override
+    public Page<FranReturningListVO> searchFranReturningList(String loginId, String searchFilter, String searchWord, String startDate, String endDate, Pageable page) {
+        // 페이징 정보 추가
+        long offset = page.getOffset();
+        long pageSize = page.getPageSize();
+
+        // DB에서 교환 목록 조회
+        List<FranReturningListVO> franReturningList = returningMapper.selectSearchFranReturningList(loginId, searchFilter, searchWord, startDate, endDate, offset, pageSize);
+
+        // 전체 데이터 개수 조회
+        int count = returningMapper.selectSearchFranReturningListCnt(loginId, searchFilter, searchWord, startDate, endDate);
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(franReturningList, page, count);

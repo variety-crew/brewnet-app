@@ -400,4 +400,87 @@
         ORDER BY A.created_at DESC
         LIMIT #{ offset }, #{ pageSize };
     </select>
+
+    <!-- 가맹점 반품내역 검색 페이지네이션용 cnt 쿼리 -->
+    <select id="selectSearchFranReturningListCnt" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM (
+        SELECT
+        A.return_code
+        , B.status
+        , C.order_code
+        , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
+        , A.sum_price
+        , A.created_at
+        , CASE WHEN B.status = 'COMPLETED' THEN B.created_at ELSE NULL END AS completed_at
+        FROM tbl_return A
+        JOIN tbl_return_status_history B ON A.return_code = B.return_code
+        JOIN (
+        SELECT return_code, MAX(created_at) AS max_created_at
+        FROM tbl_return_status_history
+        GROUP BY return_code
+        ) latest_status ON B.return_code = latest_status.return_code
+        AND B.created_at = latest_status.max_created_at
+        JOIN tbl_order C ON A.order_code = C.order_code
+        JOIN tbl_return_item D ON A.return_code = D.return_code
+        JOIN tbl_item E ON D.item_code = E.item_code
+        JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
+        <where>
+            F.franchise_code = ( SELECT B.franchise_code FROM tbl_member A JOIN tbl_franchise_member B ON A.member_code = B.member_code WHERE A.id = #{ loginId } )
+            <choose>
+                <when test="searchFilter == 'returningCode'">
+                    AND CAST(A.return_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'itemName'">
+                    AND E.name LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+            </choose>
+            <if test="startDate != null and endDate != null">
+                AND A.created_at BETWEEN #{ startDate } AND CONCAT(#{ endDate }, ' 23:59:59')
+            </if>
+        </where>
+        GROUP BY A.return_code) AS grouped_list
+    </select>
+
+    <!-- 가맹점 반품내역 검색 쿼리 -->
+    <select id="selectSearchFranReturningList" resultMap="franReturningListResultMap">
+        SELECT
+        A.return_code
+        , B.status
+        , C.order_code
+        , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
+        , A.sum_price
+        , A.created_at
+        , CASE WHEN B.status = 'COMPLETED' THEN B.created_at ELSE NULL END AS completed_at
+        FROM tbl_return A
+        JOIN tbl_return_status_history B ON A.return_code = B.return_code
+        JOIN (
+        SELECT return_code, MAX(created_at) AS max_created_at
+        FROM tbl_return_status_history
+        GROUP BY return_code
+        ) latest_status ON B.return_code = latest_status.return_code
+        AND B.created_at = latest_status.max_created_at
+        JOIN tbl_order C ON A.order_code = C.order_code
+        JOIN tbl_return_item D ON A.return_code = D.return_code
+        JOIN tbl_item E ON D.item_code = E.item_code
+        JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
+        <where>
+            F.franchise_code = ( SELECT B.franchise_code FROM tbl_member A JOIN tbl_franchise_member B ON A.member_code = B.member_code WHERE A.id = #{ loginId } )
+            <choose>
+                <when test="searchFilter == 'returningCode'">
+                    AND CAST(A.return_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'itemName'">
+                    AND E.name LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+            </choose>
+            <if test="startDate != null and endDate != null">
+                AND A.created_at BETWEEN #{ startDate } AND CONCAT(#{ endDate }, ' 23:59:59')
+            </if>
+        </where>
+        GROUP BY A.return_code
+        ORDER BY A.created_at DESC
+        LIMIT #{ offset }, #{ pageSize };
+    </select>
 </mapper>

@@ -1,6 +1,5 @@
 package com.varc.brewnetapp.domain.returning.query.mapper;
 
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
@@ -30,4 +29,7 @@ public interface ReturningMapper {
 
     List<FranReturningListVO> selectFranReturningList(String loginId, long offset, long pageSize);
 
+    int selectSearchFranReturningListCnt(String loginId, String searchFilter, String searchWord, String startDate, String endDate);
+
+    List<FranReturningListVO> selectSearchFranReturningList(String loginId, String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 }

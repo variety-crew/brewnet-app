@@ -20,4 +20,6 @@ public interface ReturningService {
     ReturningDetailVO findReturningDetailBy(Integer returningCode);
 
     Page<FranReturningListVO> findFranReturningList(String loginId, Pageable page);
+
+    Page<FranReturningListVO> searchFranReturningList(String loginId, String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
 }
