@@ -74,5 +74,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ResponseMessage<>(404, e.getMessage(), null));
     }
+
+    // Unexpected Exception
+    @ExceptionHandler({
+            RuntimeException.class
+    })
+    public ResponseEntity<ResponseMessage<Object>> handleUnexpectedException(Exception e) {
+        return ResponseEntity.internalServerError()
+                .body(new ResponseMessage<>(500, "Server Error: 관리자에게 문의하세요.", null));
+    }
 }
 
