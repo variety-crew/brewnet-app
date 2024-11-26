@@ -568,7 +568,7 @@
               JOIN tbl_item E ON D.item_code = E.item_code
               JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
         WHERE F.franchise_code = ( SELECT B.franchise_code FROM tbl_member A JOIN tbl_franchise_member B ON A.member_code = B.member_code WHERE A.id = #{ loginId } )
-        GROUP BY A.exchange_code
+        GROUP BY A.exchange_code, A.created_at
         ORDER BY A.created_at DESC
         LIMIT #{ offset }, #{ pageSize };
     </select>
