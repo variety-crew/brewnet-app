@@ -46,4 +46,25 @@ public class ItemServiceImpl implements ItemService {
     public int findItemSellingPriceByItemCode(int itemCode) {
         return itemMapper.findItemPriceById(itemCode);
     }
+
+    @Override
+    @Transactional
+    public Page<ItemDTO> findHqItemList(Pageable page, String itemName, String itemCode,
+        String sort, String categoryCode, String correspondentCode) {
+        long pageSize = page.getPageSize();
+        long pageNumber = page.getPageNumber();
+        long offset = pageNumber * pageSize;
+
+
+        List<ItemDTO> itemList = itemMapper.selectHqItemList(offset, pageSize, itemName, itemCode, sort, categoryCode, correspondentCode);
+
+        if (itemList.isEmpty() || itemList.size() < 0)
+            throw new EmptyDataException("조회하려는 상품 정보가 없습니다");
+
+        // 전체 데이터 개수 조회
+        int count = itemMapper.selectHqItemListCnt(itemName, itemCode, categoryCode, correspondentCode);
+
+        // PageImpl 객체로 감싸서 반환
+        return new PageImpl<>(itemList, page, count);
+    }
 }

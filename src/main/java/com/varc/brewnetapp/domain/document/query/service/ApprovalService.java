@@ -28,12 +28,14 @@ public class ApprovalService {
         return approvalList;
     }
 
+    @Transactional
     public List<ApproverDTO> findApproverlList() {
         List<ApproverDTO> approverList = documentMapper.selectApproverList();
 
         return approverList;
     }
 
+    @Transactional
     public List<ApproverMemberDTO> selectApproverList(KindOfApproval approvalLine) {
         List<ApproverMemberDTO> approvers = documentMapper.selectApproversByKind(approvalLine);
         if (approvers == null) throw new ApprovalNotFoundException("존재하지 않는 결재라인입니다.");

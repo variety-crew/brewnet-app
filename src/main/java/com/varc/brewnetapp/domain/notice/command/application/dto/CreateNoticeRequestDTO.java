@@ -1,4 +1,4 @@
-package com.varc.brewnetapp.domain.franchise.query.dto;
+package com.varc.brewnetapp.domain.notice.command.application.dto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
@@ -8,20 +8,16 @@ import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class FranchiseDTO {
+public class CreateNoticeRequestDTO {
 
-    private Integer franchiseCode;
-    private String franchiseName;
-    private String address;
-    private String detailAddress;
-    private String contact;
-    private String businessNumber;
-    private String name;
-
+    private String title;
+    private String content;
 }
