@@ -132,7 +132,7 @@
                I.SAFETY_STOCK,
                (S.AVAILABLE_STOCK + S.OUT_STOCK) AS CURRENT_STOCK
           FROM tbl_stock S
-          JOIN TBL_ITEM I ON S.ITEM_CODE = I.ITEM_CODE
+          JOIN tbl_item I ON S.ITEM_CODE = I.ITEM_CODE
         <where>
             S.STORAGE_CODE = #{storageCode}
             AND S.ACTIVE = TRUE
@@ -151,7 +151,7 @@
         SELECT
                COUNT(*)
           FROM tbl_stock S
-          JOIN TBL_ITEM I ON S.ITEM_CODE = I.ITEM_CODE
+          JOIN tbl_item I ON S.ITEM_CODE = I.ITEM_CODE
         <where>
             S.STORAGE_CODE = #{storageCode}
             AND S.ACTIVE = TRUE
