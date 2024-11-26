@@ -1,5 +1,8 @@
 package com.varc.brewnetapp.domain.purchase.command.application.service;
 
+import com.varc.brewnetapp.domain.correspondent.command.domain.aggregate.Correspondent;
+import com.varc.brewnetapp.domain.correspondent.command.domain.repository.CorrespondentItemRepository;
+import com.varc.brewnetapp.domain.correspondent.command.domain.repository.CorrespondentRepository;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.domain.member.command.domain.repository.PositionRepository;
@@ -110,8 +113,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                     .orElseThrow(() -> new ItemNotFoundException("존재하지 않는 품목입니다."));
 
             // 선택한 품목이 선택한 거래처의 품목인지 체크
-            if (!correspondentItemRepository.existsByCorrespondentCodeAndItemCodeAndActiveTrue(
-                                            newPurchase.getCorrespondentCode(), purchaseItem.getItemCode())) {
+            if (correspondentItemRepository.existsByCorrespondentCodeAndItemCodeAndActiveTrue(
+                    newPurchase.getCorrespondentCode(), purchaseItem.getItemCode())) {
                 throw new ItemNotFoundException("해당 거래처에서 취급하는 품목이 아닙니다.");
             }
 
@@ -355,8 +358,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             PurchaseItem item = purchaseItemRepository.findByItemCodeAndActiveTrue(purchaseItem.getItemCode());
 
             if (item == null) throw new ItemNotFoundException("삭제되었거나 존재하지 않는 상품입니다.");
-            if (!correspondentItemRepository.existsByCorrespondentCodeAndItemCodeAndActiveTrue(
-                                                correspondent.getCorrespondentCode(), item.getItemCode())) {
+            if (correspondentItemRepository.existsByCorrespondentCodeAndItemCodeAndActiveTrue(
+                    correspondent.getCorrespondentCode(), item.getItemCode())) {
                 throw new ItemNotFoundException("해당 거래처에서 취급하는 품목이 아닙니다.");
             }
 
@@ -432,8 +435,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             PurchaseItem item = purchaseItemRepository.findByItemCodeAndActiveTrue(purchaseItem.getItemCode());
 
             if (item == null) throw new ItemNotFoundException("삭제되었거나 존재하지 않는 상품입니다.");
-            if (!correspondentItemRepository.existsByCorrespondentCodeAndItemCodeAndActiveTrue(
-                                                correspondent.getCorrespondentCode(), item.getItemCode())) {
+            if (correspondentItemRepository.existsByCorrespondentCodeAndItemCodeAndActiveTrue(
+                    correspondent.getCorrespondentCode(), item.getItemCode())) {
                 throw new ItemNotFoundException("해당 거래처에서 취급하는 품목이 아닙니다.");
             }
 
