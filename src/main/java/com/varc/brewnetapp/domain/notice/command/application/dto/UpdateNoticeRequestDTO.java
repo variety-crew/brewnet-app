@@ -1,10 +1,5 @@
 package com.varc.brewnetapp.domain.notice.command.application.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +11,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class CreateNoticeRequestDTO {
+public class UpdateNoticeRequestDTO {
 
+    private int noticeCode;
     private String title;
     private String content;
 }
