@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.member.command.application.service;
 
 import com.varc.brewnetapp.common.S3ImageService;
+import com.varc.brewnetapp.exception.InvalidDataException;
 import com.varc.brewnetapp.utility.TelNumberUtil;
 import com.varc.brewnetapp.domain.member.command.application.dto.CreateCompanyRequestDTO;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Company;
@@ -119,7 +120,13 @@ public class CompanyService {
             if(sealList.size() > 0)
                 throw new InvalidApiRequestException("이미 회사 법인 인감이 존재합니다. 추가로 생성할 수 없습니다");
 
-            String s3Url = s3ImageService.upload(sealImage);
+            String s3Url = null;
+            try {
+                s3Url = s3ImageService.upload(sealImage);
+            }
+            catch (Exception e){
+                throw new InvalidDataException("이미지 저장이 안되었습니다. 용량이나 파일 형식을 확인하세요");
+            }
 
             Seal seal = Seal.builder()
                 .imageUrl(s3Url)
@@ -143,12 +150,20 @@ public class CompanyService {
         if (authorities.stream().anyMatch(auth -> "ROLE_MASTER".equals(auth.getAuthority()))) {
             List<Seal> sealList = sealRepository.findAll();
 
-            if(sealList.size() == 0 || sealList.isEmpty())
+            if(sealList == null || sealList.size() == 0)
                 createSeal(accessToken, sealImage);
 
             //S3 이미지 삭제 기능 -> 더미 데이터의 image_url은 s3에 저장 안되어 있으므로 삭제 불가능.
 //            s3ImageService.deleteImageFromS3(sealList.get(0).getImageUrl());
-            String s3Url = s3ImageService.upload(sealImage);
+
+            String s3Url = null;
+            try {
+                s3Url = s3ImageService.upload(sealImage);
+            }
+            catch (Exception e){
+                throw new InvalidDataException("이미지 저장이 안되었습니다. 용량이나 파일 형식을 확인하세요");
+            }
+
 
             sealList.get(0).setImageUrl(s3Url);
             sealList.get(0).setActive(true);
