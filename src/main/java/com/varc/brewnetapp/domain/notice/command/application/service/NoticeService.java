@@ -58,25 +58,28 @@ public class NoticeService {
 
         notice = noticeRepositiory.save(notice);
 
-        for(MultipartFile file : image) {
+        if (image != null && !image.isEmpty() && image.size() > 0){
+            for(MultipartFile file : image) {
 
-            String s3Url = null;
-            try {
-                s3Url = s3ImageService.upload(file);
-            }catch (InvalidDataException e) {
-                throw new InvalidDataException("이미지를 저장할 수 없습니다");
+                String s3Url = null;
+                try {
+                    s3Url = s3ImageService.upload(file);
+                }catch (InvalidDataException e) {
+                    throw new InvalidDataException("이미지를 저장할 수 없습니다");
+                }
+
+                if(s3Url == null)
+                    throw new InvalidDataException("이미지가 저장되지 않았습니다");
+
+                NoticeImage noticeImage = NoticeImage.builder()
+                    .noticeCode(notice.getNoticeCode())
+                    .imageUrl(s3Url)
+                    .build();
+
+                noticeImageRepository.save(noticeImage);
             }
-
-            if(s3Url == null)
-                throw new InvalidDataException("이미지가 저장되지 않았습니다");
-
-            NoticeImage noticeImage = NoticeImage.builder()
-                .noticeCode(notice.getNoticeCode())
-                .imageUrl(s3Url)
-                .build();
-
-            noticeImageRepository.save(noticeImage);
         }
+
     }
 
     @Transactional
