@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.varc.brewnetapp.domain.order.query.mapper.OrderValidateMapper">
+<mapper namespace="com.varc.brewnetapp.domain.member.query.mapper.MemberValidateMapper">
     <select id="existMemberCodeInFranchise" resultType="boolean">
         SELECT
                CASE WHEN COUNT(*) > 0
