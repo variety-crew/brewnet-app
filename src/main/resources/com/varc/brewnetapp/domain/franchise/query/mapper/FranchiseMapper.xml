@@ -59,7 +59,17 @@
         #{city}
       </foreach>
     </if>
-     ORDER BY FRANCHISE_CODE DESC
+    <choose>
+      <when test="sort == 'franchiseNameASC'">
+        ORDER BY FRANCHISE_NAME ASC
+      </when>
+      <when test="sort == 'franchiseNameDESC'">
+        ORDER BY FRANCHISE_NAME DESC
+      </when>
+      <otherwise>
+        FRANCHISE_CODE DESC
+      </otherwise>
+    </choose>
      LIMIT #{ pageSize }
     OFFSET #{ offset };
   </select>
@@ -102,7 +112,17 @@
         #{city}
       </foreach>
     </if>
-     ORDER BY M.MEMBER_CODE DESC
+    <choose>
+      <when test="sort == 'franchiseNameASC'">
+        ORDER BY FRANCHISE_NAME ASC
+      </when>
+      <when test="sort == 'franchiseNameDESC'">
+        ORDER BY FRANCHISE_NAME DESC
+      </when>
+      <otherwise>
+        FRANCHISE_CODE DESC
+      </otherwise>
+    </choose>
      LIMIT #{ pageSize }
     OFFSET #{ offset };
   </select>

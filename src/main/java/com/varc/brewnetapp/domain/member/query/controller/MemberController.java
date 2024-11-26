@@ -36,11 +36,13 @@ public class MemberController {
 
     @GetMapping("/member")
     @Operation(summary = "멤버 목록 조회 API / query param으로 page와 size를 키값으로 데이터 보내주시면 됩니다 "
-        + "/ page는 0부터 시작 / search는 직원명. 필수는 X")
+        + "/ page는 0부터 시작 / search는 직원명. 필수는 X " 
+        + "/ sort 값은 nameASC나 nameDESC로 보내주세요")
     public ResponseEntity<ResponseMessage<Page<MemberDTO>>> findMemberList(@PageableDefault(page = 0, size = 10) Pageable page,
-        @RequestParam(required = false) String search) {
+        @RequestParam(required = false) String search,
+        @RequestParam(required = false) String sort) {
         // 페이지네이션
-        Page<MemberDTO> result = memberService.findMemberList(page, search);
+        Page<MemberDTO> result = memberService.findMemberList(page, search, sort);
         return ResponseEntity.ok(new ResponseMessage<>(200, "멤버 목록 조회 성공", result));
     }
 

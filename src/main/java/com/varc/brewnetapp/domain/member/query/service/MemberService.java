@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface MemberService {
 
-    Page<MemberDTO> findMemberList(Pageable page, String search);
+    Page<MemberDTO> findMemberList(Pageable page, String search, String sort);
 
     MemberDTO findMember(String accessToken);
 
