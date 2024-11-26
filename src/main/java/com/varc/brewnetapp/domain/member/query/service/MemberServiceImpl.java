@@ -52,7 +52,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public Page<MemberDTO> findMemberList(Pageable page, String search) {
+    public Page<MemberDTO> findMemberList(Pageable page, String search, String sort) {
         // 페이징 정보 추가
         long pageSize = page.getPageSize();
         long pageNumber = page.getPageNumber();
@@ -60,7 +60,7 @@ public class MemberServiceImpl implements MemberService {
 
 
         // DB에서 교환 목록 조회
-        List<MemberDTO> memberList = memberMapper.selectMemberList(offset, pageSize, search);
+        List<MemberDTO> memberList = memberMapper.selectMemberList(offset, pageSize, search, sort);
 
         if (memberList.isEmpty() || memberList.size() < 0)
             throw new EmptyDataException("조회하려는 회원 정보가 없습니다");
