@@ -27,7 +27,7 @@
          , NI.IMAGE_URL
       FROM tbl_notice N
      INNER JOIN tbl_MEMBER M ON (N.MEMBER_CODE = M.MEMBER_CODE)
-     INNER JOIN tbl_notice_img NI ON (NI.NOTICE_CODE = N.NOTICE_CODE)
+      LEFT JOIN tbl_notice_img NI ON (NI.NOTICE_CODE = N.NOTICE_CODE)
      WHERE N.ACTIVE = TRUE
     <if test="title != null and title != ''">
       AND N.TITLE LIKE CONCAT('%', #{title}, '%')
@@ -73,7 +73,7 @@
          , NI.IMAGE_URL
       FROM tbl_notice N
      INNER JOIN tbl_MEMBER M ON (N.MEMBER_CODE = M.MEMBER_CODE)
-     INNER JOIN tbl_notice_img NI ON (NI.NOTICE_CODE = N.NOTICE_CODE)
+      LEFT JOIN tbl_notice_img NI ON (NI.NOTICE_CODE = N.NOTICE_CODE)
      WHERE N.ACTIVE = TRUE AND N.NOTICE_CODE = #{noticeCode}
   </select>
 
