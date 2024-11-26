@@ -8,4 +8,6 @@ public interface ItemService {
 
     Page<ItemDTO> findItemList(Pageable page, String itemName, String itemCode, String sort, String categoryCode, String correspondentCode);
     int findItemSellingPriceByItemCode(int itemCode);
+
+    Page<ItemDTO> findHqItemList(Pageable page, String itemName, String itemCode, String sort, String categoryCode, String correspondentCode);
 }
