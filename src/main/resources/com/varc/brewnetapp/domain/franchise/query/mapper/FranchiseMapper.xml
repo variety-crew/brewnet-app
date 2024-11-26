@@ -67,7 +67,7 @@
         ORDER BY FRANCHISE_NAME DESC
       </when>
       <otherwise>
-        FRANCHISE_CODE DESC
+        ORDER BY FRANCHISE_CODE DESC
       </otherwise>
     </choose>
      LIMIT #{ pageSize }
@@ -120,7 +120,7 @@
         ORDER BY FRANCHISE_NAME DESC
       </when>
       <otherwise>
-        FRANCHISE_CODE DESC
+        ORDER BY FRANCHISE_CODE DESC
       </otherwise>
     </choose>
      LIMIT #{ pageSize }
