@@ -37,6 +37,8 @@ public interface ExchangeMapper {
 
     List<FranExchangeListVO> selectFranExchangeList(String loginId, long offset, long pageSize);
 
+    int selectSearchFranExchangeListCnt(String loginId, String searchFilter, String searchWord, String startDate, String endDate);
+
     List<FranExchangeListVO> selectSearchFranExchangeList(String loginId, String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 
     FranExchangeDetailVO selectFranExchangeDetailBy(int exchangeCode);

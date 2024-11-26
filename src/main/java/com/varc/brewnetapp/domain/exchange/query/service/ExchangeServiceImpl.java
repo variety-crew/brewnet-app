@@ -157,7 +157,7 @@ public class ExchangeServiceImpl implements ExchangeService {
         List<FranExchangeListVO> franExchangeList = exchangeMapper.selectSearchFranExchangeList(loginId, searchFilter, searchWord, startDate, endDate, offset, pageSize);
 
         // 전체 데이터 개수 조회
-        int count = exchangeMapper.selectFranExchangeListCnt(loginId);
+        int count = exchangeMapper.selectSearchFranExchangeListCnt(loginId, searchFilter, searchWord, startDate, endDate);
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(franExchangeList, page, count);
