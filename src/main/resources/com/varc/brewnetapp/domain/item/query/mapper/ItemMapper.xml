@@ -33,7 +33,7 @@
      INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
      INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
      INNER JOIN tbl_sub_category SC ON SC.SUB_CATEGORY_CODE = I.CATEGORY_CODE
-    WHERE I.ITEM_CODE IS NOT NULL AND I.ACTIVE = TRUE
+    WHERE I.ITEM_CODE IS NOT NULL AND I.ACTIVE = TRUE AND CI.ACTIVE = TRUE
     <if test="itemName != null and itemName != ''">
       AND I.NAME LIKE CONCAT('%', #{itemName}, '%')
     </if>
@@ -77,7 +77,7 @@
      INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
      INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
      INNER JOIN tbl_sub_category SC ON SC.SUB_CATEGORY_CODE = I.CATEGORY_CODE
-     WHERE I.ITEM_CODE IS NOT NULL AND I.ACTIVE = TRUE
+     WHERE I.ITEM_CODE IS NOT NULL AND I.ACTIVE = TRUE AND CI.ACTIVE = TRUE
     <if test="itemName != null and itemName != ''">
       AND I.NAME LIKE CONCAT('%', #{itemName}, '%')
     </if>
@@ -109,7 +109,7 @@
     INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
     INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
     INNER JOIN tbl_sub_category SC ON SC.SUB_CATEGORY_CODE = I.CATEGORY_CODE
-    WHERE I.ITEM_CODE IS NOT NULL
+    WHERE I.ITEM_CODE IS NOT NULL AND CI.ACTIVE = TRUE
     <if test="itemName != null and itemName != ''">
       AND I.NAME LIKE CONCAT('%', #{itemName}, '%')
     </if>
@@ -153,7 +153,7 @@
     INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
     INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
     INNER JOIN tbl_sub_category SC ON SC.SUB_CATEGORY_CODE = I.CATEGORY_CODE
-    WHERE I.ITEM_CODE IS NOT NULL
+    WHERE I.ITEM_CODE IS NOT NULL AND CI.ACTIVE = TRUE
     <if test="itemName != null and itemName != ''">
       AND I.NAME LIKE CONCAT('%', #{itemName}, '%')
     </if>
