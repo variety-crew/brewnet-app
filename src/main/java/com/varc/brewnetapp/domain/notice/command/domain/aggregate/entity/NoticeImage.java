@@ -20,6 +20,6 @@ public class NoticeImage {
     @Column(name = "image_url", nullable = false, length = 500)
     private String imageUrl;
 
-    @Column(name = "image_url", nullable = false, length = 500)
+    @Column(name = "notice_code", nullable = false)
     private Integer noticeCode;
 }

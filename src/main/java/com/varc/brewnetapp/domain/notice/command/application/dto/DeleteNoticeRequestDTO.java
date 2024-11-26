@@ -11,9 +11,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class UpdateNoticeRequestDTO {
-
+public class DeleteNoticeRequestDTO {
     private int noticeCode;
-    private String title;
-    private String content;
 }

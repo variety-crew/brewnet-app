@@ -3,6 +3,8 @@ package com.varc.brewnetapp.domain.notice.command.application.service;
 import com.varc.brewnetapp.common.S3ImageService;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.domain.notice.command.application.dto.CreateNoticeRequestDTO;
+import com.varc.brewnetapp.domain.notice.command.application.dto.DeleteNoticeRequestDTO;
+import com.varc.brewnetapp.domain.notice.command.application.dto.UpdateNoticeRequestDTO;
 import com.varc.brewnetapp.domain.notice.command.domain.aggregate.entity.Notice;
 import com.varc.brewnetapp.domain.notice.command.domain.aggregate.entity.NoticeImage;
 import com.varc.brewnetapp.domain.notice.command.domain.repository.NoticeImageRepository;
@@ -12,7 +14,6 @@ import com.varc.brewnetapp.exception.MemberNotFoundException;
 import com.varc.brewnetapp.security.utility.JwtUtil;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +78,59 @@ public class NoticeServiceImpl implements NoticeService {
 
             noticeImageRepository.save(noticeImage);
         }
+    }
+
+    @Override
+    @Transactional
+    public void updateNotice(UpdateNoticeRequestDTO updateNoticeRequestDTO,
+        List<MultipartFile> image, String accessToken) {
+
+        Notice notice = noticeRepositiory.findById(updateNoticeRequestDTO.getNoticeCode())
+            .orElseThrow(() -> new InvalidDataException("공지사항 코드를 잘못 입력했습니다"));
+
+        if(updateNoticeRequestDTO.getTitle() != null && !updateNoticeRequestDTO.getTitle().isEmpty())
+            notice.setTitle(updateNoticeRequestDTO.getTitle());
+
+        if (updateNoticeRequestDTO.getContent() != null && !updateNoticeRequestDTO.getContent().isEmpty())
+            notice.setContent(updateNoticeRequestDTO.getContent());
+
+        if (image != null && !image.isEmpty() && image.size() > 0){
+            List<NoticeImage> imageList = noticeImageRepository.findByNoticeCode(notice.getNoticeCode());
+
+            for(NoticeImage noticeImage : imageList)
+                noticeImageRepository.delete(noticeImage);
+
+            for(MultipartFile file : image) {
+
+                String s3Url = null;
+                try {
+                    s3Url = s3ImageService.upload(file);
+                }catch (InvalidDataException e) {
+                    throw new InvalidDataException("이미지를 저장할 수 없습니다");
+                }
+
+                if(s3Url == null)
+                    throw new InvalidDataException("이미지가 저장되지 않았습니다");
+
+                NoticeImage noticeImage = NoticeImage.builder()
+                    .noticeCode(notice.getNoticeCode())
+                    .imageUrl(s3Url)
+                    .build();
+
+                noticeImageRepository.save(noticeImage);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteNotice(DeleteNoticeRequestDTO deleteNoticeRequestDTO, String accessToken) {
+        Notice notice = noticeRepositiory.findById(deleteNoticeRequestDTO.getNoticeCode())
+            .orElseThrow(() -> new InvalidDataException("공지사항 코드를 잘못 입력했습니다"));
+
+        notice.setActive(false);
+
+        noticeRepositiory.save(notice);
     }
 
 
