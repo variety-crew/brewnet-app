@@ -15,6 +15,7 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service(value = "commandCompanyService")
+@Slf4j
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
@@ -128,17 +130,23 @@ public class CompanyService {
                 throw new InvalidDataException("이미지 저장이 안되었습니다. 용량이나 파일 형식을 확인하세요");
             }
 
+            List<Company> company = companyRepository.findAll();
+            
+            if(company == null || company.isEmpty())
+                throw new InvalidDataException("회사 정보를 먼저 생성해주세요");
+
+            log.info("법인 인감 entity 생성");
             Seal seal = Seal.builder()
                 .imageUrl(s3Url)
                 .createdAt(LocalDateTime.now())
                 .active(true)
-                .companyCode(companyRepository.findAll().get(0).getCompanyCode())
+                .companyCode(company.get(0).getCompanyCode())
                 .build();
 
             sealRepository.save(seal);
         } else
             throw new UnauthorizedAccessException("마스터 권한이 없는 사용자입니다");
-        }
+    }
 
     @Transactional
     public void updateSeal(String accessToken, MultipartFile sealImage) {
@@ -150,8 +158,12 @@ public class CompanyService {
         if (authorities.stream().anyMatch(auth -> "ROLE_MASTER".equals(auth.getAuthority()))) {
             List<Seal> sealList = sealRepository.findAll();
 
-            if(sealList == null || sealList.size() == 0)
+            if(sealList == null || sealList.isEmpty()){
+                log.info("법인 인감 없음");
                 createSeal(accessToken, sealImage);
+                return;
+            }
+
 
             //S3 이미지 삭제 기능 -> 더미 데이터의 image_url은 s3에 저장 안되어 있으므로 삭제 불가능.
 //            s3ImageService.deleteImageFromS3(sealList.get(0).getImageUrl());
