@@ -8,6 +8,7 @@
     <id property="franchiseCode" column="FRANCHISE_CODE"/>
     <result property="franchiseName" column="FRANCHISE_NAME"/>
     <result property="address" column="ADDRESS"/>
+    <result property="detailAddress" column="DETAIL_ADDRESS"/>
     <result property="contact" column="CONTACT"/>
     <result property="businessNumber" column="BUSINESS_NUMBER"/>
     <result property="name" column="NAME"/>
@@ -27,7 +28,8 @@
     SELECT
            FRANCHISE_CODE
          , FRANCHISE_NAME
-         , CONCAT (ADDRESS, ' ', DETAIL_ADDRESS) AS ADDRESS
+         , ADDRESS
+         , DETAIL_ADDRESS
          , CONTACT
          , BUSINESS_NUMBER
          , NAME
@@ -41,7 +43,8 @@
     SELECT
            FRANCHISE_CODE
          , FRANCHISE_NAME
-         , CONCAT (ADDRESS, ' ', DETAIL_ADDRESS) AS ADDRESS
+         , ADDRESS
+         , DETAIL_ADDRESS
          , CONTACT
          , BUSINESS_NUMBER
          , NAME

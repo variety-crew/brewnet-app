@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController(value = "commandNoticeController")
-@RequestMapping("api/v1")
+@RequestMapping("api/v1/master/notice")
 public class NoticeController {
 
     private final NoticeService noticeService;
@@ -31,7 +31,7 @@ public class NoticeController {
     }
 
     // 마스터만
-    @PostMapping("master/notice")
+    @PostMapping("")
     @Operation(summary = "공지사항 등록 API ")
     public ResponseEntity<ResponseMessage<Object>> createNotice(@RequestPart CreateNoticeRequestDTO createNoticeRequestDTO,
         @RequestPart(required = false) List<MultipartFile> image,
@@ -42,7 +42,7 @@ public class NoticeController {
     }
 
     // 마스터만
-    @PutMapping("master/notice")
+    @PutMapping("")
     @Operation(summary = "공지사항 수정 API ")
     public ResponseEntity<ResponseMessage<Object>> updateNotice(@RequestPart UpdateNoticeRequestDTO updateNoticeRequestDTO,
         @RequestPart(required = false) List<MultipartFile> image,
@@ -53,7 +53,7 @@ public class NoticeController {
     }
 
     // 마스터만
-    @DeleteMapping("master/notice")
+    @DeleteMapping("")
     @Operation(summary = "공지사항 삭제 API ")
     public ResponseEntity<ResponseMessage<Object>> deleteNotice(@RequestBody DeleteNoticeRequestDTO deleteNoticeRequestDTO,
         @RequestHeader("Authorization") String accessToken) {
