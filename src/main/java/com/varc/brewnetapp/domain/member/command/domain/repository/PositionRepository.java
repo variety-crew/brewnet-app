@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PositionRepository extends JpaRepository<Position, Integer> {
 
-    Optional <Position> findByName(PositionName position);
+    Optional<Position> findByName(PositionName position);
 }

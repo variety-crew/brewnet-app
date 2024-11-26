@@ -1,8 +1,10 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
-import com.varc.brewnetapp.domain.order.query.dto.OrderDTO;
+import com.varc.brewnetapp.domain.order.query.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 
 public interface OrderQueryService {
@@ -16,17 +18,39 @@ public interface OrderQueryService {
     * */
 
     // for test
-    Page<OrderDTO> getOrderListForTest(Pageable pageable, String filter, String sort);
+    Page<HQOrderDTO> getOrderListForTest(Pageable pageable,
+                                         String filter,
+                                         String sort);
 
-    // searched by hq
-    Page<OrderDTO> getOrderListForHQ(Pageable pageable, String filter, String sort);
+
+    // requested by hq
+    Page<HQOrderDTO> getOrderListForHQ(Pageable pageable,
+                                       String filter,
+                                       String sort,
+                                       String startDate,
+                                       String endDate
+    );
+    Page<HQOrderDTO> searchOrderListForHQ(Pageable pageable,
+                                          String filter,
+                                          String criteria
+    );
+    OrderRequestDTO printOrderRequest(int orderCode);
+    OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode);
+    List<OrderApprovalHistoryDTO> getOrderApprovalHistories(Integer orderCode);
+
 
     // requested by franchise
-    // TODO: get orders for franchise
-    default Page<OrderDTO> getOrderListForFranchise(Pageable pageable, String filter, String sort) {
-        return null;
-    }
+    Page<FranchiseOrderDTO> getOrderListForFranchise(Pageable pageable,
+                                                     String filter,
+                                                     String sort,
+                                                     String startDate,
+                                                     String endDate,
+                                                     int franchiseCode
+    );
+    OrderDetailForFranchiseDTO getOrderDetailForFranchiseBy(int orderCode, String loginId);
+
 
     // common
-
+    List<OrderStatusHistory> getOrderHistoryByOrderCode(int orderCode);
+    OrderStatusHistory getOrderStatusHistoryByOrderCode(int orderCode);
 }

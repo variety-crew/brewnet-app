@@ -1,8 +1,8 @@
 package com.varc.brewnetapp.domain.exchange.query.aggregate.vo;
 
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeApproval;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeReason;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
+import com.varc.brewnetapp.common.domain.approve.Approval;
+import com.varc.brewnetapp.common.domain.exchange.ExchangeReason;
+import com.varc.brewnetapp.common.domain.exchange.ExchangeStatus;
 import lombok.*;
 
 @AllArgsConstructor
@@ -16,5 +16,5 @@ public class ExchangeListVO {
     private String memberCode;          // 교환담당자
     private String createdAt;           // 교환요청일자
     private ExchangeStatus status;      // 교환상태
-    private ExchangeApproval approved;  // 교환 승인 상태
+    private Approval approvalStatus;    // 교환 승인 상태
 }

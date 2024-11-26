@@ -9,7 +9,7 @@ import lombok.*;
 @ToString
 public class SearchPurchaseItemCriteria {
 
-    private Integer itemUniqueCode;         // 품목 고유코드
+    private String itemUniqueCode;          // 품목 고유코드
     private String itemName;                // 품목명
     private String correspondentName;       // 거래처명
     private String storageName;             // 창고명

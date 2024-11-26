@@ -27,10 +27,11 @@ public class StorageServiceImpl implements StorageService {
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<List<StorageDTO>> selectStorage(String loginId, String storageName,
-                                                        int pageNumber, int pageSize) {
+    public PageResponse<List<StorageDTO>> selectStorage(
+                            String loginId, Integer storageCode, String storageName, int pageNumber, int pageSize) {
 
         SearchStorageCriteria criteria = new SearchStorageCriteria();
+        criteria.setStorageCode(storageCode);
         criteria.setStorageName(storageName);
         criteria.setPageNumber(pageNumber);
         criteria.setPageSize(pageSize);
@@ -71,7 +72,7 @@ public class StorageServiceImpl implements StorageService {
     @Transactional(readOnly = true)
     @Override
     public PageResponse<List<StockDTO>> selectAllStock(
-                                String loginId, int storageCode, String itemName, int pageNumber, int pageSize) {
+                                String loginId, Integer storageCode, String itemName, int pageNumber, int pageSize) {
 
         SearchItemStockCriteria criteria = new SearchItemStockCriteria();
         criteria.setStorageCode(storageCode);

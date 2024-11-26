@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController(value = "commandFranchiseController")
-@RequestMapping("api/v1/hq/franchise")
+@RequestMapping("api/v1/responsible/franchise")
 public class FranchiseController {
 
     private FranchiseService franchiseService;
@@ -30,7 +30,7 @@ public class FranchiseController {
 
     // 마스터만 가능
     @PostMapping("")
-    @Operation(summary = "가맹점 정보 생성 API")
+    @Operation(summary = "(api path 변경됨) 가맹점 정보 생성 API. 책임자급 이상만 가능")
     public ResponseEntity<ResponseMessage<Object>> createFranchise(@RequestBody
         CreateFranchiseRequestDTO createFranchiseRequestDTO) {
 
@@ -40,7 +40,7 @@ public class FranchiseController {
 
     // 마스터만 가능
     @PutMapping("")
-    @Operation(summary = "가맹점 정보 수정 API")
+    @Operation(summary = "(api path 변경됨) 가맹점 정보 수정 API. 책임자급 이상만 가능")
     public ResponseEntity<ResponseMessage<Object>> updateFranchise(@RequestBody
     UpdateFranchiseRequestDTO updateFranchiseRequestDTO) {
 
@@ -50,7 +50,7 @@ public class FranchiseController {
 
     // 마스터만 가능
     @DeleteMapping("")
-    @Operation(summary = "가맹점 정보 삭제 API")
+    @Operation(summary = "(api path 변경됨) 가맹점 정보 삭제 API. 책임자급 이상만 가능")
     public ResponseEntity<ResponseMessage<Object>> deleteFranchise(@RequestBody
     DeleteFranchiseRequestDTO deleteFranchiseRequestDTO) {
 

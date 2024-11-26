@@ -55,6 +55,7 @@
             <id property="approverCode" column="APPROVER_CODE"/>
             <result property="approved" column="APPROVED"/>
             <result property="approvedAt" column="APPROVED_AT"/>
+            <result property="comment" column="COMMENT"/>
             <result property="approverName" column="APPROVER_NAME"/>
             <result property="positionName" column="POSITION_NAME"/>
         </collection>
@@ -70,13 +71,6 @@
         <result property="itemUniqueCode" column="ITEM_UNIQUE_CODE"/>
         <result property="correspondentName" column="CORRESPONDENT_NAME"/>
         <result property="storageName" column="STORAGE_NAME"/>
-    </resultMap>
-
-    <resultMap id="approverListResultMap"
-               type="com.varc.brewnetapp.domain.purchase.query.dto.PurchaseApproverMemberDTO">
-        <id property="approverCode" column="MEMBER_CODE"/>
-        <result property="approverName" column="MEMBER_NAME"/>
-        <result property="positionName" column="POSITION_NAME"/>
     </resultMap>
 
     <!-- 발주 내역(구매품의서) 목록 조회 및 검색 -->
@@ -113,7 +107,7 @@
             </if>
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                    AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+                    AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
             </if>
         </where>
          ORDER BY P.LETTER_OF_PURCHASE_CODE DESC
@@ -147,7 +141,7 @@
             </if>
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                    AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+                    AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
             </if>
         </where>
          ORDER BY P.LETTER_OF_PURCHASE_CODE DESC
@@ -206,6 +200,7 @@
                A.MEMBER_CODE AS APPROVER_CODE,
                A.APPROVED,
                A.APPROVED_AT,
+               A.COMMENT,
                B.NAME AS APPROVER_NAME,
                O.NAME AS POSITION_NAME
           FROM TBL_LETTER_OF_PURCHASE P
@@ -241,7 +236,7 @@
             P.APPROVED = 'APPROVED'
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                    AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+                    AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
             </if>
             <choose>
                 <when test="itemUniqueCode != null">
@@ -280,7 +275,7 @@
             P.APPROVED = 'APPROVED'
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                    AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+                    AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
             </if>
             <choose>
                 <when test="itemUniqueCode != null">
@@ -327,7 +322,7 @@
             AND <![CDATA[K.IN_STOCK > 0]]>
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+                AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
             </if>
             <choose>
                 <when test="itemUniqueCode != null">
@@ -368,7 +363,7 @@
             AND <![CDATA[K.IN_STOCK > 0]]>
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                AND STR_TO_DATE(#{endDate}, '%Y-%m-%d 23:59:59')
+                AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
             </if>
             <choose>
                 <when test="itemUniqueCode != null">
@@ -389,22 +384,5 @@
             </choose>
         </where>
         ORDER BY P.CREATED_AT DESC
-    </select>
-
-    <!-- 결재 구분으로 해당 결재라인에 속한 결재자들 조회 -->
-    <select id="selectApproversByKind"
-            parameterType="com.varc.brewnetapp.domain.purchase.common.KindOfApproval"
-            resultMap="approverListResultMap">
-        SELECT
-               M.MEMBER_CODE,
-               M.NAME AS MEMBER_NAME,
-               P.NAME AS POSITION_NAME
-          FROM TBL_MEMBER M
-          JOIN TBL_POSITION P ON M.POSITION_CODE = P.POSITION_CODE
-          JOIN TBL_APPROVAL A ON P.POSITION_CODE = A.POSITION_CODE
-        <where>
-            A.KIND = #{approvalLine}
-        </where>
-         ORDER BY M.NAME ASC
     </select>
 </mapper>

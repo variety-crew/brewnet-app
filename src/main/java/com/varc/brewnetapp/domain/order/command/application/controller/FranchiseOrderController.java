@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.order.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
 import com.varc.brewnetapp.domain.order.command.application.service.OrderService;
@@ -15,20 +16,24 @@ import org.springframework.web.bind.annotation.*;
 public class FranchiseOrderController {
 
     private final OrderService orderService;
+    private final MemberService queryMemberService;
 
     @Autowired
-    public FranchiseOrderController(OrderService orderService) {
+    public FranchiseOrderController(
+            OrderService orderService,
+            MemberService queryMemberService
+    ) {
         this.orderService = orderService;
+        this.queryMemberService = queryMemberService;
     }
 
     // 주문 요청
     @PostMapping
     public ResponseEntity<ResponseMessage<OrderRequestResponseDTO>> franchiseOrder(
-            @RequestBody OrderRequestDTO orderRequestDTO
+            @RequestBody OrderRequestDTO orderRequestDTO,
+            @RequestAttribute("loginId") String loginId
     ) {
-
-        // TODO: is member from target franchise
-        OrderRequestResponseDTO orderRequestResponse = orderService.orderRequestByFranchise(orderRequestDTO);
+        OrderRequestResponseDTO orderRequestResponse = orderService.orderRequestByFranchise(orderRequestDTO, loginId);
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "본사로의 주문요청이 완료됐습니다.", orderRequestResponse)
         );
@@ -37,13 +42,13 @@ public class FranchiseOrderController {
     // 주문 요청 취소
     @DeleteMapping("/{orderCode}")
     public ResponseEntity<ResponseMessage<Void>> cancelOrder(
-            @PathVariable("orderCode") String orderCode
+            @PathVariable(name = "orderCode") Integer orderCode,
+            @RequestAttribute(name = "loginId") String loginId
     ) {
+        int requestMemberFranchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
+                .getFranchiseCode();
 
-        // TODO: validate
-        //  If the requester is from target franchise
-
-        orderService.cancelOrderRequest(Integer.parseInt(orderCode));
+        orderService.cancelOrderRequest(orderCode, requestMemberFranchiseCode);
         return ResponseEntity.ok(
                 new ResponseMessage<>(204, "주문 요청이 취소되었습니다.", null)
         );

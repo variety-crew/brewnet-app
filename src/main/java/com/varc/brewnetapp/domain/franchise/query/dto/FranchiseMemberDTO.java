@@ -15,4 +15,6 @@ public class FranchiseMemberDTO {
     private String contact;
     private String franchiseName;
     private String franchiseCode;
+    private String email;
+    private String loginId;
 }

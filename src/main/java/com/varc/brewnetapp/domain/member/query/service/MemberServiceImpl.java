@@ -1,15 +1,14 @@
 package com.varc.brewnetapp.domain.member.query.service;
 
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.ApprovalStatus;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
-import com.varc.brewnetapp.domain.member.query.dto.CompanyDTO;
-import com.varc.brewnetapp.domain.member.query.dto.MemberDTO;
-import com.varc.brewnetapp.domain.member.query.dto.OrderPrintDTO;
-import com.varc.brewnetapp.domain.member.query.dto.SealDTO;
+import com.varc.brewnetapp.domain.member.query.dto.*;
 import com.varc.brewnetapp.domain.member.query.mapper.MemberMapper;
 import com.varc.brewnetapp.exception.EmptyDataException;
 import com.varc.brewnetapp.exception.InvalidDataException;
 import com.varc.brewnetapp.exception.MemberNotFoundException;
+import com.varc.brewnetapp.exception.MemberNotInFranchiseException;
 import com.varc.brewnetapp.security.utility.JwtUtil;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -36,16 +35,19 @@ public class MemberServiceImpl implements MemberService {
     private final MemberMapper memberMapper;
     private final JwtUtil jwtUtil;
     private final ModelMapper modelMapper;
+    private final MemberRepository memberRepository;
 
     @Autowired
     public MemberServiceImpl
         (
             MemberMapper memberMapper,
             JwtUtil jwtUtil,
-            ModelMapper modelMapper) {
+            ModelMapper modelMapper,
+            MemberRepository memberRepository) {
         this.memberMapper = memberMapper;
         this.jwtUtil = jwtUtil;
         this.modelMapper = modelMapper;
+        this.memberRepository = memberRepository;
     }
 
     @Override
@@ -63,37 +65,6 @@ public class MemberServiceImpl implements MemberService {
         if (memberList.isEmpty() || memberList.size() < 0)
             throw new EmptyDataException("조회하려는 회원 정보가 없습니다");
 
-        memberList.stream().forEach(member -> {
-            if(member.getPositionName().equals("STAFF"))
-                member.setPositionName("사원");
-            else if(member.getPositionName().equals("ASSISTANT_MANAGER"))
-                member.setPositionName("대리");
-            else if(member.getPositionName().equals("MANAGER"))
-                member.setPositionName("과장");
-            else if(member.getPositionName().equals("CEO"))
-                member.setPositionName("대표이사");
-
-            Map<String, String> roleMap = Map.of(
-                "ROLE_MASTER", "마스터",
-                "ROLE_GENERAL_ADMIN", "일반 관리자",
-                "ROLE_RESPONSIBLE_ADMIN", "책임 관리자",
-                "ROLE_FRANCHISE", "가맹점",
-                "ROLE_DELIVERY", "배송기사"
-            );
-
-            // 역할 변환
-            String mappedRoles = Optional.ofNullable(member.getRoles()) // null 처리
-                .filter(roles -> !roles.isBlank()) // 빈 문자열 체크
-                .map(roles -> Arrays.stream(roles.split(",")) // 스트림 시작
-                    .map(String::trim) // 공백 제거
-                    .map(roleMap::get) // 매핑된 이름으로 변환
-                    .filter(Objects::nonNull) // 매핑 실패한 값 제외
-                    .collect(Collectors.joining(", "))) // 콤마로 연결
-                .orElse(""); // null 또는 빈 문자열일 경우 기본값
-
-            member.setRoles(mappedRoles);
-        });
-
         // 전체 데이터 개수 조회
         int count = memberMapper.selectMemberListWhereSearchCnt(search);
 
@@ -105,12 +76,19 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public MemberDTO findMember(String accessToken) {
         String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
-        MemberDTO member = memberMapper.selectMember(loginId);
+        Member member = memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("조회하려는 멤버 정보가 없습니다"));
 
-        if(member == null)
+        MemberDTO memberDTO = null;
+
+        if(member.getPositionCode() != null)
+            memberDTO = memberMapper.selectMember(loginId);
+        else
+            memberDTO = memberMapper.selectFranchiseMember(loginId);
+
+        if(memberDTO == null)
             throw new MemberNotFoundException("조회하려는 멤버 정보가 없습니다");
 
-        return member;
+        return memberDTO;
         
     }
 
@@ -141,5 +119,71 @@ public class MemberServiceImpl implements MemberService {
 
     }
 
+    @Override
+    @Transactional
+    public FranchiseDTO getFranchiseInfoByLoginId(String loginId) {
+        FranchiseDTO franchiseDTO = memberMapper.getFranchiseInfoBy(loginId);
+        if (franchiseDTO == null) {
+            throw new MemberNotInFranchiseException("id: " + loginId + " is not a member of franchises");
+        } else {
+            return franchiseDTO;
+        }
+    }
 
+    @Override
+    @Transactional
+    public Page<ApprovalDTO> findMyDraft(Pageable page, String dateSort, String approval,
+        String startDate, String endDate, String accessToken) {
+
+        long pageSize = page.getPageSize();
+        long pageNumber = page.getPageNumber();
+        long offset = pageNumber * pageSize;
+
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
+
+        int memberCode = memberRepository.findById(loginId)
+            .orElseThrow(() -> new MemberNotFoundException("토큰에 맞는회원 정보가 없습니다")).getMemberCode();
+
+        List<ApprovalDTO> draftList = memberMapper.selectDraftList(pageSize, offset, dateSort, approval,
+            startDate, endDate, memberCode);
+
+        int count = memberMapper.selectDraftListCnt(pageSize, offset, approval,
+            startDate, endDate, memberCode);
+
+        return new PageImpl<>(draftList, page, count);
+    }
+
+    @Override
+    @Transactional
+    public Page<ApprovalDTO> findMyApproval(Pageable page, String dateSort, String approval,
+        String startDate, String endDate, String accessToken) {
+
+        long pageSize = page.getPageSize();
+        long pageNumber = page.getPageNumber();
+        long offset = pageNumber * pageSize;
+
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
+
+        int memberCode = memberRepository.findById(loginId)
+            .orElseThrow(() -> new MemberNotFoundException("토큰에 맞는회원 정보가 없습니다")).getMemberCode();
+
+        List<ApprovalDTO> approvalList = memberMapper.selectApprovalList(pageSize, offset, dateSort, approval,
+            startDate, endDate, memberCode);
+
+        int count = memberMapper.selectApprovalListCnt(pageSize, offset, approval,
+            startDate, endDate, memberCode);
+
+        return new PageImpl<>(approvalList, page, count);
+    }
+
+    @Override
+    @Transactional
+    public MemberDTO getMemberByLoginId(String loginId) {
+        MemberDTO resultMemberDTO = memberMapper.selectMember(loginId);
+        if (Objects.isNull(resultMemberDTO)) {
+            throw new MemberNotFoundException("Member not found. loginId: " + loginId);
+        } else {
+            return resultMemberDTO;
+        }
+    }
 }

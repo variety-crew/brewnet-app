@@ -19,6 +19,8 @@
     <result property="contact" column="CONTACT"/>
     <result property="franchiseName" column="FRANCHISE_NAME"/>
     <result property="franchiseCode" column="FRANCHISE_CODE"/>
+    <result property="email" column="EMAIL"/>
+    <result property="loginId" column="ID"/>
   </resultMap>
 
   <select id="selectFranchise" resultMap="franchiseResultMap" parameterType="_int">
@@ -82,6 +84,8 @@
          , M.CONTACT
          , F.FRANCHISE_NAME
          , F.FRANCHISE_CODE
+         , M.ID
+         , M.EMAIL
       FROM tbl_member M
      INNER JOIN tbl_franchise_member FM ON M.MEMBER_CODE = FM.MEMBER_CODE
      INNER JOIN tbl_franchise F ON FM.FRANCHISE_CODE = F.FRANCHISE_CODE

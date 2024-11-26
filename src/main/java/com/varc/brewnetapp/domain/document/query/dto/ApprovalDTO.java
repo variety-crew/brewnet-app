@@ -1,5 +1,8 @@
 package com.varc.brewnetapp.domain.document.query.dto;
 
+import com.varc.brewnetapp.domain.document.command.domain.aggregate.ApprovalKind;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.PositionName;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Position;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +15,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class ApprovalDTO {
-    private String kind;
+    private ApprovalKind kind;
     private int seq;
-    private String positionName;
+    private PositionName positionName;
 }

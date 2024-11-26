@@ -4,7 +4,7 @@ import com.varc.brewnetapp.domain.purchase.command.application.dto.*;
 
 public interface PurchaseService {
 
-    void createLetterOfPurchase(String loginId, PurchaseRequestDTO newPurchase);
+    Integer createLetterOfPurchase(String loginId, PurchaseRequestDTO newPurchase);
 
     void cancelLetterOfPurchase(String loginId, int letterOfPurchaseCode);
 
@@ -12,7 +12,7 @@ public interface PurchaseService {
 
     void rejectLetterOfPurchase(String loginId, int letterOfPurchaseCode, PurchaseApprovalRequestDTO request);
 
-    void changeInStockToAvailable(String loginId, int itemCode, int purchaseCode);
+    void changeInStockToAvailable(String loginId, ChangeInStockToAvailableRequestDTO bringIn);
 
     PurchasePrintResponseDTO exportPurchasePrint(String loginId,
                                                  int letterOfPurchaseCode,

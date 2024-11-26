@@ -50,14 +50,24 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/check/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/email/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
 
                         // 가맹점
-                        .requestMatchers(new AntPathRequestMatcher("/api/v1/franchise/**")).hasRole("FRANCHISE")
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/franchise/**")).hasAnyRole("FRANCHISE", "MASTER")
 
                         // 본사
-                        .requestMatchers(new AntPathRequestMatcher("/api/v1/hq/**")).hasAnyRole("GENERAL_ADMIN", "RESPONSIBLE_ADMIN")
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/hq/**")).hasAnyRole("MASTER", "GENERAL_ADMIN", "RESPONSIBLE_ADMIN")
+
+                        // 본사책임자
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/super/**")).hasRole("RESPONSIBLE_ADMIN")
+
+                        // 본사책임자
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/responsible/**")).hasAnyRole("MASTER", "RESPONSIBLE_ADMIN")
+
+                        // 마스터
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/master/**")).hasRole("MASTER")
 
                         // 마스터
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/require-auth/master")).hasRole("MASTER")
