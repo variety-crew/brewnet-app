@@ -131,7 +131,7 @@
                I.NAME AS ITEM_NAME,
                I.SAFETY_STOCK,
                (S.AVAILABLE_STOCK + S.OUT_STOCK) AS CURRENT_STOCK
-          FROM TBL_STOCK S
+          FROM tbl_stock S
           JOIN TBL_ITEM I ON S.ITEM_CODE = I.ITEM_CODE
         <where>
             S.STORAGE_CODE = #{storageCode}
@@ -150,7 +150,7 @@
             resultType="int">
         SELECT
                COUNT(*)
-          FROM TBL_STOCK S
+          FROM tbl_stock S
           JOIN TBL_ITEM I ON S.ITEM_CODE = I.ITEM_CODE
         <where>
             S.STORAGE_CODE = #{storageCode}
