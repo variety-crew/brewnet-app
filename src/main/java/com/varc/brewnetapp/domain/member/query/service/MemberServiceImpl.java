@@ -179,6 +179,11 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public MemberDTO getMemberByLoginId(String loginId) {
-        return memberMapper.selectMember(loginId);
+        MemberDTO resultMemberDTO = memberMapper.selectMember(loginId);
+        if (Objects.isNull(resultMemberDTO)) {
+            throw new MemberNotFoundException("Member not found. loginId: " + loginId);
+        } else {
+            return resultMemberDTO;
+        }
     }
 }
