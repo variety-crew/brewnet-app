@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.returning.query.service;
 
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO;
 import com.varc.brewnetapp.domain.exchange.query.mapper.ExchangeMapper;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
@@ -60,9 +61,25 @@ public class ReturningServiceImpl implements ReturningService {
         List<ReturningListVO> returningList = returningMapper.selectRequestedReturningList(offset, pageSize);
 
         // 전체 데이터 개수 조회
-        int count = returningMapper.selectReturningListCnt();
+        int count = returningMapper.selectRequestedReturningListCnt();
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(returningList, page, count);
+    }
+
+    @Override
+    public Page<ReturningListVO> searchReturningList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page) {
+        // 페이징 정보 추가
+        long offset = page.getOffset();
+        long pageSize = page.getPageSize();
+
+        // DB에서 교환 목록 조회
+        List<ReturningListVO> exchangeList = returningMapper.selectSearchReturningList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
+
+        // 전체 데이터 개수 조회
+        int count = returningMapper.selectSearchReturningListCnt(searchFilter, searchWord, startDate, endDate);
+
+        // PageImpl 객체로 감싸서 반환
+        return new PageImpl<>(exchangeList, page, count);
     }
 }

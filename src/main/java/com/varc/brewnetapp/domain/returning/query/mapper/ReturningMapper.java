@@ -17,4 +17,8 @@ public interface ReturningMapper {
     int selectRequestedReturningListCnt();
 
     List<ReturningListVO> selectRequestedReturningList(long offset, long pageSize);
+
+    int selectSearchReturningListCnt(String searchFilter, String searchWord, String startDate, String endDate);
+
+    List<ReturningListVO> selectSearchReturningList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 }

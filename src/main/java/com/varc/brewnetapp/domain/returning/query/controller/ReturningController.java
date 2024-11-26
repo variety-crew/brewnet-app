@@ -48,26 +48,26 @@ public class ReturningController {
         Page<ReturningListVO> result = returningService.findRequestedReturningList(page);
         return ResponseEntity.ok(new ResponseMessage<>(200, "미결재된 반품요청 목록 조회 성공", result));
     }
-//
-//    @GetMapping("/search")
-//    @Operation(summary = "[본사] 교환요청 목록 검색 API",
-//            description = "searchFilter에 들어갈 수 있는 값은 returningCode(교환번호), franchiseName(교환지점), managerName(교환지점) 3가지<br>" +
-//                    "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
-//                    "3가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
-//    public ResponseEntity<ResponseMessage<Page<ReturningListVO>>> searchReturningList(
-//            @RequestParam(required = false) String searchFilter,
-//            @RequestParam(required = false) String searchWord,
-//            @RequestParam(required = false) String startDate,
-//            @RequestParam(required = false) String endDate,
-//            @PageableDefault(value = 10) Pageable page) {
-//
-//        Page<ReturningListVO> result = returningService.searchReturningList(searchFilter, searchWord, startDate, endDate, page);
-//
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 목록 검색 성공", result));
-//    }
+
+    @GetMapping("/search")
+    @Operation(summary = "[본사] 반품요청 목록 검색 API",
+            description = "searchFilter에 들어갈 수 있는 값은 returningCode(반품번호), franchiseName(반품지점), managerName(반품담당자) 3가지<br>" +
+                    "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
+                    "3가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
+    public ResponseEntity<ResponseMessage<Page<ReturningListVO>>> searchReturningList(
+            @RequestParam(required = false) String searchFilter,
+            @RequestParam(required = false) String searchWord,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @PageableDefault(value = 10) Pageable page) {
+
+        Page<ReturningListVO> result = returningService.searchReturningList(searchFilter, searchWord, startDate, endDate, page);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 목록 검색 성공", result));
+    }
 //
 //    @GetMapping("/{returningCode}")
-//    @Operation(summary = "[본사] 교환요청 상세조회 API")
+//    @Operation(summary = "[본사] 반품요청 상세조회 API")
 //    public ResponseEntity<ResponseMessage<ReturningDetailVO>> findReturningBy(@PathVariable("returningCode") Integer returningCode) {
 //
 //        ReturningDetailVO result = returningService.findReturningDetailBy(returningCode);

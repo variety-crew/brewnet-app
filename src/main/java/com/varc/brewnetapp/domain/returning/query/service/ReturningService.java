@@ -12,4 +12,6 @@ public interface ReturningService {
     List<ReturningListVO> findAllReturningList();
 
     Page<ReturningListVO> findRequestedReturningList(Pageable page);
+
+    Page<ReturningListVO> searchReturningList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
 }
