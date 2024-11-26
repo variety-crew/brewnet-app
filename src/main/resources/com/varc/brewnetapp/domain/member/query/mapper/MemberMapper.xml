@@ -12,6 +12,7 @@
     <result property="contact" column="CONTACT"/>
     <result property="signatureUrl" column="SIGNATURE_URL"/>
     <result property="positionName" column="POSITION_NAME"/>
+    <result property="franchiseName" column="FRANCHISE_NAME"/>
     <result property="role" column="ROLE"/>
   </resultMap>
   
@@ -42,6 +43,21 @@
     <result property="letterOfPurchaseCode" column="LETTER_OF_PURCHASE_CODE"/>
   </resultMap>
 
+  <resultMap id="FranchiseInfo" type="com.varc.brewnetapp.domain.member.query.dto.FranchiseDTO">
+      <id property="franchiseCode" column="FRANCHISE_CODE"/>
+      <result property="franchiseName" column="FRANCHISE_NAME"/>
+  </resultMap>
+
+  <resultMap id="approvalResultMap" type="com.varc.brewnetapp.domain.member.query.dto.ApprovalDTO">
+    <result property="kind" column="KIND"/>
+    <result property="title" column="TITLE"/>
+    <result property="drafterName" column="DRAFTER_NAME"/>
+    <result property="date" column="DATE"/>
+    <result property="status" column="STATUS"/>
+    <result property="approverName" column="APPROVER_NAME"/>
+    <result property="code" column="CODE"/>
+  </resultMap>
+
   <select id="selectMemberList" resultMap="memberResultMap" parameterType="map">
     SELECT
            M.MEMBER_CODE,
@@ -64,9 +80,20 @@
       <if test="search != null and search != ''">
        AND M.NAME LIKE CONCAT('%', #{search}, '%')
       </if>
-     ORDER BY M.MEMBER_CODE DESC
+    <choose>
+      <when test="sort == 'nameASC'">
+        ORDER BY M.NAME ASC
+      </when>
+      <when test="sort == 'nameDESC'">
+        ORDER BY M.NAME DESC
+      </when>
+      <otherwise>
+        ORDER BY M.MEMBER_CODE DESC
+      </otherwise>
+    </choose>
+
      LIMIT #{ pageSize }
-    OFFSET #{ offset };
+    OFFSET #{ offset }
   </select>
 
 
@@ -115,14 +142,38 @@
            M.CONTACT,
            M.SIGNATURE_URL,
            P.NAME AS POSITION_NAME,
-           (SELECT GROUP_CONCAT(R.ROLE SEPARATOR ', ')
-              FROM tbl_member_role MR
-             INNER JOIN tbl_role R
-                ON MR.ROLE_CODE = R.ROLE_CODE
-             WHERE MR.MEMBER_CODE = M.MEMBER_CODE) AS ROLES
+            (SELECT R.ROLE
+            FROM tbl_member_role MR
+            INNER JOIN tbl_role R
+            ON MR.ROLE_CODE = R.ROLE_CODE
+            WHERE MR.MEMBER_CODE = M.MEMBER_CODE
+            ORDER BY R.ROLE_CODE ASC
+            LIMIT 1) AS ROLE
       FROM tbl_member M
      INNER JOIN tbl_position P ON M.POSITION_CODE = P.POSITION_CODE
      WHERE M.ACTIVE = TRUE AND M.ID = #{ loginId }
+  </select>
+
+  <select id="selectFranchiseMember" resultMap="memberResultMap" parameterType="string">
+    SELECT
+    M.MEMBER_CODE,
+    M.ID,
+    M.NAME,
+    M.EMAIL,
+    M.CONTACT,
+    M.SIGNATURE_URL,
+    F.FRANCHISE_NAME,
+    (SELECT R.ROLE
+    FROM tbl_member_role MR
+    INNER JOIN tbl_role R
+    ON MR.ROLE_CODE = R.ROLE_CODE
+    WHERE MR.MEMBER_CODE = M.MEMBER_CODE
+    ORDER BY R.ROLE_CODE ASC
+    LIMIT 1) AS ROLE
+    FROM tbl_member M
+    INNER JOIN tbl_franchise_member FM ON M.MEMBER_CODE = FM.MEMBER_CODE
+    INNER JOIN tbl_franchise F ON FM.FRANCHISE_CODE = F.FRANCHISE_CODE
+    WHERE M.ACTIVE = TRUE AND M.ID = #{ loginId }
   </select>
 
   <select id="selectOrderPrintList" resultMap="orderPrintResultMap" parameterType="map">
@@ -140,9 +191,19 @@
     <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
        AND PRINTED_AT BETWEEN #{startDate} AND #{endDate}
     </if>
-     ORDER BY OP.ORDER_PRINT_CODE DESC
+    <choose>
+      <when test="sort == 'nameASC'">
+        ORDER BY M.NAME ASC
+      </when>
+      <when test="sort == 'nameDESC'">
+        ORDER BY M.NAME DESC
+      </when>
+      <otherwise>
+        ORDER BY OP.ORDER_PRINT_CODE DESC
+      </otherwise>
+    </choose>
      LIMIT #{ pageSize }
-    OFFSET #{ offset };
+    OFFSET #{ offset }
   </select>
 
   <select id="selectOrderPrintListWhereDateCnt" resultType="int" parameterType="map">
@@ -155,7 +216,443 @@
     SELECT COUNT(*)
     FROM tbl_order_print
     WHERE ACTIVE = TRUE
+  </select>
+
+  <select id="getFranchiseInfoBy" resultMap="FranchiseInfo">
+      SELECT
+             f.FRANCHISE_CODE
+           , f.FRANCHISE_NAME
+        FROM (SELECT
+              m.MEMBER_CODE
+              FROM tbl_member m
+              WHERE m.ID = #{loginID}) m
+        LEFT JOIN tbl_franchise_member fm ON m.MEMBER_CODE = fm.MEMBER_CODE
+        LEFT JOIN tbl_franchise f ON fm.FRANCHISE_CODE = f.FRANCHISE_CODE
+       WHERE f.ACTIVE = 1
+  </select>
+
+
+
+
+
+  <select id="selectDraftList" resultMap="approvalResultMap" parameterType="map">
+    WITH LatestOrderApprover AS (
+      SELECT
+             MEMBER_CODE
+           , ORDER_CODE
+           , ACTIVE
+           , APPROVED
+           , ROW_NUMBER() OVER (PARTITION BY ORDER_CODE ORDER BY APPROVED ASC) AS RN
+        FROM tbl_order_approver
+       WHERE ACTIVE = TRUE
+    ),
+    LatestExchangeApprover AS (
+      SELECT
+             MEMBER_CODE
+           , EXCHANGE_CODE
+           , ACTIVE
+           , APPROVED
+           , ROW_NUMBER() OVER (PARTITION BY EXCHANGE_CODE ORDER BY APPROVED ASC) AS RN
+        FROM tbl_exchange_approver
+       WHERE ACTIVE = TRUE
+    ),
+    LatestReturnApprover AS (
+      SELECT
+             MEMBER_CODE
+           , RETURN_CODE
+           , ACTIVE
+           , APPROVED
+           , ROW_NUMBER() OVER (PARTITION BY RETURN_CODE ORDER BY APPROVED ASC) AS RN
+        FROM tbl_return_approver
+       WHERE ACTIVE = TRUE
+    ),
+    LatestPurchaseApprover AS (
+      SELECT
+             MEMBER_CODE
+           , LETTER_OF_PURCHASE_CODE
+           , ACTIVE
+           , APPROVED
+           , ROW_NUMBER() OVER (PARTITION BY LETTER_OF_PURCHASE_CODE ORDER BY APPROVED ASC) AS RN
+        FROM tbl_letter_of_purchase_approver
+       WHERE ACTIVE = TRUE
+    )
+    SELECT
+           'ORDER' AS KIND
+         , CONCAT(O.CREATED_AT, ' ', O.ORDER_CODE, '번 주문 기안자 코드 : ', O.MEMBER_CODE) AS TITLE
+         , DM.NAME AS DRAFTER_NAME
+         , O.CREATED_AT AS DATE
+         , CAST(O.APPROVAL_STATUS AS CHAR) AS STATUS
+         , AM.NAME AS APPROVER_NAME
+         , O.ORDER_CODE AS CODE
+     FROM tbl_order O
+     INNER JOIN tbl_member DM ON O.MEMBER_CODE = DM.MEMBER_CODE
+     INNER JOIN LatestOrderApprover OA ON O.ORDER_CODE = OA.ORDER_CODE
+     INNER JOIN tbl_member AM ON OA.MEMBER_CODE = AM.MEMBER_CODE
+     WHERE OA.RN = 1 AND O.ACTIVE = TRUE AND OA.ACTIVE = TRUE AND O.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND O.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null">
+      AND O.APPROVAL_STATUS = #{ approval }
+    </if>
+    UNION ALL
+    SELECT
+    'EXCHANGE' AS KIND
+    , CONCAT(E.CREATED_AT, ' ', E.ORDER_CODE, '번 교환 기안자 코드 : ', E.MEMBER_CODE) AS TITLE
+    , DM.NAME AS DRAFTER_NAME
+    , E.CREATED_AT AS DATE
+    , CAST(E.APPROVAL_STATUS AS CHAR) AS STATUS
+    , AM.NAME AS APPROVER_NAME
+    , E.EXCHANGE_CODE AS CODE
+    FROM tbl_exchange E
+    INNER JOIN tbl_member DM ON E.MEMBER_CODE = DM.MEMBER_CODE
+    INNER JOIN LatestExchangeApprover EA ON E.EXCHANGE_CODE = EA.EXCHANGE_CODE
+    INNER JOIN tbl_member AM ON EA.MEMBER_CODE = AM.MEMBER_CODE
+    WHERE EA.RN = 1 AND E.ACTIVE = TRUE AND EA.ACTIVE = TRUE AND E.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND E.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null">
+      AND E.APPROVAL_STATUS = #{ approval }
+    </if>
+    UNION ALL
+    SELECT
+    'RETURN' AS KIND
+    , CONCAT(R.CREATED_AT, ' ', R.ORDER_CODE, '번 반품 기안자 코드 : ', R.MEMBER_CODE) AS TITLE
+    , DM.NAME AS DRAFTER_NAME
+    , R.CREATED_AT AS DATE
+    , CAST(R.APPROVAL_STATUS AS CHAR) AS STATUS
+    , AM.NAME AS APPROVER_NAME
+    , R.RETURN_CODE AS CODE
+    FROM tbl_return R
+    INNER JOIN tbl_member DM ON R.MEMBER_CODE = DM.MEMBER_CODE
+    INNER JOIN LatestReturnApprover RA ON R.RETURN_CODE = RA.RETURN_CODE
+    INNER JOIN tbl_member AM ON RA.MEMBER_CODE = AM.MEMBER_CODE
+    WHERE RA.RN = 1 AND R.ACTIVE = TRUE AND RA.ACTIVE = TRUE AND R.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND R.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null">
+      AND R.APPROVAL_STATUS = #{ approval }
+    </if>
+    UNION ALL
+    SELECT
+    'PURCHASE' AS KIND
+    , CONCAT(P.CREATED_AT, ' ', P.LETTER_OF_PURCHASE_CODE, '번 발주 기안자 코드 : ', P.MEMBER_CODE) AS TITLE
+    , DM.NAME AS DRAFTER_NAME
+    , P.CREATED_AT AS DATE
+    , CAST(P.APPROVED AS CHAR) AS STATUS
+    , AM.NAME AS APPROVER_NAME
+    , P.LETTER_OF_PURCHASE_CODE AS CODE
+    FROM tbl_letter_of_purchase P
+    INNER JOIN tbl_member DM ON P.MEMBER_CODE = DM.MEMBER_CODE
+    INNER JOIN LatestPurchaseApprover PA ON P.LETTER_OF_PURCHASE_CODE = PA.LETTER_OF_PURCHASE_CODE
+    INNER JOIN tbl_member AM ON PA.MEMBER_CODE = AM.MEMBER_CODE
+    WHERE PA.RN = 1 AND P.ACTIVE = TRUE AND PA.ACTIVE = TRUE AND P.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND P.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null and approval != 'CANCELED'">
+      AND P.APPROVED = #{ approval }
+    </if>
+    <choose>
+      <when test="dateSort == 'ASC'">
+        ORDER BY DATE ASC
+      </when>
+      <when test="dateSort == 'DESC'">
+        ORDER BY DATE DESC
+      </when>
+      <otherwise>
+        <!-- 기본 정렬 -->
+        ORDER BY DATE DESC
+      </otherwise>
+    </choose>
+    LIMIT #{ pageSize }
+    OFFSET #{ offset }
+  </select>
+
+  <select id="selectDraftListCnt" resultType="int" parameterType="map">
+    SELECT
+    SUM(COUNT)
+    FROM (
+    SELECT
+    COUNT(*) AS COUNT
+    FROM tbl_order O
+    WHERE O.ACTIVE = TRUE AND O.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND O.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null">
+      AND O.APPROVAL_STATUS = #{ approval }
+    </if>
+    UNION ALL
+    SELECT
+    COUNT(*) AS COUNT
+    FROM tbl_exchange E
+    WHERE E.ACTIVE = TRUE AND E.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND E.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null">
+      AND E.APPROVAL_STATUS = #{ approval }
+    </if>
+    UNION ALL
+    SELECT
+    COUNT(*) AS COUNT
+    FROM tbl_return R
+    WHERE R.ACTIVE = TRUE AND R.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND R.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null">
+      AND R.APPROVAL_STATUS = #{ approval }
+    </if>
+    UNION ALL
+    SELECT
+    COUNT(*) AS COUNT
+    FROM tbl_letter_of_purchase P
+    WHERE  P.ACTIVE = TRUE AND P.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND P.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null and approval != 'CANCELED'">
+      AND P.APPROVED = #{ approval }
+    </if>
+    ) AS UNION_RESULT_SET
+
 
   </select>
+
+  <select id="selectApprovalList" resultMap="approvalResultMap" parameterType="map">
+    WITH LatestOrderApprover AS (
+    SELECT
+    MEMBER_CODE
+    , ORDER_CODE
+    , ACTIVE
+    , APPROVED
+    , ROW_NUMBER() OVER (PARTITION BY ORDER_CODE ORDER BY APPROVED ASC) AS RN
+    FROM tbl_order_approver
+    WHERE ACTIVE = TRUE
+    ),
+    LatestExchangeApprover AS (
+    SELECT
+    MEMBER_CODE
+    , EXCHANGE_CODE
+    , ACTIVE
+    , APPROVED
+    , ROW_NUMBER() OVER (PARTITION BY EXCHANGE_CODE ORDER BY APPROVED ASC) AS RN
+    FROM tbl_exchange_approver
+    WHERE ACTIVE = TRUE
+    ),
+    LatestReturnApprover AS (
+    SELECT
+    MEMBER_CODE
+    , RETURN_CODE
+    , ACTIVE
+    , APPROVED
+    , ROW_NUMBER() OVER (PARTITION BY RETURN_CODE ORDER BY APPROVED ASC) AS RN
+    FROM tbl_return_approver
+    WHERE ACTIVE = TRUE
+    ),
+    LatestPurchaseApprover AS (
+    SELECT
+    MEMBER_CODE
+    , LETTER_OF_PURCHASE_CODE
+    , ACTIVE
+    , APPROVED
+    , ROW_NUMBER() OVER (PARTITION BY LETTER_OF_PURCHASE_CODE ORDER BY APPROVED ASC) AS RN
+    FROM tbl_letter_of_purchase_approver
+    WHERE ACTIVE = TRUE
+    )
+    SELECT
+    'ORDER' AS KIND
+    , CONCAT(O.CREATED_AT, ' ', O.ORDER_CODE, '번 주문 기안자 코드 : ', O.MEMBER_CODE) AS TITLE
+    , DM.NAME AS DRAFTER_NAME
+    , O.CREATED_AT AS DATE
+    , CAST(O.APPROVAL_STATUS AS CHAR) AS STATUS
+    , AM.NAME AS APPROVER_NAME
+    , O.ORDER_CODE AS CODE
+    FROM tbl_order O
+    INNER JOIN tbl_member DM ON O.MEMBER_CODE = DM.MEMBER_CODE
+    INNER JOIN LatestOrderApprover OA ON O.ORDER_CODE = OA.ORDER_CODE
+    INNER JOIN tbl_member AM ON OA.MEMBER_CODE = AM.MEMBER_CODE
+    WHERE OA.RN = 1 AND O.ACTIVE = TRUE AND OA.ACTIVE = TRUE AND OA.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND O.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null">
+      AND O.APPROVAL_STATUS = #{ approval }
+    </if>
+    UNION ALL
+    SELECT
+    'EXCHANGE' AS KIND
+    , CONCAT(E.CREATED_AT, ' ', E.ORDER_CODE, '번 교환 기안자 코드 : ', E.MEMBER_CODE) AS TITLE
+    , DM.NAME AS DRAFTER_NAME
+    , E.CREATED_AT AS DATE
+    , CAST(E.APPROVAL_STATUS AS CHAR) AS STATUS
+    , AM.NAME AS APPROVER_NAME
+    , E.EXCHANGE_CODE AS CODE
+    FROM tbl_exchange E
+    INNER JOIN tbl_member DM ON E.MEMBER_CODE = DM.MEMBER_CODE
+    INNER JOIN LatestExchangeApprover EA ON E.EXCHANGE_CODE = EA.EXCHANGE_CODE
+    INNER JOIN tbl_member AM ON EA.MEMBER_CODE = AM.MEMBER_CODE
+    WHERE EA.RN = 1 AND E.ACTIVE = TRUE AND EA.ACTIVE = TRUE AND EA.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND E.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null">
+      AND E.APPROVAL_STATUS = #{ approval }
+    </if>
+    UNION ALL
+    SELECT
+    'RETURN' AS KIND
+    , CONCAT(R.CREATED_AT, ' ', R.ORDER_CODE, '번 반품 기안자 코드 : ', R.MEMBER_CODE) AS TITLE
+    , DM.NAME AS DRAFTER_NAME
+    , R.CREATED_AT AS DATE
+    , CAST(R.APPROVAL_STATUS AS CHAR) AS STATUS
+    , AM.NAME AS APPROVER_NAME
+    , R.RETURN_CODE AS CODE
+    FROM tbl_return R
+    INNER JOIN tbl_member DM ON R.MEMBER_CODE = DM.MEMBER_CODE
+    INNER JOIN LatestReturnApprover RA ON R.RETURN_CODE = RA.RETURN_CODE
+    INNER JOIN tbl_member AM ON RA.MEMBER_CODE = AM.MEMBER_CODE
+    WHERE RA.RN = 1 AND R.ACTIVE = TRUE AND RA.ACTIVE = TRUE AND RA.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND R.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null">
+      AND R.APPROVAL_STATUS = #{ approval }
+    </if>
+    UNION ALL
+    SELECT
+    'PURCHASE' AS KIND
+    , CONCAT(P.CREATED_AT, ' ', P.LETTER_OF_PURCHASE_CODE, '번 발주 기안자 코드 : ', P.MEMBER_CODE) AS TITLE
+    , DM.NAME AS DRAFTER_NAME
+    , P.CREATED_AT AS DATE
+    , CAST(P.APPROVED AS CHAR) AS STATUS
+    , AM.NAME AS APPROVER_NAME
+    , P.LETTER_OF_PURCHASE_CODE AS CODE
+    FROM tbl_letter_of_purchase P
+    INNER JOIN tbl_member DM ON P.MEMBER_CODE = DM.MEMBER_CODE
+    INNER JOIN LatestPurchaseApprover PA ON P.LETTER_OF_PURCHASE_CODE = PA.LETTER_OF_PURCHASE_CODE
+    INNER JOIN tbl_member AM ON PA.MEMBER_CODE = AM.MEMBER_CODE
+    WHERE PA.RN = 1 AND P.ACTIVE = TRUE AND PA.ACTIVE = TRUE AND PA.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND P.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null and approval != 'CANCELED'">
+      AND P.APPROVED = #{ approval }
+    </if>
+    <choose>
+      <when test="dateSort == 'ASC'">
+        ORDER BY DATE ASC
+      </when>
+      <when test="dateSort == 'DESC'">
+        ORDER BY DATE DESC
+      </when>
+      <otherwise>
+        <!-- 기본 정렬 -->
+        ORDER BY DATE DESC
+      </otherwise>
+    </choose>
+    LIMIT #{ pageSize }
+    OFFSET #{ offset }
+  </select>
+
+  <select id="selectApprovalListCnt" resultType="int" parameterType="map">
+    SELECT
+    SUM(COUNT)
+    FROM (
+    WITH LatestOrderApprover AS (
+    SELECT
+    MEMBER_CODE
+    , ORDER_CODE
+    , ACTIVE
+    , APPROVED
+    , ROW_NUMBER() OVER (PARTITION BY ORDER_CODE ORDER BY APPROVED ASC) AS RN
+    FROM tbl_order_approver
+    WHERE ACTIVE = TRUE
+    ),
+    LatestExchangeApprover AS (
+    SELECT
+    MEMBER_CODE
+    , EXCHANGE_CODE
+    , ACTIVE
+    , APPROVED
+    , ROW_NUMBER() OVER (PARTITION BY EXCHANGE_CODE ORDER BY APPROVED ASC) AS RN
+    FROM tbl_exchange_approver
+    WHERE ACTIVE = TRUE
+    ),
+    LatestReturnApprover AS (
+    SELECT
+    MEMBER_CODE
+    , RETURN_CODE
+    , ACTIVE
+    , APPROVED
+    , ROW_NUMBER() OVER (PARTITION BY RETURN_CODE ORDER BY APPROVED ASC) AS RN
+    FROM tbl_return_approver
+    WHERE ACTIVE = TRUE
+    ),
+    LatestPurchaseApprover AS (
+    SELECT
+    MEMBER_CODE
+    , LETTER_OF_PURCHASE_CODE
+    , ACTIVE
+    , APPROVED
+    , ROW_NUMBER() OVER (PARTITION BY LETTER_OF_PURCHASE_CODE ORDER BY APPROVED ASC) AS RN
+    FROM tbl_letter_of_purchase_approver
+    WHERE ACTIVE = TRUE
+    )
+    SELECT
+    COUNT(*) AS COUNT
+    FROM tbl_order O
+    INNER JOIN LatestOrderApprover OA ON OA.ORDER_CODE = O.ORDER_CODE
+    WHERE O.ACTIVE = TRUE AND OA.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND O.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null">
+      AND O.APPROVAL_STATUS = #{ approval }
+    </if>
+    UNION ALL
+    SELECT
+    COUNT(*) AS COUNT
+    FROM tbl_exchange E
+    INNER JOIN LatestExchangeApprover EA ON EA.EXCHANGE_CODE = E.EXCHANGE_CODE
+    WHERE E.ACTIVE = TRUE AND EA.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND E.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null">
+      AND E.APPROVAL_STATUS = #{ approval }
+    </if>
+    UNION ALL
+    SELECT
+    COUNT(*) AS COUNT
+    FROM tbl_return R
+    INNER JOIN LatestReturnApprover RA ON RA.RETURN_CODE = R.RETURN_CODE
+    WHERE R.ACTIVE = TRUE AND RA.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND R.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null">
+      AND R.APPROVAL_STATUS = #{ approval }
+    </if>
+    UNION ALL
+    SELECT
+    COUNT(*) AS COUNT
+    FROM tbl_letter_of_purchase P
+    INNER JOIN LatestPurchaseApprover PA ON PA.LETTER_OF_PURCHASE_CODE = P.LETTER_OF_PURCHASE_CODE
+    WHERE  P.ACTIVE = TRUE AND PA.MEMBER_CODE = #{ memberCode }
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND P.CREATED_AT BETWEEN #{startDate} AND #{endDate}
+    </if>
+    <if test="approval != null and approval != 'CANCELED'">
+      AND P.APPROVED = #{ approval }
+    </if>
+    ) AS UNION_RESULT_SET
+  </select>
+
+
 
 </mapper>

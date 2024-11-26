@@ -21,7 +21,13 @@ public class GlobalExceptionHandler {
             MemberNotFoundException.class,
             InvalidStatusException.class,
             InvalidApiRequestException.class,
-            InvalidConditionException.class
+            InvalidConditionException.class,
+            MemberNotInFranchiseException.class,
+            InvalidOrderItems.class,
+            OrderApprovalAlreadyExist.class,
+            OrderDraftAlreadyApproved.class,
+            UnexpectedOrderStatus.class,
+            IllegalArgumentException.class,
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -30,12 +36,24 @@ public class GlobalExceptionHandler {
 
     // 401: 권한 없는 사용자
     @ExceptionHandler({
-            UnauthorizedAccessException.class,
             AccessDeniedException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleUnAuthorizedException(Exception e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ResponseMessage<>(401, e.getMessage(), null));
+    }
+
+    // 403: FORBIDDEN
+    @ExceptionHandler({
+            UnauthorizedAccessException.class,
+            NoAccessAuthoritiesException.class
+    })
+    public ResponseEntity<ResponseMessage<Object>> handleNoAccessException(Exception e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ResponseMessage<>(
+                        HttpStatus.FORBIDDEN.value(),
+                        e.getMessage(),
+                        null));
     }
 
     // 404: Not Found
@@ -49,11 +67,21 @@ public class GlobalExceptionHandler {
             PositionNotFoundException.class,
             PurchaseNotFoundException.class,
             SealNotFoundException.class,
-            StorageNotFoundException.class
+            StorageNotFoundException.class,
+            OrderApprovalNotFound.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleNotFoundException(Exception e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ResponseMessage<>(404, e.getMessage(), null));
+    }
+
+    // Unexpected Exception
+    @ExceptionHandler({
+            RuntimeException.class
+    })
+    public ResponseEntity<ResponseMessage<Object>> handleUnexpectedException(Exception e) {
+        return ResponseEntity.internalServerError()
+                .body(new ResponseMessage<>(500, "Server Error: 관리자에게 문의하세요.", null));
     }
 }
 

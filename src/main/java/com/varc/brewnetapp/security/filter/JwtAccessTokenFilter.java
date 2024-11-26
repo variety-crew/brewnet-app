@@ -16,11 +16,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Slf4j
-@Component
 public class JwtAccessTokenFilter extends OncePerRequestFilter {
     private final ProviderManager providerManager;
 
-    @Autowired
     public JwtAccessTokenFilter(ProviderManager providerManager) {
         this.providerManager = providerManager;
     }

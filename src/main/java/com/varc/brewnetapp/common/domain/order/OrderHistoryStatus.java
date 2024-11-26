@@ -13,9 +13,10 @@ public enum OrderHistoryStatus {
     SHIPPED("SHIPPED")
     ;
 
-    private final String status;
-
-    OrderHistoryStatus(String status) {
-        this.status = status;
+    OrderHistoryStatus(String value) {
+        this.value = value;
     }
+
+    private final String value;
+
 }

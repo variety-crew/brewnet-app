@@ -1,13 +1,13 @@
 package com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity;
 
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeApproval;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeDraftApproval;
+import com.varc.brewnetapp.common.domain.approve.Approval;
+import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Data
 @Getter
-@Setter
+//@Setter
 @Entity
 @Table(name = "tbl_order")
 @NoArgsConstructor
@@ -29,12 +29,12 @@ public class ExOrder {
     private Boolean active;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "approved", nullable = false)
-    private ExchangeApproval approved;
+    @Column(name = "approval_status", nullable = false)
+    private Approval approvalStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "drafter_approved")
-    private ExchangeDraftApproval drafterApproved;
+    private DrafterApproved drafterApproved;
 
     @Column(name = "sum_price", nullable = false)
     private Integer sumPrice;

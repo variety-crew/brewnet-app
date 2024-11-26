@@ -1,16 +1,16 @@
 package com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity;
 
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeConfirmed;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeHistoryStatus;
-import com.varc.brewnetapp.domain.exchange.enums.ExchangeStatus;
+import com.varc.brewnetapp.common.domain.approve.Confirmed;
+import com.varc.brewnetapp.common.domain.exchange.ExchangeHistoryStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Builder(toBuilder = true)
 @Getter
-@Setter
+//@Setter
 @Entity
 @Table(name = "tbl_exchange_stock_history")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString
 public class ExchangeStockHistory {
@@ -30,7 +30,8 @@ public class ExchangeStockHistory {
     private String comment;                     // 처리 중 비고사항
 
     @Column(name = "confirmed", nullable = false)
-    private ExchangeConfirmed confirmed;        // 내역 확인 여부
+    @Enumerated(EnumType.STRING)
+    private Confirmed confirmed;                // 내역 확인 여부
 
     @Column(name = "created_at", nullable = false)
     private String created_at;                  // 생성일시

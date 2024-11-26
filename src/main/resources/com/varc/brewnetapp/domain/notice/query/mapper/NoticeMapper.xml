@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.varc.brewnetapp.domain.notice.query.mapper.NoticeMapper">
+
+  <resultMap id="noticeResultMap" type="com.varc.brewnetapp.domain.notice.query.dto.NoticeDTO">
+    <id property="noticeCode" column="NOTICE_CODE" />
+    <result property="title" column="TITLE" />
+    <result property="content" column="CONTENT" />
+    <result property="createdAt" column="CREATED_AT" />
+    <result property="memberName" column="MEMBER_NAME" />
+    <result property="memberCode" column="MEMBER_CODE" />
+    <collection property="imageList" ofType="java.lang.String">
+      <result column="IMAGE_URL" />
+    </collection>
+  </resultMap>
+
+  <select id="selectNoticeList" resultMap="noticeResultMap" parameterType="map">
+    SELECT
+           N.NOTICE_CODE
+         , N.TITLE
+         , N.CONTENT
+         , CAST(N.CREATED_AT AS CHAR) AS CREATED_AT
+         , M.NAME AS MEMBER_NAME
+         , M.MEMBER_CODE
+         , NI.IMAGE_URL
+      FROM tbl_notice N
+     INNER JOIN tbl_MEMBER M ON (N.MEMBER_CODE = M.MEMBER_CODE)
+      LEFT JOIN tbl_notice_img NI ON (NI.NOTICE_CODE = N.NOTICE_CODE)
+     WHERE N.ACTIVE = TRUE
+    <if test="title != null and title != ''">
+      AND N.TITLE LIKE CONCAT('%', #{title}, '%')
+    </if>
+    <if test="writerName != null and writerName != ''">
+      AND M.NAME LIKE CONCAT('%', #{writerName}, '%')
+    </if>
+    <choose>
+      <when test="sort == 'dateASC'">
+        ORDER BY N.CREATED_AT ASC
+      </when>
+      <otherwise>
+        ORDER BY N.CREATED_AT DESC
+      </otherwise>
+    </choose>
+    LIMIT #{ pageSize }
+    OFFSET #{ offset }
+  </select>
+
+
+  <select id="selectNoticeListCnt" resultType="int" parameterType="map">
+    SELECT
+           COUNT(*)
+      FROM tbl_notice N
+     INNER JOIN tbl_MEMBER M ON (N.MEMBER_CODE = M.MEMBER_CODE)
+     WHERE N.ACTIVE = TRUE
+    <if test="title != null and title != ''">
+      AND N.TITLE LIKE CONCAT('%', #{title}, '%')
+    </if>
+    <if test="writerName != null and writerName != ''">
+      AND M.NAME LIKE CONCAT('%', #{writerName}, '%')
+    </if>
+  </select>
+
+  <select id="selectNotice" resultMap="noticeResultMap" parameterType="_int">
+    SELECT
+           N.NOTICE_CODE
+         , N.TITLE
+         , N.CONTENT
+         , CAST(N.CREATED_AT AS CHAR) AS CREATED_AT
+         , M.NAME AS MEMBER_NAME
+         , M.MEMBER_CODE
+         , NI.IMAGE_URL
+      FROM tbl_notice N
+     INNER JOIN tbl_MEMBER M ON (N.MEMBER_CODE = M.MEMBER_CODE)
+      LEFT JOIN tbl_notice_img NI ON (NI.NOTICE_CODE = N.NOTICE_CODE)
+     WHERE N.ACTIVE = TRUE AND N.NOTICE_CODE = #{noticeCode}
+  </select>
+
+
+</mapper>

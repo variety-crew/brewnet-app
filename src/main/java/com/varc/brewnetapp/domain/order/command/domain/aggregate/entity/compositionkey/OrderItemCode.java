@@ -1,9 +1,11 @@
 package com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.compositionkey;
 
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -11,10 +13,14 @@ import java.util.Objects;
 
 @Builder
 @Embeddable
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderItemCode implements Serializable {
+    @Column(name = "order_code")
     private int orderCode;
+
+    @Column(name = "item_code")
     private int itemCode;
 
     @Override

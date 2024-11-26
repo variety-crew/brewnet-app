@@ -23,12 +23,13 @@ public class PurchaseController {
 
     @PostMapping("/create")
     @Operation(summary = "발주(구매품의서) 등록 API")
-    public ResponseEntity<ResponseMessage<Object>> createLetterOfPurchase(@RequestAttribute("loginId") String loginId,
+    public ResponseEntity<ResponseMessage<Integer>> createLetterOfPurchase(@RequestAttribute("loginId") String loginId,
                                                                           @RequestBody PurchaseRequestDTO newPurchase) {
 
-        purchaseService.createLetterOfPurchase(loginId, newPurchase);
+        Integer newPurchaseCode = purchaseService.createLetterOfPurchase(loginId, newPurchase);
 
-        return ResponseEntity.ok(new ResponseMessage<>(200, "구매품의서 등록 및 결재 요청 성공", null));
+        return ResponseEntity.ok(new ResponseMessage<>(
+                                    200, "구매품의서 등록 및 결재 요청 성공", newPurchaseCode));
     }
 
     @PostMapping("/cancel/{letterOfPurchaseCode}")
@@ -67,11 +68,11 @@ public class PurchaseController {
 
     @PutMapping("/in-stock")
     @Operation(summary = "발주 상품 입고 처리 API (입고예정재고 -> 가용재고)")
-    public ResponseEntity<ResponseMessage<Object>> changeInStockToAvailable(@RequestAttribute("loginId") String loginId,
-                                                                            @RequestParam int itemCode,
-                                                                            @RequestParam int purchaseCode) {
+    public ResponseEntity<ResponseMessage<Object>> changeInStockToAvailable(
+                                                        @RequestAttribute("loginId") String loginId,
+                                                        @RequestBody ChangeInStockToAvailableRequestDTO bringIn) {
 
-        purchaseService.changeInStockToAvailable(loginId, itemCode, purchaseCode);
+        purchaseService.changeInStockToAvailable(loginId, bringIn);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "발주한 상품 입고 처리 성공", null));
     }

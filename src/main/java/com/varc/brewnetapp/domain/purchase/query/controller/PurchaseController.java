@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.purchase.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.document.query.dto.ApproverMemberDTO;
 import com.varc.brewnetapp.domain.purchase.common.KindOfApproval;
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
 import com.varc.brewnetapp.domain.purchase.query.dto.*;
@@ -74,7 +75,7 @@ public class PurchaseController {
             " 상품명, 거래처명, 창고명, 기간으로 검색 가능) - pageNumber의 default값은 1, pageSize의 default값은 10")
     public ResponseEntity<ResponseMessage<PageResponse<List<ApprovedPurchaseItemDTO>>>> selectApprovedPurchaseItems(
                                             @RequestAttribute("loginId") String loginId,
-                                            @RequestParam(required = false) Integer itemUniqueCode,
+                                            @RequestParam(required = false) String itemUniqueCode,
                                             @RequestParam(required = false) String itemName,
                                             @RequestParam(required = false) String correspondentName,
                                             @RequestParam(required = false) String storageName,
@@ -96,7 +97,7 @@ public class PurchaseController {
     public ResponseEntity<ResponseMessage<PageResponse<List<ApprovedPurchaseItemDTO>>>>
         selectApprovedPurchaseItemUncheck(
                                             @RequestAttribute("loginId") String loginId,
-                                            @RequestParam(required = false) Integer itemUniqueCode,
+                                            @RequestParam(required = false) String itemUniqueCode,
                                             @RequestParam(required = false) String itemName,
                                             @RequestParam(required = false) String correspondentName,
                                             @RequestParam(required = false) String storageName,
@@ -110,17 +111,5 @@ public class PurchaseController {
                                                     startDate, endDate, pageNumber, pageSize);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "입고 미확인 품목 목록 조회 성공", pageResponse));
-    }
-
-    @GetMapping("/approvers")
-    @Operation(summary = "결재라인 선택 시 결재자인 회원 목록 조회 API")
-    public ResponseEntity<ResponseMessage<List<PurchaseApproverMemberDTO>>> selectApproverList(
-                                                                        @RequestAttribute("loginId") String loginId,
-                                                                        @RequestParam KindOfApproval approvalLine) {
-
-        List<PurchaseApproverMemberDTO> approverList = purchaseService.selectApproverList(loginId, approvalLine);
-
-        return ResponseEntity.ok(new ResponseMessage<>(
-                                200, "해당 결재라인의 결재자 목록 조회 성공", approverList));
     }
 }
