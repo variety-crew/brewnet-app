@@ -31,4 +31,16 @@ public class CorrespondentController {
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "거래처 등록 성공", null));
     }
+
+    @PutMapping("/edit/{correspondentCode}")
+    @Operation(summary = "거래처 정보 수정 API")
+    public ResponseEntity<ResponseMessage<Object>> updateCorrespondent(
+                                                        @RequestAttribute("loginId") String loginId,
+                                                        @PathVariable int correspondentCode,
+                                                        @RequestBody CorrespondentRequestDTO editCorrespondent) {
+
+        correspondentService.updateCorrespondent(loginId, correspondentCode, editCorrespondent);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "거래처 정보 수정 완료", null));
+    }
 }
