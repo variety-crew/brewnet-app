@@ -13,7 +13,7 @@ public interface MemberService {
 
     void deleteMember(String accessToken, LoginIdRequestDTO loginIdRequestDTO);
 
-    void changeMember(String accessToken, ChangeMemberRequestDTO changeMemberRequestDTO);
+    void changeMember(String accessToken, ChangeMemberRequestDTO changeMemberRequestDTO, int memberCode);
 
     String checkPassword(String accessToken, CheckPwRequestDTO checkPasswordRequestDTO);
 

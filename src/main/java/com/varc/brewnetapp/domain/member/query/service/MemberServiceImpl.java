@@ -94,6 +94,27 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
+    public MemberDTO findMemberByHqMember(Integer memberCode) {
+
+        Member member = memberRepository.findById(memberCode)
+            .orElseThrow(() -> new MemberNotFoundException("조회하려는 멤버 정보가 없습니다"));
+
+        MemberDTO memberDTO = null;
+
+        if(member.getPositionCode() != null)
+            memberDTO = memberMapper.selectMemberByHqMember(memberCode);
+        else
+            memberDTO = memberMapper.selectFranchiseMemberByHqMember(memberCode);
+
+        if(memberDTO == null)
+            throw new MemberNotFoundException("조회하려는 멤버 정보가 없습니다");
+
+        return memberDTO;
+
+    }
+
+    @Override
+    @Transactional
     public Page<OrderPrintDTO> findSealHistory(Pageable page, String startDate, String endDate, String sort) {
         long pageSize = page.getPageSize();
         long pageNumber = page.getPageNumber();
