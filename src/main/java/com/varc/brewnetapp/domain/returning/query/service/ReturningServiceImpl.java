@@ -1,7 +1,5 @@
 package com.varc.brewnetapp.domain.returning.query.service;
 
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.FranExchangeDetailVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.FranExchangeStatusVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.*;
 import com.varc.brewnetapp.domain.returning.query.mapper.ReturningMapper;
 import com.varc.brewnetapp.exception.UnauthorizedAccessException;
@@ -34,7 +32,7 @@ public class ReturningServiceImpl implements ReturningService {
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
 
-        // DB에서 교환 목록 조회
+        // DB에서 반품 목록 조회
         List<ReturningListVO> returningList = returningMapper.selectReturningList(offset, pageSize);
 
         // 전체 데이터 개수 조회
@@ -56,7 +54,7 @@ public class ReturningServiceImpl implements ReturningService {
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
 
-        // DB에서 교환 목록 조회
+        // DB에서 반품 목록 조회
         List<ReturningListVO> returningList = returningMapper.selectRequestedReturningList(offset, pageSize);
 
         // 전체 데이터 개수 조회
@@ -72,14 +70,14 @@ public class ReturningServiceImpl implements ReturningService {
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
 
-        // DB에서 교환 목록 조회
-        List<ReturningListVO> exchangeList = returningMapper.selectSearchReturningList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
+        // DB에서 반품 목록 조회
+        List<ReturningListVO> returningList = returningMapper.selectSearchReturningList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
 
         // 전체 데이터 개수 조회
         int count = returningMapper.selectSearchReturningListCnt(searchFilter, searchWord, startDate, endDate);
 
         // PageImpl 객체로 감싸서 반환
-        return new PageImpl<>(exchangeList, page, count);
+        return new PageImpl<>(returningList, page, count);
     }
 
     @Override
@@ -94,7 +92,7 @@ public class ReturningServiceImpl implements ReturningService {
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
 
-        // DB에서 교환 목록 조회
+        // DB에서 반품 목록 조회
         List<FranReturningListVO> franReturningList = returningMapper.selectFranReturningList(loginId, offset, pageSize);
 
         // 전체 데이터 개수 조회
@@ -110,7 +108,7 @@ public class ReturningServiceImpl implements ReturningService {
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
 
-        // DB에서 교환 목록 조회
+        // DB에서 반품 목록 조회
         List<FranReturningListVO> franReturningList = returningMapper.selectSearchFranReturningList(loginId, searchFilter, searchWord, startDate, endDate, offset, pageSize);
 
         // 전체 데이터 개수 조회
@@ -134,8 +132,8 @@ public class ReturningServiceImpl implements ReturningService {
     public List<FranReturningStatusVO> findFranReturningCodeStatusBy(String loginId, Integer returningCode) {
         // 해당 가맹점에서 반품신청한 내역이 맞는지 검증
         if (isValidReturningByFranchise(loginId, returningCode)) {
-            List<FranReturningStatusVO> franExchangeStatus = returningMapper.selectFranReturningStatusBy(returningCode);
-            return franExchangeStatus;
+            List<FranReturningStatusVO> franReturningStatus = returningMapper.selectFranReturningStatusBy(returningCode);
+            return franReturningStatus;
         } else {
             throw new UnauthorizedAccessException("로그인한 가맹점에서 작성한 반품 요청 상태만 조회할 수 있습니다");
         }
@@ -146,6 +144,11 @@ public class ReturningServiceImpl implements ReturningService {
     @Override
     public boolean isValidReturningByFranchise(String loginId, int returningCode) {
         return returningMapper.selectValidReturningByFranchise(loginId, returningCode);
+    }
+
+    @Override
+    public List<Integer> findFranAvailableReturningBy(String loginId) {
+        return returningMapper.selectAvailableReturningBy(loginId);
     }
 
 }

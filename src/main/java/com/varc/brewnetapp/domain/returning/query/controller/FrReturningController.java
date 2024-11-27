@@ -67,13 +67,13 @@ public class FrReturningController {
         List<FranReturningStatusVO> result = returningService.findFranReturningCodeStatusBy(loginId, returningCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 반품요청 상세조회 성공", result));
     }
-//
-//    @GetMapping("/available-orders")
-//    @Operation(summary = "[가맹점] 교환신청 - 1. 교환신청 가능한 주문 목록 조회 API")
-//    public ResponseEntity<ResponseMessage<List<Integer>>> findFranAvailableExchangeBy(@RequestAttribute("loginId") String loginId) {
-//        List<Integer> result = returningService.findFranAvailableExchangeBy(loginId);
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환신청 가능한 주문 목록 조회 성공", result));
-//    }
+
+    @GetMapping("/available-orders")
+    @Operation(summary = "[가맹점] 반품신청 - 1. 반품신청 가능한 주문 목록 조회 API")
+    public ResponseEntity<ResponseMessage<List<Integer>>> findFranAvailableReturningBy(@RequestAttribute("loginId") String loginId) {
+        List<Integer> result = returningService.findFranAvailableReturningBy(loginId);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 반품신청 가능한 주문 목록 조회 성공", result));
+    }
 //
 //    @GetMapping("/available-items/{orderCode}")
 //    @Operation(summary = "[가맹점] 교환신청 - 2. 교환신청할 주문의 상품목록 조회 API")

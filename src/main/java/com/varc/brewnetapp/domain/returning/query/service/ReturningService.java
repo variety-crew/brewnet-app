@@ -27,4 +27,6 @@ public interface ReturningService {
     FranReturningDetailVO findFranReturningDetailBy(String loginId, int returningCode);
 
     boolean isValidReturningByFranchise(String loginId, int returningCode);
+
+    List<Integer> findFranAvailableReturningBy(String loginId);
 }
