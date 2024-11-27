@@ -46,7 +46,7 @@
                S.NAME AS STORAGE_NAME,
                S.ADDRESS,
                S.CONTACT
-          FROM TBL_STORAGE S
+          FROM tbl_storage S
         <where>
             S.ACTIVE = TRUE
             <choose>
@@ -71,7 +71,7 @@
             resultType="int">
         SELECT
                COUNT(S.STORAGE_CODE)
-          FROM TBL_STORAGE S
+          FROM tbl_storage S
         <where>
             S.ACTIVE = TRUE
             <choose>
@@ -98,7 +98,7 @@
                S.CONTACT,
                S.CREATED_AT,
                S.ACTIVE
-          FROM TBL_STORAGE S
+          FROM tbl_storage S
         <where>
             S.STORAGE_CODE = #{storageCode}
             AND S.ACTIVE = TRUE
@@ -110,7 +110,7 @@
         SELECT
                S.STORAGE_CODE,
                S.NAME AS STORAGE_NAME
-          FROM TBL_STORAGE S
+          FROM tbl_storage S
         <where>
             S.ACTIVE = TRUE
         </where>
@@ -131,8 +131,8 @@
                I.NAME AS ITEM_NAME,
                I.SAFETY_STOCK,
                (S.AVAILABLE_STOCK + S.OUT_STOCK) AS CURRENT_STOCK
-          FROM TBL_STOCK S
-          JOIN TBL_ITEM I ON S.ITEM_CODE = I.ITEM_CODE
+          FROM tbl_stock S
+          JOIN tbl_item I ON S.ITEM_CODE = I.ITEM_CODE
         <where>
             S.STORAGE_CODE = #{storageCode}
             AND S.ACTIVE = TRUE
@@ -150,8 +150,8 @@
             resultType="int">
         SELECT
                COUNT(*)
-          FROM TBL_STOCK S
-          JOIN TBL_ITEM I ON S.ITEM_CODE = I.ITEM_CODE
+          FROM tbl_stock S
+          JOIN tbl_item I ON S.ITEM_CODE = I.ITEM_CODE
         <where>
             S.STORAGE_CODE = #{storageCode}
             AND S.ACTIVE = TRUE

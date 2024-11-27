@@ -12,6 +12,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class CheckPwRequestDTO {
+    private String checkNum;
     private String password;
 
 }

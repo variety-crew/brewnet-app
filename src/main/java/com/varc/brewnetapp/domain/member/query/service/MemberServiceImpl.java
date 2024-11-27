@@ -52,7 +52,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public Page<MemberDTO> findMemberList(Pageable page, String search) {
+    public Page<MemberDTO> findMemberList(Pageable page, String search, String sort) {
         // 페이징 정보 추가
         long pageSize = page.getPageSize();
         long pageNumber = page.getPageNumber();
@@ -60,7 +60,7 @@ public class MemberServiceImpl implements MemberService {
 
 
         // DB에서 교환 목록 조회
-        List<MemberDTO> memberList = memberMapper.selectMemberList(offset, pageSize, search);
+        List<MemberDTO> memberList = memberMapper.selectMemberList(offset, pageSize, search, sort);
 
         if (memberList.isEmpty() || memberList.size() < 0)
             throw new EmptyDataException("조회하려는 회원 정보가 없습니다");
@@ -94,7 +94,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public Page<OrderPrintDTO> findSealHistory(Pageable page, String startDate, String endDate) {
+    public Page<OrderPrintDTO> findSealHistory(Pageable page, String startDate, String endDate, String sort) {
         long pageSize = page.getPageSize();
         long pageNumber = page.getPageNumber();
         long offset = pageNumber * pageSize;
@@ -103,7 +103,7 @@ public class MemberServiceImpl implements MemberService {
             throw new InvalidDataException("시작일자와 종료일자는 모두 입력되거나, 둘 다 비어 있어야 합니다.");
 
         // DB에서 교환 목록 조회
-        List<OrderPrintDTO> orderPrintList = memberMapper.selectOrderPrintList(offset, pageSize, startDate, endDate);
+        List<OrderPrintDTO> orderPrintList = memberMapper.selectOrderPrintList(offset, pageSize, startDate, endDate, sort);
 
         if (orderPrintList.isEmpty() || orderPrintList.size() < 0)
             throw new EmptyDataException("조회하려는 법인 인감 사용 내역이 없습니다");

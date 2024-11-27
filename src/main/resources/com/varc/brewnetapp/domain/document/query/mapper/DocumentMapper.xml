@@ -45,9 +45,9 @@
            M.MEMBER_CODE,
            M.NAME AS MEMBER_NAME,
            P.NAME AS POSITION_NAME
-      FROM TBL_MEMBER M
-      JOIN TBL_POSITION P ON M.POSITION_CODE = P.POSITION_CODE
-      JOIN TBL_APPROVAL A ON P.POSITION_CODE = A.POSITION_CODE
+      FROM tbl_member M
+      JOIN tbl_position P ON M.POSITION_CODE = P.POSITION_CODE
+      JOIN tbl_approval A ON P.POSITION_CODE = A.POSITION_CODE
     <where>
         A.KIND = #{approvalLine}
     </where>

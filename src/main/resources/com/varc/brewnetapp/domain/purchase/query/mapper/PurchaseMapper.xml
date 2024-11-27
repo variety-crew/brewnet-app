@@ -86,11 +86,11 @@
                A.APPROVED_AT,
                S.NAME AS STORAGE_NAME,
                C.NAME AS CORRESPONDENT_NAME
-          FROM TBL_LETTER_OF_PURCHASE P
-          JOIN TBL_LETTER_OF_PURCHASE_APPROVER A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
-          JOIN TBL_STORAGE S ON P.STORAGE_CODE = S.STORAGE_CODE
-          JOIN TBL_MEMBER M ON P.MEMBER_CODE = M.MEMBER_CODE
-          JOIN TBL_CORRESPONDENT C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+          FROM tbl_letter_of_purchase P
+          JOIN tbl_letter_of_purchase_approver A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
+          JOIN tbl_storage S ON P.STORAGE_CODE = S.STORAGE_CODE
+          JOIN tbl_member M ON P.MEMBER_CODE = M.MEMBER_CODE
+          JOIN tbl_correspondent C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
         <where>
             P.ACTIVE = TRUE
             <if test="purchaseCode != null">
@@ -120,11 +120,11 @@
             resultType="int">
         SELECT
                COUNT(P.LETTER_OF_PURCHASE_CODE)
-          FROM TBL_LETTER_OF_PURCHASE P
-          JOIN TBL_LETTER_OF_PURCHASE_APPROVER A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
-          JOIN TBL_STORAGE S ON P.STORAGE_CODE = S.STORAGE_CODE
-          JOIN TBL_MEMBER M ON P.MEMBER_CODE = M.MEMBER_CODE
-          JOIN TBL_CORRESPONDENT C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+          FROM tbl_letter_of_purchase P
+          JOIN tbl_letter_of_purchase_approver A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
+          JOIN tbl_storage S ON P.STORAGE_CODE = S.STORAGE_CODE
+          JOIN tbl_member M ON P.MEMBER_CODE = M.MEMBER_CODE
+          JOIN tbl_correspondent C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
         <where>
             P.ACTIVE = TRUE
             <if test="purchaseCode != null">
@@ -176,13 +176,13 @@
                I.QUANTITY,
                (T.PURCHASE_PRICE * I.QUANTITY) AS PURCHASE_SUM,
                (T.PURCHASE_PRICE * I.QUANTITY * 0.1) AS PURCHASE_VAT
-          FROM TBL_LETTER_OF_PURCHASE P
-          JOIN TBL_LETTER_OF_PURCHASE_APPROVER A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
-          JOIN TBL_STORAGE S ON P.STORAGE_CODE = S.STORAGE_CODE
-          JOIN TBL_MEMBER M ON P.MEMBER_CODE = M.MEMBER_CODE
-          JOIN TBL_CORRESPONDENT C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
-          JOIN TBL_LETTER_OF_PURCHASE_ITEM I ON P.LETTER_OF_PURCHASE_CODE = I.LETTER_OF_PURCHASE_CODE
-          JOIN TBL_ITEM T ON I.ITEM_CODE = T.ITEM_CODE
+          FROM tbl_letter_of_purchase P
+          JOIN tbl_letter_of_purchase_approver A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
+          JOIN tbl_storage S ON P.STORAGE_CODE = S.STORAGE_CODE
+          JOIN tbl_member M ON P.MEMBER_CODE = M.MEMBER_CODE
+          JOIN tbl_correspondent C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+          JOIN tbl_letter_of_purchase_item I ON P.LETTER_OF_PURCHASE_CODE = I.LETTER_OF_PURCHASE_CODE
+          JOIN tbl_item T ON I.ITEM_CODE = T.ITEM_CODE
         <where>
             P.LETTER_OF_PURCHASE_CODE = #{letterOfPurchaseCode}
         </where>
@@ -203,11 +203,11 @@
                A.COMMENT,
                B.NAME AS APPROVER_NAME,
                O.NAME AS POSITION_NAME
-          FROM TBL_LETTER_OF_PURCHASE P
-          JOIN TBL_MEMBER M ON P.MEMBER_CODE = M.MEMBER_CODE
-          JOIN TBL_LETTER_OF_PURCHASE_APPROVER A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
-          JOIN TBL_MEMBER B ON A.MEMBER_CODE = B.MEMBER_CODE
-          JOIN TBL_POSITION O ON B.POSITION_CODE = O.POSITION_CODE
+          FROM tbl_letter_of_purchase P
+          JOIN tbl_member M ON P.MEMBER_CODE = M.MEMBER_CODE
+          JOIN tbl_letter_of_purchase_approver A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
+          JOIN tbl_member B ON A.MEMBER_CODE = B.MEMBER_CODE
+          JOIN tbl_position O ON B.POSITION_CODE = O.POSITION_CODE
         <where>
             P.LETTER_OF_PURCHASE_CODE = #{letterOfPurchaseCode}
         </where>
@@ -227,11 +227,11 @@
                T.ITEM_UNIQUE_CODE,
                C.NAME AS CORRESPONDENT_NAME,
                S.NAME AS STORAGE_NAME
-          FROM TBL_LETTER_OF_PURCHASE_ITEM I
-          JOIN TBL_LETTER_OF_PURCHASE P ON I.LETTER_OF_PURCHASE_CODE = P.LETTER_OF_PURCHASE_CODE
-          JOIN TBL_ITEM T ON I.ITEM_CODE = T.ITEM_CODE
-          JOIN TBL_CORRESPONDENT C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
-          JOIN TBL_STORAGE S ON P.STORAGE_CODE = S.STORAGE_CODE
+          FROM tbl_letter_of_purchase_item I
+          JOIN tbl_letter_of_purchase P ON I.LETTER_OF_PURCHASE_CODE = P.LETTER_OF_PURCHASE_CODE
+          JOIN tbl_item T ON I.ITEM_CODE = T.ITEM_CODE
+          JOIN tbl_correspondent C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+          JOIN tbl_storage S ON P.STORAGE_CODE = S.STORAGE_CODE
         <where>
             P.APPROVED = 'APPROVED'
             <if test="startDate != null and endDate != null">
@@ -266,11 +266,11 @@
             resultType="int">
         SELECT
                COUNT(*)
-          FROM TBL_LETTER_OF_PURCHASE_ITEM I
-          JOIN TBL_LETTER_OF_PURCHASE P ON I.LETTER_OF_PURCHASE_CODE = P.LETTER_OF_PURCHASE_CODE
-          JOIN TBL_ITEM T ON I.ITEM_CODE = T.ITEM_CODE
-          JOIN TBL_CORRESPONDENT C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
-          JOIN TBL_STORAGE S ON P.STORAGE_CODE = S.STORAGE_CODE
+          FROM tbl_letter_of_purchase_item I
+          JOIN tbl_letter_of_purchase P ON I.LETTER_OF_PURCHASE_CODE = P.LETTER_OF_PURCHASE_CODE
+          JOIN tbl_item T ON I.ITEM_CODE = T.ITEM_CODE
+          JOIN tbl_correspondent C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+          JOIN tbl_storage S ON P.STORAGE_CODE = S.STORAGE_CODE
         <where>
             P.APPROVED = 'APPROVED'
             <if test="startDate != null and endDate != null">
@@ -311,12 +311,12 @@
                T.ITEM_UNIQUE_CODE,
                C.NAME AS CORRESPONDENT_NAME,
                S.NAME AS STORAGE_NAME
-          FROM TBL_LETTER_OF_PURCHASE_ITEM I
-          JOIN TBL_LETTER_OF_PURCHASE P ON I.LETTER_OF_PURCHASE_CODE = P.LETTER_OF_PURCHASE_CODE
-          JOIN TBL_ITEM T ON I.ITEM_CODE = T.ITEM_CODE
-          JOIN TBL_CORRESPONDENT C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
-          JOIN TBL_STORAGE S ON P.STORAGE_CODE = S.STORAGE_CODE
-          JOIN TBL_STOCK K ON T.ITEM_CODE = K.ITEM_CODE
+          FROM tbl_letter_of_purchase_item I
+          JOIN tbl_letter_of_purchase P ON I.LETTER_OF_PURCHASE_CODE = P.LETTER_OF_PURCHASE_CODE
+          JOIN tbl_item T ON I.ITEM_CODE = T.ITEM_CODE
+          JOIN tbl_correspondent C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+          JOIN tbl_storage S ON P.STORAGE_CODE = S.STORAGE_CODE
+          JOIN tbl_stock K ON T.ITEM_CODE = K.ITEM_CODE
         <where>
             P.APPROVED = 'APPROVED'
             AND <![CDATA[K.IN_STOCK > 0]]>
@@ -352,12 +352,12 @@
             resultType="int">
         SELECT
         COUNT(*)
-        FROM TBL_LETTER_OF_PURCHASE_ITEM I
-        JOIN TBL_LETTER_OF_PURCHASE P ON I.LETTER_OF_PURCHASE_CODE = P.LETTER_OF_PURCHASE_CODE
-        JOIN TBL_ITEM T ON I.ITEM_CODE = T.ITEM_CODE
-        JOIN TBL_CORRESPONDENT C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
-        JOIN TBL_STORAGE S ON P.STORAGE_CODE = S.STORAGE_CODE
-        JOIN TBL_STOCK K ON T.ITEM_CODE = K.ITEM_CODE
+        FROM tbl_letter_of_purchase_item I
+        JOIN tbl_letter_of_purchase P ON I.LETTER_OF_PURCHASE_CODE = P.LETTER_OF_PURCHASE_CODE
+        JOIN tbl_item T ON I.ITEM_CODE = T.ITEM_CODE
+        JOIN tbl_correspondent C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+        JOIN tbl_storage S ON P.STORAGE_CODE = S.STORAGE_CODE
+        JOIN tbl_stock K ON T.ITEM_CODE = K.ITEM_CODE
         <where>
             P.APPROVED = 'APPROVED'
             AND <![CDATA[K.IN_STOCK > 0]]>

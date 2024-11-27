@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface MemberMapper {
-    List<MemberDTO> selectMemberList(long offset, long pageSize, String search);
+    List<MemberDTO> selectMemberList(long offset, long pageSize, String search, String sort);
 
     CompanyDTO selectCompany();
 
@@ -16,7 +16,7 @@ public interface MemberMapper {
 
     MemberDTO selectMember(String loginId);
 
-    List<OrderPrintDTO> selectOrderPrintList(long offset, long pageSize, String startDate, String endDate);
+    List<OrderPrintDTO> selectOrderPrintList(long offset, long pageSize, String startDate, String endDate, String sort);
 
     int selectOrderPrintListCnt();
 

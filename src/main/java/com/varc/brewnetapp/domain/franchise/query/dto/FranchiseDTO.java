@@ -19,6 +19,7 @@ public class FranchiseDTO {
     private Integer franchiseCode;
     private String franchiseName;
     private String address;
+    private String detailAddress;
     private String contact;
     private String businessNumber;
     private String name;

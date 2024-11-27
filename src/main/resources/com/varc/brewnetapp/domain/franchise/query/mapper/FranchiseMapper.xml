@@ -8,6 +8,7 @@
     <id property="franchiseCode" column="FRANCHISE_CODE"/>
     <result property="franchiseName" column="FRANCHISE_NAME"/>
     <result property="address" column="ADDRESS"/>
+    <result property="detailAddress" column="DETAIL_ADDRESS"/>
     <result property="contact" column="CONTACT"/>
     <result property="businessNumber" column="BUSINESS_NUMBER"/>
     <result property="name" column="NAME"/>
@@ -27,7 +28,8 @@
     SELECT
            FRANCHISE_CODE
          , FRANCHISE_NAME
-         , CONCAT (ADDRESS, ' ', DETAIL_ADDRESS) AS ADDRESS
+         , ADDRESS
+         , DETAIL_ADDRESS
          , CONTACT
          , BUSINESS_NUMBER
          , NAME
@@ -41,7 +43,8 @@
     SELECT
            FRANCHISE_CODE
          , FRANCHISE_NAME
-         , CONCAT (ADDRESS, ' ', DETAIL_ADDRESS) AS ADDRESS
+         , ADDRESS
+         , DETAIL_ADDRESS
          , CONTACT
          , BUSINESS_NUMBER
          , NAME
@@ -56,7 +59,17 @@
         #{city}
       </foreach>
     </if>
-     ORDER BY FRANCHISE_CODE DESC
+    <choose>
+      <when test="sort == 'franchiseNameASC'">
+        ORDER BY FRANCHISE_NAME ASC
+      </when>
+      <when test="sort == 'franchiseNameDESC'">
+        ORDER BY FRANCHISE_NAME DESC
+      </when>
+      <otherwise>
+        ORDER BY FRANCHISE_CODE DESC
+      </otherwise>
+    </choose>
      LIMIT #{ pageSize }
     OFFSET #{ offset };
   </select>
@@ -99,7 +112,17 @@
         #{city}
       </foreach>
     </if>
-     ORDER BY M.MEMBER_CODE DESC
+    <choose>
+      <when test="sort == 'franchiseNameASC'">
+        ORDER BY FRANCHISE_NAME ASC
+      </when>
+      <when test="sort == 'franchiseNameDESC'">
+        ORDER BY FRANCHISE_NAME DESC
+      </when>
+      <otherwise>
+        ORDER BY FRANCHISE_CODE DESC
+      </otherwise>
+    </choose>
      LIMIT #{ pageSize }
     OFFSET #{ offset };
   </select>
