@@ -4,7 +4,6 @@ import com.varc.brewnetapp.domain.correspondent.command.application.dto.Correspo
 import com.varc.brewnetapp.domain.correspondent.command.domain.aggregate.Correspondent;
 import com.varc.brewnetapp.domain.correspondent.command.domain.repository.CorrespondentItemRepository;
 import com.varc.brewnetapp.domain.correspondent.command.domain.repository.CorrespondentRepository;
-import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.exception.InvalidDataException;
 import com.varc.brewnetapp.exception.MemberNotFoundException;
@@ -39,7 +38,7 @@ public class CorrespondentServiceImpl implements CorrespondentService{
         // 로그인한 사용자 체크
         memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
 
-        Correspondent existCorrespondent = correspondentRepository.findByName(newCorrespondent.getCorrespondentName());
+        Correspondent existCorrespondent = correspondentRepository.findByName(newCorrespondent.getName());
         if (existCorrespondent != null) {
             throw new InvalidDataException("해당 이름의 거래처가 이미 존재합니다.");
         }
