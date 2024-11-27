@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CorrespondentItemRepository extends JpaRepository<CorrespondentItem, CorrespondentItemId> {
 
     boolean existsByCorrespondentCodeAndItemCodeAndActiveTrue(int correspondentCode, int itemCode);
+
+    boolean existsByCorrespondentCodeAndActiveTrue(int correspondentCode);
 }
