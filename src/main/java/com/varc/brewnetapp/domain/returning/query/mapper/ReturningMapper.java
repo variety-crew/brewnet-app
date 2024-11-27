@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.returning.query.mapper;
 
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
@@ -32,4 +33,8 @@ public interface ReturningMapper {
     int selectSearchFranReturningListCnt(String loginId, String searchFilter, String searchWord, String startDate, String endDate);
 
     List<FranReturningListVO> selectSearchFranReturningList(String loginId, String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
+
+    FranReturningDetailVO selectFranReturningDetailBy(int returningCode);
+
+    boolean selectValidReturningByFranchise(String loginId, int returningCode);
 }

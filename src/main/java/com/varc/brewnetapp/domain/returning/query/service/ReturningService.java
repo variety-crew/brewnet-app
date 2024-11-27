@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.returning.query.service;
 
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
@@ -22,4 +23,8 @@ public interface ReturningService {
     Page<FranReturningListVO> findFranReturningList(String loginId, Pageable page);
 
     Page<FranReturningListVO> searchFranReturningList(String loginId, String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
+
+    FranReturningDetailVO findFranReturningDetailBy(String loginId, int returningCode);
+
+    boolean isValidReturningByFranchise(String loginId, int returningCode);
 }

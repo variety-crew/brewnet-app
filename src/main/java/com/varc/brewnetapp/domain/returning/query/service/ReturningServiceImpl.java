@@ -1,9 +1,12 @@
 package com.varc.brewnetapp.domain.returning.query.service;
 
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.FranExchangeDetailVO;
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.mapper.ReturningMapper;
+import com.varc.brewnetapp.exception.UnauthorizedAccessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -117,5 +120,25 @@ public class ReturningServiceImpl implements ReturningService {
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(franReturningList, page, count);
+    }
+
+    @Override
+    public FranReturningDetailVO findFranReturningDetailBy(String loginId, int returningCode) {
+        // 해당 가맹점에서 반품신청한 내역이 맞는지 검증
+        if (isValidReturningByFranchise(loginId, returningCode)) {
+            FranReturningDetailVO franReturningDetail = returningMapper.selectFranReturningDetailBy(returningCode);
+            return franReturningDetail;
+        } else {
+            throw new UnauthorizedAccessException("로그인한 가맹점에서 작성한 반품 요청만 조회할 수 있습니다");
+        }
+    }
+
+
+
+    /* 유저 아이디(loginId)와 반품코드(returningCode)로 해당 가맹점의 반품이 맞는지 검증하는 메서드 */
+    // 가맹점 목록조회/가맹점 상세조회에서 유효한 요청인지 검증하기 위해 사용
+    @Override
+    public boolean isValidReturningByFranchise(String loginId, int returningCode) {
+        return returningMapper.selectValidReturningByFranchise(loginId, returningCode);
     }
 }

@@ -57,6 +57,35 @@
         <result property="completedAt" column="completed_at"/>
     </resultMap>
 
+    <!-- 가맹점 반품요청 상세조회 - 물품 리스트 ResultMap -->
+    <resultMap id="franReturningDetailItemResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningItemVO">
+        <result property="itemCode" column="item_code"/>
+        <result property="itemUniqueCode" column="item_unique_code"/>
+        <result property="itemName" column="item_name"/>
+        <result property="quantity" column="quantity"/>
+        <result property="sellingPrice" column="selling_price"/>
+        <result property="partSumPrice" column="part_sum_price"/>
+    </resultMap>
+
+    <!-- 가맹점 반품요청 상세조회 ResultMap -->
+    <resultMap id="franReturningDetailResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningDetailVO">
+        <id property="returningCode" column="return_code" />
+        <result property="createdAt" column="created_at"/>
+        <result property="status" column="status"/>
+        <result property="orderCode" column="order_code"/>
+<!--        <result property="totalSumPrice" column="total_sum_price"/>-->
+        <result property="reason" column="reason"/>
+        <result property="explanation" column="explanation"/>
+
+        <!-- 반품 물품 리스트 매핑 -->
+        <collection property="returningItemList" ofType="com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningItemVO"
+                    select="selectFranReturningDetailItemBy" column="return_code"/>
+
+        <!-- 반품 이미지 리스트 매핑 -->
+        <collection property="returningImageList" ofType="java.lang.String"
+                    select="selectReturningDetailImageBy" column="return_code"/>
+    </resultMap>
+
     <!-- ========== Query ========== -->
 
     <!-- ===== Query 1. 본사 반품내역 ===== -->
@@ -296,7 +325,7 @@
     </select>
 
 
-    <!-- 본사 반품내역 상세조회 쿼리     ***********  -->
+    <!-- 본사 반품내역 상세조회 쿼리 -->
     <select id="selectReturningDetailBy" resultMap="returningDetailResultMap">
         SELECT
         A.return_code
@@ -337,6 +366,8 @@
     </select>
 
     <!-- ===== Query 2. 타부서 반품내역 ===== -->
+
+
 
 
     <!-- ===== Query 3. 가맹점 반품내역 ===== -->
@@ -482,5 +513,64 @@
         GROUP BY A.return_code
         ORDER BY A.created_at DESC
         LIMIT #{ offset }, #{ pageSize };
+    </select>
+
+    <!-- 가맹점 반품내역 상세조회 쿼리 -->
+    <select id="selectFranReturningDetailBy" resultMap="franReturningDetailResultMap">
+        SELECT
+        A.return_code
+        , A.created_at
+        , B.status
+        , C.order_code
+        , A.reason
+        , A.explanation
+        FROM tbl_return A
+        JOIN tbl_return_status_history B ON A.return_code = B.return_code
+        JOIN (
+        SELECT return_code, MAX(created_at) AS max_created_at
+        FROM tbl_return_status_history
+        GROUP BY return_code
+        ) latest_status ON B.return_code = latest_status.return_code
+        AND B.created_at = latest_status.max_created_at
+        JOIN tbl_order C ON A.order_code = C.order_code
+        WHERE A.return_code = #{ returningCode }
+        GROUP BY A.return_code;
+    </select>
+
+    <!-- 가맹점 반품내역 상세조회 - 물품 목록 조회 쿼리 -->
+    <select id="selectFranReturningDetailItemBy" resultMap="franReturningDetailItemResultMap">
+        SELECT
+        A.item_code
+        , E.item_unique_code
+        , E.name AS item_name
+        , D.quantity
+        , (D.part_sum_price / D.quantity) AS selling_price
+        , D.part_sum_price
+        FROM tbl_return_item A
+        JOIN tbl_return B ON A.return_code = B.return_code
+        JOIN tbl_order C ON B.order_code = C.order_code
+        JOIN tbl_order_item D ON C.order_code = D.order_code
+        JOIN tbl_item E ON A.item_code = E.item_code
+        WHERE A.return_code = #{ returningCode };
+    </select>
+
+
+
+    <!-- ===== Query 4. 기타 쿼리 ===== -->
+
+    <!-- 유저 아이디(loginId)와 반품코드(returningCode)로 해당 가맹점의 반품이 맞는지 확인하는 쿼리 -->
+    <!-- 가맹점 목록조회/가맹점 상세조회에서 유효한 요청인지 검증하기 위해 사용 -->
+    <select id="selectValidReturningByFranchise" resultType="boolean">
+        SELECT
+        EXISTS(
+        SELECT
+        *
+        FROM tbl_return A
+        JOIN tbl_order B ON A.order_code = B.order_code
+        JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
+        JOIN tbl_franchise_member D ON B.franchise_code= D.franchise_code
+        JOIN tbl_member E ON D.member_code = E.member_code
+        WHERE A.return_code = #{ returningCode } AND E.id = #{ loginId }
+        ) AS result;
     </select>
 </mapper>
