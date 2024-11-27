@@ -5,4 +5,6 @@ import com.varc.brewnetapp.domain.correspondent.command.application.dto.Correspo
 public interface CorrespondentService {
 
     void createCorrespondent(String loginId, CorrespondentRequestDTO newCorrespondent);
+
+    void updateCorrespondent(String loginId, int correspondentCode, CorrespondentRequestDTO editCorrespondent);
 }
