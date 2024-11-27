@@ -80,6 +80,7 @@ public class GlobalExceptionHandler {
             RuntimeException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleUnexpectedException(Exception e) {
+        log.error(e.getMessage(), e);
         return ResponseEntity.internalServerError()
                 .body(new ResponseMessage<>(500, "Server Error: 관리자에게 문의하세요.", null));
     }
