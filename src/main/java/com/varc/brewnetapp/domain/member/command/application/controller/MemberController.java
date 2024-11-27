@@ -3,6 +3,7 @@ package com.varc.brewnetapp.domain.member.command.application.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.member.command.application.dto.ChangeMemberRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.ChangePwRequestDTO;
+import com.varc.brewnetapp.domain.member.command.application.dto.CheckNumDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.CheckPwRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.ConfirmEmailRequestDTO;
 import com.varc.brewnetapp.domain.member.command.application.dto.CreateCompanyRequestDTO;
@@ -146,10 +147,10 @@ public class MemberController {
 
     @PostMapping("/member/my-pw")
     @Operation(summary = "회원정보 수정 전 내 비밀번호 확인 API. 비밀번호가 맞으면 200, 틀리면 400으로 HTTP 상태 코드가 전달됨")
-    public ResponseEntity<ResponseMessage<Object>> checkPassword(@RequestHeader("Authorization") String accessToken,
+    public ResponseEntity<ResponseMessage<String>> checkPassword(@RequestHeader("Authorization") String accessToken,
         @RequestBody CheckPwRequestDTO checkPasswordRequestDTO) {
-        memberService.checkPassword(accessToken, checkPasswordRequestDTO);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "비밀번호가 확인되었습니다", null));
+        String checkNum = memberService.checkPassword(accessToken, checkPasswordRequestDTO);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "비밀번호가 확인되었습니다", checkNum));
     }
 
     @PutMapping("/member/my-pw")
@@ -163,23 +164,26 @@ public class MemberController {
     @PostMapping("/member/my-signature")
     @Operation(summary = "내 서명 생성 API")
     public ResponseEntity<ResponseMessage<Object>> createMySignature(@RequestHeader("Authorization") String accessToken,
-        @RequestPart(value = "signatureImage") MultipartFile signatureImage) {
-        memberService.createMySignature(accessToken, signatureImage);
+        @RequestPart(value = "signatureImage") MultipartFile signatureImage,
+        @RequestPart CheckNumDTO checkNumDTO) {
+        memberService.createMySignature(accessToken, signatureImage, checkNumDTO);
         return ResponseEntity.ok(new ResponseMessage<>(200, "서명이 생성되었습니다", null));
     }
 
     @PutMapping("/member/my-signature")
     @Operation(summary = "내 서명 변경 API")
     public ResponseEntity<ResponseMessage<Object>> changeMySignature(@RequestHeader("Authorization") String accessToken,
-        @RequestPart(value = "signatureImage") MultipartFile signatureImage) {
-        memberService.changeMySignature(accessToken, signatureImage);
+        @RequestPart(value = "signatureImage") MultipartFile signatureImage,
+        @RequestPart CheckNumDTO checkNumDTO) {
+        memberService.changeMySignature(accessToken, signatureImage, checkNumDTO);
         return ResponseEntity.ok(new ResponseMessage<>(200, "서명이 변경되었습니다", null));
     }
 
     @DeleteMapping("/member/my-signature")
     @Operation(summary = "내 서명 삭제 API")
-    public ResponseEntity<ResponseMessage<Object>> deleteMySignature(@RequestHeader("Authorization") String accessToken) {
-        memberService.deleteMySignature(accessToken);
+    public ResponseEntity<ResponseMessage<Object>> deleteMySignature(@RequestHeader("Authorization") String accessToken,
+        @RequestBody CheckNumDTO checkNumDTO) {
+        memberService.deleteMySignature(accessToken, checkNumDTO);
         return ResponseEntity.ok(new ResponseMessage<>(200, "서명이 삭제되었습니다", null));
     }
 
