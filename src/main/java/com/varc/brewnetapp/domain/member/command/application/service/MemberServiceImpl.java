@@ -108,14 +108,14 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public void changeMember(String accessToken, ChangeMemberRequestDTO changeMemberRequestDTO) {
+    public void changeMember(String accessToken, ChangeMemberRequestDTO changeMemberRequestDTO, int memberCode) {
         Authentication authentication = jwtUtil.getAuthentication(accessToken.replace("Bearer ", ""));
 
         // 권한을 리스트 형태로 가져옴
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
         if (authorities.stream().anyMatch(auth -> "ROLE_MASTER".equals(auth.getAuthority()))) {
-            Member member = memberRepository.findById(changeMemberRequestDTO.getLoginId())
+            Member member = memberRepository.findById(memberCode)
                 .orElseThrow(() -> new MemberNotFoundException("변경하려는 회원이 없습니다"));
 
             if(changeMemberRequestDTO.getContact() != null)
@@ -130,8 +130,8 @@ public class MemberServiceImpl implements MemberService {
             if(changeMemberRequestDTO.getPassword() != null)
                 member.setPassword(bCryptPasswordEncoder.encode(changeMemberRequestDTO.getPassword()));
 
-            if(changeMemberRequestDTO.getPositionName() != null && changeMemberRequestDTO.getFranchiseName() != null)
-                throw new InvalidDataException("회원가입 시, 가맹점과 직급이 한꺼번에 설정될 수 없습니다");
+            if(changeMemberRequestDTO.getPositionName() != null && changeMemberRequestDTO.getFranchiseCode() != null)
+                throw new InvalidDataException("멤버 정보 수정 시, 가맹점과 직급이 한꺼번에 설정될 수 없습니다");
             else if(changeMemberRequestDTO.getPositionName() != null){
 
                 Position position = positionRepository.findByName(changeMemberRequestDTO.getPositionName())
@@ -140,15 +140,15 @@ public class MemberServiceImpl implements MemberService {
                 member.setPositionCode(position.getPositionCode());
 
                 memberRepository.save(member);
-            } else if(changeMemberRequestDTO.getFranchiseName() != null){
+            } else if(changeMemberRequestDTO.getFranchiseCode() != null){
                 memberRepository.save(member);
-                log.info("변경 회원 코드 : " + member.getMemberCode());
 
-                Franchise franchise = franchiseRepository.findByFranchiseName(changeMemberRequestDTO.getFranchiseName())
-                    .orElseThrow(() -> new InvalidDataException("잘못된 가맹점 이름을 입력했습니다"));
+                Franchise franchise = franchiseRepository.findById(changeMemberRequestDTO.getFranchiseCode())
+                    .orElseThrow(() -> new InvalidDataException("잘못된 가맹점 코드를 입력했습니다"));
 
                 FranchiseMember franchiseMember = franchiseMemberRepository.findByMemberCode(member.getMemberCode())
                     .orElseThrow(() -> new InvalidDataException("회원이 가맹점 유저가 아닙니다"));
+
                 franchiseMember.setFranchiseCode(franchise.getFranchiseCode());
 
                 franchiseMemberRepository.save(franchiseMember);

@@ -13,12 +13,12 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class ChangeMemberRequestDTO {
-    private String loginId;
+
     private String password;
     private String name;
     private String email;
     private String contact;
     private PositionName positionName;
-    private String FranchiseName;
+    private Integer FranchiseCode;
 
 }
