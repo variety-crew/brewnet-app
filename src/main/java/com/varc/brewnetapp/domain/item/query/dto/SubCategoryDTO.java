@@ -13,6 +13,8 @@ import lombok.ToString;
 @ToString
 public class SubCategoryDTO {
 
+    private int superCategoryCode;
+    private String superCategoryName;
     private int subCategoryCode;
     private String name;
 }
