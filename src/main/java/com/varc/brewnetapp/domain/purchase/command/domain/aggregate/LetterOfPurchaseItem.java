@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "tbl_letter_of_purchase_item")
@@ -25,4 +26,8 @@ public class LetterOfPurchaseItem {
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
+
+    @Column(name = "storage_confirmed", nullable = false)
+    @ColumnDefault("false")
+    private Boolean storageConfirmed;
 }

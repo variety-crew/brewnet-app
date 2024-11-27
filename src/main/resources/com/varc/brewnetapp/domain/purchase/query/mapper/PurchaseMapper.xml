@@ -66,6 +66,7 @@
         <id property="purchaseCode" column="LETTER_OF_PURCHASE_CODE"/>
         <id property="itemCode" column="ITEM_CODE"/>
         <result property="quantity" column="QUANTITY"/>
+        <result property="storageConfirmed" column="STORAGE_CONFIRMED"/>
         <result property="createdAt" column="CREATED_AT"/>
         <result property="itemName" column="ITEM_NAME"/>
         <result property="itemUniqueCode" column="ITEM_UNIQUE_CODE"/>
@@ -222,6 +223,7 @@
                I.LETTER_OF_PURCHASE_CODE,
                I.ITEM_CODE,
                I.QUANTITY,
+               I.STORAGE_CONFIRMED,
                P.CREATED_AT,
                T.NAME AS ITEM_NAME,
                T.ITEM_UNIQUE_CODE,
@@ -306,6 +308,7 @@
                I.LETTER_OF_PURCHASE_CODE,
                I.ITEM_CODE,
                I.QUANTITY,
+               I.STORAGE_CONFIRMED,
                P.CREATED_AT,
                T.NAME AS ITEM_NAME,
                T.ITEM_UNIQUE_CODE,
@@ -320,6 +323,7 @@
         <where>
             P.APPROVED = 'APPROVED'
             AND <![CDATA[K.IN_STOCK > 0]]>
+            AND I.STORAGE_CONFIRMED = 0
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
                 AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
@@ -361,6 +365,7 @@
         <where>
             P.APPROVED = 'APPROVED'
             AND <![CDATA[K.IN_STOCK > 0]]>
+            AND I.STORAGE_CONFIRMED = 0
             <if test="startDate != null and endDate != null">
                 AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
                 AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
