@@ -1,9 +1,7 @@
 package com.varc.brewnetapp.domain.returning.query.mapper;
 
-import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningDetailVO;
-import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningListVO;
-import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
-import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.FranExchangeStatusVO;
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -37,4 +35,6 @@ public interface ReturningMapper {
     FranReturningDetailVO selectFranReturningDetailBy(int returningCode);
 
     boolean selectValidReturningByFranchise(String loginId, int returningCode);
+
+    List<FranReturningStatusVO> selectFranReturningStatusBy(Integer returningCode);
 }

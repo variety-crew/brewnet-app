@@ -3,6 +3,7 @@ package com.varc.brewnetapp.domain.returning.query.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.FranExchangeStatusVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningDetailVO;
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningStatusVO;
 import com.varc.brewnetapp.domain.returning.query.service.ReturningServiceImpl;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningListVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +37,7 @@ public class FrReturningController {
             description = "searchFilter에 들어갈 수 있는 값은 returningCode(반품번호), itemName(품목명) 2가지<br>" +
                     "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
                     "2가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
-    public ResponseEntity<ResponseMessage<Page<FranReturningListVO>>> searchFranExchangeList(
+    public ResponseEntity<ResponseMessage<Page<FranReturningListVO>>> searchFranReturningList(
             @RequestAttribute("loginId") String loginId,
             @RequestParam(required = false) String searchFilter,
             @RequestParam(required = false) String searchWord,
@@ -58,14 +59,14 @@ public class FrReturningController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 반품요청 상세조회 성공", result));
     }
 
-//    @GetMapping("/status/{exchangeCode}")
-//    @Operation(summary = "[가맹점] 교환요청 상세조회 - 교환상태조회 API")
-//    public ResponseEntity<ResponseMessage<List<FranExchangeStatusVO>>> findFranExchangeStatus(@RequestAttribute("loginId") String loginId,
-//                                                                                              @PathVariable("exchangeCode") Integer exchangeCode) {
-//
-//        List<FranExchangeStatusVO> result = returningService.findFranExchangeStatusBy(loginId, exchangeCode);
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환요청 상세조회 성공", result));
-//    }
+    @GetMapping("/status/{returningCode}")
+    @Operation(summary = "[가맹점] 반품요청 상세조회 - 반품상태조회 API")
+    public ResponseEntity<ResponseMessage<List<FranReturningStatusVO>>> findFranReturningStatus(@RequestAttribute("loginId") String loginId,
+                                                                                                @PathVariable("returningCode") Integer returningCode) {
+
+        List<FranReturningStatusVO> result = returningService.findFranReturningCodeStatusBy(loginId, returningCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 반품요청 상세조회 성공", result));
+    }
 //
 //    @GetMapping("/available-orders")
 //    @Operation(summary = "[가맹점] 교환신청 - 1. 교환신청 가능한 주문 목록 조회 API")
