@@ -1,8 +1,10 @@
 package com.varc.brewnetapp.domain.correspondent.command.application.controller;
 
 import com.varc.brewnetapp.domain.correspondent.command.application.service.CorrespondentService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,4 +19,8 @@ public class CorrespondentController {
     public CorrespondentController(CorrespondentService correspondentService) {
         this.correspondentService = correspondentService;
     }
+
+//    @PostMapping("/create")
+//    @Operation(summary = "거래처 등록 API")
+
 }

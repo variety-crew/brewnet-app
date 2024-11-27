@@ -121,8 +121,10 @@ public class PurchaseServiceImpl implements PurchaseService {
             // 품목별 총 공급가액 누적 합산
             totalPrice += (item.getPurchasePrice() * purchaseItem.getQuantity());
 
-            LetterOfPurchaseItem letterOfPurchaseItem = new LetterOfPurchaseItem(
-                    item.getItemCode(), savedPurchase.getLetterOfPurchaseCode(), purchaseItem.getQuantity());
+            LetterOfPurchaseItem letterOfPurchaseItem = new LetterOfPurchaseItem(item.getItemCode(),
+                                                                                savedPurchase.getLetterOfPurchaseCode(),
+                                                                                purchaseItem.getQuantity(),
+                                                                                false);
 
             // 구매품의서별 상품 저장
             letterOfPurchaseItemRepository.save(letterOfPurchaseItem);
@@ -284,12 +286,16 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new InvalidDataException("결재 승인되지 않은 구매품의서입니다.");
         }
 
-        // 해당 구매품의서의 상품인지 체크
+        // 해당 구매품의서의 상품인지, 입고 처리 안 된 상품인지 체크
         LetterOfPurchaseItem purchaseItem = letterOfPurchaseItemRepository
                                             .findByLetterOfPurchaseCodeAndItemCode(bringIn.getLetterOfPurchaseCode(),
                                                                                     bringIn.getItemCode());
 
-        if (purchaseItem == null) throw new InvalidDataException("발주하지 않은 상품입니다.");
+        if (purchaseItem == null) {
+            throw new InvalidDataException("발주하지 않은 상품입니다.");
+        } else if (purchaseItem.getStorageConfirmed()) {
+            throw new InvalidDataException("이미 입고 처리된 상품입니다.");
+        }
 
         Stock stock = stockRepository
                         .findByStorageCodeAndItemCode(approvedPurchase.getStorage().getStorageCode(),
@@ -307,6 +313,9 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         stock.setInStock(inStock);
         stock.setAvailableStock(availableStock);
+
+        // 발주 상품의 입고 처리 여부 true로 변경
+        purchaseItem.setStorageConfirmed(true);
     }
 
     @Transactional
