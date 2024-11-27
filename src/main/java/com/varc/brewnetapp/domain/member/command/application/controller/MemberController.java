@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSendException;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -91,12 +92,13 @@ public class MemberController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "계정 삭제 완료", null));
     }
 
-    @PutMapping("/member")
+    @PutMapping("/member/{memberCode}")
     @Operation(summary = "회원 정보 수정 API")
     public ResponseEntity<ResponseMessage<Object>> changeMember(@RequestHeader("Authorization") String accessToken,
-                                                                @RequestBody ChangeMemberRequestDTO changeMemberRequestDTO) {
+                                                                @RequestBody ChangeMemberRequestDTO changeMemberRequestDTO,
+        @PathVariable(value = "memberCode") int memberCode) {
 
-        memberService.changeMember(accessToken, changeMemberRequestDTO);
+        memberService.changeMember(accessToken, changeMemberRequestDTO, memberCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "회원 정보 수정 성공", null));
     }
 
