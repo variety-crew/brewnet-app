@@ -1,12 +1,13 @@
 package com.varc.brewnetapp.domain.correspondent.command.application.controller;
 
+import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.correspondent.command.application.dto.CorrespondentRequestDTO;
 import com.varc.brewnetapp.domain.correspondent.command.application.service.CorrespondentService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController("CorrespondentControllerCommand")
@@ -20,7 +21,14 @@ public class CorrespondentController {
         this.correspondentService = correspondentService;
     }
 
-//    @PostMapping("/create")
-//    @Operation(summary = "거래처 등록 API")
+    @PostMapping("/create")
+    @Operation(summary = "거래처 등록 API")
+    public ResponseEntity<ResponseMessage<Object>> createCorrespondent(
+                                                        @RequestAttribute("loginId") String loginId,
+                                                        @RequestBody CorrespondentRequestDTO newCorrespondent) {
 
+        correspondentService.createCorrespondent(loginId, newCorrespondent);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "거래처 등록 성공", null));
+    }
 }
