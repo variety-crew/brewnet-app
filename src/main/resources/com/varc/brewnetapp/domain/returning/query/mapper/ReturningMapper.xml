@@ -583,7 +583,22 @@
         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
         JOIN tbl_franchise_member D ON B.franchise_code= D.franchise_code
         JOIN tbl_member E ON D.member_code = E.member_code
-        WHERE A.return_code = #{ returningCode } AND E.id = #{ loginId }
+        WHERE A.order_code = #{ returningCode } AND E.id = #{ loginId }
+        ) AS result;
+    </select>
+
+    <!-- 유저 아이디(loginId)와 주문코드(orderCode)로 해당 가맹점의 주문이 맞는지 확인하는 쿼리 -->
+    <!-- 가맹점 반품신청 시 유효한 요청인지 검증하기 위해 사용 -->
+    <select id="selectValidOrderByFranchise" resultType="boolean">
+        SELECT
+        EXISTS(
+        SELECT
+        *
+        FROM tbl_order A
+        JOIN tbl_franchise B ON A.franchise_code = B.franchise_code
+        JOIN tbl_franchise_member C ON A.franchise_code= C.franchise_code
+        JOIN tbl_member D ON C.member_code = D.member_code
+        WHERE A.order_code = #{ orderCode } AND D.id = #{ loginId }
         ) AS result;
     </select>
 
@@ -600,6 +615,20 @@
         WHERE A.available = 'AVAILABLE' AND E.id = #{ loginId }
         GROUP BY C.order_code
         HAVING COUNT(A.item_code) > 0;
+    </select>
+
+    <select id="selectAvailableReturningItemBy" resultMap="franReturningDetailItemResultMap">
+        SELECT
+        A.item_code
+        , B.item_unique_code
+        , B.name AS item_name
+        , A.quantity
+        , (A.part_sum_price / A.quantity) AS selling_price
+        , A.part_sum_price
+        FROM tbl_order_item A
+        JOIN tbl_item B ON A.item_code = B.item_code
+        JOIN tbl_order C ON A.order_code = C.order_code
+        WHERE A.available = 'AVAILABLE' AND A.order_code = #{ orderCode };
     </select>
 
 </mapper>

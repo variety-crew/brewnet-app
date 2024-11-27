@@ -1,8 +1,8 @@
 package com.varc.brewnetapp.domain.returning.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.FranExchangeStatusVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningDetailVO;
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningItemVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningStatusVO;
 import com.varc.brewnetapp.domain.returning.query.service.ReturningServiceImpl;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningListVO;
@@ -74,12 +74,12 @@ public class FrReturningController {
         List<Integer> result = returningService.findFranAvailableReturningBy(loginId);
         return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 반품신청 가능한 주문 목록 조회 성공", result));
     }
-//
-//    @GetMapping("/available-items/{orderCode}")
-//    @Operation(summary = "[가맹점] 교환신청 - 2. 교환신청할 주문의 상품목록 조회 API")
-//    public ResponseEntity<ResponseMessage<List<FranExchangeItemVO>>> findFranAvailableExchangeItemBy(@RequestAttribute("loginId") String loginId,
-//                                                                                                     @PathVariable("orderCode") int orderCode) {
-//        List<FranExchangeItemVO> result = returningService.findFranAvailableExchangeItemBy(loginId, orderCode);
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 교환신청할 주문의 상품목록 조회 성공", result));
-//    }
+
+    @GetMapping("/available-items/{orderCode}")
+    @Operation(summary = "[가맹점] 반품신청 - 2. 반품신청할 주문의 상품목록 조회 API")
+    public ResponseEntity<ResponseMessage<List<FranReturningItemVO>>> findFranAvailableReturningItemBy(@RequestAttribute("loginId") String loginId,
+                                                                                                       @PathVariable("orderCode") int orderCode) {
+        List<FranReturningItemVO> result = returningService.findFranAvailableReturningItemBy(loginId, orderCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "가맹점 반품신청할 주문의 상품목록 조회 성공", result));
+    }
 }

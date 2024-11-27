@@ -38,4 +38,8 @@ public interface ReturningMapper {
     List<FranReturningStatusVO> selectFranReturningStatusBy(Integer returningCode);
 
     List<Integer> selectAvailableReturningBy(String loginId);
+
+    List<FranReturningItemVO> selectAvailableReturningItemBy(int orderCode);
+
+    boolean selectValidOrderByFranchise(String loginId, int orderCode);
 }
