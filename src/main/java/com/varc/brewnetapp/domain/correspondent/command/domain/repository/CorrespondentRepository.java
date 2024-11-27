@@ -4,4 +4,6 @@ import com.varc.brewnetapp.domain.correspondent.command.domain.aggregate.Corresp
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CorrespondentRepository extends JpaRepository<Correspondent, Integer> {
+
+    Correspondent findByName(String correspondentName);
 }
