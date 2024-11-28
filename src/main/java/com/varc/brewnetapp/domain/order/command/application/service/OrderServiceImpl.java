@@ -244,6 +244,7 @@ public class OrderServiceImpl implements OrderService {
                         )
                         .approvalStatus(ApprovalStatus.UNCONFIRMED)
                         .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
                         .active(true)
                         .build()
         );
