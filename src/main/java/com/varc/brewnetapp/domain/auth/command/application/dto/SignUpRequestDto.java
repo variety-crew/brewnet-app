@@ -15,5 +15,5 @@ public class SignUpRequestDto {
     private String email;
     private String contact;
     private PositionName positionName;
-    private String FranchiseName;
+    private Integer FranchiseCode;
 }

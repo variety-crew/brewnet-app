@@ -72,7 +72,8 @@ public class PurchaseController {
 
     @GetMapping("/total-in-stock")
     @Operation(summary = "전체 입고 품목 목록 조회 API (발주 후 입고 처리 완료 내역과 미입고 내역 모두 조회됨 / 상품 고유코드," +
-            " 상품명, 거래처명, 창고명, 기간으로 검색 가능) - pageNumber의 default값은 1, pageSize의 default값은 10")
+            " 상품명, 거래처명, 창고명, 기간으로 검색 가능) - pageNumber의 default값은 1, pageSize의 default값은 10, " +
+            "storageConfirmed가 true면 입고 처리 완료된 발주 품목")
     public ResponseEntity<ResponseMessage<PageResponse<List<ApprovedPurchaseItemDTO>>>> selectApprovedPurchaseItems(
                                             @RequestAttribute("loginId") String loginId,
                                             @RequestParam(required = false) String itemUniqueCode,

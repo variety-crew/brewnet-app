@@ -40,7 +40,7 @@
                C.EMAIL,
                C.CONTACT,
                C.MANAGER_NAME
-          FROM TBL_CORRESPONDENT C
+          FROM tbl_correspondent C
         <where>
             C.ACTIVE = TRUE
             <if test="correspondentCode != null">
@@ -60,7 +60,7 @@
             resultType="int">
         SELECT
                COUNT(C.CORRESPONDENT_CODE)
-          FROM TBL_CORRESPONDENT C
+          FROM tbl_correspondent C
         <where>
             C.ACTIVE = TRUE
             <choose>
@@ -93,10 +93,10 @@
                T.PURCHASE_PRICE,
                T.SAFETY_STOCK,
                I.ACTIVE
-          FROM TBL_CORRESPONDENT_ITEM I
-          JOIN TBL_CORRESPONDENT C ON I.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
-          JOIN TBL_ITEM T ON I.ITEM_CODE = T.ITEM_CODE
-          JOIN TBL_SUB_CATEGORY G ON T.CATEGORY_CODE = G.SUB_CATEGORY_CODE
+          FROM tbl_correspondent_item I
+          JOIN tbl_correspondent C ON I.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+          JOIN tbl_item T ON I.ITEM_CODE = T.ITEM_CODE
+          JOIN tbl_sub_category G ON T.CATEGORY_CODE = G.SUB_CATEGORY_CODE
         <where>
             I.CORRESPONDENT_CODE = #{correspondentCode}
             <choose>
@@ -120,10 +120,10 @@
             resultType="int">
         SELECT
                COUNT(*)
-          FROM TBL_CORRESPONDENT_ITEM I
-          JOIN TBL_CORRESPONDENT C ON I.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
-          JOIN TBL_ITEM T ON I.ITEM_CODE = T.ITEM_CODE
-          JOIN TBL_SUB_CATEGORY G ON T.CATEGORY_CODE = G.SUB_CATEGORY_CODE
+          FROM tbl_correspondent_item I
+          JOIN tbl_correspondent C ON I.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+          JOIN tbl_item T ON I.ITEM_CODE = T.ITEM_CODE
+          JOIN tbl_sub_category G ON T.CATEGORY_CODE = G.SUB_CATEGORY_CODE
         <where>
             I.CORRESPONDENT_CODE = #{correspondentCode}
             <choose>
