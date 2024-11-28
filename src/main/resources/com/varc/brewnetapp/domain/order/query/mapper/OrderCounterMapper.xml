@@ -20,6 +20,22 @@
             AND O.APPROVED = #{filter}
         </if>
     </select>
+    <select id="countSearchedOrdersForHQByOrderCode" resultType="int">
+        SELECT COUNT(*)
+        FROM tbl_order O
+        WHERE 1=1
+        AND O.ACTIVE = 1
+        AND CAST(O.ORDER_CODE AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+        <if test="startDate != null and startDate != ''">
+            AND O.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND O.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <if test="filter == 'UNCONFIRMED'">
+            AND O.APPROVED = #{filter}
+        </if>
+    </select>
 
     <!-- for Franchise -->
     <select id="countOrdersForFranchise" resultType="int">

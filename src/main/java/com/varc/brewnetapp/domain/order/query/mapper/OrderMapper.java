@@ -25,6 +25,16 @@ public interface OrderMapper {
     );
     OrderDetailForHQDTO findOrderDetailForHqBy(int orderCode);
 
+    // search
+    List<HQOrderDTO> searchOrdersForHQByOrderCode(
+            @Param("filter") String filter,
+            @Param("sort") String sort,
+            @Param("size") int size,
+            @Param("offset") int offset,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("keyword") String keyword
+    );
 
     // for FRANCHISE
     List<FranchiseOrderDTO> findOrdersForFranchise(

@@ -57,10 +57,21 @@ public class HQOrderQueryController {
     @Operation(summary = "주문 일자(기간) 별로 검색 타입(주문번호, 주문지점, 주문담당자)에 따른 검색")
     public ResponseEntity<ResponseMessage<Page<HQOrderDTO>>> getOrderListByHqSearch(
             @PageableDefault(size = 10, page = 0) Pageable pageable,
+            @RequestAttribute("loginId") String loginId,
             @RequestParam(name = "filter", required = false) String filter,
-            @RequestParam(name = "criteria", required = false) String criteria
+            @RequestParam(name = "sort", required = false) String sort,
+            @RequestParam(name = "startDate", required = false) String startDate,
+            @RequestParam(name = "endDate", required = false) String endDate,
+            @RequestBody OrderSearchDTO orderSearchDTO
     ) {
-        Page<HQOrderDTO> orderDTOList = orderQueryService.searchOrderListForHQ(pageable, filter, criteria);
+        Page<HQOrderDTO> orderDTOList = orderQueryService.searchOrderListForHQ(
+                pageable,
+                filter,
+                sort,
+                startDate,
+                endDate,
+                orderSearchDTO
+        );
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDTOList));
     }
 

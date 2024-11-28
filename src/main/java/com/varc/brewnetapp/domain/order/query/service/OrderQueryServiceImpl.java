@@ -63,15 +63,88 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     @Override
     @Transactional
-    public Page<HQOrderDTO> searchOrderListForHQ(Pageable pageable, String filter, String criteria) {
+    public Page<HQOrderDTO> searchOrderListForHQ(
+            Pageable pageable,
+            String filter,
+            String sort,
+            String startDate,
+            String endDate,
+            OrderSearchDTO orderSearchDTO
+    ) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
         int offset = page * size;
-//        List<OrderDTO> searchedList = orderMapper.findOrderListForHQBy(filter, sort, size, offset, criteria);
 
-//        int total = orderMapper.countOrdersForHq(filter);
-//        return new PageImpl<>(null, pageable, total);
-        return null;
+        SearchCriteria criteria = orderSearchDTO.getCriteria();
+        String keyword = orderSearchDTO.getSearchWord();
+
+        List<HQOrderDTO> searchedOrderDTOList;
+        int total = 0;
+
+        switch (criteria) {
+            case ORDER_CODE -> {
+                searchedOrderDTOList = orderMapper.searchOrdersForHQByOrderCode(
+                        filter,
+                        sort,
+                        size,
+                        offset,
+                        startDate,
+                        endDate,
+                        keyword
+                );
+                total = orderCounterMapper.countSearchedOrdersForHQByOrderCode(
+                        filter,
+                        startDate,
+                        endDate,
+                        keyword
+                );
+            }
+//            case ORDERED_FRANCHISE_NAME -> {
+//                searchedOrderDTOList = orderMapper.searchOrdersForHQByOrderedFranchiseName(
+//                        filter,
+//                        sort,
+//                        size,
+//                        offset,
+//                        startDate,
+//                        endDate,
+//                        keyword
+//                );
+//                total = orderCounterMapper.countSearchedOrdersForHQByOrderedFranchiseName(
+//                        filter,
+//                        startDate,
+//                        endDate,
+//                        keyword
+//                );
+//            }
+//            case ORDER_MANAGER -> {
+//                searchedOrderDTOList = orderMapper.searchOrdersForHQByOrderManager(
+//                        filter,
+//                        sort,
+//                        size,
+//                        offset,
+//                        startDate,
+//                        endDate,
+//                        keyword
+//                );
+//                total = orderCounterMapper.countSearchedOrdersForHQByOrderManager(
+//                        filter,
+//                        startDate,
+//                        endDate,
+//                        keyword
+//                );
+//            }
+            default -> throw new InvalidCriteriaException(
+                    "Invalid Order Criteria. " +
+                            "entered Criteria: " + criteria + ". " +
+                            " entered keyword: " + keyword + "."
+            );
+        }
+
+        return new PageImpl<>(
+                searchedOrderDTOList,
+                pageable,
+                total
+        );
     }
 
     @Override
@@ -196,9 +269,9 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 );
             }
             default -> throw new InvalidCriteriaException(
-                    "Invalid Order Criteria \n" +
-                            "entered Criteria: " + criteria + ". \n" +
-                            "entered keyword: " + keyword + "."
+                    "Invalid Order Criteria. " +
+                            "entered Criteria: " + criteria + ". " +
+                            " entered keyword: " + keyword + "."
             );
         }
 
