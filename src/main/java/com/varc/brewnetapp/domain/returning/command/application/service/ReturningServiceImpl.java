@@ -357,7 +357,7 @@ public class ReturningServiceImpl implements ReturningService{
         saveReturningStatusHistory(ReturningStatus.PENDING, returning);
 
         // 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = APPROVED (기안자만 결재자로 등록됨)
-        saveReturningApprover(member.getMemberCode(), returning, Approval.APPROVED, String.valueOf(LocalDateTime.now()), returning.getComment());
+//        saveReturningApprover(member.getMemberCode(), returning, Approval.APPROVED, String.valueOf(LocalDateTime.now()), returning.getComment());
 
         // 3-2. 결재자들 등록
         for (Integer approverCode : returningApproveReqVO.getApproverCodeList()) {
@@ -385,7 +385,7 @@ public class ReturningServiceImpl implements ReturningService{
         saveReturningStatusHistory(ReturningStatus.REJECTED, returning);
 
         // 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = REJECTED (기안자만 결재자로 등록됨)
-        saveReturningApprover(member.getMemberCode(), returning, Approval.REJECTED, String.valueOf(LocalDateTime.now()), returning.getComment());
+//        saveReturningApprover(member.getMemberCode(), returning, Approval.REJECTED, String.valueOf(LocalDateTime.now()), returning.getComment());
     }
 
     @Override
