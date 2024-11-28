@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.returning.query.service;
 
+import com.varc.brewnetapp.common.domain.returning.ReturningStatus;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,8 @@ public interface ReturningService {
     List<Integer> findFranAvailableReturningBy(String loginId);
 
     List<FranReturningStatusVO> findFranReturningCodeStatusBy(String loginId, Integer returningCode);
+
+    ReturningStatus findReturningLatestStatus(int returningCode);
 
     List<FranReturningItemVO> findFranAvailableReturningItemBy(String loginId, int orderCode);
 

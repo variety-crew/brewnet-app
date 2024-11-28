@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository("ReturningItemRepositoryCommand")
 public interface ReturningItemRepository extends JpaRepository<ReturningItem, Integer> {
-//    List<ReturningItem> findByReturningItemCode_ReturningCode(int returningCode);
+    List<ReturningItem> findByReturningItemCode_ReturningCode(int returningCode);
 }

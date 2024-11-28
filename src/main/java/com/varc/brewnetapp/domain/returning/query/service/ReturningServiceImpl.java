@@ -1,7 +1,9 @@
 package com.varc.brewnetapp.domain.returning.query.service;
 
+import com.varc.brewnetapp.common.domain.returning.ReturningStatus;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.*;
 import com.varc.brewnetapp.domain.returning.query.mapper.ReturningMapper;
+import com.varc.brewnetapp.exception.ReturningNotFoundException;
 import com.varc.brewnetapp.exception.UnauthorizedAccessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,6 +140,15 @@ public class ReturningServiceImpl implements ReturningService {
         } else {
             throw new UnauthorizedAccessException("로그인한 가맹점에서 작성한 반품 요청 상태만 조회할 수 있습니다");
         }
+    }
+
+    /* 반품코드로 가장 최근 반풐상태(status) 1개를 조회하는 메서드 */
+    // 반품취소 시, 해당 반품요청의 상태가 REQUESTED인지 조회하기 위해 사용 (컨트롤러 X)
+    @Override
+    public ReturningStatus findReturningLatestStatus(int returningCode) {
+        ReturningStatus latestStatus = returningMapper.selectReturningLatestStatusBy(returningCode)
+                .orElseThrow(() -> new ReturningNotFoundException("반품 상태를 찾을 수 없습니다."));
+        return latestStatus;
     }
 
     // fix: 이동 필요

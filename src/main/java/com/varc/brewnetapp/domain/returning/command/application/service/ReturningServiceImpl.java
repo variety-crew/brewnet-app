@@ -21,7 +21,8 @@ import com.varc.brewnetapp.domain.returning.command.domain.repository.ReturningI
 import com.varc.brewnetapp.domain.returning.command.domain.repository.ReturningItemRepository;
 import com.varc.brewnetapp.domain.returning.command.domain.repository.ReturningStatusHistoryRepository;
 import com.varc.brewnetapp.domain.returning.command.domain.repository.ReturningRepository;
-import com.varc.brewnetapp.exception.ExchangeNotFoundException;
+import com.varc.brewnetapp.exception.InvalidStatusException;
+import com.varc.brewnetapp.exception.ReturningNotFoundException;
 import com.varc.brewnetapp.exception.UnauthorizedAccessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,11 +71,11 @@ public class ReturningServiceImpl implements ReturningService{
                     .active(true)
                     .reason(returningReqVO.getReason())
                     .explanation(returningReqVO.getExplanation())
-                    .approvalStatus(Approval.UNCONFIRMED)   // [1] 교환 결재 상태
+                    .approvalStatus(Approval.UNCONFIRMED)   // [1] 반품 결재 상태
                     .order(order)
                     .memberCode(null)
                     .delivery(null)
-                    .drafterApproved(DrafterApproved.NONE)  // [2] 기안자의 교환 승인 여부
+                    .drafterApproved(DrafterApproved.NONE)  // [2] 기안자의 반품 승인 여부
                     .sumPrice(returningReqVO.getSumPrice())
                     .build();
 
@@ -90,7 +91,7 @@ public class ReturningServiceImpl implements ReturningService{
                         .build();
 
                 ExOrderItem exOrderItem = exOrderItemRepository.findByOrderItemCode(exOrderItemCode)
-                        .orElseThrow(() -> new ExchangeNotFoundException("존재하지 않는 주문 상품이 포함되어 있습니다."));
+                        .orElseThrow(() -> new ReturningNotFoundException("존재하지 않는 주문 상품이 포함되어 있습니다."));
                 if (exOrderItem.getAvailable() != Available.AVAILABLE) {
                     throw new IllegalArgumentException("반품 신청이 불가한 주문 상품이 포함되어 있습니다.");
                 }
@@ -101,14 +102,14 @@ public class ReturningServiceImpl implements ReturningService{
 
                 exOrderItemRepository.save(exOrderItem);
 
-                // 4. 교환별상품 저장
+                // 4. 반품별상품 저장
                 // 복합키 객체 생성
                 ReturningItemCode returningItemCode = ReturningItemCode.builder()
-                        .returningCode(returning.getReturningCode())    // 교환 코드 설정
+                        .returningCode(returning.getReturningCode())    // 반품 코드 설정
                         .itemCode(reqItem.getItemCode())                // 상품 코드 설정
                         .build();
 
-                // ExchangeItem 객체 생성
+                // ReturningItem 객체 생성
                 ReturningItem returningItem = ReturningItem.builder()
                         .returningItemCode(returningItemCode)           // 복합키 설정
                         .quantity(exOrderItem.getQuantity())            // 기존 주문 별 상품의 수량 그대로 저장
@@ -118,10 +119,10 @@ public class ReturningServiceImpl implements ReturningService{
 
             }
 
-            // 5. 교환상태이력 저장
+            // 5. 반품상태이력 저장
             saveReturningStatusHistory(ReturningStatus.REQUESTED, returning);
 
-            // 6. 교환품목사진 저장
+            // 6. 반품품목사진 저장
             for (MultipartFile image : returningImageList) {
                 String s3Url = s3ImageService.upload(image);
                 ReturningImg returningImg = ReturningImg.builder()
@@ -133,11 +134,77 @@ public class ReturningServiceImpl implements ReturningService{
             }
 
 
-            // 7. 교환코드(exchangeCode) 리턴 - 프론트엔드 상세페이지 이동 위해
+            // 7. 반품코드(returningCode) 리턴 - 프론트엔드 상세페이지 이동 위해
             return returning.getReturningCode();
 
         } else {
             throw new UnauthorizedAccessException("로그인한 가맹점에서 작성한 주문에 대해서만 반품 요청할 수 있습니다");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void franCancelReturning(String loginId, Integer returningCode) {
+        /*TODO.
+         * 반품 취소 시 변하는 상태값
+         * [1] 반품상태                - tbl_return_status_history : status = CANCELED (내역 추가됨)
+         * [2] 활성화                  - tbl_return : active = False
+         * [3] 반품/교환요청 가능여부     - tbl_order_item : available = AVAILABLE
+         * */
+
+        /*
+         * 반품 취소 가능한 조건
+         * 1. 반품 상태 이력(tbl_return_status_history)테이블의 반품상태(status)가 REQUESTED인 경우
+         * */
+
+        // 1. 해당 취소요청의 반품내역이 이 가맹점에서 작성한 것이 맞는지 확인
+        if (returningServiceQuery.isValidReturningByFranchise(loginId, returningCode)) {
+
+            Returning returning = returningRepository.findById(returningCode)
+                    .orElseThrow(() -> new ReturningNotFoundException("반품 코드가 존재하지 않습니다."));
+
+            ReturningStatus returningStatus = returningServiceQuery.findReturningLatestStatus(returningCode);
+
+            // status가 REQUESTED인 경우에만 취소 가능
+            if (returningStatus == ReturningStatus.REQUESTED) {
+
+
+                // 2. 반품 상태 이력(tbl_return_status_history)테이블에 취소내역 저장
+                saveReturningStatusHistory(ReturningStatus.CANCELED, returning);
+
+                // 3. 반품(tbl_return) 테이블의 활성화(active)를 false로 변경
+                returning = returning.toBuilder()     // 새 객체가 생성되지만, 영속성 컨텍스트는 아님
+                        .active(false)              // [2] 활성화
+                        .build();
+                returningRepository.save(returning);  //객체가 영속성 컨텍스트에 저장되고, 엔티티 매니저가 이 객체를 관리함
+
+
+                // 4. 반품 별 상품 -> 주문 별 상품의 반품/교환요청 가능여부(available)을 AVAILABLE로 변경
+                // 주문 별 상품(tbl_order_item)의
+                // 반품 별 상품 리스트 -> 주문 별 상품 하나씩 조회 -> 상태값 변경
+                List<ReturningItem> returningItemList = returningItemRepository.findByReturningItemCode_ReturningCode(returning.getReturningCode());
+
+                for (ReturningItem returningItem : returningItemList) {
+
+                    ExOrderItemCode orderItemCode = ExOrderItemCode.builder()
+                            .orderCode(returning.getOrder().getOrderCode())              // 주문 코드 설정
+                            .itemCode(returningItem.getReturningItemCode().getItemCode()) // 상품 코드 설정
+                            .build();
+
+                    ExOrderItem orderItem = exOrderItemRepository.findByOrderItemCode(orderItemCode)
+                            .orElseThrow(() -> new ReturningNotFoundException("반품할 상품이 존재하지 않습니다."));
+
+                    orderItem = orderItem.toBuilder()
+                            .available(Available.AVAILABLE) // [3] 반품/교환요청 가능여부
+                            .build();
+                    exOrderItemRepository.save(orderItem);
+                }
+
+            } else {
+                throw new InvalidStatusException("반품신청 취소가 불가능합니다. 반품상태가 '반품요청'인 경우에만 취소할 수 있습니다");
+            }
+        } else {
+            throw new UnauthorizedAccessException("로그인한 가맹점에서 작성한 반품요청에 대해서만 취소할 수 있습니다");
         }
     }
 

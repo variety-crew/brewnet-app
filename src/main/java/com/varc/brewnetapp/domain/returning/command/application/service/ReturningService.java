@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ReturningService {
     Integer franCreateReturning(String loginId, ReturningReqVO returningReqVO, List<MultipartFile> returningImageList);
+
+    void franCancelReturning(String loginId, Integer returningCode);
 }

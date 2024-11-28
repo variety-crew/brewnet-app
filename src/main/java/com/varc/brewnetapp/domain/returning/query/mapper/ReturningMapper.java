@@ -1,9 +1,11 @@
 package com.varc.brewnetapp.domain.returning.query.mapper;
 
+import com.varc.brewnetapp.common.domain.returning.ReturningStatus;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface ReturningMapper {
@@ -36,6 +38,8 @@ public interface ReturningMapper {
     boolean selectValidReturningByFranchise(String loginId, int returningCode);
 
     List<FranReturningStatusVO> selectFranReturningStatusBy(Integer returningCode);
+
+    Optional<ReturningStatus> selectReturningLatestStatusBy(int returningCode);
 
     List<Integer> selectAvailableReturningBy(String loginId);
 

@@ -29,4 +29,12 @@ public class FrReturningController {
         int returningCode = returningService.franCreateReturning(loginId, returningReqVO, returningImageList);
         return ResponseEntity.ok(new ResponseMessage<>(200, "반품신청 성공", returningCode));
     }
+
+    @PostMapping("/cancel/{returningCode}")
+    @Operation(summary = "[가맹점] 반품취소 API")
+    public ResponseEntity<ResponseMessage<Integer>> cancelReturning(@RequestAttribute("loginId") String loginId,
+                                                                   @PathVariable("returningCode") Integer returningCode) {
+        returningService.franCancelReturning(loginId, returningCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "반품취소 성공", returningCode));
+    }
 }
