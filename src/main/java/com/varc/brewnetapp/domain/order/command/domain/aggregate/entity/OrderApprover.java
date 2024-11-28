@@ -23,7 +23,7 @@ public class OrderApprover {
     @Column(name = "approved", nullable = false)
     private ApprovalStatus approvalStatus;
 
-    @Column(name = "created_at", nullable = true)
+    @Column(name = "updated_at", nullable = true)
     private LocalDateTime updatedAt;
 
     @Column(name = "created_at", nullable = true)
