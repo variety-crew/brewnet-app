@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.item.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.item.query.dto.CategoryDTO;
 import com.varc.brewnetapp.domain.item.query.dto.SubCategoryDTO;
 import com.varc.brewnetapp.domain.item.query.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,5 +28,12 @@ public class CategoryController {
     public ResponseEntity<ResponseMessage<List<SubCategoryDTO>>> findSubCategory() {
         
         return ResponseEntity.ok(new ResponseMessage<>(200, "서브 카테고리 조회 성공", categoryService.findSubCategory()));
+    }
+
+    @GetMapping("")
+    @Operation(summary = "하위 카테고리 목록(상위 카테고리 이름 포함) 조회 API")
+    public ResponseEntity<ResponseMessage<List<CategoryDTO>>> findCategory() {
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "카테고리 조회 성공", categoryService.findCategory()));
     }
 }
