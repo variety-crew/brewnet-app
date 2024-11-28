@@ -72,4 +72,13 @@ public class CorrespondentServiceImpl implements CorrespondentService{
 
         return response;
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<CorrespondentDTO> printAllCorrespondents() {
+
+        List<CorrespondentDTO> correspondentList = correspondentMapper.printCorrespondentList();
+
+        return correspondentList;
+    }
 }

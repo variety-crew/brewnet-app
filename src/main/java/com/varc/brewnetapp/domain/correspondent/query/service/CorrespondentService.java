@@ -20,4 +20,6 @@ public interface CorrespondentService {
                                                                         String itemName,
                                                                         int pageNumber,
                                                                         int pageSize);
+
+    List<CorrespondentDTO> printAllCorrespondents();
 }
