@@ -10,7 +10,7 @@ import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderApproveRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderRequestApproveDTO;
-import com.varc.brewnetapp.domain.order.command.application.dto.OrderRequestRejectDTO;
+import com.varc.brewnetapp.domain.order.command.application.dto.OrderApprovalRequestRejectDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderItemDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.orderrequest.OrderRequestResponseDTO;
@@ -331,19 +331,59 @@ public class OrderServiceImpl implements OrderService {
     // 주문요청 상신에 책임 관리자의 반려
     @Transactional
     @Override
-    public boolean rejectOrderDraft(String orderCode, int memberCode, OrderRequestRejectDTO orderRequestRejectDTO) {
+    public boolean rejectOrderDraft(int orderCode, int memberCode, OrderApprovalRequestRejectDTO orderApprovalRequestRejectDTO) {
+        OrderApprover orderApprover = orderApprovalRepository.findById(OrderApprovalCode.builder()
+                .memberCode(memberCode)
+                .orderCode(orderCode)
+                .build()).orElseThrow(() -> new OrderApprovalNotFound("Order approval not found"));
+        Order order = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
 
         // TODO: 책임 관리자의 상신에 대한 반려 처리
-        //  - tbl_order_approver 수정
-        //    - approved UNCONFIRMED -> APPROVED
-        //    - CREATED_AT -> 수정
-        //    - COMMENT -> 수정
-        //  - tbl_order 수정
-        //    - approval_status -> APPROVED
-        //  - tbl_order_status_history 추가
-        //    - STATUS -> APPROVED
+        //  - validate                             [DONE]
+        //    - 유효한 주문 상신인지 확인                [DONE]
+        //  - tbl_order_approver 수정               [DONE]
+        //    - approved UNCONFIRMED -> REJECTED   [DONE]
+        //    - UPDATED_AT -> 수정                  [DONE]
+        //    - COMMENT -> 수정                     [DONE]
+        //  - tbl_order 수정                        [DONE]
+        //    - approval_status -> REJECTED        [DONE]
+        //  - tbl_order_status_history 추가         [DONE]
+        //    - STATUS -> REJECTED                 [DONE]
+
+        checkOrderApprovalIsValid(orderApprover, order);
+        orderApprovalRepository.save(
+                OrderApprover.builder()
+                        .orderApprovalCode(
+                                OrderApprovalCode.builder()
+                                        .memberCode(memberCode)
+                                        .orderCode(orderCode)
+                                        .build()
+                        )
+                        .approvalStatus(ApprovalStatus.REJECTED)
+                        .updatedAt(LocalDateTime.now())
+                        .comment(orderApprovalRequestRejectDTO.getComment())
+                        .active(true)
+                        .build()
+        );
+        orderRepository.save(
+                Order.builder()
+                        .orderCode(orderCode)
+                        .comment(order.getComment())
+                        .createdAt(order.getCreatedAt())
+                        .active(order.isActive())
+                        .approvalStatus(OrderApprovalStatus.REJECTED)
+                        .drafterApproved(order.getDrafterApproved())
+                        .sumPrice(order.getSumPrice())
+                        .franchiseCode(order.getFranchiseCode())
+                        .memberCode(order.getMemberCode())
+                        .deliveryCode(order.getDeliveryCode())
+                        .build()
+        );
+        recordOrderStatusHistory(orderCode, OrderHistoryStatus.REJECTED);
+
         return true;
     }
+
 
     // 일반 관리자의 가맹점의 주문 요청 반려
     @Transactional
@@ -415,14 +455,14 @@ public class OrderServiceImpl implements OrderService {
                                                         .build()
                                         )
                                         .quantity(orderQuantity)
-                                        .available(Available.AVAILABLE)
+                                        .available(Available.UNAVAILABLE)
                                         .partSumPrice(partPriceSum)
                                         .build()
                         );
                     }
             );
         } else {
-            throw new InvalidOrderItems("Order Items should be more then one order. orderCode: " + orderedCode);
+            throw new InvalidOrderItems("주문 아이템 최소 1개가 존재해야합니다. orderCode: " + orderedCode);
         }
     }
 
@@ -468,10 +508,6 @@ public class OrderServiceImpl implements OrderService {
             int quantity = orderItemDTO.getQuantity();
 
             totalSum += getPartSumPrice(itemCode, quantity);
-
-            log.debug("itemCode: {}", itemCode);
-            log.debug("quantity: {}", quantity);
-            log.debug("totalSum: {}", totalSum);
         }
         return totalSum;
     }
@@ -479,8 +515,20 @@ public class OrderServiceImpl implements OrderService {
     // 주문 아이템 부분 합 구하기
     private int getPartSumPrice(int itemCode, int quantity) {
         int sellingPrice = itemService.findItemSellingPriceByItemCode(itemCode);
-        log.debug("itemCode: {}", itemCode);
-        log.debug("quantity: {}", quantity);
         return sellingPrice * quantity;
+    }
+
+    // 주문 기안서 유효성 체크
+    private void checkOrderApprovalIsValid(OrderApprover orderApprover, Order order) {
+        int memberCode = orderApprover.getOrderApprovalCode().getMemberCode();
+        int orderCode = orderApprover.getOrderApprovalCode().getOrderCode();
+        OrderApprovalStatus presentOrderApprovalStatus = order.getApprovalStatus();
+
+        if (order.getApprovalStatus() != OrderApprovalStatus.UNCONFIRMED ||
+                orderApprover.getApprovalStatus() != ApprovalStatus.UNCONFIRMED){
+            throw new ApprovalAlreadyCompleted("해당 주문 기안은 이미 처리되었습니다. 처리자 memberCode: " + memberCode + "해당 결재 승인 상태: " + presentOrderApprovalStatus);
+        } else if (!orderApprover.isActive()) {
+            throw new InvalidOrderApproval("유효하지 않은 기안입니다. " + "orderCode: " + orderCode + " memberCode: " + memberCode + "active: " + "false");
+        }
     }
 }
