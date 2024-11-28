@@ -3,7 +3,7 @@ package com.varc.brewnetapp.domain.order.command.application.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderRequestApproveDTO;
-import com.varc.brewnetapp.domain.order.command.application.dto.OrderRequestRejectDTO;
+import com.varc.brewnetapp.domain.order.command.application.dto.OrderApprovalRequestRejectDTO;
 import com.varc.brewnetapp.domain.order.command.application.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -44,13 +44,13 @@ public class HQSuperController {
     @PostMapping("/reject/{orderCode}")
     @Operation(summary = "책임 관리자가 상신된 주문 요청에 대한 거절")
     public ResponseEntity<ResponseMessage<Object>> rejectOrderRequest(
-            @PathVariable String orderCode,
+            @PathVariable Integer orderCode,
             @RequestAttribute String loginId,
-            @RequestBody OrderRequestRejectDTO orderRequestRejectDTO
+            @RequestBody OrderApprovalRequestRejectDTO orderApprovalRequestRejectDTO
     ) {
         int memberCode = memberservice.getMemberByLoginId(loginId).getMemberCode();
 
-        boolean rejected = orderService.rejectOrderDraft(orderCode, memberCode, orderRequestRejectDTO);
+        boolean rejected = orderService.rejectOrderDraft(orderCode, memberCode, orderApprovalRequestRejectDTO);
         return  ResponseEntity.ok(
                 new ResponseMessage<>(200, "successfully rejected order request", null)
         );
