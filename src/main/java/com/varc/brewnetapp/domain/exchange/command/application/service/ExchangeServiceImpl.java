@@ -427,7 +427,7 @@ public class ExchangeServiceImpl implements ExchangeService {
         saveExchangeStatusHistory(ExchangeStatus.PENDING, exchange);
 
         // 교환 별 결재자들(tbl_exchange_approver) 테이블 '승인여부(approved)' = APPROVED (기안자만 결재자로 등록됨)
-        saveExchangeApprover(member.getMemberCode(), exchange, Approval.APPROVED, String.valueOf(LocalDateTime.now()), exchange.getComment());
+//        saveExchangeApprover(member.getMemberCode(), exchange, Approval.APPROVED, String.valueOf(LocalDateTime.now()), exchange.getComment());
 
         // 3-2. 결재자들 등록
         for (Integer approverCode : exchangeApproveReqVO.getApproverCodeList()) {
@@ -453,7 +453,7 @@ public class ExchangeServiceImpl implements ExchangeService {
         saveExchangeStatusHistory(ExchangeStatus.REJECTED, exchange);
 
         // 교환 별 결재자들(tbl_exchange_approver) 테이블 '승인여부(approved)' = REJECTED (기안자만 결재자로 등록됨)
-        saveExchangeApprover(member.getMemberCode(), exchange, Approval.REJECTED, String.valueOf(LocalDateTime.now()), exchange.getComment());
+//        saveExchangeApprover(member.getMemberCode(), exchange, Approval.REJECTED, String.valueOf(LocalDateTime.now()), exchange.getComment());
     }
 
     private void saveExchangeApprover(Integer member, Exchange exchange, Approval approval, String createdAt, String comment) {

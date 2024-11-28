@@ -33,7 +33,7 @@ public class ExchangeController {
                                                                     @PathVariable("exchangeCode") int exchangeCode,
                                                                     @RequestBody ExchangeManagerApproveReqVO exchangeApproveReqVO) {
         exchangeService.managerExchange(loginId, exchangeCode, exchangeApproveReqVO);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재신청 성공", null));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재승인 성공", null));
     }
 
     @PostMapping("/other/complete/{exchangeStockHistoryCode}")
@@ -41,6 +41,6 @@ public class ExchangeController {
     public ResponseEntity<ResponseMessage<Integer>> completeExchange(@RequestAttribute("loginId") String loginId,
                                                                     @PathVariable("exchangeStockHistoryCode") int exchangeStockHistoryCode) {
         exchangeService.completeExchange(loginId, exchangeStockHistoryCode);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재신청 성공", null));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환처리내역 상세조회 성공", null));
     }
 }
