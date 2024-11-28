@@ -5,15 +5,6 @@
 <mapper namespace="com.varc.brewnetapp.domain.order.query.mapper.OrderMapper">
 
     <!-- resultMaps-->
-    <resultMap id="baseOrderList" type="com.varc.brewnetapp.domain.order.query.dto.HQOrderDTO">
-        <id property="orderCode" column="ORDER_CODE"/>
-        <result property="comment" column="COMMENT"/>
-        <result property="createdAt" column="CREATED_AT"/>
-        <result property="active" column="ACTIVE"/>
-        <result property="approvalStatus" column="APPROVAL_STATUS"/>
-        <result property="drafterApproved" column="DRAFTER_APPROVED"/>
-        <result property="sumPrice" column="SUM_PRICE"/>
-    </resultMap>
 
     <resultMap id="orderHistory" type="com.varc.brewnetapp.domain.order.query.dto.OrderStatusHistory">
         <id property="orderStatusHistoryCode" column="ORDER_CODE"/>
@@ -147,22 +138,6 @@
 
 
     <!-- Queries-->
-    <!-- test-->
-    <select id="findOrdersBy" resultMap="baseOrderList">
-        SELECT
-              O.ORDER_CODE
-            , O.COMMENT
-            , O.CREATED_AT
-            , O.ACTIVE
-            , O.APPROVAL_STATUS
-            , O.DRAFTER_APPROVED
-            , O.SUM_PRICE
-         FROM tbl_order O
-        ORDER BY CREATED_AT
-    </select>
-
-
-
     <!-- for HQ-->
     <select id="findOrdersForHQBy" resultMap="OrderDTOResultListForHQ">
         SELECT
@@ -293,81 +268,164 @@
     <!-- for Franchise-->
     <select id="findOrdersForFranchise" resultMap="OrderDTOResultListForFranchise">
         SELECT
-               o.ORDER_CODE as ORDER_CODE
-             , o.CREATED_AT as ORDER_CREATED_AT
-             , o.SUM_PRICE as ORDER_SUM_PRICE
+        o.ORDER_CODE as ORDER_CODE
+        , o.CREATED_AT as ORDER_CREATED_AT
+        , o.SUM_PRICE as ORDER_SUM_PRICE
 
-             , last_status.STATUS as ORDER_HISTORY_STATUS
-             , last_status.CREATED_AT as HISTORY_CREATED_AT
+        , last_status.STATUS as ORDER_HISTORY_STATUS
+        , last_status.CREATED_AT as HISTORY_CREATED_AT
 
-             , oi.ITEM_CODE as ORDER_ITEM_CODE
-             , oi.QUANTITY as ORDER_QUANTITY
-             , i.NAME as ORDER_ITEM_NAME
-          FROM (
-                SELECT
-                o.ORDER_CODE
-                FROM tbl_order o
-                WHERE o.FRANCHISE_CODE = #{franchiseCode}
-                AND o.ACTIVE = 1
-                <if test="filter == 'SHIPPED'">
-                    AND oh.STATUS = #{filter}
-                </if>
-                <if test="startDate != null and startDate != ''">
-                    AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
-                </if>
-                <if test="endDate != null and endDate != ''">
-                    AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
-                </if>
-                <choose>
-                    <when test="sort == 'createdAtDesc'">
-                        ORDER BY o.CREATED_AT DESC
-                    </when>
-                    <when test="sort == 'createdAtAsc'">
-                        ORDER BY o.CREATED_AT ASC
-                    </when>
-                    <when test="sort == 'sumPriceDesc'">
-                        ORDER BY o.SUM_PRICE DESC
-                    </when>
-                    <when test="sort == 'sumPriceAsc'">
-                        ORDER BY o.SUM_PRICE ASC
-                    </when>
-                    <otherwise>
+        , oi.ITEM_CODE as ORDER_ITEM_CODE
+        , oi.QUANTITY as ORDER_QUANTITY
+        , i.NAME as ORDER_ITEM_NAME
+        FROM (
+        SELECT
+        o.ORDER_CODE
+        FROM tbl_order o
+        WHERE o.FRANCHISE_CODE = #{franchiseCode}
+        AND o.ACTIVE = 1
+        <if test="filter == 'SHIPPED'">
+            AND oh.STATUS = #{filter}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <choose>
+            <when test="sort == 'createdAtDesc'">
+                ORDER BY o.CREATED_AT DESC
+            </when>
+            <when test="sort == 'createdAtAsc'">
+                ORDER BY o.CREATED_AT ASC
+            </when>
+            <when test="sort == 'sumPriceDesc'">
+                ORDER BY o.SUM_PRICE DESC
+            </when>
+            <when test="sort == 'sumPriceAsc'">
+                ORDER BY o.SUM_PRICE ASC
+            </when>
+            <otherwise>
 
-                        <!-- 기본 정렬 -->
-                        ORDER BY o.CREATED_AT DESC
-                    </otherwise>
-                </choose>
-                LIMIT #{size} OFFSET #{offset}
-                ) filtered_orders
-          LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
-          LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
-          LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
+                <!-- 기본 정렬 -->
+                ORDER BY o.CREATED_AT DESC
+            </otherwise>
+        </choose>
+        LIMIT #{size} OFFSET #{offset}
+        ) filtered_orders
+        LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
+        LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
+        LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
 
-          LEFT JOIN (SELECT
-                     h.ORDER_CODE,
-                     h.STATUS,
-                     h.CREATED_AT
-                     FROM tbl_order_status_history h
-                     WHERE (h.ORDER_CODE, h.CREATED_AT) IN (SELECT h1.ORDER_CODE, MAX(h1.CREATED_AT)
-                                                            FROM tbl_order_status_history h1
-                                                            GROUP BY h1.ORDER_CODE)
-                     ) last_status ON o.ORDER_CODE = last_status.ORDER_CODE
+        LEFT JOIN (SELECT
+        h.ORDER_CODE,
+        h.STATUS,
+        h.CREATED_AT
+        FROM tbl_order_status_history h
+        WHERE (h.ORDER_CODE, h.CREATED_AT) IN (SELECT h1.ORDER_CODE, MAX(h1.CREATED_AT)
+        FROM tbl_order_status_history h1
+        GROUP BY h1.ORDER_CODE)
+        ) last_status ON o.ORDER_CODE = last_status.ORDER_CODE
+    </select>
+
+    <select id="searchOrdersForFranchiseByOrderCode" resultMap="OrderDTOResultListForFranchise">
+        SELECT
+        o.ORDER_CODE as ORDER_CODE
+        , o.CREATED_AT as ORDER_CREATED_AT
+        , o.SUM_PRICE as ORDER_SUM_PRICE
+
+        , last_status.STATUS as ORDER_HISTORY_STATUS
+        , last_status.CREATED_AT as HISTORY_CREATED_AT
+
+        , oi.ITEM_CODE as ORDER_ITEM_CODE
+        , oi.QUANTITY as ORDER_QUANTITY
+        , i.NAME as ORDER_ITEM_NAME
+        FROM (
+        SELECT
+        o.ORDER_CODE
+        FROM tbl_order o
+        WHERE o.FRANCHISE_CODE = #{franchiseCode}
+        AND o.ACTIVE = 1
+        AND CAST(o.ORDER_CODE AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+
+        <if test="filter == 'SHIPPED'">
+            AND oh.STATUS = #{filter}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <choose>
+            <when test="sort == 'createdAtDesc'">
+                ORDER BY o.CREATED_AT DESC
+            </when>
+            <when test="sort == 'createdAtAsc'">
+                ORDER BY o.CREATED_AT ASC
+            </when>
+            <when test="sort == 'sumPriceDesc'">
+                ORDER BY o.SUM_PRICE DESC
+            </when>
+            <when test="sort == 'sumPriceAsc'">
+                ORDER BY o.SUM_PRICE ASC
+            </when>
+            <otherwise>
+
+                <!-- 기본 정렬 -->
+                ORDER BY o.CREATED_AT DESC
+            </otherwise>
+        </choose>
+        LIMIT #{size} OFFSET #{offset}
+        ) filtered_orders
+        LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
+        LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
+        LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
+
+        LEFT JOIN (SELECT
+        h.ORDER_CODE,
+        h.STATUS,
+        h.CREATED_AT
+        FROM tbl_order_status_history h
+        WHERE (h.ORDER_CODE, h.CREATED_AT) IN (SELECT h1.ORDER_CODE, MAX(h1.CREATED_AT)
+        FROM tbl_order_status_history h1
+        GROUP BY h1.ORDER_CODE)
+        ) last_status ON o.ORDER_CODE = last_status.ORDER_CODE
     </select>
 
     <select id="countOrdersForFranchise" resultType="int">
         SELECT
-               COUNT(*)
-          FROM tbl_order O
-         WHERE O.FRANCHISE_CODE = #{franchiseCode}
-           AND O.ACTIVE = 1
+        COUNT(*)
+        FROM tbl_order O
+        WHERE O.FRANCHISE_CODE = #{franchiseCode}
+        AND O.ACTIVE = 1
         <if test="startDate != null and startDate != ''">
-           AND O.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+            AND O.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
         </if>
         <if test="endDate != null and endDate != ''">
-           AND O.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+            AND O.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
         </if>
         <if test="filter == 'UNCONFIRMED'">
-           AND O.APPROVED = #{filter}
+            AND O.APPROVED = #{filter}
+        </if>
+    </select>
+
+
+    <select id="countSearchedOrdersForFranchise" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM tbl_order O
+        WHERE O.FRANCHISE_CODE = #{franchiseCode}
+        AND O.ACTIVE = 1
+        <if test="startDate != null and startDate != ''">
+            AND O.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND O.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <if test="filter == 'UNCONFIRMED'">
+            AND O.APPROVED = #{filter}
         </if>
     </select>
 
@@ -408,7 +466,6 @@
                                                   GROUP BY h1.ORDER_CODE
                                                  )
                   ) last_status ON o.ORDER_CODE = last_status.ORDER_CODE
-
     </select>
 
 

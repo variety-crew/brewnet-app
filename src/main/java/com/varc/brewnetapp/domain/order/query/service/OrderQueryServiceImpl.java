@@ -3,6 +3,7 @@ package com.varc.brewnetapp.domain.order.query.service;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.query.dto.*;
 import com.varc.brewnetapp.domain.order.query.mapper.OrderMapper;
+import com.varc.brewnetapp.exception.InvalidCriteriaException;
 import com.varc.brewnetapp.exception.NoAccessAuthoritiesException;
 import com.varc.brewnetapp.exception.OrderNotFound;
 import lombok.extern.slf4j.Slf4j;
@@ -28,17 +29,6 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         this.orderMapper = orderMapper;
         this.orderValidateService = orderValidateService;
         this.memberService = memberService;
-    }
-
-    @Override
-    @Transactional
-    public Page<HQOrderDTO> getOrderListForTest(Pageable pageable, String filter, String sort) {
-        int page = pageable.getPageNumber();
-        int size = pageable.getPageSize();
-        int offset = page * size;
-        List<HQOrderDTO> orders = orderMapper.findOrdersBy(filter, sort, size, offset);
-//        int total = orderMapper.countOrdersForHq(filter);
-        return new PageImpl<>(orders, pageable, 0);
     }
 
     // for HQ
@@ -129,9 +119,73 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 franchiseCode
         );
 
-        int total = orderMapper.countOrdersForFranchise(filter, franchiseCode, startDate, endDate);
+        int total = orderMapper.countOrdersForFranchise(
+                filter,
+                franchiseCode,
+                startDate,
+                endDate
+        );
 
         return new PageImpl<>(franchiseOrderDTO, pageable, total);
+    }
+
+    @Override
+    @Transactional
+    public Page<FranchiseOrderDTO> searchOrderListForFranchise(
+            Pageable pageable,
+            String filter,
+            String sort,
+            String startDate,
+            String endDate,
+            int franchiseCode,
+            OrderSearchDTO orderSearchDTO
+    ) {
+        int page = pageable.getPageNumber();
+        int size = pageable.getPageSize();
+        int offset = page * size;
+
+        SearchCriteria criteria = orderSearchDTO.getCriteria();
+        String keyword = orderSearchDTO.getSearchWord();
+
+        List<FranchiseOrderDTO> searchedOrderDTOList;
+
+        switch (criteria) {
+            case ORDER_CODE ->
+                    searchedOrderDTOList = orderMapper.searchOrdersForFranchiseByOrderCode(
+                            filter,
+                            sort,
+                            size,
+                            offset,
+                            startDate,
+                            endDate,
+                            franchiseCode,
+                            keyword
+                    );
+            case ITEM_NAME ->
+                    searchedOrderDTOList = orderMapper.searchOrdersForFranchiseByItemName(
+                            filter,
+                            sort,
+                            size,
+                            offset,
+                            startDate,
+                            endDate,
+                            franchiseCode,
+                            keyword
+                    );
+            default -> throw new InvalidCriteriaException(
+                    "Invalid Order Criteria \n" +
+                            "entered Criteria: " + criteria + ". \n" +
+                            "entered keyword: " + keyword + "."
+            );
+        }
+
+//        countSearchedOrdersForFranchise
+
+        return new PageImpl<>(
+                searchedOrderDTOList,
+                pageable,
+                0 //total
+        );
     }
 
     @Override
@@ -156,7 +210,6 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     public List<OrderApprovalHistoryDTO> getOrderApprovalHistories(Integer orderCode) {
         return orderMapper.findOrderApprovalHistoriesBy(orderCode);
     }
-
 
 
     // for common
