@@ -1,4 +1,4 @@
 package com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity;
 
-public class ReturnStockHistory {
+public class ReturningStockHistory {
 }

@@ -1,6 +1,5 @@
 package com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity;
 
-import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity.Exchange;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString
-public class ReturnImg {
+public class ReturningImg {
     @Id
     @Column(name = "return_img_code")
     @GeneratedValue(strategy = GenerationType.IDENTITY)

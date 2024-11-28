@@ -583,7 +583,7 @@
         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
         JOIN tbl_franchise_member D ON B.franchise_code= D.franchise_code
         JOIN tbl_member E ON D.member_code = E.member_code
-        WHERE A.order_code = #{ returningCode } AND E.id = #{ loginId }
+        WHERE A.return_code = #{ returningCode } AND E.id = #{ loginId }
         ) AS result;
     </select>
 

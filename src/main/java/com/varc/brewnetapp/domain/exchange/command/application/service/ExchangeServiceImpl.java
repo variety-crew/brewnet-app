@@ -56,7 +56,7 @@ public class ExchangeServiceImpl implements ExchangeService {
     @Override
     @Transactional
     public Integer franCreateExchange(String loginId, ExchangeReqVO exchangeReqVO, List<MultipartFile> exchangeImageList) {
-        /*
+        /*TODO.
          * 교환 신청 시 변하는 상태값
          * [1] 교환 결재 상태           - tbl_exchange : approvalStatus = UNCONFIRMED
          * [2] 기안자의 교환 승인 여부    - tbl_exchange : drafterApproved = NONE

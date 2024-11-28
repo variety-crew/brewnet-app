@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @Builder(toBuilder = true)
-public class ReturnStatusHistory {
+public class ReturningStatusHistory {
     @Id
     @Column(name = "return_status_history_code")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
