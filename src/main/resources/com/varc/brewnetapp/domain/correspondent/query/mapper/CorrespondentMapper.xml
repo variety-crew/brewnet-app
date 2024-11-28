@@ -142,7 +142,9 @@
     </select>
 
     <!-- 엑셀 파일로 출력될 거래처 목록 -->
-    <select id="printCorrespondentList" resultMap="correspondentResultMap">
+    <select id="printCorrespondentList"
+            parameterType="com.varc.brewnetapp.domain.correspondent.common.SearchCorrespondentCriteria"
+            resultMap="correspondentResultMap">
         SELECT
                C.CORRESPONDENT_CODE,
                C.NAME AS CORRESPONDENT_NAME,
@@ -154,6 +156,12 @@
           FROM tbl_correspondent C
         <where>
             C.ACTIVE = TRUE
+            <if test="correspondentCode != null">
+                AND C.CORRESPONDENT_CODE = #{correspondentCode}
+            </if>
+            <if test="correspondentName != null">
+                AND C.NAME LIKE CONCAT('%', #{correspondentName}, '%')
+            </if>
         </where>
          ORDER BY C.CORRESPONDENT_CODE ASC
     </select>

@@ -69,9 +69,12 @@ public class CorrespondentController {
 
     @GetMapping("/print")
     @Operation(summary = "거래처 목록을 엑셀 파일로 출력할 때 사용하는 API")
-    public ResponseEntity<ResponseMessage<List<CorrespondentDTO>>> printAllCorrespondents() {
+    public ResponseEntity<ResponseMessage<List<CorrespondentDTO>>> printAllCorrespondents(
+                                                    @RequestParam(required = false) Integer correspondentCode,
+                                                    @RequestParam(required = false) String correspondentName) {
 
-        List<CorrespondentDTO> correspondentList = correspondentService.printAllCorrespondents();
+        List<CorrespondentDTO> correspondentList = correspondentService
+                                                    .printAllCorrespondents(correspondentCode, correspondentName);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "거래처 목록 파일 출력 성공", correspondentList));
     }
