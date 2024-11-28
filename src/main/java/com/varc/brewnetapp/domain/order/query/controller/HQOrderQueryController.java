@@ -47,10 +47,25 @@ public class HQOrderQueryController {
 
     @GetMapping("/excel")
     @Operation(summary = "엑셀 데이터 추출을 위한 주문 리스트 조회")
-    public ResponseEntity<ResponseMessage<List<OrderResponseDTO>>> getOrderListExcel() {
+    public ResponseEntity<ResponseMessage<List<HQOrderDTO>>> getOrderListExcel(
+            @RequestAttribute("loginId") String loginId,
+            @RequestParam(name = "startDate", required = false) String startDate,
+            @RequestParam(name = "endDate", required = false) String endDate,
+            @RequestBody OrderSearchDTO orderSearchDTO
+    ) {
+        int franchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
+                .getFranchiseCode();
 
-        // TODO: 엑셀 다운로드를 위한 데이터 전달 API
-        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", null));
+        List<HQOrderDTO> resultOrderDataDTO = orderQueryService.getExcelDataForHQBy(
+                startDate,
+                endDate,
+                franchiseCode,
+                orderSearchDTO
+        );
+
+        return ResponseEntity.ok(
+                new ResponseMessage<>(200, "OK", resultOrderDataDTO)
+        );
     }
 
     @GetMapping("/search")

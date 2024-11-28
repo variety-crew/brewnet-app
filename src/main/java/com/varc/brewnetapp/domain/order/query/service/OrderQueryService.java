@@ -28,7 +28,12 @@ public interface OrderQueryService {
     );
     OrderRequestDTO printOrderRequest(int orderCode);
     OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode);
-    List<OrderApprovalHistoryDTO> getOrderApprovalHistories(Integer orderCode);
+    List<HQOrderDTO> getExcelDataForHQBy(
+            String startDate,
+            String endDate,
+            int franchiseCode,
+            OrderSearchDTO orderSearchDTO
+    );
 
 
     // requested by franchise
@@ -60,6 +65,7 @@ public interface OrderQueryService {
     );
 
     // common
-    List<OrderStatusHistory> getOrderHistoryByOrderCode(int orderCode);
     OrderStatusHistory getOrderStatusHistoryByOrderCode(int orderCode);
+    List<OrderStatusHistory> getOrderHistoryByOrderCode(int orderCode);
+    List<OrderApprovalHistoryDTO> getOrderApprovalHistories(Integer orderCode);
 }
