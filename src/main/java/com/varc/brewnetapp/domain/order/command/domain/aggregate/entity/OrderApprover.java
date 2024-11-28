@@ -24,6 +24,9 @@ public class OrderApprover {
     private ApprovalStatus approvalStatus;
 
     @Column(name = "created_at", nullable = true)
+    private LocalDateTime updatedAt;
+
+    @Column(name = "created_at", nullable = true)
     private LocalDateTime createdAt;
 
     @Column(name = "comment", nullable = true)
