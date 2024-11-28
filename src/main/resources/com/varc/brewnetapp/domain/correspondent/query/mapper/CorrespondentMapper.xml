@@ -141,4 +141,21 @@
          ORDER BY T.ITEM_UNIQUE_CODE ASC
     </select>
 
+    <!-- 엑셀 파일로 출력될 거래처 목록 -->
+    <select id="printCorrespondentList" resultMap="correspondentResultMap">
+        SELECT
+               C.CORRESPONDENT_CODE,
+               C.NAME AS CORRESPONDENT_NAME,
+               C.ADDRESS,
+               C.DETAIL_ADDRESS,
+               C.EMAIL,
+               C.CONTACT,
+               C.MANAGER_NAME
+          FROM tbl_correspondent C
+        <where>
+            C.ACTIVE = TRUE
+        </where>
+         ORDER BY C.CORRESPONDENT_CODE ASC
+    </select>
+
 </mapper>
