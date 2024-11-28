@@ -16,12 +16,30 @@
     <result property="subCategoryName" column="SUB_CATEGORY_NAME"/>
   </resultMap>
 
+  <resultMap id="superCategoryResultMap" type="com.varc.brewnetapp.domain.item.query.dto.SuperCategoryDTO">
+    <id property="superCategoryCode" column="SUPER_CATEGORY_CODE"/>
+    <result property="name" column="NAME"/>
+  </resultMap>
+
   <select id="selectSubCategory" resultMap="subCategoryResultMap" >
     SELECT
-           SUB_CATEGORY_CODE
-         , NAME
-      FROM tbl_sub_category
+           SC.SUB_CATEGORY_CODE
+         , SC.NAME
+      FROM tbl_sub_category SC
+     WHERE SC.ACTIVE = TRUE
      ORDER BY NAME DESC
+
+
+  </select>
+
+  <select id="selectSuperCategory" resultMap="superCategoryResultMap" >
+    SELECT
+    C.SUPER_CATEGORY_CODE
+    , C.NAME
+    FROM tbl_super_category C
+    WHERE C.ACTIVE = TRUE
+    ORDER BY NAME DESC
+
 
   </select>
 
@@ -33,7 +51,9 @@
          , C.NAME AS SUPER_CATEGORY_NAME
       FROM tbl_sub_category SC
      INNER JOIN tbl_super_category C ON SC.SUPER_CATEGORY_CODE = C.SUPER_CATEGORY_CODE
+     WHERE SC.ACTIVE = TRUE AND C.ACTIVE = TRUE
      ORDER BY C.NAME DESC, SC.NAME DESC
+
   </select>
 
 </mapper>

@@ -2,6 +2,7 @@ package com.varc.brewnetapp.domain.item.query.service;
 
 import com.varc.brewnetapp.domain.item.query.dto.CategoryDTO;
 import com.varc.brewnetapp.domain.item.query.dto.SubCategoryDTO;
+import com.varc.brewnetapp.domain.item.query.dto.SuperCategoryDTO;
 import com.varc.brewnetapp.domain.item.query.mapper.CategoryMapper;
 import com.varc.brewnetapp.exception.EmptyDataException;
 import java.util.List;
@@ -35,5 +36,13 @@ public class CategoryService {
         if(CategoryList == null || CategoryList.isEmpty())
             throw new EmptyDataException("카테고리가 없습니다");
         return CategoryList;
+    }
+
+    public List<SuperCategoryDTO> findSuperCategory() {
+        List<SuperCategoryDTO> superCategoryList = categoryMapper.selectSuperCategory();
+
+        if(superCategoryList == null || superCategoryList.isEmpty())
+            throw new EmptyDataException("상위 카테고리가 없습니다");
+        return superCategoryList;
     }
 }

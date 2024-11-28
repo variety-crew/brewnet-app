@@ -3,6 +3,7 @@ package com.varc.brewnetapp.domain.item.query.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.item.query.dto.CategoryDTO;
 import com.varc.brewnetapp.domain.item.query.dto.SubCategoryDTO;
+import com.varc.brewnetapp.domain.item.query.dto.SuperCategoryDTO;
 import com.varc.brewnetapp.domain.item.query.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
@@ -35,5 +36,12 @@ public class CategoryController {
     public ResponseEntity<ResponseMessage<List<CategoryDTO>>> findCategory() {
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "카테고리 조회 성공", categoryService.findCategory()));
+    }
+
+    @GetMapping("/super")
+    @Operation(summary = "상위 카테고리 목록 조회 API")
+    public ResponseEntity<ResponseMessage<List<SuperCategoryDTO>>> findSuperCategory() {
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "상위 카테고리 조회 성공", categoryService.findSuperCategory()));
     }
 }
