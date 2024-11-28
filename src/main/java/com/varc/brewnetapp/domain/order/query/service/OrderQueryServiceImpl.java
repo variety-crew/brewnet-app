@@ -99,23 +99,23 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                         keyword
                 );
             }
-//            case ORDERED_FRANCHISE_NAME -> {
-//                searchedOrderDTOList = orderMapper.searchOrdersForHQByOrderedFranchiseName(
-//                        filter,
-//                        sort,
-//                        size,
-//                        offset,
-//                        startDate,
-//                        endDate,
-//                        keyword
-//                );
-//                total = orderCounterMapper.countSearchedOrdersForHQByOrderedFranchiseName(
-//                        filter,
-//                        startDate,
-//                        endDate,
-//                        keyword
-//                );
-//            }
+            case ORDERED_FRANCHISE_NAME -> {
+                searchedOrderDTOList = orderMapper.searchOrdersForHQByOrderedFranchiseName(
+                        filter,
+                        sort,
+                        size,
+                        offset,
+                        startDate,
+                        endDate,
+                        keyword
+                );
+                total = orderCounterMapper.countSearchedOrdersForHQByOrderedFranchiseName(
+                        filter,
+                        startDate,
+                        endDate,
+                        keyword
+                );
+            }
 //            case ORDER_MANAGER -> {
 //                searchedOrderDTOList = orderMapper.searchOrdersForHQByOrderManager(
 //                        filter,
