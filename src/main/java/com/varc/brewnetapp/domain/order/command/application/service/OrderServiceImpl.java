@@ -27,6 +27,8 @@ import com.varc.brewnetapp.domain.storage.command.application.service.StorageSer
 import com.varc.brewnetapp.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -250,6 +252,49 @@ public class OrderServiceImpl implements OrderService {
         );
 
         updateOrderedItemListStatusTo(orderItemList, Available.UNAVAILABLE);
+
+        return true;
+    }
+
+    // 일반 관리자의 주문요청 상신 취소
+    @Transactional
+    @Override
+    public boolean cancelOrderApproval(int orderCode, int memberCode) {
+        Optional<OrderApprover> optionalOrderApprover = orderApprovalRepository.findById(
+                OrderApprovalCode.builder()
+                        .orderCode(orderCode)
+                        .memberCode(memberCode)
+                        .build()
+        );
+
+        // TODO: 주문요청 상신 취소
+        //  - 취소할 결재건이 있는지 확인 (validate)
+        //    - tbl_order_approver의 order_code 확인
+        //    - tbl_order_approver의 approved가 UNCONFIRMED인지 확인
+        //    - tbl_order_approver의 active가 true인지 확인
+        //    - tbl_order의 member_code가 notnull인지 확인
+        //    - tbl_order의 member_code가 상신 취소 요청자의 member_code와 같은지 확인
+        //    - tbl_order의 approval_status가 UNCONFIRMED인지 확인
+        //    - tbl_order_status_history의 최신 status가 PENDING인지 확인
+        //  - 결재 취소로 인한 상태값 변경
+        //    - tbl_order_approver의 order_code, member_code로 찾아 데이터 삭제(hard delete)
+        //    - tbl_order의 approval_status UNCONFIRMED -> CANCELED로 변경
+        //    - tbl_order의 drafter_approved NONE으로 변경
+        //    - tbl_order_status_history에 REQUESTED 추가
+
+        if (optionalOrderApprover.isEmpty()) {
+            throw new OrderApprovalNotFound("취소할 결재가 존재하지 않습니다.");
+        }
+
+        Order order = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
+
+        if(order.getMemberCode() != memberCode) {
+            throw new AccessDeniedException("결재 취소 권한이 없습니다.");
+        }
+
+        if(!order.getApprovalStatus().equals(OrderApprovalStatus.UNCONFIRMED)) {
+            throw new ApprovalAlreadyCompleted("이미 처리된 주문 기안입니다.");
+        }
 
         return true;
     }
