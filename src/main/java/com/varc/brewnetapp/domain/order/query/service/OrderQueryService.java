@@ -50,7 +50,6 @@ public interface OrderQueryService {
             OrderSearchDTO orderSearchDTO
     );
 
-
     // common
     List<OrderStatusHistory> getOrderHistoryByOrderCode(int orderCode);
     OrderStatusHistory getOrderStatusHistoryByOrderCode(int orderCode);

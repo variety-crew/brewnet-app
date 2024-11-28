@@ -60,11 +60,26 @@ public interface OrderMapper {
             @Param("franchiseCode") int franchiseCode,
             @Param("keyword") String keyword
     );
+    int countSearchedOrdersForFranchiseByOrderCode(
+            @Param("filter") String filter,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("franchiseCode") int franchiseCode,
+            @Param("keyword") String keyword
+    );
+
     List<FranchiseOrderDTO> searchOrdersForFranchiseByItemName(
             @Param("filter") String filter,
             @Param("sort") String sort,
             @Param("size") int size,
             @Param("offset") int offset,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("franchiseCode") int franchiseCode,
+            @Param("keyword") String keyword
+    );
+    int countSearchedOrdersForFranchiseByItemName(
+            @Param("filter") String filter,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate,
             @Param("franchiseCode") int franchiseCode,

@@ -7,6 +7,7 @@ import com.varc.brewnetapp.exception.InvalidCriteriaException;
 import com.varc.brewnetapp.exception.NoAccessAuthoritiesException;
 import com.varc.brewnetapp.exception.OrderNotFound;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -148,30 +149,47 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         String keyword = orderSearchDTO.getSearchWord();
 
         List<FranchiseOrderDTO> searchedOrderDTOList;
+        int total = 0;
 
         switch (criteria) {
-            case ORDER_CODE ->
-                    searchedOrderDTOList = orderMapper.searchOrdersForFranchiseByOrderCode(
-                            filter,
-                            sort,
-                            size,
-                            offset,
-                            startDate,
-                            endDate,
-                            franchiseCode,
-                            keyword
-                    );
-            case ITEM_NAME ->
-                    searchedOrderDTOList = orderMapper.searchOrdersForFranchiseByItemName(
-                            filter,
-                            sort,
-                            size,
-                            offset,
-                            startDate,
-                            endDate,
-                            franchiseCode,
-                            keyword
-                    );
+            case ORDER_CODE -> {
+                searchedOrderDTOList = orderMapper.searchOrdersForFranchiseByOrderCode(
+                        filter,
+                        sort,
+                        size,
+                        offset,
+                        startDate,
+                        endDate,
+                        franchiseCode,
+                        keyword
+                );
+                total = orderMapper.countSearchedOrdersForFranchiseByOrderCode(
+                        filter,
+                        startDate,
+                        endDate,
+                        franchiseCode,
+                        keyword
+                );
+            }
+            case ITEM_NAME -> {
+                searchedOrderDTOList = orderMapper.searchOrdersForFranchiseByItemName(
+                        filter,
+                        sort,
+                        size,
+                        offset,
+                        startDate,
+                        endDate,
+                        franchiseCode,
+                        keyword
+                );
+                total = orderMapper.countSearchedOrdersForFranchiseByItemName(
+                        filter,
+                        startDate,
+                        endDate,
+                        franchiseCode,
+                        keyword
+                );
+            }
             default -> throw new InvalidCriteriaException(
                     "Invalid Order Criteria \n" +
                             "entered Criteria: " + criteria + ". \n" +
@@ -179,12 +197,10 @@ public class OrderQueryServiceImpl implements OrderQueryService {
             );
         }
 
-//        countSearchedOrdersForFranchise
-
         return new PageImpl<>(
                 searchedOrderDTOList,
                 pageable,
-                0 //total
+                total
         );
     }
 
