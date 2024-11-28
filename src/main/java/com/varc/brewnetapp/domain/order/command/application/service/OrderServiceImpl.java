@@ -180,7 +180,7 @@ public class OrderServiceImpl implements OrderService {
         //  - 상신된 주문 결재 요청이 있는지 확인 (validate)              [DONE]
         //  - 요청 대상자(책임 관리자)가 결재 라인에 있는지 확인 (validate)
         //  - tbl_order 수정                                      [DONE]
-        //    - member_code(기안자) 할당된 바 있는지 확인 (validate)    [DONE]
+        //    - member_code(기안자) 할당된 바 있는지 확인 (validate)
         //    - member_code(기안자) 할당                            [DONE]
         //    - drafter_approved NONE -> APPROVE                 [DONE]
         //  - tbl_order_status_history 추가                       [DONE]
