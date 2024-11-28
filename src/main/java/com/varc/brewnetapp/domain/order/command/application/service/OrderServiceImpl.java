@@ -194,7 +194,7 @@ public class OrderServiceImpl implements OrderService {
         //  - 상신된 주문 결재 요청이 있는지 확인 (validate)              [DONE]
         //  - 요청 대상자(책임 관리자)가 결재 라인에 있는지 확인 (validate)
         //  - tbl_order 수정                                      [DONE]
-        //    - member_code(기안자) 할당된 바 있는지 확인 (validate)
+        //    - member_code(기안자) 할당된 바 있는지 확인 (validate)    [DONE]
         //    - member_code(기안자) 할당                            [DONE]
         //    - drafter_approved NONE -> APPROVE                 [DONE]
         //  - tbl_order_status_history 추가                       [DONE]
@@ -204,19 +204,11 @@ public class OrderServiceImpl implements OrderService {
         //  - tbl_order_item 수정                                 [DONE]
         //    - 해당 order_item의 available -> UNAVAILABLE         [DONE]
 
-        Optional<OrderApprover> optionalOrderApprover = orderApprovalRepository.findById(
-                OrderApprovalCode.builder()
-                        .orderCode(orderCode)
-                        .memberCode(targetManagerMemberCode)
-                        .build()
-        );
-
-        if (optionalOrderApprover.isPresent()) {
-            OrderApprover orderApprover = optionalOrderApprover.get();
+        if (order.getMemberCode() != null) {
             throw new OrderApprovalAlreadyExist(
                     "order approval already exist. " +
-                            "already requested by memberCode:" + orderApprover.getOrderApprovalCode().getMemberCode() +
-                            ", orderCode: " + orderApprover.getOrderApprovalCode().getOrderCode() + ", superManager: " + orderApprover.getOrderApprovalCode().getMemberCode()
+                            "already requested by memberCode:" + order.getMemberCode() +
+                            ", orderCode: " + order.getMemberCode()
             );
         }
 
@@ -250,9 +242,6 @@ public class OrderServiceImpl implements OrderService {
                         .active(true)
                         .build()
         );
-
-        updateOrderedItemListStatusTo(orderItemList, Available.UNAVAILABLE);
-
         return true;
     }
 
@@ -260,6 +249,8 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public boolean cancelOrderApproval(int orderCode, int memberCode) {
+        log.debug("orderCode: {}", orderCode);
+        log.debug("memberCode: {}", memberCode);
         OrderApprover orderApproval = orderApprovalRepository.findById(
                 OrderApprovalCode.builder()
                         .orderCode(orderCode)
@@ -287,7 +278,7 @@ public class OrderServiceImpl implements OrderService {
             throw new ApprovalAlreadyCompleted("이미 처리된 주문 기안입니다.");
         }
 
-        if (optionalOrderStatusHistory.getStatus().equals(OrderHistoryStatus.PENDING)) {
+        if (!optionalOrderStatusHistory.getStatus().equals(OrderHistoryStatus.PENDING)) {
             throw new UnableToCancelApproval("주문 결재가 대기중이지 않습니다.");
         }
 
