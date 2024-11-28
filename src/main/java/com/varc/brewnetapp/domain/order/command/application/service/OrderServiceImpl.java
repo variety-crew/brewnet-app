@@ -27,8 +27,6 @@ import com.varc.brewnetapp.domain.storage.command.application.service.StorageSer
 import com.varc.brewnetapp.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AuthorizationServiceException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +34,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 @Service(value = "commandOrderService")
@@ -488,6 +485,8 @@ public class OrderServiceImpl implements OrderService {
         recordOrderStatusHistory(orderCode, OrderHistoryStatus.REJECTED);
         updateOrderedItemListStatusTo(orderItemList, Available.UNAVAILABLE);
     }
+
+    // TODO: 필수 구매 품목 지정
 
     // 주문 별 아이템 조회
     @Transactional

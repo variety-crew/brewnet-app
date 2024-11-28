@@ -4,6 +4,7 @@ import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
 import com.varc.brewnetapp.domain.order.command.application.dto.OrderApproveRequestDTO;
+import com.varc.brewnetapp.domain.order.command.application.dto.MustBuyItemDTO;
 import com.varc.brewnetapp.domain.order.command.application.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +65,51 @@ public class HQOrderController {
 
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "order request successfully rejected", null)
+        );
+    }
+
+    @PostMapping("/must-by/item/{itemCode}")
+    @Operation(summary = "필수 구매 품목 지정")
+    public ResponseEntity<ResponseMessage<Object>> setOrderMustByItem(
+            @RequestAttribute("loginId") String loginId,
+            @PathVariable("itemCode") int itemCode,
+            @RequestBody MustBuyItemDTO mustBuyItemDTO
+    ) {
+        int memberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
+
+        // TODO: 필수 구매 품목 지정
+        // itemService.setItemMustBy(memberCode, itemCode, mustBuyItemDTO);
+
+        // public void setItemMustBy(memberCode, itemCode, mustBuyItemDTO) {
+            // TODO: 유효한 아이템인지 확인
+            //  tbl_mandatory_purchase에 추가 시, satisfied => false
+        // }
+
+        return ResponseEntity.ok(
+                new ResponseMessage<>(200, "필수 구매 품목이 지정되었습니다.", null)
+        );
+    }
+
+    @DeleteMapping("/must-by/item/{itemCode}")
+    @Operation(summary = "필수 구매 품목 지정 해제")
+    public ResponseEntity<ResponseMessage<Object>> deleteOrderMustByItem(
+            @RequestAttribute("loginId") String loginId,
+            @PathVariable("itemCode") int itemCode,
+            @RequestBody MustBuyItemDTO deleteMustBuyItemDTO
+    ) {
+        int memberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
+
+        // TODO: 필수 구매 품목 해제
+        // itemService.deleteItemMustBy(memberCode, itemCode, mustBuyItemDTO);
+
+        // public void deleteItemMustBy(memberCode, itemCode, mustBuyItemDTO) {
+        // TODO: 유효한 아이템인지 확인
+        //  mandatory_purchase_code로 tbl_franchise_mandatory_purchase에 존재하는 모든 값 inactivate
+        // }
+
+
+        return ResponseEntity.ok(
+                new ResponseMessage<>(200, "필수 구매 품목이 지정되었습니다.", null)
         );
     }
 }
