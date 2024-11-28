@@ -23,11 +23,6 @@ public interface OrderMapper {
             @Param("startDate") String startDate,
             @Param("endDate") String endDate
     );
-    int countOrdersForHq(
-            @Param("filter") String filter,
-            @Param("startDate") String startDate,
-            @Param("endDate") String endDate
-    );
     OrderDetailForHQDTO findOrderDetailForHqBy(int orderCode);
 
 
@@ -40,12 +35,6 @@ public interface OrderMapper {
             @Param("startDate") String startDate,
             @Param("endDate") String endDate,
             @Param("franchiseCode") int franchiseCode
-    );
-    int countOrdersForFranchise(
-            @Param("filter") String filter,
-            @Param("franchiseCode") int franchiseCode,
-            @Param("startDate") String startDate,
-            @Param("endDate") String endDate
     );
     OrderDetailForFranchiseDTO findOrderDetailForFranchiseBy(int orderCode);
 
@@ -60,26 +49,12 @@ public interface OrderMapper {
             @Param("franchiseCode") int franchiseCode,
             @Param("keyword") String keyword
     );
-    int countSearchedOrdersForFranchiseByOrderCode(
-            @Param("filter") String filter,
-            @Param("startDate") String startDate,
-            @Param("endDate") String endDate,
-            @Param("franchiseCode") int franchiseCode,
-            @Param("keyword") String keyword
-    );
 
     List<FranchiseOrderDTO> searchOrdersForFranchiseByItemName(
             @Param("filter") String filter,
             @Param("sort") String sort,
             @Param("size") int size,
             @Param("offset") int offset,
-            @Param("startDate") String startDate,
-            @Param("endDate") String endDate,
-            @Param("franchiseCode") int franchiseCode,
-            @Param("keyword") String keyword
-    );
-    int countSearchedOrdersForFranchiseByItemName(
-            @Param("filter") String filter,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate,
             @Param("franchiseCode") int franchiseCode,

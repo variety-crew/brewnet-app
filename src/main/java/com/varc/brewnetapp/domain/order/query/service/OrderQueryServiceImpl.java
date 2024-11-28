@@ -2,12 +2,13 @@ package com.varc.brewnetapp.domain.order.query.service;
 
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.query.dto.*;
+import com.varc.brewnetapp.domain.order.query.mapper.OrderCounterMapper;
 import com.varc.brewnetapp.domain.order.query.mapper.OrderMapper;
 import com.varc.brewnetapp.exception.InvalidCriteriaException;
 import com.varc.brewnetapp.exception.NoAccessAuthoritiesException;
 import com.varc.brewnetapp.exception.OrderNotFound;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -19,14 +20,17 @@ import java.util.List;
 @Slf4j
 @Service
 public class OrderQueryServiceImpl implements OrderQueryService {
+    private final OrderCounterMapper orderCounterMapper;
     private final OrderMapper orderMapper;
     private final OrderValidateService orderValidateService;
     private final MemberService memberService;
 
-
-    public OrderQueryServiceImpl(OrderMapper orderMapper,
+    @Autowired
+    public OrderQueryServiceImpl(OrderCounterMapper orderCounterMapper,
+                                 OrderMapper orderMapper,
                                  OrderValidateService orderValidateService,
                                  MemberService memberService) {
+        this.orderCounterMapper = orderCounterMapper;
         this.orderMapper = orderMapper;
         this.orderValidateService = orderValidateService;
         this.memberService = memberService;
@@ -52,7 +56,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 hqOrderDTO -> log.debug("hqOrderDTO: {}", hqOrderDTO)
         );
 
-        int total = orderMapper.countOrdersForHq(filter, startDate, endDate);
+        int total = orderCounterMapper.countOrdersForHq(filter, startDate, endDate);
         return new PageImpl<>(hqOrderDTOList, pageable, total);
     }
 
@@ -120,7 +124,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 franchiseCode
         );
 
-        int total = orderMapper.countOrdersForFranchise(
+        int total = orderCounterMapper.countOrdersForFranchise(
                 filter,
                 franchiseCode,
                 startDate,
@@ -163,7 +167,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                         franchiseCode,
                         keyword
                 );
-                total = orderMapper.countSearchedOrdersForFranchiseByOrderCode(
+                total = orderCounterMapper.countSearchedOrdersForFranchiseByOrderCode(
                         filter,
                         startDate,
                         endDate,
@@ -182,7 +186,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                         franchiseCode,
                         keyword
                 );
-                total = orderMapper.countSearchedOrdersForFranchiseByItemName(
+                total = orderCounterMapper.countSearchedOrdersForFranchiseByItemName(
                         filter,
                         startDate,
                         endDate,
