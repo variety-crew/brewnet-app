@@ -52,6 +52,12 @@ public interface OrderQueryService {
             int franchiseCode,
             OrderSearchDTO orderSearchDTO
     );
+    List<FranchiseOrderDTO> getExcelDataForFranchiseBy(
+            String startDate,
+            String endDate,
+            int franchiseCode,
+            OrderSearchDTO orderSearchDTO
+    );
 
     // common
     List<OrderStatusHistory> getOrderHistoryByOrderCode(int orderCode);

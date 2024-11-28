@@ -16,6 +16,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("api/v1/franchise/orders")
@@ -82,6 +84,29 @@ public class FranchiseOrderQueryController {
         );
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", searchedOrderList));
+    }
+
+    @GetMapping("/excel")
+    public ResponseEntity<ResponseMessage<List<FranchiseOrderDTO>>> getOrderDetailList(
+            @RequestAttribute("loginId") String loginId,
+            @RequestParam(name = "startDate", required = false) String startDate,
+            @RequestParam(name = "endDate", required = false) String endDate,
+            @RequestBody OrderSearchDTO orderSearchDTO
+    ) {
+        int franchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
+                .getFranchiseCode();
+
+        List<FranchiseOrderDTO> resultOrderDataDTO = orderQueryService.getExcelDataForFranchiseBy(
+                startDate,
+                endDate,
+                franchiseCode,
+                orderSearchDTO
+        );
+
+        return ResponseEntity.ok(
+                new ResponseMessage<>(200, "OK", resultOrderDataDTO)
+        );
+
     }
 
     @GetMapping("/detail/{orderCode}")

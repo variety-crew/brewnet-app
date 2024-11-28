@@ -283,6 +283,29 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     }
 
     @Override
+    public List<FranchiseOrderDTO> getExcelDataForFranchiseBy(
+            String startDate,
+            String endDate,
+            int franchiseCode,
+            OrderSearchDTO orderSearchDTO
+    ) {
+        SearchCriteria criteria = orderSearchDTO.getCriteria();
+        String keyword = orderSearchDTO.getSearchWord();
+
+        switch (criteria) {
+            case ORDER_CODE -> {}
+            case ITEM_NAME -> {}
+            default -> throw new InvalidCriteriaException(
+                    "Invalid Order Criteria. " +
+                            "entered Criteria: " + criteria + ". " +
+                            " entered keyword: " + keyword + "."
+            );
+        }
+
+        return List.of();
+    }
+
+    @Override
     @Transactional
     public OrderDetailForFranchiseDTO getOrderDetailForFranchiseBy(int orderCode, String loginId) {
         int franchiseCode = getFranchiseCodeByLoginId(loginId);
