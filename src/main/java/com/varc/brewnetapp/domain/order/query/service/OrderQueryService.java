@@ -21,7 +21,10 @@ public interface OrderQueryService {
     Page<HQOrderDTO> searchOrderListForHQ(
             Pageable pageable,
             String filter,
-            String criteria
+            String sort,
+            String startDate,
+            String endDate,
+            OrderSearchDTO orderSearchDTO
     );
     OrderRequestDTO printOrderRequest(int orderCode);
     OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode);
