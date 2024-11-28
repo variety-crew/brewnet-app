@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.order.query.dto;
 
+import com.varc.brewnetapp.common.SearchCriteria;
 import lombok.*;
 
 @Getter

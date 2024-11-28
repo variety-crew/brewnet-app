@@ -237,6 +237,197 @@
         GROUP BY h1.ORDER_CODE)
         ) last_status ON o.ORDER_CODE = last_status.ORDER_CODE
     </select>
+    <select id="searchOrdersForHQByOrderCode" resultMap="OrderDTOResultListForHQ">
+        SELECT
+        o.ORDER_CODE as ORDER_CODE
+        , o.CREATED_AT as ORDER_CREATED_AT
+        , o.ACTIVE as ORDER_ACTIVE
+        , o.APPROVAL_STATUS as ORDER_APPROVAL_STATUS
+        , o.DRAFTER_APPROVED as ORDER_DRAFTER_APPROVED
+        , o.SUM_PRICE as ORDER_SUM_PRICE
+        , m.NAME as ORDER_MANAGER_NAME
+
+        , f.FRANCHISE_CODE as ORDER_FRANCHISE_CODE
+        , f.FRANCHISE_NAME as ORDER_FRANCHISE_NAME
+
+        , oi.ITEM_CODE as ORDER_ITEM_CODE
+        , oi.QUANTITY as ORDER_QUANTITY
+
+        , i.NAME as ORDER_ITEM_NAME
+        , sc.NAME as ORDER_SUB_CATEGORY_NAME
+
+        , oh.ORDER_STATUS_HISTORY_CODE as ORDER_STATUS_HISTORY_CODE
+        , oh.STATUS as ORDER_HISTORY_STATUS
+        , oh.CREATED_AT as HISTORY_CREATED_AT
+        FROM (SELECT
+        o.ORDER_CODE
+        FROM tbl_order o
+        WHERE o.ACTIVE = 1
+        AND CAST(o.ORDER_CODE AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+        <if test="filter == 'UNCONFIRMED'">
+            AND o.APPROVAL_STATUS = #{filter}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <choose>
+            <when test="sort == 'createdAtDesc'">
+                ORDER BY o.CREATED_AT DESC
+            </when>
+            <when test="sort == 'createdAtAsc'">
+                ORDER BY o.CREATED_AT ASC
+            </when>
+            <when test="sort == 'sumPriceDesc'">
+                ORDER BY o.SUM_PRICE DESC
+            </when>
+            <when test="sort == 'sumPriceAsc'">
+                ORDER BY o.SUM_PRICE ASC
+            </when>
+            <otherwise>
+                ORDER BY o.CREATED_AT DESC
+            </otherwise>
+        </choose>
+        LIMIT #{size} OFFSET #{offset}
+        ) filtered_orders
+        LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
+        LEFT JOIN tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
+        LEFT JOIN tbl_member m ON o.MEMBER_CODE = m.MEMBER_CODE
+        LEFT JOIN tbl_order_status_history oh ON o.ORDER_CODE = oh.ORDER_CODE
+        LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
+        LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
+        LEFT JOIN tbl_sub_category sc ON i.CATEGORY_CODE = sc.SUB_CATEGORY_CODE
+    </select>
+    <select id="searchOrdersForHQByOrderedFranchiseName" resultMap="OrderDTOResultListForHQ">
+        SELECT
+        o.ORDER_CODE as ORDER_CODE
+        , o.CREATED_AT as ORDER_CREATED_AT
+        , o.ACTIVE as ORDER_ACTIVE
+        , o.APPROVAL_STATUS as ORDER_APPROVAL_STATUS
+        , o.DRAFTER_APPROVED as ORDER_DRAFTER_APPROVED
+        , o.SUM_PRICE as ORDER_SUM_PRICE
+        , m.NAME as ORDER_MANAGER_NAME
+
+        , f.FRANCHISE_CODE as ORDER_FRANCHISE_CODE
+        , f.FRANCHISE_NAME as ORDER_FRANCHISE_NAME
+
+        , oi.ITEM_CODE as ORDER_ITEM_CODE
+        , oi.QUANTITY as ORDER_QUANTITY
+
+        , i.NAME as ORDER_ITEM_NAME
+        , sc.NAME as ORDER_SUB_CATEGORY_NAME
+
+        , oh.ORDER_STATUS_HISTORY_CODE as ORDER_STATUS_HISTORY_CODE
+        , oh.STATUS as ORDER_HISTORY_STATUS
+        , oh.CREATED_AT as HISTORY_CREATED_AT
+        FROM (SELECT
+        o.ORDER_CODE
+        FROM tbl_order o
+        LEFT JOIN tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
+        WHERE o.ACTIVE = 1
+        AND f.FRANCHISE_NAME LIKE CONCAT('%', #{keyword}, '%')
+        <if test="filter == 'UNCONFIRMED'">
+            AND o.APPROVAL_STATUS = #{filter}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <choose>
+            <when test="sort == 'createdAtDesc'">
+                ORDER BY o.CREATED_AT DESC
+            </when>
+            <when test="sort == 'createdAtAsc'">
+                ORDER BY o.CREATED_AT ASC
+            </when>
+            <when test="sort == 'sumPriceDesc'">
+                ORDER BY o.SUM_PRICE DESC
+            </when>
+            <when test="sort == 'sumPriceAsc'">
+                ORDER BY o.SUM_PRICE ASC
+            </when>
+            <otherwise>
+                ORDER BY o.CREATED_AT DESC
+            </otherwise>
+        </choose>
+        LIMIT #{size} OFFSET #{offset}
+        ) filtered_orders
+        LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
+        LEFT JOIN tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
+        LEFT JOIN tbl_member m ON o.MEMBER_CODE = m.MEMBER_CODE
+        LEFT JOIN tbl_order_status_history oh ON o.ORDER_CODE = oh.ORDER_CODE
+        LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
+        LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
+        LEFT JOIN tbl_sub_category sc ON i.CATEGORY_CODE = sc.SUB_CATEGORY_CODE
+    </select>
+    <select id="searchOrdersForHQByOrderManager" resultMap="OrderDTOResultListForHQ">
+        SELECT
+        o.ORDER_CODE as ORDER_CODE
+        , o.CREATED_AT as ORDER_CREATED_AT
+        , o.ACTIVE as ORDER_ACTIVE
+        , o.APPROVAL_STATUS as ORDER_APPROVAL_STATUS
+        , o.DRAFTER_APPROVED as ORDER_DRAFTER_APPROVED
+        , o.SUM_PRICE as ORDER_SUM_PRICE
+        , m.NAME as ORDER_MANAGER_NAME
+
+        , f.FRANCHISE_CODE as ORDER_FRANCHISE_CODE
+        , f.FRANCHISE_NAME as ORDER_FRANCHISE_NAME
+
+        , oi.ITEM_CODE as ORDER_ITEM_CODE
+        , oi.QUANTITY as ORDER_QUANTITY
+
+        , i.NAME as ORDER_ITEM_NAME
+        , sc.NAME as ORDER_SUB_CATEGORY_NAME
+
+        , oh.ORDER_STATUS_HISTORY_CODE as ORDER_STATUS_HISTORY_CODE
+        , oh.STATUS as ORDER_HISTORY_STATUS
+        , oh.CREATED_AT as HISTORY_CREATED_AT
+        FROM (SELECT
+        o.ORDER_CODE
+        FROM tbl_order o
+        LEFT JOIN tbl_member m ON o.MEMBER_CODE = m.MEMBER_CODE
+        WHERE o.ACTIVE = 1
+        AND m.NAME LIKE CONCAT('%', #{keyword}, '%')
+        <if test="filter == 'UNCONFIRMED'">
+            AND o.APPROVAL_STATUS = #{filter}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <choose>
+            <when test="sort == 'createdAtDesc'">
+                ORDER BY o.CREATED_AT DESC
+            </when>
+            <when test="sort == 'createdAtAsc'">
+                ORDER BY o.CREATED_AT ASC
+            </when>
+            <when test="sort == 'sumPriceDesc'">
+                ORDER BY o.SUM_PRICE DESC
+            </when>
+            <when test="sort == 'sumPriceAsc'">
+                ORDER BY o.SUM_PRICE ASC
+            </when>
+            <otherwise>
+                ORDER BY o.CREATED_AT DESC
+            </otherwise>
+        </choose>
+        LIMIT #{size} OFFSET #{offset}
+        ) filtered_orders
+        LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
+        LEFT JOIN tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
+        LEFT JOIN tbl_member m ON o.MEMBER_CODE = m.MEMBER_CODE
+        LEFT JOIN tbl_order_status_history oh ON o.ORDER_CODE = oh.ORDER_CODE
+        LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
+        LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
+        LEFT JOIN tbl_sub_category sc ON i.CATEGORY_CODE = sc.SUB_CATEGORY_CODE
+    </select>
 
     <!-- for Franchise-->
     <select id="findOrdersForFranchise" resultMap="OrderDTOResultListForFranchise">

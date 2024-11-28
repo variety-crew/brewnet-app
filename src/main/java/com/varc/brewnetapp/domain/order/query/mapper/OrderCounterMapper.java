@@ -12,6 +12,24 @@ public interface OrderCounterMapper {
             @Param("startDate") String startDate,
             @Param("endDate") String endDate
     );
+    int countSearchedOrdersForHQByOrderCode(
+            @Param("filter") String filter,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("keyword") String keyword
+    );
+    int countSearchedOrdersForHQByOrderedFranchiseName(
+            @Param("filter") String filter,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("keyword") String keyword
+    );
+    int countSearchedOrdersForHQByOrderManager(
+            @Param("filter") String filter,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("keyword") String keyword
+    );
 
     // for FRANCHISE
     int countOrdersForFranchise(
