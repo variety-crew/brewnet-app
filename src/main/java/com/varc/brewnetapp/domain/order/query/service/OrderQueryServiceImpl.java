@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
+import com.varc.brewnetapp.common.SearchCriteria;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.query.dto.*;
 import com.varc.brewnetapp.domain.order.query.mapper.OrderCounterMapper;
