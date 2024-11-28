@@ -33,7 +33,7 @@ public class ReturningController {
                                                                     @PathVariable("returningCode") int returningCode,
                                                                     @RequestBody ReturningManagerApproveReqVO returningApproveReqVO) {
         returningService.managerReturning(loginId, returningCode, returningApproveReqVO);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "반품 결재신청 성공", null));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "반품 결재승인 성공", null));
     }
 //
 //    @PostMapping("/other/complete/{returningStockHistoryCode}")
