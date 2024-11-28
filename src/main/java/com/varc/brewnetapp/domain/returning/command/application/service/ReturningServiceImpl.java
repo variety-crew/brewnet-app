@@ -10,20 +10,16 @@ import com.varc.brewnetapp.domain.exchange.command.application.repository.ExOrde
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrder;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrderItem;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrderItemCode;
-import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.ReturningImg;
-import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.ReturningItem;
-import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.ReturningStatusHistory;
-import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.Returning;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
+import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
+import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.*;
+import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.compositionkey.ReturningApproverCode;
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.compositionkey.ReturningItemCode;
+import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningDrafterApproveReqVO;
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningReqItemVO;
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningReqVO;
-import com.varc.brewnetapp.domain.returning.command.domain.repository.ReturningImgRepository;
-import com.varc.brewnetapp.domain.returning.command.domain.repository.ReturningItemRepository;
-import com.varc.brewnetapp.domain.returning.command.domain.repository.ReturningStatusHistoryRepository;
-import com.varc.brewnetapp.domain.returning.command.domain.repository.ReturningRepository;
-import com.varc.brewnetapp.exception.InvalidStatusException;
-import com.varc.brewnetapp.exception.ReturningNotFoundException;
-import com.varc.brewnetapp.exception.UnauthorizedAccessException;
+import com.varc.brewnetapp.domain.returning.command.domain.repository.*;
+import com.varc.brewnetapp.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,9 +39,11 @@ public class ReturningServiceImpl implements ReturningService{
     private final com.varc.brewnetapp.domain.returning.query.service.ReturningServiceImpl returningServiceQuery;
     private final ExOrderRepository exOrderRepository;  // 임시
     private final ExOrderItemRepository exOrderItemRepository; // 임시
+    private final MemberRepository memberRepository;
     private final ReturningItemRepository returningItemRepository;
     private final ReturningStatusHistoryRepository returningStatusHistoryRepository;
     private final ReturningImgRepository returningImgRepository;
+    private final ReturningApproverRepository returningApproverRepository;
     private final S3ImageService s3ImageService;
 
 
@@ -206,6 +204,120 @@ public class ReturningServiceImpl implements ReturningService{
         } else {
             throw new UnauthorizedAccessException("로그인한 가맹점에서 작성한 반품요청에 대해서만 취소할 수 있습니다");
         }
+    }
+
+
+    @Override
+    @Transactional
+    public void drafterReturning(String loginId, int returningCode, ReturningDrafterApproveReqVO returningApproveReqVO) {
+        /*TODO.
+         * 반품결재신청(최초기안자) 시 변하는 상태값
+         * [1] 기안자의 반품 승인 여부    - tbl_return : drafter_approved = REJECT / APPROVE
+         * [2] 반품 결재 상태            - tbl_return : approval_status =  UNCONFIRMED (변화 X)
+         * [3] 반품상태                 - tbl_return_status_history : status = REJECTED / PENDING (내역 추가됨)
+         * [4] 승인여부                 - tbl_return_approver : approved = REJECTED / APPROVED & UNCONFIRMED (결재자 등록됨)
+         * */
+
+        /*
+         * 반품 결재 신청(최초기안자)
+         * - 결재 신청이 가능한 조건:
+         *   1. 반품상태이력(tbl_return_status_history) 테이블 반품상태(status) != REQUESTED
+         *   2. 반품 결재 상태(approved) == UNCONFIRMED
+         *   3. 기안자의 반품 승인 여부(drafter_approved) == NONE
+         *   4. 반품 기안자(member_code) == null
+         * */
+
+        // 1. 반품 결재 신청이 가능한지 확인
+        Returning returning = returningRepository.findById(returningCode)
+                .orElseThrow(() -> new ReturningNotFoundException("반품 코드가 존재하지 않습니다."));
+
+        ReturningStatus status = returningServiceQuery.findReturningLatestStatus(returning.getReturningCode());
+        if (status != ReturningStatus.REQUESTED) {
+            throw new InvalidStatusException("결재신청이 불가능합니다. 반품 상태가 '반품요청'이 아닙니다.");
+        } else if (returning.getApprovalStatus() != Approval.UNCONFIRMED) {
+            throw new InvalidStatusException("결재신청이 불가능합니다. 반품 결재 상태가 '미확인'이 아닙니다.");
+        } else if (returning.getDrafterApproved() != DrafterApproved.NONE) {
+            throw new InvalidStatusException("결재신청이 불가능합니다. 이미 다른 관리자가 결재 등록했습니다.");
+        } else if (returning.getMemberCode() != null) {
+            throw new InvalidStatusException("결재신청이 불가능합니다. 이미 다른 관리자가 진행 중인 반품 내역입니다.");
+        }
+
+        // 2. 반품(tbl_return) 테이블 '기안자의 반품 승인 여부(drafter_approved)' 변경
+        Member member = memberRepository.findById(loginId)
+                .orElseThrow(() -> new MemberNotFoundException("해당 아이디의 회원이 존재하지 않습니다."));
+
+        if (returningApproveReqVO.getApproval() == DrafterApproved.REJECT) {
+            drafterRejectReturning(returningApproveReqVO, returning, member);
+        } else if (returningApproveReqVO.getApproval() == DrafterApproved.APPROVE) {
+            drafterApproveReturning(returningApproveReqVO, returning, member);
+        } else {
+            throw new InvalidStatusException("최초 기안자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
+        }
+    }
+
+    private void drafterApproveReturning(ReturningDrafterApproveReqVO returningApproveReqVO, Returning returning, Member member) {
+        // [1] 반품(tbl_return) 테이블 '기안자의 반품 승인 여부(drafter_approved)'가 APPROVE 라면
+        //      -> 반품(tbl_return) 테이블 '반품 결재 상태(approval_status)' = UNCONFIRMED (변화 X)
+        //      -> 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = PENDING (내역 추가됨)
+        //      -> 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = APPROVED(기안자) / UNCONFIRMED(그 외 결재자)
+
+        returning = returning.toBuilder()
+                .drafterApproved(DrafterApproved.APPROVE)               // [1] 기안자의 반품 승인 여부
+//                    .approvalStatus(Approval.UNCONFIRMED)                // [2] 반품 결재 상태 (변화 X)
+                .memberCode(member)                                     // 기안자 등록
+                .comment(returningApproveReqVO.getComment())            // 첨언 등록
+                .build();
+        returningRepository.save(returning);
+
+        // 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = PENDING (내역 추가됨)
+        saveReturningStatusHistory(ReturningStatus.PENDING, returning);
+
+        // 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = APPROVED (기안자만 결재자로 등록됨)
+        saveReturningApprover(member.getMemberCode(), returning, Approval.APPROVED, String.valueOf(LocalDateTime.now()), returning.getComment());
+
+        // 3-2. 결재자들 등록
+        for (Integer approverCode : returningApproveReqVO.getApproverCodeList()) {
+            saveReturningApprover(approverCode, returning, Approval.UNCONFIRMED, null, null);
+        }
+    }
+
+    private void drafterRejectReturning(ReturningDrafterApproveReqVO returningApproveReqVO, Returning returning, Member member) {
+        // [1] 반품(tbl_return) 테이블 '기안자의 반품 승인 여부(drafter_approved)'가 REJECT 라면
+        //      -> [2] 반품(tbl_return) 테이블 '반품 결재 상태(approval_status)' = REJECTED
+        //      -> [3] 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = REJECTED (내역 추가됨)
+        //      -> [4] 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = REJECTED (기안자만 결재자로 등록됨)
+
+        returning = returning.toBuilder()
+                .drafterApproved(DrafterApproved.REJECT)                // [1] 기안자의 반품 승인 여부
+                .approvalStatus(Approval.REJECTED)                      // [2] 반품 결재 상태
+                .memberCode(member)                                     // 기안자 등록
+                .comment(returningApproveReqVO.getComment())             // 첨언 등록
+                .build();
+        returningRepository.save(returning);
+
+        // 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = REJECTED (내역 추가됨)
+        saveReturningStatusHistory(ReturningStatus.REJECTED, returning);
+
+        // 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = REJECTED (기안자만 결재자로 등록됨)
+        saveReturningApprover(member.getMemberCode(), returning, Approval.REJECTED, String.valueOf(LocalDateTime.now()), returning.getComment());
+    }
+
+    private void saveReturningApprover(Integer member, Returning returning, Approval approval, String createdAt, String comment) {
+        // 복합키 설정
+        ReturningApproverCode drafterApproverCode = ReturningApproverCode.builder()
+                .memberCode(member)                         // 멤버 코드 설정
+                .returningCode(returning.getReturningCode())   // 반품 코드 설정
+                .build();
+
+        // 반품 별 결재자들 객체 생성
+        ReturningApprover approver = ReturningApprover.builder()
+                .returningApproverCode(drafterApproverCode)  // 복합키 설정
+                .approved(approval)                         // [4] 반품 별 결재자들 (기안자)
+                .createdAt(createdAt)
+                .comment(comment)
+                .active(true)
+                .build();
+        returningApproverRepository.save(approver);
     }
 
     private void saveReturningStatusHistory(ReturningStatus status, Returning returning) {
