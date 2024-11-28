@@ -16,6 +16,7 @@ import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.*;
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.compositionkey.ReturningApproverCode;
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.compositionkey.ReturningItemCode;
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningDrafterApproveReqVO;
+import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningManagerApproveReqVO;
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningReqItemVO;
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningReqVO;
 import com.varc.brewnetapp.domain.returning.command.domain.repository.*;
@@ -255,7 +256,90 @@ public class ReturningServiceImpl implements ReturningService{
         }
     }
 
-    private void drafterApproveReturning(ReturningDrafterApproveReqVO returningApproveReqVO, Returning returning, Member member) {
+    @Override
+    @Transactional
+    public void managerReturning(String loginId, int returningCode, ReturningManagerApproveReqVO returningApproveReqVO){
+        /*TODO.
+         * 반품결재(결재자) 시 변하는 상태값
+         * [1] 반품 결재 상태            - tbl_return : approval_status = APPROVED / REJECTED
+         * [2] 반품상태                 - tbl_return_status_history : status = APPROVED / REJECTED (내역 추가됨)
+         * [3] 승인여부                 - tbl_return_approver : approved = APPROVED / REJECTED
+         * [4] 결재일시                 - tbl_return_approver : created_at = 현재일시
+         * */
+
+        /*
+         * 반품결재(결재자)
+         * - 결재가 가능한 조건:
+         *   1. 반품 별 결재자들(tbl_return_approver) 테이블 회원코드(member_code) == 현재 회원 코드
+         *   2. 반품 별 결재자들(tbl_return_approver) 테이블 반품코드(return_code) == 반품 코드
+         *   3. 반품 상태 이력 (tbl_return_status_history) 테이블 반품상태(status) == PENDING
+         *   3. 반품 별 결재자들(tbl_return_approver) 테이블 승인여부(approved) == UNCONFIRMED
+         * */
+
+        // 1. 반품 결재가 가능한지 확인
+        Member member = memberRepository.findById(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("멤버 코드가 존재하지 않습니다"));
+        Returning returning = returningRepository.findById(returningCode)
+                .orElseThrow(() -> new ReturningNotFoundException("반품 코드가 존재하지 않습니다."));
+
+        ReturningApproverCode returningApproverCode = ReturningApproverCode.builder()
+                .returningCode(returningCode)
+                .memberCode(member.getMemberCode())
+                .build();
+        ReturningApprover returningApprover = returningApproverRepository.findById(returningApproverCode)
+                .orElseThrow(() -> new IllegalArgumentException("결재가 불가능합니다. 결재 요청이 존재하지 않습니다."));
+
+        ReturningStatus status = returningServiceQuery.findReturningLatestStatus(returningCode);
+        if (status != ReturningStatus.PENDING) {
+            throw new InvalidStatusException("결재가 불가능합니다. 반품 상태가 '진행중'이 아닙니다.");
+        } else if (returning.getApprovalStatus() != Approval.UNCONFIRMED) {
+            throw new InvalidStatusException("결재가 불가능합니다. 반품 결재 상태가 '미확인'이 아닙니다.");
+        }
+
+
+
+        if (returningApproveReqVO.getApproval() == Approval.APPROVED) {
+            // 2. 반품(tbl_return) 테이블 '반품 결재 상태(approval_status)' 변경
+            returning = returning.toBuilder()
+                    .approvalStatus(Approval.APPROVED)
+                    .build();
+            returningRepository.save(returning);
+
+            // 3. 반품 상태 이력(tbl_return_status_history) 테이블 내역 추가
+            saveReturningStatusHistory(ReturningStatus.APPROVED, returning);
+
+            // 4. 반품 별 결재자들(tbl_return_approver) 테이블 승인여부, 결재일시 변경
+            returningApprover = returningApprover.toBuilder()
+                    .approved(Approval.APPROVED)
+                    .createdAt(String.valueOf(LocalDateTime.now()))
+                    .build();
+            returningApproverRepository.save(returningApprover);
+
+
+        } else if (returningApproveReqVO.getApproval() == Approval.REJECTED) {
+            // 2. 반품(tbl_return) 테이블 '반품 결재 상태(approval_status)' 변경
+            returning = returning.toBuilder()
+                    .approvalStatus(Approval.REJECTED)
+                    .build();
+            returningRepository.save(returning);
+
+            // 3. 반품 상태 이력(tbl_return_status_history) 테이블 내역 추가
+            saveReturningStatusHistory(ReturningStatus.REJECTED, returning);
+
+            // 4. 반품 별 결재자들(tbl_return_approver) 테이블 승인여부, 결재일시 변경
+            returningApprover = returningApprover.toBuilder()
+                    .approved(Approval.REJECTED)
+                    .createdAt(String.valueOf(LocalDateTime.now()))
+                    .build();
+            returningApproverRepository.save(returningApprover);
+        } else {
+            throw new IllegalArgumentException("결재자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void drafterApproveReturning(ReturningDrafterApproveReqVO returningApproveReqVO, Returning returning, Member member) {
         // [1] 반품(tbl_return) 테이블 '기안자의 반품 승인 여부(drafter_approved)'가 APPROVE 라면
         //      -> 반품(tbl_return) 테이블 '반품 결재 상태(approval_status)' = UNCONFIRMED (변화 X)
         //      -> 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = PENDING (내역 추가됨)
@@ -281,7 +365,9 @@ public class ReturningServiceImpl implements ReturningService{
         }
     }
 
-    private void drafterRejectReturning(ReturningDrafterApproveReqVO returningApproveReqVO, Returning returning, Member member) {
+    @Override
+    @Transactional
+    public void drafterRejectReturning(ReturningDrafterApproveReqVO returningApproveReqVO, Returning returning, Member member) {
         // [1] 반품(tbl_return) 테이블 '기안자의 반품 승인 여부(drafter_approved)'가 REJECT 라면
         //      -> [2] 반품(tbl_return) 테이블 '반품 결재 상태(approval_status)' = REJECTED
         //      -> [3] 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = REJECTED (내역 추가됨)
@@ -302,7 +388,9 @@ public class ReturningServiceImpl implements ReturningService{
         saveReturningApprover(member.getMemberCode(), returning, Approval.REJECTED, String.valueOf(LocalDateTime.now()), returning.getComment());
     }
 
-    private void saveReturningApprover(Integer member, Returning returning, Approval approval, String createdAt, String comment) {
+    @Override
+    @Transactional
+    public void saveReturningApprover(Integer member, Returning returning, Approval approval, String createdAt, String comment) {
         // 복합키 설정
         ReturningApproverCode drafterApproverCode = ReturningApproverCode.builder()
                 .memberCode(member)                         // 멤버 코드 설정
@@ -320,7 +408,9 @@ public class ReturningServiceImpl implements ReturningService{
         returningApproverRepository.save(approver);
     }
 
-    private void saveReturningStatusHistory(ReturningStatus status, Returning returning) {
+    @Override
+    @Transactional
+    public void saveReturningStatusHistory(ReturningStatus status, Returning returning) {
         ReturningStatusHistory returnStatusHistory = ReturningStatusHistory.builder()
                 .status(status)   // [3] 반품 상태 이력
                 .createdAt(String.valueOf(LocalDateTime.now()))

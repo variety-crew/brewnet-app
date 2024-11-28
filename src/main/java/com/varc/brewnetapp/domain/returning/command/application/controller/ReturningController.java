@@ -1,10 +1,9 @@
 package com.varc.brewnetapp.domain.returning.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
-import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeDrafterApproveReqVO;
-import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeManagerApproveReqVO;
 import com.varc.brewnetapp.domain.returning.command.application.service.ReturningService;
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningDrafterApproveReqVO;
+import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningManagerApproveReqVO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,14 +27,14 @@ public class ReturningController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "반품 결재신청 성공", null));
     }
 
-//    @PostMapping("/{returningCode}/manager-approve")
-//    @Operation(summary = "[본사] 반품 결재승인(결재자) API")
-//    public ResponseEntity<ResponseMessage<Integer>> approveReturning(@RequestAttribute("loginId") String loginId,
-//                                                                    @PathVariable("returningCode") int returningCode,
-//                                                                    @RequestBody ReturningManagerApproveReqVO returningApproveReqVO) {
-//        returningService.managerReturning(loginId, returningCode, returningApproveReqVO);
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "반품 결재신청 성공", null));
-//    }
+    @PostMapping("/{returningCode}/manager-approve")
+    @Operation(summary = "[본사] 반품 결재승인(결재자) API")
+    public ResponseEntity<ResponseMessage<Integer>> approveReturning(@RequestAttribute("loginId") String loginId,
+                                                                    @PathVariable("returningCode") int returningCode,
+                                                                    @RequestBody ReturningManagerApproveReqVO returningApproveReqVO) {
+        returningService.managerReturning(loginId, returningCode, returningApproveReqVO);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "반품 결재신청 성공", null));
+    }
 //
 //    @PostMapping("/other/complete/{returningStockHistoryCode}")
 //    @Operation(summary = "[본사] 타부서 반품처리내역 상세조회 - 반품완료 API")
