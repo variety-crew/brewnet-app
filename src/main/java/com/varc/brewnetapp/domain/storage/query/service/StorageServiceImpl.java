@@ -89,4 +89,14 @@ public class StorageServiceImpl implements StorageService {
 
         return response;
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<StockDTO> printItemStocks(Integer storageCode, String itemName) {
+
+        SearchItemStockCriteria criteria = new SearchItemStockCriteria(storageCode, itemName);
+        List<StockDTO> stockList = storageMapper.printItemStockList(criteria);
+
+        return stockList;
+    }
 }
