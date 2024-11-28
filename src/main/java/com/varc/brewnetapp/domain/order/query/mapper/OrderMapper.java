@@ -44,6 +44,15 @@ public interface OrderMapper {
             @Param("endDate") String endDate,
             @Param("keyword") String keyword
     );
+    List<HQOrderDTO> searchOrdersForHQByOrderManager(
+            @Param("filter") String filter,
+            @Param("sort") String sort,
+            @Param("size") int size,
+            @Param("offset") int offset,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("keyword") String keyword
+    );
 
     // for FRANCHISE
     List<FranchiseOrderDTO> findOrdersForFranchise(

@@ -116,23 +116,23 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                         keyword
                 );
             }
-//            case ORDER_MANAGER -> {
-//                searchedOrderDTOList = orderMapper.searchOrdersForHQByOrderManager(
-//                        filter,
-//                        sort,
-//                        size,
-//                        offset,
-//                        startDate,
-//                        endDate,
-//                        keyword
-//                );
-//                total = orderCounterMapper.countSearchedOrdersForHQByOrderManager(
-//                        filter,
-//                        startDate,
-//                        endDate,
-//                        keyword
-//                );
-//            }
+            case ORDER_MANAGER -> {
+                searchedOrderDTOList = orderMapper.searchOrdersForHQByOrderManager(
+                        filter,
+                        sort,
+                        size,
+                        offset,
+                        startDate,
+                        endDate,
+                        keyword
+                );
+                total = orderCounterMapper.countSearchedOrdersForHQByOrderManager(
+                        filter,
+                        startDate,
+                        endDate,
+                        keyword
+                );
+            }
             default -> throw new InvalidCriteriaException(
                     "Invalid Order Criteria. " +
                             "entered Criteria: " + criteria + ". " +
