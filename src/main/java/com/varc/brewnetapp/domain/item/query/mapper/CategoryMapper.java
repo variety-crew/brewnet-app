@@ -14,4 +14,6 @@ public interface CategoryMapper {
     List<CategoryDTO> selectCategory();
 
     List<SuperCategoryDTO> selectSuperCategory();
+
+    List<CategoryDTO> selectSubCategoryWhereSuperCategoryCode(Integer superCategoryCode);
 }

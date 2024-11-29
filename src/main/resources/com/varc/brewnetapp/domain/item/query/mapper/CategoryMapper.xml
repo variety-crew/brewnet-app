@@ -56,4 +56,16 @@
 
   </select>
 
+  <select id="selectSubCategoryWhereSuperCategoryCode" resultMap="CategoryResultMap" parameterType="int">
+    SELECT
+    SC.SUB_CATEGORY_CODE
+    , SC.NAME AS SUB_CATEGORY_NAME
+    , C.SUPER_CATEGORY_CODE
+    , C.NAME AS SUPER_CATEGORY_NAME
+    FROM tbl_sub_category SC
+    INNER JOIN tbl_super_category C ON SC.SUPER_CATEGORY_CODE = C.SUPER_CATEGORY_CODE
+    WHERE SC.SUPER_CATEGORY_CODE = #{ superCategoryCode }
+
+  </select>
+
 </mapper>
