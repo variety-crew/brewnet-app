@@ -9,6 +9,7 @@ import com.varc.brewnetapp.exception.InvalidCriteriaException;
 import com.varc.brewnetapp.exception.NoAccessAuthoritiesException;
 import com.varc.brewnetapp.exception.OrderNotFound;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -166,14 +167,12 @@ public class OrderQueryServiceImpl implements OrderQueryService {
             String startDate,
             String endDate,
             int franchiseCode,
-            OrderSearchDTO orderSearchDTO
+            String inputCriteria,
+            String keyword
     ) {
-        SearchCriteria criteria = orderSearchDTO.getCriteria();
-        String keyword = orderSearchDTO.getSearchWord();
-
         List<HQOrderDTO> searchedOrderDTOList;
 
-        switch (criteria) {
+        switch (mapStringToSearchCriteria(inputCriteria, keyword)) {
             case ORDER_CODE -> searchedOrderDTOList = orderMapper.searchOrdersForHQByOrderCode(
                     null,
                     null,
@@ -201,11 +200,18 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                     endDate,
                     keyword
             );
-            default -> throw new InvalidCriteriaException(
-                    "Invalid Order Criteria. " +
-                            "entered Criteria: " + criteria + ". " +
-                            " entered keyword: " + keyword + "."
+            case ALL -> searchedOrderDTOList = orderMapper.findOrdersForHQBy(
+                    null,
+                    null,
+                    0,
+                    0,
+                    startDate,
+                    endDate
             );
+            default -> {
+                log.error("inputCriteria: {}", inputCriteria);
+                throw new RuntimeException("Invalid Order Criteria");
+            }
         }
 
         return searchedOrderDTOList;
