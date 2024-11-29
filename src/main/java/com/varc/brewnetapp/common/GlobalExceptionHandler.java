@@ -31,6 +31,7 @@ public class GlobalExceptionHandler {
             InvalidCriteriaException.class,
             ApprovalAlreadyCompleted.class,
             UnableToCancelApproval.class,
+            InvalidItemException.class,
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

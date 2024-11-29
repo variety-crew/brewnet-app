@@ -15,6 +15,7 @@ public class ItemOrderController {
     private final MemberService memberService;
     private final ItemService itemService;
 
+    @Autowired
     public ItemOrderController(
             MemberService memberService,
             ItemService itemService
@@ -23,15 +24,12 @@ public class ItemOrderController {
         this.itemService = itemService;
     }
 
-    @Autowired
-
-
     @PostMapping("/set/{itemCode}")
     @Operation(summary = "필수 구매 품목 지정")
-    public ResponseEntity<ResponseMessage<Object>> setOrderMustByItem(
-            @RequestAttribute(name = "loginId") String loginId,
+    public ResponseEntity<ResponseMessage<Void>> setOrderMustByItem(
             @PathVariable(name = "itemCode") Integer itemCode,
-            @RequestBody MustBuyItemDTO mustBuyItemDTO
+            @RequestAttribute(name = "loginId") String loginId,
+            @RequestBody(required = true) MustBuyItemDTO mustBuyItemDTO
     ) {
         int memberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
 
