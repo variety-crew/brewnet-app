@@ -11,7 +11,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class updateSubCategoryRequestDTO {
+public class UpdateSubCategoryRequestDTO {
 
     private int subCategoryCode;
     private String subCategoryName;

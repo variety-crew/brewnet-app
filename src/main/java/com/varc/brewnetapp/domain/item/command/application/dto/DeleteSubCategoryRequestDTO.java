@@ -11,7 +11,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class deleteSubCategoryRequestDTO {
+public class DeleteSubCategoryRequestDTO {
 
     private int subCategoryCode;
 }
