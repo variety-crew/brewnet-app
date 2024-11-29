@@ -100,10 +100,9 @@ public class CorrespondentServiceImpl implements CorrespondentService{
 
     @Transactional(readOnly = true)
     @Override
-    public CorrespondentDTO getCorrespondentDetail(Integer correspondentCode) {
+    public CorrespondentDTO getCorrespondentDetail(String correspondentCode) {
 
         CorrespondentDTO correspondent = correspondentMapper.selectOneCorrespondent(correspondentCode);
-        if (correspondent == null) throw new CorrespondentNotFoundException("삭제된 거래처입니다.");
 
         return correspondent;
     }

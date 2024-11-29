@@ -95,10 +95,10 @@ public class CorrespondentController {
                                     200, "거래처의 발주 가능 상품 목록 파일 출력 성공", itemList));
     }
 
-    @GetMapping("/detail")
+    @GetMapping("/{correspondentCode}")
     @Operation(summary = "거래처 코드로 거래처 상세 정보 불러오는 API")
     public ResponseEntity<ResponseMessage<CorrespondentDTO>> getCorrespondentDetail(
-                                                                @RequestParam Integer correspondentCode) {
+                                                                @PathVariable String correspondentCode) {
 
         CorrespondentDTO correspondentInfo = correspondentService.getCorrespondentDetail(correspondentCode);
 

@@ -204,7 +204,7 @@
     </select>
 
     <!-- 거래처 상세 정보 조회 -->
-    <select id="selectOneCorrespondent" parameterType="int" resultMap="correspondentResultMap">
+    <select id="selectOneCorrespondent" parameterType="string" resultMap="correspondentResultMap">
         SELECT
                C.CORRESPONDENT_CODE,
                C.NAME AS CORRESPONDENT_NAME,

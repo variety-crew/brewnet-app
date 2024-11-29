@@ -27,5 +27,5 @@ public interface CorrespondentService {
                                                              String itemUniqueCode,
                                                              String itemName);
 
-    CorrespondentDTO getCorrespondentDetail(Integer correspondentCode);
+    CorrespondentDTO getCorrespondentDetail(String correspondentCode);
 }
