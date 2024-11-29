@@ -1,11 +1,11 @@
 package com.varc.brewnetapp.domain.order.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.common.SearchCriteria;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.member.query.service.MemberServiceImpl;
 import com.varc.brewnetapp.domain.order.query.dto.FranchiseOrderDTO;
 import com.varc.brewnetapp.domain.order.query.dto.OrderDetailForFranchiseDTO;
-import com.varc.brewnetapp.domain.order.query.dto.OrderSearchDTO;
 import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +68,7 @@ public class FranchiseOrderQueryController {
             @RequestParam(name = "sort", required = false) String sort,
             @RequestParam(name = "startDate", required = false) String startDate,
             @RequestParam(name = "endDate", required = false) String endDate,
-            @RequestParam(name = "criteria", required = false) String criteria,
+            @RequestParam(name = "criteria", required = false) SearchCriteria criteria,
             @RequestParam(name = "searchWord", required = false) String searchWord
     ) {
         int franchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
@@ -93,7 +93,7 @@ public class FranchiseOrderQueryController {
             @RequestAttribute("loginId") String loginId,
             @RequestParam(name = "startDate", required = false) String startDate,
             @RequestParam(name = "endDate", required = false) String endDate,
-            @RequestParam(name = "criteria", required = false) String criteria,
+            @RequestParam(name = "criteria", required = false) SearchCriteria criteria,
             @RequestParam(name = "keyword", required = false) String keyword
     ) {
         int franchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
