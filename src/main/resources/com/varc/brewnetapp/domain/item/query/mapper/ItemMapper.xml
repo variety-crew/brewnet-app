@@ -17,6 +17,10 @@
     <result property="categoryName" column="CATEGORY_NAME"/>
   </resultMap>
 
+  <resultMap id="itemCategoryResultMap" type="com.varc.brewnetapp.domain.item.query.dto.ItemCategoryDTO">
+    <id property="itemCode" column="ITEM_CODE"/>
+  </resultMap>
+
   <select id="selectItemList" resultMap="itemResultMap" parameterType="map">
     SELECT
            I.ITEM_CODE,
@@ -176,6 +180,14 @@
          WHERE i.ACTIVE = TRUE
            AND i.ITEM_CODE = #{itemCode}
     </select>
+
+  <select id="selectItemListWhereCategoryCode" resultMap="itemCategoryResultMap" parameterType="int">
+    SELECT
+           ITEM_CODE
+      FROM tbl_item
+     WHERE CATEGORY_CODE = #{ subCategoryCode }
+  </select>
+
 
 
 </mapper>
