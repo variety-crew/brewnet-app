@@ -22,6 +22,16 @@
     <result property="orderPrice" column="order_price" />
   </resultMap>
 
+  <resultMap id="ItemStockResultMap" type="com.varc.brewnetapp.domain.statistics.query.dto.SafeStockStatisticsDTO">
+    <result property="itemName" column="item_name"/>
+    <result property="itemCode" column="item_code"/>
+    <result property="availableStock" column="available_stock"/>
+    <result property="safeStock" column="safe_stock"/>
+    <result property="availableMinusSafeStock" column="available_minus_safe_stock"/>
+    <result property="unApprovedOrderCount" column="unapproved_order_count"/>
+    <result property="minPurchaseCount" column="min_purchase_count"/>
+  </resultMap>
+
   <select id="selectOrderStatistics" resultMap="OrderStatisticsResultMap" parameterType="map">
     SELECT
            (SELECT
@@ -87,7 +97,30 @@
      ORDER BY date
   </select>
 
+  <select id="selectSafeStock" resultMap="ItemStockResultMap" parameterType="map">
+    SELECT
+           I.name AS item_name
+         , I.item_code
+         , S.available_stock
+         , I.safety_stock AS safe_stock
+         , (S.available_stock - I.safety_stock) AS available_minus_safe_stock
+      FROM tbl_stock S
+     INNER JOIN tbl_item I ON (I.item_code = S.item_code)
+     WHERE I.active = true AND S.active = true AND (S.available_stock - I.safety_stock) &lt; 0
+     ORDER BY available_minus_safe_stock
+     LIMIT #{ pageSize }
+    OFFSET #{ offset }
+  </select>
 
-
+  <select id="selectUnApprovedItemCount" resultType="int" parameterType="int">
+    SELECT
+    COALESCE(SUM(OI.quantity), 0) AS quantity
+    FROM tbl_order_item OI
+    INNER JOIN tbl_order O ON O.order_code = OI.order_code
+    WHERE O.active = true
+    AND (O.approval_status = 'UNCONFIRMED' OR O.approval_status = 'CANCELED')
+    AND OI.item_code = #{ itemCode }
+    GROUP BY OI.item_code;
+  </select>
 
 </mapper>

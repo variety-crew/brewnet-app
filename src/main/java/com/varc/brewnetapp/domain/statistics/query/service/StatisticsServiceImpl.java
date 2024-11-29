@@ -3,6 +3,7 @@ package com.varc.brewnetapp.domain.statistics.query.service;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderCountPriceDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderItemStatisticsDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderStatisticsDTO;
+import com.varc.brewnetapp.domain.statistics.query.dto.SafeStockStatisticsDTO;
 import com.varc.brewnetapp.domain.statistics.query.mapper.StatisticsMapper;
 import com.varc.brewnetapp.exception.EmptyDataException;
 import com.varc.brewnetapp.exception.InvalidDataException;
@@ -13,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,6 +77,40 @@ public class StatisticsServiceImpl implements StatisticsService {
             return orderCountPriceList;
         else
             throw new EmptyDataException("해당 년월에 해당하는 주문 건수와 가격 통계가 없습니다");
+
+    }
+
+    @Override
+    @Transactional
+    public List<SafeStockStatisticsDTO> findSafeStock(Pageable page) {
+
+        long pageSize = page.getPageSize();
+        long pageNumber = page.getPageNumber();
+        long offset = pageNumber * pageSize;
+        int minPurchaseCount = 0;
+        List<SafeStockStatisticsDTO> safeStockStatisticsList = statisticsMapper.selectSafeStock(offset, pageSize);
+
+        if(safeStockStatisticsList != null && safeStockStatisticsList.size() > 0){
+            for(SafeStockStatisticsDTO safeStockStatisticsDTO : safeStockStatisticsList){
+                Integer unApprovedItemCount = statisticsMapper.selectUnApprovedItemCount(safeStockStatisticsDTO.getItemCode());
+
+                safeStockStatisticsDTO.setUnApprovedOrderCount(unApprovedItemCount);
+
+                minPurchaseCount = safeStockStatisticsDTO.getAvailableStock()
+                    - safeStockStatisticsDTO.getSafeStock()
+                    - unApprovedItemCount;
+
+                if(minPurchaseCount < 0)
+                    safeStockStatisticsDTO.setMinPurchaseCount(minPurchaseCount);
+                else
+                    safeStockStatisticsDTO.setMinPurchaseCount(null);
+            }
+
+            return safeStockStatisticsList;
+        }
+
+        else
+            throw new EmptyDataException("안전 재고 위험 알림값이 없습니다");
 
     }
 
