@@ -56,4 +56,7 @@ public interface ReturningMapper {
     int selectRefundHistoryListCnt(String searchFilter, String searchWord, String startDate, String endDate);
 
     List<RefundHistoryVO> selectRefundHistoryList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
+
+    RefundHistoryDetailVO selectRefundHistoryDetailBy(int returningRefundHistoryCode);
+
 }

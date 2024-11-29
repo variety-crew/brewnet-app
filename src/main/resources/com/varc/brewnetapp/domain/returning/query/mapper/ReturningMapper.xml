@@ -141,6 +141,34 @@
         <result property="restockQuantity" column="restock_quantity"/>
     </resultMap>
 
+    <!-- 타부서 환불요청 상세조회 -->
+    <resultMap id="RefundHistoryDetailResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.RefundHistoryDetailVO">
+        <id property="returningRefundHistoryCode" column="return_refund_history_code"/>
+        <result property="returningCreatedAt" column="return_created_at"/>
+        <result property="franchiseName" column="franchise_name"/>
+        <result property="reason" column="reason"/>
+        <result property="returningManager" column="return_manager"/>
+        <result property="comment" column="comment"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="status" column="status"/>
+        <result property="manager" column="manager"/>
+
+        <!-- 타부서 환불처리완료내역 물품 리스트 매핑 -->
+        <collection property="refundHistoryItemList" ofType="com.varc.brewnetapp.domain.returning.query.aggregate.vo.RefundHistoryItemVO"
+                    select="selectRefundHistoryDetailItemBy" column="return_refund_history_code"/>
+    </resultMap>
+
+    <!-- 타부서 환불처리완료내역 물품 ResultMap -->
+    <resultMap id="refundHistoryDetailItemResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.RefundHistoryItemVO">
+        <result property="itemUniqueCode" column="item_unique_code"/>
+        <result property="itemName" column="item_name"/>
+        <result property="superCategory" column="super_category"/>
+        <result property="subCategory" column="sub_category"/>
+        <result property="quantity" column="quantity"/>
+        <result property="refundPrice" column="refund_price"/>
+        <result property="completed" column="completed"/>
+    </resultMap>
+
     <!-- ========== Query ========== -->
 
     <!-- ===== Query 1. 본사 반품내역 ===== -->
@@ -608,25 +636,44 @@
     </select>
 
     <!-- 타부서 환불처리완료내역 상세조회 쿼리 -->
-<!--    <select id="selectRefundHistoryDetailBy" resultMap="">-->
-<!--        SELECT-->
-<!--            A.return_refund_history_code-->
-<!--            , B.created_at AS return_created_at-->
-<!--            , D.franchise_name-->
-<!--            , B.reason-->
-<!--            , E.name AS return_manager-->
-<!--            , A.comment-->
-<!--            , A.created_at-->
-<!--            , A.status-->
-<!--            , A.manager-->
-<!--         FROM tbl_return_refund_history A-->
-<!--              JOIN tbl_return B ON A.return_code = B.return_code-->
-<!--              JOIN tbl_order C ON B.order_code = C.order_code-->
-<!--              JOIN tbl_franchise D ON C.franchise_code = D.franchise_code-->
-<!--              JOIN tbl_member E ON B.member_code = E.member_code-->
-<!--        WHERE A.return_refund_history_code = #{ returnRefundHistoryCode };-->
-<!--    </select>-->
+    <select id="selectRefundHistoryDetailBy" resultMap="RefundHistoryDetailResultMap">
+        SELECT
+            A.return_refund_history_code
+            , B.created_at AS return_created_at
+            , D.franchise_name
+            , B.reason
+            , E.name AS return_manager
+            , A.comment
+            , A.created_at
+            , A.status
+            , A.manager
+         FROM tbl_return_refund_history A
+              JOIN tbl_return B ON A.return_code = B.return_code
+              JOIN tbl_order C ON B.order_code = C.order_code
+              JOIN tbl_franchise D ON C.franchise_code = D.franchise_code
+              JOIN tbl_member E ON B.member_code = E.member_code
+        WHERE A.return_refund_history_code = #{ returnRefundHistoryCode };
+    </select>
 
+    <!-- 타부서 환불처리완료내역 물품 쿼리 -->
+    <select id="selectRefundHistoryDetailItemBy" resultMap="refundHistoryDetailItemResultMap">
+        SELECT
+        B.item_unique_code
+        , B.name AS item_name
+        , C.name AS sub_category
+        , D.name AS super_category
+        , H.quantity
+        , H.part_sum_price AS refund_price
+        , A.completed
+        FROM tbl_refund_item_status A
+        JOIN tbl_item B ON A.item_code = B.item_code
+        JOIN tbl_sub_category C ON B.category_code = C.sub_category_code
+        JOIN tbl_super_category D ON C.super_category_code = D.super_category_code
+        JOIN tbl_return_refund_history E ON A.return_refund_history_code = E.return_refund_history_code
+        JOIN tbl_return F ON E.return_code = F.return_code
+        JOIN tbl_order_item H ON H.order_code = F.order_code
+        WHERE A.item_code = H.item_code AND E.return_refund_history_code = #{ returnRefundHistoryCode };
+    </select>
 
 
 

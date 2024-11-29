@@ -113,6 +113,14 @@ public class ReturningController {
         Page<RefundHistoryVO> result = returningService.findRefundHistoryList(searchFilter, searchWord, startDate, endDate, page);
         return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 환불처리내역 목록조회/검색 성공", result));
     }
+
+    @GetMapping("/other/refund/{returningRefundHistoryCode}")
+    @Operation(summary = "[본사] 타부서 환불처리내역 상세조회 API")
+    public ResponseEntity<ResponseMessage<RefundHistoryDetailVO>> findRefundHistoryBy(@PathVariable("returningRefundHistoryCode") Integer returningRefundHistoryCode) {
+
+        RefundHistoryDetailVO result = returningService.findRefundHistoryDetailBy(returningRefundHistoryCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 환불처리내역 상세조회 성공", result));
+    }
 //
 //    @GetMapping("/approver/{exchangeCode}")
 //    @Operation(summary = "[본사] 교환요청 상세조회 - 결재진행상태 API")

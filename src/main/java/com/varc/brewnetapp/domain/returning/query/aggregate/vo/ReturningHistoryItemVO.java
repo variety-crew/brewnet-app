@@ -1,6 +1,6 @@
 package com.varc.brewnetapp.domain.returning.query.aggregate.vo;
 
-public class ReturningHistoryItemVO { // 진행중
+public class ReturningHistoryItemVO {
     private String itemUniqueCode;  // 상품 고유 코드
     private String itemName;        // 상품명
     private String superCategory;   // 상위 카테고리

@@ -205,8 +205,8 @@ public class ReturningServiceImpl implements ReturningService {
 
     @Override
     public ReturningHistoryDetailVO findReturningHistoryDetailBy(Integer returningStockHistoryCode) {
-        ReturningHistoryDetailVO ReturningHistoryDetail = returningMapper.selectReturningHistoryDetailBy(returningStockHistoryCode);
-        return ReturningHistoryDetail;
+        ReturningHistoryDetailVO returningHistoryDetail = returningMapper.selectReturningHistoryDetailBy(returningStockHistoryCode);
+        return returningHistoryDetail;
     }
 
     @Override
@@ -223,5 +223,11 @@ public class ReturningServiceImpl implements ReturningService {
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(returningHistoryList, page, count);
+    }
+
+    @Override
+    public RefundHistoryDetailVO findRefundHistoryDetailBy(Integer returningRefundHistoryCode) {
+        RefundHistoryDetailVO refundHistoryDetail = returningMapper.selectRefundHistoryDetailBy(returningRefundHistoryCode);
+        return refundHistoryDetail;
     }
 }
