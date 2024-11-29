@@ -246,25 +246,13 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public boolean cancelOrderApproval(int orderCode, int memberCode) {
-        log.debug("orderCode: {}", orderCode);
-        log.debug("memberCode: {}", memberCode);
-        OrderApprover orderApproval = orderApprovalRepository.findById(
-                OrderApprovalCode.builder()
-                        .orderCode(orderCode)
-                        .memberCode(memberCode)
-                        .build()
-        ).orElseThrow(() -> new OrderApprovalNotFound("OrderApproval not found"));
         Order order = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
+        List<OrderApprover> orderApproval = orderApprovalRepository.findByOrderApprovalCode_OrderCode(orderCode);
         OrderStatusHistory optionalOrderStatusHistory = orderStatusHistoryRepository.findFirstByOrderCodeOrderByCreatedAtDesc(order.getOrderCode())
                 .orElseThrow(() -> new OrderNotFound("Order not found"));
 
-
-        if (!orderApproval.getApprovalStatus().equals(ApprovalStatus.UNCONFIRMED)) {
-            throw new ApprovalAlreadyCompleted("Approval already completed");
-        }
-
-        if (!orderApproval.isActive()) {
-            throw new InvalidOrderApproval("유효하지 않은 주문 결재건입니다.");
+        if (orderApproval == null) {
+            throw new ApprovalNotFoundException("취소할 주문 결재가 존재하지 않습니다.");
         }
 
         if(order.getMemberCode() != memberCode) {
@@ -294,11 +282,11 @@ public class OrderServiceImpl implements OrderService {
         //    - tbl_order의 drafter_approved NONE으로 변경                                 [DONE]
         //    - tbl_order_status_history에 REQUESTED 추가                                 [DONE]
 
-        orderApprovalRepository.delete(orderApproval);
+        orderApprovalRepository.deleteAll(orderApproval);
         orderRepository.save(
                 Order.builder()
                         .orderCode(order.getOrderCode())
-                        .comment(orderApproval.getComment())
+                        .comment(order.getComment())
                         .createdAt(order.getCreatedAt())
                         .active(order.isActive())
                         .approvalStatus(OrderApprovalStatus.CANCELED)

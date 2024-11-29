@@ -24,8 +24,8 @@ public class LetterOfPurchaseDetailDTO {
     private IsApproved approverApproved;        // 결재자의 승인 여부
     private String approverComment;             // 결재자 첨언
     private int sumPrice;                       // 발주 상품들의 공급가 총액
-    private int vatPrice;                       // 발주 상품들의 부가세 총액(공급가 총액 * 10%)
-    private int totalPrice;                     // 발주 상품 총액(공급가 총액 + 부가세 총액)
+    private int vatPrice;                       // 발주 상품들의 부가세 총액(공급가 총액 * 0.1)
+    private int totalPrice;                     // 발주 상품 총액(공급가 총액 * 1.1)
     private int storageCode;                    // 창고 코드
     private String storageName;                 // 창고명
     private List<PurchaseItemDTO> items;        // 발주 상품 목록
