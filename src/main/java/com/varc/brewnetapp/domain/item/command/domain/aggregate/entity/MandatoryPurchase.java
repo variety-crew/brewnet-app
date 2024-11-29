@@ -1,4 +1,4 @@
-package com.varc.brewnetapp.domain.order.command.domain.aggregate.entity;
+package com.varc.brewnetapp.domain.item.command.domain.aggregate.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,7 +18,7 @@ public class MandatoryPurchase {
     private int mandatoryPurchaseCode;
 
     @Column(name = "min_quantity", nullable = false)
-    private String minQuantity;
+    private int minQuantity;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -32,6 +32,6 @@ public class MandatoryPurchase {
     @Column(name = "due_date", nullable = false)
     private LocalDateTime dueDate;
 
-    @Column(name = "satisfied", nullable = false)
-    private boolean satisfied;
+    @Column(name = "member_code", nullable = false)
+    private int memberCode;
 }

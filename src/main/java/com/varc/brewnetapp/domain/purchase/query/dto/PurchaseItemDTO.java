@@ -16,5 +16,5 @@ public class PurchaseItemDTO {
     private int purchasePrice;              // 상품 구매단가(공급가)
     private int quantity;                   // 발주 수량
     private int purchaseSum;                // 상품의 총 공급가(구매단가 * 수량)
-    private int purchaseVat;                // 상품의 총 부가세(구매단가 * 수량 * 10%)
+    private int purchaseVat;                // 상품의 총 부가세(구매단가 * 수량 * 0.1)
 }

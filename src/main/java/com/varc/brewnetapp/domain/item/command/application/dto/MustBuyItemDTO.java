@@ -1,4 +1,4 @@
-package com.varc.brewnetapp.domain.order.command.application.dto;
+package com.varc.brewnetapp.domain.item.command.application.dto;
 
 
 import lombok.*;
@@ -9,6 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class MustBuyItemDTO {
-    private int itemCode;
     private int quantity;
+    private String dueDate;
 }
