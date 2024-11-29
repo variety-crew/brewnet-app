@@ -345,21 +345,21 @@ public class ReturningServiceImpl implements ReturningService {
 
     @Override
     @Transactional
-    public void completeReturning(String loginId, int returningStockHistoryCode) {
+    public void completeStock(String loginId, int returningStockHistoryCode) {
         /*TODO.
-         * 반품만 완료인 경우 변하는 상태값
+         * 재고처리(반품)만 완료인 경우 변하는 상태값
          * [1] 내역 확인 여부              - tbl_return_stock_history : confirmed = CONFIRMED
          * */
 
         /*
-         * 반품 완료
-         * - 반품 완료가 가능한 조건:
+         * 재고처리 완료
+         * - 재고처리 완료가 가능한 조건:
          *   1. 반품 별 재고 처리 완료 내역(tbl_return_stock_history) 테이블 내역확인여부(confirmed) == UNCONFIRMED
          *
          * - 추가사항: 반품상태가 SHIPPED 아닐 때에도 완료처리 가능한 예외상황이 있을 수 있다고 판단해 교한상태로 완료가능 판단 X
          * */
 
-        // 1. 반품 완료가 가능한지 확인
+        // 1. 재고처리 완료가 가능한지 확인
         ReturningStockHistory returningStockHistory = returningStockHistoryRepository.findById(returningStockHistoryCode)
                 .orElseThrow(() -> new IllegalArgumentException("타부서의 반품 별 재고 처리 완료 내역이 존재하지 않습니다."));
         if (returningStockHistory.getConfirmed() != Confirmed.UNCONFIRMED) {
@@ -381,8 +381,51 @@ public class ReturningServiceImpl implements ReturningService {
         }
     }
 
+    @Override
+    @Transactional
+    public void completeRefund(String loginId, int returningRefundHistoryCode) {
+        /*TODO.
+         * 환불만 완료인 경우 변하는 상태값
+         * [1] 내역 확인 여부              - tbl_return_refund_history : confirmed = CONFIRMED
+         * */
+
+        /*
+         * 환불 완료
+         * - 환불 완료가 가능한 조건:
+         *   1. 반품 별 환불 완료 내역(tbl_return_refund_history) 테이블 내역확인여부(confirmed) == UNCONFIRMED
+         *
+         * - 추가사항: 반품상태가 SHIPPED 아닐 때에도 완료처리 가능한 예외상황이 있을 수 있다고 판단해 교한상태로 완료가능 판단 X
+         * */
+
+        // 1. 환불 완료가 가능한지 확인
+        ReturningRefundHistory returningRefundHistory = returningRefundHistoryRepository.findById(returningRefundHistoryCode)
+                .orElseThrow(() -> new IllegalArgumentException("타부서의 반품 별 환불 처리 완료 내역이 존재하지 않습니다."));
+        if (returningRefundHistory.getConfirmed() != Confirmed.UNCONFIRMED) {
+            throw new IllegalArgumentException("환불 완료가 불가합니다. 이미 환불 완료된 내역입니다.");
+        }
+
+        // 2. 반품 별 환불 완료 내역(tbl_returning_refund_history) 테이블 내역확인여부(confirmed) CONFIRMED 변경
+        returningRefundHistory = returningRefundHistory.toBuilder()
+                .confirmed(Confirmed.CONFIRMED)
+                .build();
+        returningRefundHistoryRepository.save(returningRefundHistory);
+
+        // 3. 재고 처리도 완료되었다면, 전체 반품 처리
+        // 3-1. 재고 처리도 완료되었는지 확인
+        if(checkStockComplete(returningRefundHistory.getReturning())) {
+
+            // 3-2. 전체 반품 처리
+
+        }
+    }
+
     private boolean checkRefundComplete(Returning returning) {
         if (returningRefundHistoryRepository.findByReturning(returning).getConfirmed() == Confirmed.CONFIRMED) return true;
+        else return false;
+    }
+
+    private boolean checkStockComplete(Returning returning) {
+        if (returningStockHistoryRepository.findByReturning(returning).getConfirmed() == Confirmed.CONFIRMED) return true;
         else return false;
     }
 

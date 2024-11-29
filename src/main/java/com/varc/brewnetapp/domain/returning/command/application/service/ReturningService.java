@@ -28,5 +28,7 @@ public interface ReturningService {
 
     void saveReturningStatusHistory(ReturningStatus status, Returning returning);
 
-    void completeReturning(String loginId, int returningStockHistoryCode);
+    void completeStock(String loginId, int returningStockHistoryCode);
+
+    void completeRefund(String loginId, int returningRefundHistoryCode);
 }

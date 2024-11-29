@@ -1,7 +1,7 @@
 package com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity;
 
 import com.varc.brewnetapp.common.domain.approve.Confirmed;
-import com.varc.brewnetapp.common.domain.returning.ReturningHistoryStatus;
+import com.varc.brewnetapp.common.domain.returning.ReturningRefundStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,7 +20,7 @@ public class ReturningRefundHistory {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private ReturningHistoryStatus status;      // 처리상태
+    private ReturningRefundStatus status;       // 처리상태
 
     @Column(name = "manager", nullable = false)
     private String manager;                     // 처리담당자

@@ -40,15 +40,15 @@ public class ReturningController {
     @Operation(summary = "[본사] 타부서 반품처리내역 상세조회 - 1. 반품완료 API")
     public ResponseEntity<ResponseMessage<Integer>> completeReturning(@RequestAttribute("loginId") String loginId,
                                                                      @PathVariable("returningStockHistoryCode") int returningStockHistoryCode) {
-        returningService.completeReturning(loginId, returningStockHistoryCode);
+        returningService.completeStock(loginId, returningStockHistoryCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "반품완료 성공", null));
     }
 
-//    @PostMapping("/other/refund-complete/{returningStockHistoryCode}")
-//    @Operation(summary = "[본사] 타부서 반품처리내역 상세조회 - 2. 환불완료 API")
-//    public ResponseEntity<ResponseMessage<Integer>> completeRefund(@RequestAttribute("loginId") String loginId,
-//                                                                     @PathVariable("returningStockHistoryCode") int returningStockHistoryCode) {
-//        returningService.completeRefund(loginId, returningStockHistoryCode);
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "환불완료 성공", null));
-//    }
+    @PostMapping("/other/refund-complete/{returningRefundHistoryCode}")
+    @Operation(summary = "[본사] 타부서 반품처리내역 상세조회 - 2. 환불완료 API")
+    public ResponseEntity<ResponseMessage<Integer>> completeRefund(@RequestAttribute("loginId") String loginId,
+                                                                     @PathVariable("returningRefundHistoryCode") int returningRefundHistoryCode) {
+        returningService.completeRefund(loginId, returningRefundHistoryCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "환불완료 성공", null));
+    }
 }
