@@ -1,5 +1,8 @@
 package com.varc.brewnetapp.domain.statistics.query.service;
 
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
+import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
+import com.varc.brewnetapp.domain.member.query.dto.ApprovalDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.MyWaitApprovalDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderCountPriceDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderItemStatisticsDTO;
@@ -9,6 +12,8 @@ import com.varc.brewnetapp.domain.statistics.query.dto.newOrderDTO;
 import com.varc.brewnetapp.domain.statistics.query.mapper.StatisticsMapper;
 import com.varc.brewnetapp.exception.EmptyDataException;
 import com.varc.brewnetapp.exception.InvalidDataException;
+import com.varc.brewnetapp.exception.MemberNotFoundException;
+import com.varc.brewnetapp.security.utility.JwtUtil;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -27,10 +32,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class StatisticsServiceImpl implements StatisticsService {
 
     private final StatisticsMapper statisticsMapper;
+    private final JwtUtil jwtUtil;
+    private final MemberRepository memberRepository;
 
     @Autowired
-    public StatisticsServiceImpl(StatisticsMapper statisticsMapper) {
+    public StatisticsServiceImpl(StatisticsMapper statisticsMapper, JwtUtil jwtUtil,
+        MemberRepository memberRepository) {
         this.statisticsMapper = statisticsMapper;
+        this.jwtUtil = jwtUtil;
+        this.memberRepository = memberRepository;
     }
 
     @Override
@@ -141,7 +151,23 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     @Transactional
     public Page<MyWaitApprovalDTO> findMyWaitApproval(Pageable page, String accessToken) {
-        return null;
+        long pageSize = page.getPageSize();
+        long pageNumber = page.getPageNumber();
+        long offset = pageNumber * pageSize;
+        int count = 0;
+
+        String loginId = jwtUtil.getLoginId(accessToken.replace("Bearer ", ""));
+        Member member = memberRepository.findById(loginId)
+            .orElseThrow(() -> new MemberNotFoundException("조회하려는 멤버 정보가 없습니다"));
+
+        List<MyWaitApprovalDTO> approvalList = statisticsMapper.selectApprovalList(pageSize, offset, member.getMemberCode());
+
+        if(approvalList != null && approvalList.size() > 0)
+            count = statisticsMapper.selectApprovalListCnt(member.getMemberCode());
+        else
+            throw new EmptyDataException("내 결재가 없습니다");
+
+        return new PageImpl<>(approvalList, page, count);
     }
 
     public double roundItemPercent(double itemPercent) {

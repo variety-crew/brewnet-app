@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.statistics.query.mapper;
 
+import com.varc.brewnetapp.domain.statistics.query.dto.MyWaitApprovalDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderCountPriceDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderItemStatisticsDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderStatisticsDTO;
@@ -28,4 +29,8 @@ public interface StatisticsMapper {
     List<newOrderDTO> selectNewOrder(long offset, long pageSize);
 
     int selectNewOrderCnt();
+
+    List<MyWaitApprovalDTO> selectApprovalList(long pageSize, long offset, Integer memberCode);
+
+    int selectApprovalListCnt(Integer memberCode);
 }
