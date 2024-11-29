@@ -77,7 +77,9 @@ public class HQOrderQueryController {
             @RequestParam(name = "sort", required = false) String sort,
             @RequestParam(name = "startDate", required = false) String startDate,
             @RequestParam(name = "endDate", required = false) String endDate,
-            @RequestBody OrderSearchDTO orderSearchDTO
+            @RequestParam(name = "criteria", required = false) String criteria,
+            @RequestParam(name = "searchWord", required = false) String searchWord
+
     ) {
         Page<HQOrderDTO> orderDTOList = orderQueryService.searchOrderListForHQ(
                 pageable,
@@ -85,7 +87,8 @@ public class HQOrderQueryController {
                 sort,
                 startDate,
                 endDate,
-                orderSearchDTO
+                criteria,
+                searchWord
         );
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDTOList));
     }

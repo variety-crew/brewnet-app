@@ -24,7 +24,8 @@ public interface OrderQueryService {
             String sort,
             String startDate,
             String endDate,
-            OrderSearchDTO orderSearchDTO
+            String criteria,
+            String keyword
     );
     OrderRequestDTO printOrderRequest(int orderCode);
     OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode);
@@ -55,7 +56,8 @@ public interface OrderQueryService {
             String startDate,
             String endDate,
             int franchiseCode,
-            OrderSearchDTO orderSearchDTO
+            String criteria,
+            String searchWord
     );
     List<FranchiseOrderDTO> getExcelDataForFranchiseBy(
             String startDate,

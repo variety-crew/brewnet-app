@@ -68,7 +68,8 @@ public class FranchiseOrderQueryController {
             @RequestParam(name = "sort", required = false) String sort,
             @RequestParam(name = "startDate", required = false) String startDate,
             @RequestParam(name = "endDate", required = false) String endDate,
-            @RequestBody OrderSearchDTO orderSearchDTO
+            @RequestParam(name = "criteria", required = false) String criteria,
+            @RequestParam(name = "searchWord", required = false) String searchWord
     ) {
         int franchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
                 .getFranchiseCode();
@@ -80,7 +81,8 @@ public class FranchiseOrderQueryController {
                 startDate,
                 endDate,
                 franchiseCode,
-                orderSearchDTO
+                criteria,
+                searchWord
         );
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", searchedOrderList));
