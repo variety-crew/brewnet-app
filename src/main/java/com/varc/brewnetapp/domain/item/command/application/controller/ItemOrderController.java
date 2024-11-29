@@ -3,7 +3,7 @@ package com.varc.brewnetapp.domain.item.command.application.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.item.command.application.dto.MustBuyItemDTO;
 import com.varc.brewnetapp.domain.item.command.application.service.ItemService;
-import com.varc.brewnetapp.domain.member.command.application.service.MemberService;
+import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +29,8 @@ public class ItemOrderController {
     @PostMapping("/set/{itemCode}")
     @Operation(summary = "필수 구매 품목 지정")
     public ResponseEntity<ResponseMessage<Object>> setOrderMustByItem(
-            @RequestAttribute("loginId") String loginId,
-            @PathVariable("itemCode") Integer itemCode,
+            @RequestAttribute(name = "loginId") String loginId,
+            @PathVariable(name = "itemCode") Integer itemCode,
             @RequestBody MustBuyItemDTO mustBuyItemDTO
     ) {
         int memberCode = memberService.getMemberByLoginId(loginId).getMemberCode();

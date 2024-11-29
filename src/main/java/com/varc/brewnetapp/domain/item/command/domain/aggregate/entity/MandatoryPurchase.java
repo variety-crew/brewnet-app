@@ -18,7 +18,7 @@ public class MandatoryPurchase {
     private int mandatoryPurchaseCode;
 
     @Column(name = "min_quantity", nullable = false)
-    private String minQuantity;
+    private int minQuantity;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

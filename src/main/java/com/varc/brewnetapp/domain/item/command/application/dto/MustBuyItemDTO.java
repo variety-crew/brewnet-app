@@ -10,5 +10,5 @@ import lombok.*;
 @ToString
 public class MustBuyItemDTO {
     private int quantity;
-    private int dueDate;
+    private String dueDate;
 }
