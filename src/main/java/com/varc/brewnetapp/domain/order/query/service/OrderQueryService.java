@@ -55,7 +55,8 @@ public interface OrderQueryService {
             String startDate,
             String endDate,
             int franchiseCode,
-            OrderSearchDTO orderSearchDTO
+            String criteria,
+            String searchWord
     );
     List<FranchiseOrderDTO> getExcelDataForFranchiseBy(
             String startDate,

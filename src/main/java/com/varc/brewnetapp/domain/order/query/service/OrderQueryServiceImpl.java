@@ -268,14 +268,29 @@ public class OrderQueryServiceImpl implements OrderQueryService {
             String startDate,
             String endDate,
             int franchiseCode,
-            OrderSearchDTO orderSearchDTO
+            String inputCriteria,
+            String keyword
     ) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
         int offset = page * size;
 
-        SearchCriteria criteria = orderSearchDTO.getCriteria();
-        String keyword = orderSearchDTO.getSearchWord();
+        SearchCriteria criteria;
+
+        if (inputCriteria == null || inputCriteria.isEmpty()) {
+            criteria = SearchCriteria.valueOf("ALL");
+        } else {
+            try {
+                criteria = SearchCriteria.valueOf(inputCriteria);
+            } catch (InvalidCriteriaException e) {
+                throw new InvalidCriteriaException(
+                        "Invalid Order Criteria. " +
+                                "entered Criteria: " + inputCriteria + ". " +
+                                " entered keyword: " + keyword + "."
+                );
+            }
+        }
+
 
         List<FranchiseOrderDTO> searchedOrderDTOList;
         int total = 0;
@@ -311,6 +326,9 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                         franchiseCode,
                         keyword
                 );
+                searchedOrderDTOList.forEach(
+                        franchiseOrderDTO -> log.debug("franchiseOrderDTO: {}", franchiseOrderDTO)
+                );
                 total = orderCounterMapper.countSearchedOrdersForFranchiseByItemName(
                         filter,
                         startDate,
@@ -319,11 +337,27 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                         keyword
                 );
             }
-            default -> throw new InvalidCriteriaException(
-                    "Invalid Order Criteria. " +
-                            "entered Criteria: " + criteria + ". " +
-                            " entered keyword: " + keyword + "."
-            );
+            case ALL -> {
+                searchedOrderDTOList = orderMapper.findOrdersForFranchise(
+                        filter,
+                        sort,
+                        size,
+                        offset,
+                        startDate,
+                        endDate,
+                        franchiseCode
+                );
+                total = orderCounterMapper.countOrdersForFranchise(
+                        filter,
+                        franchiseCode,
+                        startDate,
+                        endDate
+                );
+            }
+            default -> {
+                log.error("inputCriteria: {}", inputCriteria);
+                throw new RuntimeException("Invalid Order Criteria");
+            }
         }
 
         return new PageImpl<>(
