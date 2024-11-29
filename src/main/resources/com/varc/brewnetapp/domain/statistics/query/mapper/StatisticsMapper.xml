@@ -32,6 +32,15 @@
     <result property="minPurchaseCount" column="min_purchase_count"/>
   </resultMap>
 
+  <resultMap id="NewOrderResultMap" type="com.varc.brewnetapp.domain.statistics.query.dto.newOrderDTO">
+    <id property="orderCode" column="order_code" />
+    <result property="franchiseName" column="franchise_name" />
+    <result property="franchiseCode" column="franchise_code" />
+    <result property="itemName" column="item_name" />
+    <result property="totalPrice" column="total_price" />
+    <result property="createdAt" column="created_at" />
+  </resultMap>
+
   <select id="selectOrderStatistics" resultMap="OrderStatisticsResultMap" parameterType="map">
     SELECT
            (SELECT
@@ -112,6 +121,16 @@
     OFFSET #{ offset }
   </select>
 
+  <select id="selectSafeStockCnt" resultType="int" parameterType="map">
+    SELECT
+    COALESCE(COUNT(*), 0) AS count
+    FROM tbl_stock S
+    INNER JOIN tbl_item I ON (I.item_code = S.item_code)
+    WHERE I.active = true AND S.active = true AND (S.available_stock - I.safety_stock) &lt; 0
+    ORDER BY available_minus_safe_stock
+  </select>
+
+
   <select id="selectUnApprovedItemCount" resultType="int" parameterType="int">
     SELECT
     COALESCE(SUM(OI.quantity), 0) AS quantity
@@ -123,4 +142,37 @@
     GROUP BY OI.item_code;
   </select>
 
+
+  <select id="selectNewOrder" resultMap="NewOrderResultMap" parameterType="map">
+    SELECT
+           O.order_code
+         , F.franchise_name
+         , F.franchise_code
+         , CONCAT(I.name, ' 외 ', COUNT(OI.item_code) - 1, '개') AS item_name
+         , O.sum_price AS total_price
+         , DATE_FORMAT(O.created_at, '%Y-%m-%d') AS created_at
+      FROM tbl_order O
+     INNER JOIN tbl_order_item OI ON O.order_code = OI.order_code
+     INNER JOIN tbl_item I ON OI.item_code = I.item_code
+     INNER JOIN tbl_franchise F ON O.franchise_code = F.franchise_code
+     WHERE O.active = TRUE AND O.member_code IS NULL
+     GROUP BY O.order_code
+     ORDER BY O.created_at DESC
+     LIMIT #{ pageSize }
+    OFFSET #{ offset }
+  </select>
+
+  <select id="selectNewOrderCnt" resultType="int" parameterType="map">
+    SELECT
+           COUNT(*) AS group_count
+      FROM (
+            SELECT O.order_code
+              FROM tbl_order O
+             INNER JOIN tbl_order_item OI ON O.order_code = OI.order_code
+             INNER JOIN tbl_item I ON OI.item_code = I.item_code
+             INNER JOIN tbl_franchise F ON O.franchise_code = F.franchise_code
+             WHERE O.active = TRUE AND O.member_code IS NULL
+             GROUP BY O.order_code
+      ) grouped_data;
+  </select>
 </mapper>

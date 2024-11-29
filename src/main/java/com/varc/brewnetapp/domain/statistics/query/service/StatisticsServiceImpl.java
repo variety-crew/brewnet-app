@@ -1,9 +1,11 @@
 package com.varc.brewnetapp.domain.statistics.query.service;
 
+import com.varc.brewnetapp.domain.statistics.query.dto.MyWaitApprovalDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderCountPriceDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderItemStatisticsDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderStatisticsDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.SafeStockStatisticsDTO;
+import com.varc.brewnetapp.domain.statistics.query.dto.newOrderDTO;
 import com.varc.brewnetapp.domain.statistics.query.mapper.StatisticsMapper;
 import com.varc.brewnetapp.exception.EmptyDataException;
 import com.varc.brewnetapp.exception.InvalidDataException;
@@ -14,6 +16,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,12 +86,13 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     @Transactional
-    public List<SafeStockStatisticsDTO> findSafeStock(Pageable page) {
+    public Page<SafeStockStatisticsDTO> findSafeStock(Pageable page) {
 
         long pageSize = page.getPageSize();
         long pageNumber = page.getPageNumber();
         long offset = pageNumber * pageSize;
         int minPurchaseCount = 0;
+
         List<SafeStockStatisticsDTO> safeStockStatisticsList = statisticsMapper.selectSafeStock(offset, pageSize);
 
         if(safeStockStatisticsList != null && safeStockStatisticsList.size() > 0){
@@ -106,12 +111,37 @@ public class StatisticsServiceImpl implements StatisticsService {
                     safeStockStatisticsDTO.setMinPurchaseCount(null);
             }
 
-            return safeStockStatisticsList;
+            int count = statisticsMapper.selectSafeStockCnt();
+            return new PageImpl<>(safeStockStatisticsList, page, count);
         }
 
         else
             throw new EmptyDataException("안전 재고 위험 알림값이 없습니다");
 
+    }
+
+    @Override
+    @Transactional
+    public Page<newOrderDTO> findNewOrder(Pageable page) {
+        long pageSize = page.getPageSize();
+        long pageNumber = page.getPageNumber();
+        long offset = pageNumber * pageSize;
+        int count = 0;
+
+        List<newOrderDTO> newOrderList = statisticsMapper.selectNewOrder(offset, pageSize);
+
+        if(newOrderList != null && newOrderList.size() > 0)
+            count = statisticsMapper.selectNewOrderCnt();
+        else
+            throw new EmptyDataException("신규 주문이 없습니다");
+
+        return new PageImpl<>(newOrderList, page, count);
+    }
+
+    @Override
+    @Transactional
+    public Page<MyWaitApprovalDTO> findMyWaitApproval(Pageable page, String accessToken) {
+        return null;
     }
 
     public double roundItemPercent(double itemPercent) {

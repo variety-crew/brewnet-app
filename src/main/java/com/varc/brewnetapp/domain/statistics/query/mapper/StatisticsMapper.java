@@ -4,6 +4,7 @@ import com.varc.brewnetapp.domain.statistics.query.dto.OrderCountPriceDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderItemStatisticsDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderStatisticsDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.SafeStockStatisticsDTO;
+import com.varc.brewnetapp.domain.statistics.query.dto.newOrderDTO;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -21,4 +22,10 @@ public interface StatisticsMapper {
     List<SafeStockStatisticsDTO> selectSafeStock(long offset, long pageSize);
 
     int selectUnApprovedItemCount(int itemCode);
+
+    int selectSafeStockCnt();
+
+    List<newOrderDTO> selectNewOrder(long offset, long pageSize);
+
+    int selectNewOrderCnt();
 }
