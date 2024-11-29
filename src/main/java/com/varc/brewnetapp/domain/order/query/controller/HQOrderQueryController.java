@@ -2,6 +2,8 @@ package com.varc.brewnetapp.domain.order.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
 
+import com.varc.brewnetapp.common.SearchCriteria;
+import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.query.dto.*;
 import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,10 +22,15 @@ import java.util.List;
 @RequestMapping("api/v1/hq/orders")
 public class HQOrderQueryController {
     private final OrderQueryService orderQueryService;
+    private final MemberService queryMemberService;
 
     @Autowired
-    public HQOrderQueryController(OrderQueryService orderQueryService) {
+    public HQOrderQueryController(
+            OrderQueryService orderQueryService,
+            MemberService queryMemberService
+    ) {
         this.orderQueryService = orderQueryService;
+        this.queryMemberService = queryMemberService;
     }
 
     @GetMapping("/list")
@@ -51,20 +58,22 @@ public class HQOrderQueryController {
             @RequestAttribute("loginId") String loginId,
             @RequestParam(name = "startDate", required = false) String startDate,
             @RequestParam(name = "endDate", required = false) String endDate,
-            @RequestBody OrderSearchDTO orderSearchDTO
+            @RequestParam(name = "criteria", required = false) SearchCriteria criteria,
+            @RequestParam(name = "searchWord", required = false) String searchWord
     ) {
-//        int franchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
-//                .getFranchiseCode();
-//
-//        List<HQOrderDTO> resultOrderDataDTO = orderQueryService.getExcelDataForHQBy(
-//                startDate,
-//                endDate,
-//                franchiseCode,
-//                orderSearchDTO
-//        );
+        int franchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
+                .getFranchiseCode();
+
+        List<HQOrderDTO> resultOrderDataDTO = orderQueryService.getExcelDataForHQBy(
+                startDate,
+                endDate,
+                franchiseCode,
+                criteria,
+                searchWord
+        );
 
         return ResponseEntity.ok(
-                new ResponseMessage<>(200, "OK", null)
+                new ResponseMessage<>(200, "OK", resultOrderDataDTO)
         );
     }
 
@@ -72,12 +81,11 @@ public class HQOrderQueryController {
     @Operation(summary = "주문 일자(기간) 별로 검색 타입(주문번호, 주문지점, 주문담당자)에 따른 검색")
     public ResponseEntity<ResponseMessage<Page<HQOrderDTO>>> getOrderListByHqSearch(
             @PageableDefault(size = 10, page = 0) Pageable pageable,
-            @RequestAttribute("loginId") String loginId,
             @RequestParam(name = "filter", required = false) String filter,
             @RequestParam(name = "sort", required = false) String sort,
             @RequestParam(name = "startDate", required = false) String startDate,
             @RequestParam(name = "endDate", required = false) String endDate,
-            @RequestParam(name = "criteria", required = false) String criteria,
+            @RequestParam(name = "criteria", required = false) SearchCriteria criteria,
             @RequestParam(name = "searchWord", required = false) String searchWord
 
     ) {
