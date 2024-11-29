@@ -51,6 +51,19 @@ public class FranchiseController {
             (200, "가맹점 정보 조회 성공", franchiseService.findFranchiseList(page, franchiseName, citys, sort)));
     }
 
+    @GetMapping("/excel")
+    @Operation(summary = "엑셀 출력용 가맹점 목록 정보 조회 API / "
+        + " citys는 도/시로 필터링. 필수 X. 여러개 가능 / franchiseName은 지점명. 필수 X "
+        + "/ sort는 franchiseNameASC나 franchiseNameDESC만 보내주세요")
+    public ResponseEntity<ResponseMessage<List<FranchiseDTO>>> findFranchiseListExcel(
+        @RequestParam(required = false) String franchiseName,
+        @RequestParam(required = false) List<String> citys,
+        @RequestParam(required = false) String sort) {
+
+        return ResponseEntity.ok(new ResponseMessage<>
+            (200, "엑셀 출력용 목록 가맹점 정보 조회 성공", franchiseService.findFranchiseListExcel(franchiseName, citys, sort)));
+    }
+
     @GetMapping("/member")
     @Operation(summary = "가맹점 회원 조회 API / query param으로 page와 size를 키값으로 데이터 보내주시면 됩니다 "
         + "/ page는 0부터 시작 / citys는 도/시로 필터링. 필수 X. 여러개 가능 / franchiseName은 지점명. 필수 X "
