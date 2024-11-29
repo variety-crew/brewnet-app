@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.varc.brewnetapp.domain.statistics.query.mapper.StatisticsMapper">
+
+  <resultMap id="OrderStatisticsResultMap" type="com.varc.brewnetapp.domain.statistics.query.dto.OrderStatisticsDTO">
+    <result property="orderCount" column="order_count" />
+    <result property="exchangeCount" column="exchange_count" />
+    <result property="returnCount" column="return_count" />
+  </resultMap>
+
+  <resultMap id="OrderItemStatisticsResultMap" type="com.varc.brewnetapp.domain.statistics.query.dto.OrderItemStatisticsDTO">
+    <result property="itemName" column="item_name" />
+    <result property="itemPercent" column="item_percent" />
+    <result property="itemCount" column="item_count" />
+  </resultMap>
+
+  <resultMap id="OrderCountPriceResultMap" type="com.varc.brewnetapp.domain.statistics.query.dto.OrderCountPriceDTO">
+    <result property="date" column="date" />
+    <result property="orderCount" column="order_count" />
+    <result property="orderPrice" column="order_price" />
+  </resultMap>
+
+  <select id="selectOrderStatistics" resultMap="OrderStatisticsResultMap" parameterType="map">
+    SELECT
+           (SELECT
+                   COUNT(*)
+              FROM tbl_order
+             WHERE active = true
+            <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+               AND created_at BETWEEN #{startDate} AND #{endDate}
+            </if>) AS order_count,
+          (SELECT
+                  COUNT(*)
+            FROM tbl_exchange
+           WHERE active = true
+          <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+             AND created_at BETWEEN #{startDate} AND #{endDate}
+          </if>) AS exchange_count,
+          (SELECT
+                  COUNT(*)
+             FROM tbl_return
+            WHERE active = true
+          <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+             AND created_at BETWEEN #{startDate} AND #{endDate}
+          </if>) AS return_count;
+  </select>
+
+  <select id="selectOrderItemStatistics" resultMap="OrderItemStatisticsResultMap" parameterType="map">
+    SELECT
+           OI.item_code
+         , I.name as item_name
+         , SUM(OI.quantity) as item_count
+      FROM tbl_order O
+     INNER JOIN tbl_order_item OI ON O.order_code = OI.order_code
+     INNER JOIN tbl_item I ON OI.item_code = I.item_code
+     WHERE O.active = true
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+      AND O.created_at BETWEEN #{startDate} AND #{endDate}
+    </if>
+     GROUP BY OI.item_code, I.name
+     ORDER BY SUM(OI.quantity) DESC
+     LIMIT 10
+  </select>
+
+  <select id="selectOrderItemStatisticsCnt" resultType="int" parameterType="map">
+    SELECT
+           SUM(OI.quantity) AS item_count
+      FROM tbl_order O
+     INNER JOIN tbl_order_item OI ON O.order_code = OI.order_code
+     WHERE O.active = true
+    <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+       AND O.created_at BETWEEN #{startDate} AND #{endDate}
+    </if>
+  </select>
+
+  <select id="selectOrderCountPriceList" resultMap="OrderCountPriceResultMap" parameterType="map">
+
+  </select>
+
+
+
+
+</mapper>
