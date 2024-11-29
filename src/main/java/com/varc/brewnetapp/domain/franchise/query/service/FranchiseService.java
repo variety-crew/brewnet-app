@@ -13,4 +13,6 @@ public interface FranchiseService {
     Page<FranchiseDTO> findFranchiseList(Pageable page, String franchiseName, List<String> citys, String sort);
 
     Page<FranchiseMemberDTO> findFranchiseMemberList(Pageable page, String franchiseName, java.util.List<java.lang.String> citys, String sort);
+
+    List<FranchiseDTO> findFranchiseListExcel(String franchiseName, List<String> citys, String sort);
 }

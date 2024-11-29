@@ -41,7 +41,7 @@ public class FranchiseServiceImpl implements FranchiseService {
 
         List<FranchiseDTO> franchiseList = franchiseMapper.selectFranchiseList(offset, pageSize, franchiseName, citys, sort);
 
-        if (franchiseList.isEmpty() || franchiseList.size() < 0)
+        if (franchiseList.isEmpty() || franchiseList.size() <= 0)
             throw new EmptyDataException("조회하려는 가맹점 정보가 없습니다");
 
         // 동적 쿼리 사용해서 필터링 및 검색어 있으면 전체 total element 값이 달라짐
@@ -70,5 +70,17 @@ public class FranchiseServiceImpl implements FranchiseService {
 
 
         return new PageImpl<>(franchiseMemberList, page, count);
+    }
+
+    @Override
+    @Transactional
+    public List<FranchiseDTO> findFranchiseListExcel(String franchiseName, List<String> citys,
+        String sort) {
+        List<FranchiseDTO> franchiseList = franchiseMapper.selectFranchiseListExcel(franchiseName, citys, sort);
+
+        if (franchiseList.isEmpty() || franchiseList.size() <= 0)
+            throw new EmptyDataException("조회하려는 가맹점 정보가 없습니다");
+
+        return franchiseList;
     }
 }
