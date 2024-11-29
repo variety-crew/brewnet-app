@@ -43,8 +43,7 @@ public class CorrespondentServiceImpl implements CorrespondentService{
         // 로그인한 사용자 체크
         memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
 
-        Correspondent existCorrespondent = correspondentRepository
-                                            .findByNameAndActiveTrue(newCorrespondent.getCorrespondentName());
+        Correspondent existCorrespondent = correspondentRepository.findByNameAndActiveTrue(newCorrespondent.getName());
         if (existCorrespondent != null) {
             throw new InvalidDataException("해당 이름의 거래처가 이미 존재합니다.");
         }
@@ -70,8 +69,7 @@ public class CorrespondentServiceImpl implements CorrespondentService{
         if (!correspondent.getActive()) throw new CorrespondentNotFoundException("삭제된 거래처입니다.");
 
         // 수정된 정보 저장
-        if (editCorrespondent.getCorrespondentName() != null)
-            correspondent.setName(editCorrespondent.getCorrespondentName());
+        if (editCorrespondent.getName() != null) correspondent.setName(editCorrespondent.getName());
         if (editCorrespondent.getAddress() != null) correspondent.setAddress(editCorrespondent.getAddress());
         if (editCorrespondent.getDetailAddress() != null)
             correspondent.setDetailAddress(editCorrespondent.getDetailAddress());

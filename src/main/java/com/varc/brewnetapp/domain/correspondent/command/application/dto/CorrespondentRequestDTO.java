@@ -9,7 +9,7 @@ import lombok.*;
 @ToString
 public class CorrespondentRequestDTO {
 
-    private String correspondentName;
+    private String name;
     private String address;
     private String detailAddress;
     private String email;
