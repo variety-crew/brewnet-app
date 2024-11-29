@@ -17,6 +17,6 @@ public class ReturningListVO {
     private ReturningReason reason;     // 반품사유
     private String memberCode;          // 반품담당자
     private String createdAt;           // 반품요청일자
-    private ReturningStatus status;      // 반품상태
+    private ReturningStatus status;     // 반품상태
     private Approval approvalStatus;    // 반품 승인 상태
 }

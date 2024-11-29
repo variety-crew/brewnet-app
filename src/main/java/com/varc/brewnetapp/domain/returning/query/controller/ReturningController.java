@@ -1,10 +1,7 @@
 package com.varc.brewnetapp.domain.returning.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
-import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
-import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningHistoryDetailVO;
-import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningHistoryVO;
-import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.*;
 import com.varc.brewnetapp.domain.returning.query.service.ReturningServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -77,10 +74,10 @@ public class ReturningController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 상세조회 성공", result));
     }
 
-    @GetMapping("/other")
+    @GetMapping("/other/return")
     @Operation(summary = "[본사] 타부서 반품처리내역 목록 조회/검색 API",
             description = "조회 시에는 searchFilter, 생성일자에 아무 값도 필요하지 않음<br>" +
-                    "검색 시 searchFilter에 들어갈 수 있는 값은 code(처리번호), manager(처리담당자), exchangeCode(교환번호), exchangeManager(교환담당자) 4가지<br>" +
+                    "검색 시 searchFilter에 들어갈 수 있는 값은 code(반품처리번호), manager(반품처리담당자), returningCode(반품번호), returningManager(반품담당자) 4가지<br>" +
                     "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
                     "4가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
     public ResponseEntity<ResponseMessage<Page<ReturningHistoryVO>>> findReturningHistoryList(
@@ -93,29 +90,28 @@ public class ReturningController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 반품처리내역 목록조회/검색 성공", result));
     }
 
-//    @GetMapping("/other/search")
-//    @Operation(summary = "[본사] 타부서 반품처리내역 목록 검색 API",
-//            description = "searchFilter에 들어갈 수 있는 값은 code(처리번호), manager(처리담당자), exchangeCode(교환번호), exchangeManager(교환담당자) 4가지<br>" +
-//                    "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
-//                    "4가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
-//    public ResponseEntity<ResponseMessage<Page<ExchangeHistoryVO>>> searchExchangeHistoryList(
-//            @RequestParam(required = false) String searchFilter,
-//            @RequestParam(required = false) String searchWord,
-//            @RequestParam(required = false) String startDate,
-//            @RequestParam(required = false) String endDate,
-//            @PageableDefault(value = 10) Pageable page) {
-//
-//        Page<ExchangeHistoryVO> result = exchangeService.searchExchangeHistoryList(searchFilter, searchWord, startDate, endDate, page);
-//
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 목록 검색 성공", result));
-//    }
-//
-    @GetMapping("/other/{returningStockHistoryCode}")
+    @GetMapping("/other/return/{returningStockHistoryCode}")
     @Operation(summary = "[본사] 타부서 반품처리내역 상세조회 API")
-    public ResponseEntity<ResponseMessage<ReturningHistoryDetailVO>> findExchangeHistoryBy(@PathVariable("returningStockHistoryCode") Integer returningStockHistoryCode) {
+    public ResponseEntity<ResponseMessage<ReturningHistoryDetailVO>> findReturningHistoryBy(@PathVariable("returningStockHistoryCode") Integer returningStockHistoryCode) {
 
         ReturningHistoryDetailVO result = returningService.findReturningHistoryDetailBy(returningStockHistoryCode);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환처리내역 상세조회 성공", result));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 반품처리내역 상세조회 성공", result));
+    }
+
+    @GetMapping("/other/refund")
+    @Operation(summary = "[본사] 타부서 환불처리내역 목록 조회/검색 API",
+            description = "조회 시에는 searchFilter, 생성일자에 아무 값도 필요하지 않음<br>" +
+                    "검색 시 searchFilter에 들어갈 수 있는 값은 code(환불처리번호), manager(환불처리담당자), returningCode(반품번호), returningManager(반품담당자) 4가지<br>" +
+                    "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
+                    "4가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
+    public ResponseEntity<ResponseMessage<Page<RefundHistoryVO>>> findRefundHistoryList(
+            @RequestParam(required = false) String searchFilter,
+            @RequestParam(required = false) String searchWord,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @PageableDefault(value = 10) Pageable page) {
+        Page<RefundHistoryVO> result = returningService.findRefundHistoryList(searchFilter, searchWord, startDate, endDate, page);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 환불처리내역 목록조회/검색 성공", result));
     }
 //
 //    @GetMapping("/approver/{exchangeCode}")

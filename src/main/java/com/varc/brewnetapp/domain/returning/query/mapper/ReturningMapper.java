@@ -52,4 +52,8 @@ public interface ReturningMapper {
     List<ReturningHistoryVO> selectReturningHistoryList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 
     ReturningHistoryDetailVO selectReturningHistoryDetailBy(int returningStockHistoryCode);
+
+    int selectRefundHistoryListCnt(String searchFilter, String searchWord, String startDate, String endDate);
+
+    List<RefundHistoryVO> selectRefundHistoryList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 }

@@ -40,4 +40,6 @@ public interface ReturningService {
 
     ReturningHistoryDetailVO findReturningHistoryDetailBy(Integer returningStockHistoryCode);
 
+    Page<RefundHistoryVO> findRefundHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
+
 }
