@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/hq/items/must-by")
+@RequestMapping("api/v1/hq/items/must-buy")
 public class ItemOrderController {
     private final MemberService memberService;
     private final ItemService itemService;
@@ -44,26 +44,22 @@ public class ItemOrderController {
         );
     }
 
-    @DeleteMapping("/{itemCode}")
-    @Operation(summary = "필수 구매 품목 지정 해제")
+    @PatchMapping("/update/{itemCode}")
+    @Operation(summary = "필수 구매 품목 설정 수정")
     public ResponseEntity<ResponseMessage<Object>> deleteOrderMustByItem(
             @RequestAttribute("loginId") String loginId,
             @PathVariable("itemCode") int itemCode,
-            @RequestBody MustBuyItemDTO deleteMustBuyItemDTO
+            @RequestBody MustBuyItemDTO mustBuyItemDTO
     ) {
         int memberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
-
-        // TODO: 필수 구매 품목 해제
-        // itemService.deleteItemMustBy(memberCode, itemCode, mustBuyItemDTO);
-
-        // public void deleteItemMustBy(memberCode, itemCode, mustBuyItemDTO) {
-        // TODO: 유효한 아이템인지 확인
-        //  mandatory_purchase_code로 tbl_franchise_mandatory_purchase에 존재하는 모든 값 inactivate
-        // }
-
+        itemService.updateMustByItem(
+                memberCode,
+                itemCode,
+                mustBuyItemDTO
+        );
 
         return ResponseEntity.ok(
-                new ResponseMessage<>(200, "필수 구매 품목이 지정되었습니다.", null)
+                new ResponseMessage<>(200, "필수 구매 품목이 수정되었습니다.", null)
         );
     }
 }

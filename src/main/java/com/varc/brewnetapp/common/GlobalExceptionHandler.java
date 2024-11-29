@@ -32,6 +32,8 @@ public class GlobalExceptionHandler {
             ApprovalAlreadyCompleted.class,
             UnableToCancelApproval.class,
             InvalidItemException.class,
+            MustBuyItemAlreadySet.class,
+            MandatoryPurchaseNotFound.class,
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

@@ -32,9 +32,6 @@ public class MandatoryPurchase {
     @Column(name = "due_date", nullable = false)
     private LocalDateTime dueDate;
 
-    @Column(name = "satisfied", nullable = false)
-    private boolean satisfied;
-
     @Column(name = "member_code", nullable = false)
     private int memberCode;
 }

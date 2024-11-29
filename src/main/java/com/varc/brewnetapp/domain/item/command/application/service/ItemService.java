@@ -8,4 +8,10 @@ public interface ItemService {
             Integer itemCode,
             MustBuyItemDTO mustBuyItemDTO
     );
+
+    void updateMustByItem(
+            int memberCode,
+            int itemCode,
+            MustBuyItemDTO mustBuyItemDTO
+    );
 }
