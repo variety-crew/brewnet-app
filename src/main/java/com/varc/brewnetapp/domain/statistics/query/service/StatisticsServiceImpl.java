@@ -66,8 +66,16 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Transactional
     public List<OrderCountPriceDTO> findOrderCountPriceStatistics(String yearMonth) {
 
+        if (yearMonth == null)
+            yearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+
         List<OrderCountPriceDTO> orderCountPriceList = statisticsMapper.selectOrderCountPriceList(yearMonth);
-        return List.of();
+
+        if(orderCountPriceList != null && orderCountPriceList.size() > 0)
+            return orderCountPriceList;
+        else
+            throw new EmptyDataException("해당 년월에 해당하는 주문 건수와 가격 통계가 없습니다");
+
     }
 
     public double roundItemPercent(double itemPercent) {

@@ -75,8 +75,16 @@
     </if>
   </select>
 
-  <select id="selectOrderCountPriceList" resultMap="OrderCountPriceResultMap" parameterType="map">
-
+  <select id="selectOrderCountPriceList" resultMap="OrderCountPriceResultMap" parameterType="string">
+    SELECT
+           DATE(O.created_at) AS date
+         , COUNT(O.order_code) AS order_count
+         , SUM(OI.part_sum_price) AS order_price
+      FROM tbl_order O
+      LEFT JOIN tbl_order_item OI ON O.order_code = OI.order_code
+     WHERE DATE_FORMAT(O.created_at, '%Y-%m') = #{ yearMonth } AND O.active = true
+     GROUP BY DATE(O.created_at)
+     ORDER BY date
   </select>
 
 
