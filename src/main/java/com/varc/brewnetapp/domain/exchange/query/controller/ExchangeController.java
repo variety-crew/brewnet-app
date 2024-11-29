@@ -122,10 +122,9 @@ public class ExchangeController {
 
     @GetMapping("/approver/{exchangeCode}")
     @Operation(summary = "[본사] 교환요청 상세조회 - 결재진행상태 API")
-    public ResponseEntity<ResponseMessage<List<ExchangeApproverVO>>> findExchangeApprover(@RequestAttribute("loginId") String loginId,
-                                                                                          @PathVariable("exchangeCode") Integer exchangeCode) {
+    public ResponseEntity<ResponseMessage<List<ExchangeApproverVO>>> findExchangeApprover(@PathVariable("exchangeCode") Integer exchangeCode) {
 
-        List<ExchangeApproverVO> result = exchangeService.findExchangeApprover(loginId, exchangeCode);
+        List<ExchangeApproverVO> result = exchangeService.findExchangeApprover(exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재진행상태 조회 성공", result));
     }
     @GetMapping("/excel")

@@ -241,7 +241,7 @@ public class ExchangeServiceImpl implements ExchangeService {
     /* 교환코드로 결재상황 리스트를 조회하기 위해 사용하는 메서드 */
     // (본사)교환상세보기 페이지 - '결재진행상황' 버튼 클릭 시 사용
     @Override
-    public List<ExchangeApproverVO> findExchangeApprover(String loginId, int exchangeCode) {
+    public List<ExchangeApproverVO> findExchangeApprover(int exchangeCode) {
         List<ExchangeApproverVO> exchangeApproverList = exchangeMapper.selectExchangeApproverBy(exchangeCode);
         return exchangeApproverList;
     }

@@ -37,7 +37,7 @@ public interface ExchangeService {
 
     ExchangeStatus findExchangeLatestStatus(int exchangeCode);
 
-    List<ExchangeApproverVO> findExchangeApprover(String loginId, int exchangeCode);
+    List<ExchangeApproverVO> findExchangeApprover(int exchangeCode);
 
     boolean isValidExchangeByFranchise(String loginId, int exchangeCode);
 
