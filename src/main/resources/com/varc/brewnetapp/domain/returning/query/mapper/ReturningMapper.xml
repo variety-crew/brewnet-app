@@ -92,7 +92,7 @@
         <result property="processedAt" column="processed_at"/>
     </resultMap>
 
-    <!-- 타부서 반품요청 조회/검색 쿼리  -->
+    <!-- 타부서 반품요청 조회/검색 ResultMap  -->
     <resultMap id="returningHistoryListResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningHistoryVO">
         <id property="returningStockHistoryCode" column="return_stock_history_code"/>
         <result property="status" column="status"/>
@@ -101,6 +101,33 @@
         <result property="confirmed" column="confirmed"/>
         <result property="returningCode" column="return_code"/>
         <result property="returningManager" column="return_manager"/>
+    </resultMap>
+
+    <!-- 타부서 반품요청 상세조회 -->
+    <resultMap id="ReturningHistoryDetailResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningHistoryDetailVO">
+        <id property="returningStockHistoryCode" column="return_stock_history_code"/>
+        <result property="returningCreatedAt" column="return_created_at"/>
+        <result property="franchiseName" column="franchise_name"/>
+        <result property="reason" column="reason"/>
+        <result property="returningManager" column="return_manager"/>
+        <result property="comment" column="comment"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="status" column="status"/>
+        <result property="manager" column="manager"/>
+
+        <!-- 타부서 반품처리완료내역 물품 리스트 매핑 -->
+        <collection property="returningHistoryItemList" ofType="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningHistoryItemVO"
+                    select="selectReturningHistoryDetailItemBy" column="return_stock_history_code"/>
+    </resultMap>
+
+    <!-- 타부서 반품처리완료내역 물품 ResultMap -->
+    <resultMap id="returningHistoryDetailItemResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningHistoryItemVO">
+        <result property="itemUniqueCode" column="item_unique_code"/>
+        <result property="itemName" column="item_name"/>
+        <result property="superCategory" column="super_category"/>
+        <result property="subCategory" column="sub_category"/>
+        <result property="quantity" column="quantity"/>
+        <result property="restockQuantity" column="restock_quantity"/>
     </resultMap>
 
     <!-- ========== Query ========== -->
@@ -458,6 +485,65 @@
         ORDER BY A.created_at DESC
         LIMIT #{ offset }, #{ pageSize };
     </select>
+
+
+    <!-- 타부서 반품처리완료내역 상세조회 쿼리 -->
+    <select id="selectReturningHistoryDetailBy" resultMap="ReturningHistoryDetailResultMap">
+        SELECT
+             A.return_stock_history_code
+            , B.created_at AS return_created_at
+            , D.franchise_name
+            , B.reason
+            , E.name AS return_manager
+            , A.comment
+            , A.created_at
+            , A.status
+            , A.manager
+         FROM tbl_return_stock_history A
+              JOIN tbl_return B ON A.return_code = B.return_code
+              JOIN tbl_order C ON B.order_code = C.order_code
+              JOIN tbl_franchise D ON C.franchise_code = D.franchise_code
+              JOIN tbl_member E ON B.member_code = E.member_code
+        WHERE A.return_stock_history_code = #{ returnStockHistoryCode };
+    </select>
+
+    <!-- 타부서 반품처리완료내역 물품 쿼리 -->
+    <select id="selectReturningHistoryDetailItemBy" resultMap="returningHistoryDetailItemResultMap">
+        SELECT
+              B.item_unique_code
+            , B.name AS item_name
+            , C.name AS sub_category
+            , D.name AS super_category
+            , A.quantity
+            , A.restock_quantity
+         FROM tbl_return_item_status A
+              JOIN tbl_item B ON A.item_code = B.item_code
+              JOIN tbl_sub_category C ON B.category_code = C.sub_category_code
+              JOIN tbl_super_category D ON C.super_category_code = D.super_category_code
+        WHERE A.return_stock_history_code = #{ returnStockHistoryCode };
+    </select>
+
+    <!-- 타부서 환불처리완료내역 상세조회 쿼리 -->
+<!--    <select id="selectRefundHistoryDetailBy" resultMap="">-->
+<!--        SELECT-->
+<!--            A.return_refund_history_code-->
+<!--            , B.created_at AS return_created_at-->
+<!--            , D.franchise_name-->
+<!--            , B.reason-->
+<!--            , E.name AS return_manager-->
+<!--            , A.comment-->
+<!--            , A.created_at-->
+<!--            , A.status-->
+<!--            , A.manager-->
+<!--         FROM tbl_return_refund_history A-->
+<!--              JOIN tbl_return B ON A.return_code = B.return_code-->
+<!--              JOIN tbl_order C ON B.order_code = C.order_code-->
+<!--              JOIN tbl_franchise D ON C.franchise_code = D.franchise_code-->
+<!--              JOIN tbl_member E ON B.member_code = E.member_code-->
+<!--        WHERE A.return_refund_history_code = #{ returnRefundHistoryCode };-->
+<!--    </select>-->
+
+
 
 
     <!-- ===== Query 3. 가맹점 반품내역 ===== -->

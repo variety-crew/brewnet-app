@@ -1,10 +1,8 @@
 package com.varc.brewnetapp.domain.returning.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeApproverVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryDetailVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningHistoryDetailVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningHistoryVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.service.ReturningServiceImpl;
@@ -95,9 +93,8 @@ public class ReturningController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 반품처리내역 목록조회/검색 성공", result));
     }
 
-//
 //    @GetMapping("/other/search")
-//    @Operation(summary = "[본사] 타부서 교환처리내역 목록 검색 API",
+//    @Operation(summary = "[본사] 타부서 반품처리내역 목록 검색 API",
 //            description = "searchFilter에 들어갈 수 있는 값은 code(처리번호), manager(처리담당자), exchangeCode(교환번호), exchangeManager(교환담당자) 4가지<br>" +
 //                    "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
 //                    "4가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
@@ -110,16 +107,16 @@ public class ReturningController {
 //
 //        Page<ExchangeHistoryVO> result = exchangeService.searchExchangeHistoryList(searchFilter, searchWord, startDate, endDate, page);
 //
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 목록 검색 성공", result));
+//        return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 목록 검색 성공", result));
 //    }
 //
-//    @GetMapping("/other/{exchangeStockHistoryCode}")
-//    @Operation(summary = "[본사] 타부서 교환처리내역 상세조회 API")
-//    public ResponseEntity<ResponseMessage<ExchangeHistoryDetailVO>> findExchangeHistoryBy(@PathVariable("exchangeStockHistoryCode") Integer exchangeStockHistoryCode) {
-//
-//        ExchangeHistoryDetailVO result = exchangeService.findExchangeHistoryDetailBy(exchangeStockHistoryCode);
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환처리내역 상세조회 성공", result));
-//    }
+    @GetMapping("/other/{returningStockHistoryCode}")
+    @Operation(summary = "[본사] 타부서 반품처리내역 상세조회 API")
+    public ResponseEntity<ResponseMessage<ReturningHistoryDetailVO>> findExchangeHistoryBy(@PathVariable("returningStockHistoryCode") Integer returningStockHistoryCode) {
+
+        ReturningHistoryDetailVO result = returningService.findReturningHistoryDetailBy(returningStockHistoryCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환처리내역 상세조회 성공", result));
+    }
 //
 //    @GetMapping("/approver/{exchangeCode}")
 //    @Operation(summary = "[본사] 교환요청 상세조회 - 결재진행상태 API")

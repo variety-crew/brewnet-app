@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.returning.query.service;
 
 import com.varc.brewnetapp.common.domain.returning.ReturningStatus;
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryDetailVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.*;
 import com.varc.brewnetapp.domain.returning.query.mapper.ReturningMapper;
@@ -200,5 +201,11 @@ public class ReturningServiceImpl implements ReturningService {
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(returningHistoryList, page, count);
+    }
+
+    @Override
+    public ReturningHistoryDetailVO findReturningHistoryDetailBy(Integer returningStockHistoryCode) {
+        ReturningHistoryDetailVO ReturningHistoryDetail = returningMapper.selectReturningHistoryDetailBy(returningStockHistoryCode);
+        return ReturningHistoryDetail;
     }
 }
