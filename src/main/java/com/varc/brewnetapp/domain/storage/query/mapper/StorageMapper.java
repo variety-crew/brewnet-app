@@ -24,4 +24,6 @@ public interface StorageMapper {
     List<StockDTO> searchStockOfStorage(SearchItemStockCriteria criteria);
 
     int getTotalStorageStockCount(SearchItemStockCriteria criteria);
+
+    List<StockDTO> printItemStockList(SearchItemStockCriteria criteria);
 }

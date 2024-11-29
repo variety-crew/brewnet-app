@@ -161,4 +161,31 @@
         </where>
          ORDER BY I.ITEM_UNIQUE_CODE ASC
     </select>
+
+    <!-- 엑셀 파일로 출력될 창고별 상품들의 재고 목록 -->
+    <select id="printItemStockList"
+            parameterType="com.varc.brewnetapp.domain.storage.common.SearchItemStockCriteria"
+            resultMap="stockResultMap">
+        SELECT
+               S.STORAGE_CODE,
+               S.ITEM_CODE,
+               S.AVAILABLE_STOCK,
+               S.OUT_STOCK,
+               S.IN_STOCK,
+               I.ITEM_UNIQUE_CODE,
+               I.NAME AS ITEM_NAME,
+               I.SAFETY_STOCK,
+               (S.AVAILABLE_STOCK + S.OUT_STOCK) AS CURRENT_STOCK
+          FROM tbl_stock S
+          JOIN tbl_item I ON S.ITEM_CODE = I.ITEM_CODE
+        <where>
+            S.STORAGE_CODE = #{storageCode}
+            AND S.ACTIVE = TRUE
+            <if test="itemName != null">
+                AND I.NAME LIKE CONCAT('%', #{itemName}, '%')
+            </if>
+        </where>
+         ORDER BY I.ITEM_UNIQUE_CODE ASC
+    </select>
+
 </mapper>

@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.correspondent.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.correspondent.command.application.dto.CorrespondentDeleteRequestDTO;
 import com.varc.brewnetapp.domain.correspondent.command.application.dto.CorrespondentRequestDTO;
 import com.varc.brewnetapp.domain.correspondent.command.application.service.CorrespondentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,5 +31,28 @@ public class CorrespondentController {
         correspondentService.createCorrespondent(loginId, newCorrespondent);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "거래처 등록 성공", null));
+    }
+
+    @PutMapping("/edit/{correspondentCode}")
+    @Operation(summary = "거래처 정보 수정 API")
+    public ResponseEntity<ResponseMessage<Object>> updateCorrespondent(
+                                                        @RequestAttribute("loginId") String loginId,
+                                                        @PathVariable int correspondentCode,
+                                                        @RequestBody CorrespondentRequestDTO editCorrespondent) {
+
+        correspondentService.updateCorrespondent(loginId, correspondentCode, editCorrespondent);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "거래처 정보 수정 성공", null));
+    }
+
+    @DeleteMapping("/delete")
+    @Operation(summary = "거래처 삭제 API")
+    public ResponseEntity<ResponseMessage<Object>> deleteCorrespondent(
+                                                    @RequestAttribute("loginId") String loginId,
+                                                    @RequestBody CorrespondentDeleteRequestDTO deleteRequest) {
+
+        correspondentService.deleteCorrespondent(loginId, deleteRequest);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "거래처 삭제 성공", null));
     }
 }

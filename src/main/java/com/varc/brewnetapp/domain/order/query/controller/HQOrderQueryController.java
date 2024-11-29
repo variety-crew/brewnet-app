@@ -47,20 +47,46 @@ public class HQOrderQueryController {
 
     @GetMapping("/excel")
     @Operation(summary = "엑셀 데이터 추출을 위한 주문 리스트 조회")
-    public ResponseEntity<ResponseMessage<List<OrderResponseDTO>>> getOrderListExcel() {
+    public ResponseEntity<ResponseMessage<List<HQOrderDTO>>> getOrderListExcel(
+            @RequestAttribute("loginId") String loginId,
+            @RequestParam(name = "startDate", required = false) String startDate,
+            @RequestParam(name = "endDate", required = false) String endDate,
+            @RequestBody OrderSearchDTO orderSearchDTO
+    ) {
+        int franchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
+                .getFranchiseCode();
 
-        // TODO: 엑셀 다운로드를 위한 데이터 전달 API
-        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", null));
+        List<HQOrderDTO> resultOrderDataDTO = orderQueryService.getExcelDataForHQBy(
+                startDate,
+                endDate,
+                franchiseCode,
+                orderSearchDTO
+        );
+
+        return ResponseEntity.ok(
+                new ResponseMessage<>(200, "OK", resultOrderDataDTO)
+        );
     }
 
     @GetMapping("/search")
     @Operation(summary = "주문 일자(기간) 별로 검색 타입(주문번호, 주문지점, 주문담당자)에 따른 검색")
     public ResponseEntity<ResponseMessage<Page<HQOrderDTO>>> getOrderListByHqSearch(
             @PageableDefault(size = 10, page = 0) Pageable pageable,
+            @RequestAttribute("loginId") String loginId,
             @RequestParam(name = "filter", required = false) String filter,
-            @RequestParam(name = "criteria", required = false) String criteria
+            @RequestParam(name = "sort", required = false) String sort,
+            @RequestParam(name = "startDate", required = false) String startDate,
+            @RequestParam(name = "endDate", required = false) String endDate,
+            @RequestBody OrderSearchDTO orderSearchDTO
     ) {
-        Page<HQOrderDTO> orderDTOList = orderQueryService.searchOrderListForHQ(pageable, filter, criteria);
+        Page<HQOrderDTO> orderDTOList = orderQueryService.searchOrderListForHQ(
+                pageable,
+                filter,
+                sort,
+                startDate,
+                endDate,
+                orderSearchDTO
+        );
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", orderDTOList));
     }
 

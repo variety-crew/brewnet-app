@@ -18,4 +18,8 @@ public interface CorrespondentMapper {
     List<CorrespondentItemDTO> searchCorrespondentItems(SearchCorrespondentItemCriteria criteria);
 
     int getTotalCorrespondentItemCount(SearchCorrespondentItemCriteria criteria);
+
+    List<CorrespondentDTO> printCorrespondentList(SearchCorrespondentCriteria criteria);
+
+    List<CorrespondentItemDTO> printCorrespondentItemList(SearchCorrespondentItemCriteria criteria);
 }
