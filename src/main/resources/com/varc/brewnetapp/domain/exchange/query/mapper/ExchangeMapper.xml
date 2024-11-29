@@ -523,9 +523,9 @@
         SELECT
               A.exchange_stock_history_code
             , B.created_at AS exchange_created_at
-        , D.franchise_name
+            , D.franchise_name
             , B.reason
-            , B.member_code AS exchange_manager
+            , E.name AS exchange_manager
             , A.comment
             , A.created_at
             , A.status
@@ -534,6 +534,7 @@
               JOIN tbl_exchange B ON A.exchange_code = B.exchange_code
               JOIN tbl_order C ON B.order_code = C.order_code
               JOIN tbl_franchise D ON C.franchise_code = D.franchise_code
+              JOIN tbl_member E ON B.member_code = E.member_code
         WHERE A.exchange_stock_history_code = #{ exchangeStockHistoryCode };
     </select>
 
