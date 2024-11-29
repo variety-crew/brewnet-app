@@ -44,4 +44,6 @@ public interface ReturningService {
 
     RefundHistoryDetailVO findRefundHistoryDetailBy(Integer returningRefundHistoryCode);
 
+    List<ReturningApproverVO> findReturningApprover(Integer returningCode);
+
 }

@@ -46,6 +46,14 @@
                     select="selectReturningDetailImageBy" column="return_code"/>
     </resultMap>
 
+    <!-- 본사 반품 결재진행상황 조회 ResultMap-->
+    <resultMap id="returningApproverResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningApproverVO">
+        <result property="approverName" column="approver_name"/>
+        <result property="position" column="position"/>
+        <result property="approval" column="approval"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
     <!-- 가맹점 반품요청 목록조회 ResultMap -->
     <resultMap id="franReturningListResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.FranReturningListVO">
         <result property="returningCode" column="return_code"/>
@@ -448,6 +456,21 @@
         WHERE A.return_code = #{ returningCode };
     </select>
 
+
+    <!-- 반품코드로 결재상황을 조회하기 위해 사용하는 쿼리 -->
+    <!-- (본사)반품상세보기 페이지 - '결재진행상황' 버튼 클릭 시 사용 -->
+    <select id="selectReturningApproverBy" resultMap="returningApproverResultMap">
+        SELECT
+        B.name AS approver_name
+        , C.name AS position
+        , A.approved AS approval
+        , A.created_at
+        FROM tbl_return_approver A
+        JOIN tbl_member B ON A.member_code = B.member_code
+        JOIN tbl_position C ON B.position_code = C.position_code
+        WHERE return_code = #{ returningCode } AND A.active != false;
+    </select>
+
     <!-- ===== Query 2. 타부서 반품내역 ===== -->
 
 
@@ -674,7 +697,6 @@
         JOIN tbl_order_item H ON H.order_code = F.order_code
         WHERE A.item_code = H.item_code AND E.return_refund_history_code = #{ returnRefundHistoryCode };
     </select>
-
 
 
     <!-- ===== Query 3. 가맹점 반품내역 ===== -->

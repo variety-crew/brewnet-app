@@ -121,14 +121,12 @@ public class ReturningController {
         RefundHistoryDetailVO result = returningService.findRefundHistoryDetailBy(returningRefundHistoryCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 환불처리내역 상세조회 성공", result));
     }
-//
-//    @GetMapping("/approver/{exchangeCode}")
-//    @Operation(summary = "[본사] 교환요청 상세조회 - 결재진행상태 API")
-//    public ResponseEntity<ResponseMessage<List<ExchangeApproverVO>>> findExchangeApprover(@RequestAttribute("loginId") String loginId,
-//                                                                                          @PathVariable("exchangeCode") Integer exchangeCode) {
-//
-//        List<ExchangeApproverVO> result = exchangeService.findExchangeApprover(loginId, exchangeCode);
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재진행상태 조회 성공", result));
-//    }
+
+    @GetMapping("/approver/{returningCode}")
+    @Operation(summary = "[본사] 반품요청 상세조회 - 결재진행상태 API")
+    public ResponseEntity<ResponseMessage<List<ReturningApproverVO>>> findReturningApprover(@PathVariable("returningCode") Integer returningCode) {
+        List<ReturningApproverVO> result = returningService.findReturningApprover(returningCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "반품 결재진행상태 조회 성공", result));
+    }
 
 }

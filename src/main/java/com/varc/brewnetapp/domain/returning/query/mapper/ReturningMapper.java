@@ -59,4 +59,7 @@ public interface ReturningMapper {
 
     RefundHistoryDetailVO selectRefundHistoryDetailBy(int returningRefundHistoryCode);
 
+    List<ReturningApproverVO> selectReturningApproverBy(int returningCode);
+
+
 }
