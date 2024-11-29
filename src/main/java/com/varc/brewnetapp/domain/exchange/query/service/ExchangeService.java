@@ -19,9 +19,9 @@ public interface ExchangeService {
 
     ExchangeDetailVO findExchangeDetailBy(Integer exchangeCode);
 
-    Page<ExchangeHistoryVO> findExchangeHistoryList(Pageable page);
+    Page<ExchangeHistoryVO> findExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
 
-    Page<ExchangeHistoryVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
+//    Page<ExchangeHistoryVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
 
     ExchangeHistoryDetailVO findExchangeHistoryDetailBy(Integer exchangeStockHistoryCode);
 

@@ -94,36 +94,36 @@ public class ExchangeServiceImpl implements ExchangeService {
     }
 
     @Override
-    public Page<ExchangeHistoryVO> findExchangeHistoryList(Pageable page) {
+    public Page<ExchangeHistoryVO> findExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page) {
         // 페이징 정보 추가
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
 
         // DB에서 교환 목록 조회
-        List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectExchangeHistoryList(offset, pageSize);
+        List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectExchangeHistoryList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
 
         // 전체 데이터 개수 조회
-        int count = exchangeMapper.selectExchangeHistoryListCnt();
+        int count = exchangeMapper.selectExchangeHistoryListCnt(searchFilter, searchWord, startDate, endDate);
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(exchangeHistoryList, page, count);
     }
 
-    @Override
-    public Page<ExchangeHistoryVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page) {
-        // 페이징 정보 추가
-        long offset = page.getOffset();
-        long pageSize = page.getPageSize();
-
-        // DB에서 교환 목록 조회
-        List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectSearchExchangeHistoryList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
-
-        // 전체 데이터 개수 조회
-        int count = exchangeMapper.selectSearchExchangeHistoryListCnt(searchFilter, searchWord, startDate, endDate);
-
-        // PageImpl 객체로 감싸서 반환
-        return new PageImpl<>(exchangeHistoryList, page, count);
-    }
+//    @Override
+//    public Page<ExchangeHistoryVO> searchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page) {
+//        // 페이징 정보 추가
+//        long offset = page.getOffset();
+//        long pageSize = page.getPageSize();
+//
+//        // DB에서 교환 목록 조회
+//        List<ExchangeHistoryVO> exchangeHistoryList = exchangeMapper.selectSearchExchangeHistoryList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
+//
+//        // 전체 데이터 개수 조회
+//        int count = exchangeMapper.selectSearchExchangeHistoryListCnt(searchFilter, searchWord, startDate, endDate);
+//
+//        // PageImpl 객체로 감싸서 반환
+//        return new PageImpl<>(exchangeHistoryList, page, count);
+//    }
 
     @Override
     public ExchangeHistoryDetailVO findExchangeHistoryDetailBy(Integer exchangeStockHistoryCode) {

@@ -19,17 +19,17 @@ public interface ExchangeMapper {
 
     List<ExchangeListVO> selectRequestedExchangeList(long offset, long pageSize);
 
-    int selectSearchExchangeHistoryListCnt(String searchFilter, String searchWord, String startDate, String endDate);
+//    int selectSearchExchangeHistoryListCnt(String searchFilter, String searchWord, String startDate, String endDate);
 
     List<ExchangeListVO> selectSearchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 
     ExchangeDetailVO selectExchangeDetailBy(int exchangeCode);
 
-    int selectExchangeHistoryListCnt();
+    int selectExchangeHistoryListCnt(String searchFilter, String searchWord, String startDate, String endDate);
 
-    List<ExchangeHistoryVO> selectExchangeHistoryList(long offset, long pageSize);
+    List<ExchangeHistoryVO> selectExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 
-    List<ExchangeHistoryVO> selectSearchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
+//    List<ExchangeHistoryVO> selectSearchExchangeHistoryList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 
     ExchangeHistoryDetailVO selectExchangeHistoryDetailBy(int exchangeStockHistoryCode);
 
