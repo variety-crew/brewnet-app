@@ -12,6 +12,7 @@ import com.varc.brewnetapp.exception.MustBuyItemAlreadySet;
 import com.varc.brewnetapp.utility.time.Formatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -56,6 +57,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public void updateMustByItem(
             int memberCode,
             int itemCode,

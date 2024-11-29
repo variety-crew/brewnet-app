@@ -52,12 +52,12 @@ public class ItemOrderController {
             @RequestBody MustBuyItemDTO mustBuyItemDTO
     ) {
         int memberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
+
         itemService.updateMustByItem(
                 memberCode,
                 itemCode,
                 mustBuyItemDTO
         );
-
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "필수 구매 품목이 수정되었습니다.", null)
         );
