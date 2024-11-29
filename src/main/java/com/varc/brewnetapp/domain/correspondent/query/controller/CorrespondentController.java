@@ -98,7 +98,7 @@ public class CorrespondentController {
     @GetMapping("/{correspondentCode}")
     @Operation(summary = "거래처 코드로 거래처 상세 정보 불러오는 API")
     public ResponseEntity<ResponseMessage<CorrespondentDTO>> getCorrespondentDetail(
-                                                                @PathVariable String correspondentCode) {
+                                                                @PathVariable int correspondentCode) {
 
         CorrespondentDTO correspondentInfo = correspondentService.getCorrespondentDetail(correspondentCode);
 

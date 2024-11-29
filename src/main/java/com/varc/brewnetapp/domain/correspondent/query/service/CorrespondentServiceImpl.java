@@ -6,7 +6,6 @@ import com.varc.brewnetapp.domain.correspondent.common.SearchCorrespondentItemCr
 import com.varc.brewnetapp.domain.correspondent.query.dto.CorrespondentDTO;
 import com.varc.brewnetapp.domain.correspondent.query.dto.CorrespondentItemDTO;
 import com.varc.brewnetapp.domain.correspondent.query.mapper.CorrespondentMapper;
-import com.varc.brewnetapp.exception.CorrespondentNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,7 +99,7 @@ public class CorrespondentServiceImpl implements CorrespondentService{
 
     @Transactional(readOnly = true)
     @Override
-    public CorrespondentDTO getCorrespondentDetail(String correspondentCode) {
+    public CorrespondentDTO getCorrespondentDetail(int correspondentCode) {
 
         CorrespondentDTO correspondent = correspondentMapper.selectOneCorrespondent(correspondentCode);
 
