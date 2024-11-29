@@ -53,18 +53,18 @@ public class HQOrderQueryController {
             @RequestParam(name = "endDate", required = false) String endDate,
             @RequestBody OrderSearchDTO orderSearchDTO
     ) {
-        int franchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
-                .getFranchiseCode();
-
-        List<HQOrderDTO> resultOrderDataDTO = orderQueryService.getExcelDataForHQBy(
-                startDate,
-                endDate,
-                franchiseCode,
-                orderSearchDTO
-        );
+//        int franchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
+//                .getFranchiseCode();
+//
+//        List<HQOrderDTO> resultOrderDataDTO = orderQueryService.getExcelDataForHQBy(
+//                startDate,
+//                endDate,
+//                franchiseCode,
+//                orderSearchDTO
+//        );
 
         return ResponseEntity.ok(
-                new ResponseMessage<>(200, "OK", resultOrderDataDTO)
+                new ResponseMessage<>(200, "OK", null)
         );
     }
 
