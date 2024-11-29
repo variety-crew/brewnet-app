@@ -22,4 +22,6 @@ public interface CorrespondentMapper {
     List<CorrespondentDTO> printCorrespondentList(SearchCorrespondentCriteria criteria);
 
     List<CorrespondentItemDTO> printCorrespondentItemList(SearchCorrespondentItemCriteria criteria);
+
+    CorrespondentDTO selectOneCorrespondent(Integer correspondentCode);
 }
