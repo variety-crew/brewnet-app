@@ -36,4 +36,6 @@ public interface ReturningService {
 
     boolean isValidOrderByFranchise(String loginId, int orderCode);
 
+    Page<ReturningHistoryVO> findReturningHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
+
 }

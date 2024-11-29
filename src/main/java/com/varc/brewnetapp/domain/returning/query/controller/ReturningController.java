@@ -5,6 +5,7 @@ import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeApproverVO
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryDetailVO;
 import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO;
+import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningHistoryVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningListVO;
 import com.varc.brewnetapp.domain.returning.query.service.ReturningServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -78,12 +79,22 @@ public class ReturningController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 상세조회 성공", result));
     }
 
-//    @GetMapping("/other")
-//    @Operation(summary = "[본사] 타부서 반품처리내역 목록 조회 API")
-//    public ResponseEntity<ResponseMessage<Page<ExchangeHistoryVO>>> findExchangeHistoryList(@PageableDefault(value = 10) Pageable page) {
-//        Page<ExchangeHistoryVO> result = exchangeService.findExchangeHistoryList(page);
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 교환처리내역 목록조회 성공", result));
-//    }
+    @GetMapping("/other")
+    @Operation(summary = "[본사] 타부서 반품처리내역 목록 조회/검색 API",
+            description = "조회 시에는 searchFilter, 생성일자에 아무 값도 필요 없음<br>" +
+                    "검색 시 searchFilter에 들어갈 수 있는 값은 code(처리번호), manager(처리담당자), exchangeCode(교환번호), exchangeManager(교환담당자) 4가지<br>" +
+                    "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
+                    "4가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
+    public ResponseEntity<ResponseMessage<Page<ReturningHistoryVO>>> findReturningHistoryList(
+            @RequestParam(required = false) String searchFilter,
+            @RequestParam(required = false) String searchWord,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @PageableDefault(value = 10) Pageable page) {
+        Page<ReturningHistoryVO> result = returningService.findReturningHistoryList(searchFilter, searchWord, startDate, endDate, page);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "타부서 반품처리내역 목록조회/검색 성공", result));
+    }
+
 //
 //    @GetMapping("/other/search")
 //    @Operation(summary = "[본사] 타부서 교환처리내역 목록 검색 API",

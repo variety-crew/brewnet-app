@@ -92,6 +92,17 @@
         <result property="processedAt" column="processed_at"/>
     </resultMap>
 
+    <!-- 타부서 반품요청 조회/검색 쿼리  -->
+    <resultMap id="returningHistoryListResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningHistoryVO">
+        <id property="returningStockHistoryCode" column="return_stock_history_code"/>
+        <result property="status" column="status"/>
+        <result property="manager" column="manager"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="confirmed" column="confirmed"/>
+        <result property="returningCode" column="return_code"/>
+        <result property="returningManager" column="return_manager"/>
+    </resultMap>
+
     <!-- ========== Query ========== -->
 
     <!-- ===== Query 1. 본사 반품내역 ===== -->
@@ -374,6 +385,79 @@
     <!-- ===== Query 2. 타부서 반품내역 ===== -->
 
 
+    <!-- 타부서 반품처리완료내역 조회/검색 페이지네이션용 cnt 쿼리 -->
+    <select id="selectReturningHistoryListCnt" resultType="int">
+        SELECT
+           COUNT(*)
+        FROM (
+        SELECT
+        A.return_stock_history_code
+        , A.status
+        , A.manager
+        , A.created_at
+        , A.confirmed
+        , A.return_code
+        , C.name AS return_manager
+        FROM tbl_return_stock_history A
+        JOIN tbl_return B ON A.return_code = B.return_code
+        JOIN tbl_member C ON B.member_code = C.member_code
+        <where>
+            <choose>
+                <when test="searchFilter == 'code'">
+                    AND CAST(A.return_stock_history_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'manager'">
+                    AND A.manager LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'returningCode'">
+                    AND CAST(A.return_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'returningManager'">
+                    AND C.name LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+            </choose>
+            <if test="startDate != null and endDate != null">
+                AND A.created_at BETWEEN #{ startDate } AND CONCAT(#{ endDate }, ' 23:59:59')
+            </if>
+        </where>
+        ) AS grouped_result;
+    </select>
+
+    <!-- 타부서 반품처리완료내역 조회/검색 쿼리 -->
+    <select id="selectReturningHistoryList" resultMap="returningHistoryListResultMap">
+        SELECT
+        A.return_stock_history_code
+        , A.status
+        , A.manager
+        , A.created_at
+        , A.confirmed
+        , A.return_code
+        , C.name AS return_manager
+        FROM tbl_return_stock_history A
+        JOIN tbl_return B ON A.return_code = B.return_code
+        JOIN tbl_member C ON B.member_code = C.member_code
+        <where>
+            <choose>
+                <when test="searchFilter == 'code'">
+                    AND CAST(A.return_stock_history_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'manager'">
+                    AND A.manager LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'returningCode'">
+                    AND CAST(A.return_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'returningManager'">
+                    AND C.name LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+            </choose>
+            <if test="startDate != null and endDate != null">
+                AND A.created_at BETWEEN #{ startDate } AND CONCAT(#{ endDate }, ' 23:59:59')
+            </if>
+        </where>
+        ORDER BY A.created_at DESC
+        LIMIT #{ offset }, #{ pageSize };
+    </select>
 
 
     <!-- ===== Query 3. 가맹점 반품내역 ===== -->

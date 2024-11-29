@@ -46,4 +46,8 @@ public interface ReturningMapper {
     List<FranReturningItemVO> selectAvailableReturningItemBy(int orderCode);
 
     boolean selectValidOrderByFranchise(String loginId, int orderCode);
+
+    int selectReturningHistoryListCnt(String searchFilter, String searchWord, String startDate, String endDate);
+
+    List<ReturningHistoryVO> selectReturningHistoryList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
 }

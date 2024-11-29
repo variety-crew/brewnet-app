@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.returning.query.service;
 
 import com.varc.brewnetapp.common.domain.returning.ReturningStatus;
+import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.*;
 import com.varc.brewnetapp.domain.returning.query.mapper.ReturningMapper;
 import com.varc.brewnetapp.exception.ReturningNotFoundException;
@@ -185,4 +186,19 @@ public class ReturningServiceImpl implements ReturningService {
         }
     }
 
+    @Override
+    public Page<ReturningHistoryVO> findReturningHistoryList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page) {
+        // 페이징 정보 추가
+        long offset = page.getOffset();
+        long pageSize = page.getPageSize();
+
+        // DB에서 교환 목록 조회
+        List<ReturningHistoryVO> returningHistoryList = returningMapper.selectReturningHistoryList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
+
+        // 전체 데이터 개수 조회
+        int count = returningMapper.selectReturningHistoryListCnt(searchFilter, searchWord, startDate, endDate);
+
+        // PageImpl 객체로 감싸서 반환
+        return new PageImpl<>(returningHistoryList, page, count);
+    }
 }
