@@ -374,14 +374,11 @@ public class OrderQueryServiceImpl implements OrderQueryService {
             String startDate,
             String endDate,
             int franchiseCode,
-            OrderSearchDTO orderSearchDTO
+            String inputCriteria,
+            String keyword
     ) {
-        SearchCriteria criteria = orderSearchDTO.getCriteria();
-        String keyword = orderSearchDTO.getSearchWord();
-
         List<FranchiseOrderDTO> searchedOrderDTOList;
-
-        switch (criteria) {
+        switch (mapStringToSearchCriteria(inputCriteria, keyword)) {
             case ORDER_CODE -> searchedOrderDTOList = orderMapper.searchOrdersForFranchiseByOrderCode(
                         "",
                         "",
@@ -402,11 +399,19 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                     franchiseCode,
                     keyword
             );
-            default -> throw new InvalidCriteriaException(
-                    "Invalid Order Criteria. " +
-                            "entered Criteria: " + criteria + ". " +
-                            " entered keyword: " + keyword + "."
+            case ALL -> searchedOrderDTOList = orderMapper.findOrdersForFranchise(
+                    null,
+                    null,
+                    0,
+                    0,
+                    startDate,
+                    endDate,
+                    franchiseCode
             );
+            default -> {
+                log.error("inputCriteria: {}", inputCriteria);
+                throw new RuntimeException("Invalid Order Criteria");
+            }
         }
 
         return searchedOrderDTOList;
