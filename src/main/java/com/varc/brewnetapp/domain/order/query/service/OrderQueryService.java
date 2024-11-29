@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.order.query.service;
 
+import com.varc.brewnetapp.common.SearchCriteria;
 import com.varc.brewnetapp.domain.order.query.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +25,7 @@ public interface OrderQueryService {
             String sort,
             String startDate,
             String endDate,
-            String criteria,
+            SearchCriteria criteria,
             String keyword
     );
     OrderRequestDTO printOrderRequest(int orderCode);
@@ -33,7 +34,7 @@ public interface OrderQueryService {
             String startDate,
             String endDate,
             int franchiseCode,
-            String criteria,
+            SearchCriteria criteria,
             String keyword
     );
 
@@ -57,14 +58,14 @@ public interface OrderQueryService {
             String startDate,
             String endDate,
             int franchiseCode,
-            String criteria,
+            SearchCriteria criteria,
             String searchWord
     );
     List<FranchiseOrderDTO> getExcelDataForFranchiseBy(
             String startDate,
             String endDate,
             int franchiseCode,
-            String criteria,
+            SearchCriteria criteria,
             String keyword
     );
 
