@@ -1,4 +1,4 @@
-package com.varc.brewnetapp.domain.order.command.application.dto;
+package com.varc.brewnetapp.domain.item.command.application.dto;
 
 import lombok.*;
 

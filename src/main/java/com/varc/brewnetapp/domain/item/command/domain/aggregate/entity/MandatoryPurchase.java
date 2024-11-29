@@ -1,4 +1,4 @@
-package com.varc.brewnetapp.domain.order.command.domain.aggregate.entity;
+package com.varc.brewnetapp.domain.item.command.domain.aggregate.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,4 +34,7 @@ public class MandatoryPurchase {
 
     @Column(name = "satisfied", nullable = false)
     private boolean satisfied;
+
+    @Column(name = "member_code", nullable = false)
+    private int memberCode;
 }
