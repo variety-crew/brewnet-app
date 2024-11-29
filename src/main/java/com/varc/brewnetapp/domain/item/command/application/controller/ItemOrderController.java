@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/items/must-by")
+@RequestMapping("api/v1/hq/items/must-by")
 public class ItemOrderController {
     private final MemberService memberService;
     private final ItemService itemService;
