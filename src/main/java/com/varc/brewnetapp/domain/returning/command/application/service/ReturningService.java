@@ -27,4 +27,6 @@ public interface ReturningService {
     void saveReturningApprover(Integer member, Returning returning, Approval approval, String createdAt, String comment);
 
     void saveReturningStatusHistory(ReturningStatus status, Returning returning);
+
+    void completeReturning(String loginId, int returningStockHistoryCode);
 }
