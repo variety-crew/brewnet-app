@@ -149,6 +149,57 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     @Override
     @Transactional
+    public List<HQOrderDTO> getExcelDataForHQBy(
+            String startDate,
+            String endDate,
+            int franchiseCode,
+            OrderSearchDTO orderSearchDTO
+    ) {
+        SearchCriteria criteria = orderSearchDTO.getCriteria();
+        String keyword = orderSearchDTO.getSearchWord();
+
+        List<HQOrderDTO> searchedOrderDTOList;
+
+        switch (criteria) {
+            case ORDER_CODE -> searchedOrderDTOList = orderMapper.searchOrdersForHQByOrderCode(
+                    null,
+                    null,
+                    0,
+                    0,
+                    startDate,
+                    endDate,
+                    keyword
+            );
+            case ORDERED_FRANCHISE_NAME -> searchedOrderDTOList = orderMapper.searchOrdersForHQByOrderedFranchiseName(
+                    null,
+                    null,
+                    0,
+                    0,
+                    startDate,
+                    endDate,
+                    keyword
+            );
+            case ORDER_MANAGER -> searchedOrderDTOList = orderMapper.searchOrdersForHQByOrderManager(
+                    null,
+                    null,
+                    0,
+                    0,
+                    startDate,
+                    endDate,
+                    keyword
+            );
+            default -> throw new InvalidCriteriaException(
+                    "Invalid Order Criteria. " +
+                            "entered Criteria: " + criteria + ". " +
+                            " entered keyword: " + keyword + "."
+            );
+        }
+
+        return searchedOrderDTOList;
+    }
+
+    @Override
+    @Transactional
     public OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode) {
         OrderDetailForHQDTO orderDetail = orderMapper.findOrderDetailForHqBy(orderCode);
         if (orderDetail == null) {
@@ -280,6 +331,49 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 pageable,
                 total
         );
+    }
+
+    @Override
+    public List<FranchiseOrderDTO> getExcelDataForFranchiseBy(
+            String startDate,
+            String endDate,
+            int franchiseCode,
+            OrderSearchDTO orderSearchDTO
+    ) {
+        SearchCriteria criteria = orderSearchDTO.getCriteria();
+        String keyword = orderSearchDTO.getSearchWord();
+
+        List<FranchiseOrderDTO> searchedOrderDTOList;
+
+        switch (criteria) {
+            case ORDER_CODE -> searchedOrderDTOList = orderMapper.searchOrdersForFranchiseByOrderCode(
+                        "",
+                        "",
+                        0,
+                        0,
+                        startDate,
+                        endDate,
+                        franchiseCode,
+                        keyword
+                );
+            case ITEM_NAME -> searchedOrderDTOList = orderMapper.searchOrdersForFranchiseByItemName(
+                    "",
+                    "",
+                    0,
+                    0,
+                    startDate,
+                    endDate,
+                    franchiseCode,
+                    keyword
+            );
+            default -> throw new InvalidCriteriaException(
+                    "Invalid Order Criteria. " +
+                            "entered Criteria: " + criteria + ". " +
+                            " entered keyword: " + keyword + "."
+            );
+        }
+
+        return searchedOrderDTOList;
     }
 
     @Override
