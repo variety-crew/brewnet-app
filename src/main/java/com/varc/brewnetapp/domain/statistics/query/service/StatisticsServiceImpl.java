@@ -8,6 +8,8 @@ import com.varc.brewnetapp.exception.EmptyDataException;
 import com.varc.brewnetapp.exception.InvalidDataException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,10 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     @Transactional
     public OrderStatisticsDTO findOrderStatistics(String startDate, String endDate) {
+
+        LocalDate newDate = (LocalDate.parse(endDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"))).plusDays(1);
+
+        endDate = newDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         OrderStatisticsDTO orderStatistics = statisticsMapper.selectOrderStatistics(startDate, endDate);
         List<OrderItemStatisticsDTO> orderItemStatisticsList = statisticsMapper.selectOrderItemStatistics(startDate, endDate);
