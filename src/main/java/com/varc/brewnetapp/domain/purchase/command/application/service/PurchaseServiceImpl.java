@@ -383,10 +383,6 @@ public class PurchaseServiceImpl implements PurchaseService {
             PurchaseItem item = purchaseItemRepository.findByItemCodeAndActiveTrue(purchaseItem.getItemCode());
 
             if (item == null) throw new ItemNotFoundException("삭제되었거나 존재하지 않는 상품입니다.");
-            if (correspondentItemRepository.existsByCorrespondentCodeAndItemCodeAndActiveTrue(
-                    correspondent.getCorrespondentCode(), item.getItemCode())) {
-                throw new ItemNotFoundException("해당 거래처에서 취급하는 품목이 아닙니다.");
-            }
 
             int vatPrice = (item.getPurchasePrice() / 10);
             PurchasePrintItemDTO printItem = new PurchasePrintItemDTO(item.getName(),
@@ -462,10 +458,6 @@ public class PurchaseServiceImpl implements PurchaseService {
             PurchaseItem item = purchaseItemRepository.findByItemCodeAndActiveTrue(purchaseItem.getItemCode());
 
             if (item == null) throw new ItemNotFoundException("삭제되었거나 존재하지 않는 상품입니다.");
-            if (correspondentItemRepository.existsByCorrespondentCodeAndItemCodeAndActiveTrue(
-                    correspondent.getCorrespondentCode(), item.getItemCode())) {
-                throw new ItemNotFoundException("해당 거래처에서 취급하는 품목이 아닙니다.");
-            }
 
             int vatPrice = (item.getPurchasePrice() / 10);
             PurchasePrintItemDTO printItem = new PurchasePrintItemDTO(item.getName(),

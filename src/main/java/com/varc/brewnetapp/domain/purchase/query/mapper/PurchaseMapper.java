@@ -1,7 +1,5 @@
 package com.varc.brewnetapp.domain.purchase.query.mapper;
 
-import com.varc.brewnetapp.domain.document.query.dto.ApproverMemberDTO;
-import com.varc.brewnetapp.domain.purchase.common.KindOfApproval;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseItemCriteria;
 import com.varc.brewnetapp.domain.purchase.query.dto.*;
