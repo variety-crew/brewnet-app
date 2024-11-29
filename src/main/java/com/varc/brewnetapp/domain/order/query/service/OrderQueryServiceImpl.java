@@ -9,6 +9,7 @@ import com.varc.brewnetapp.exception.InvalidCriteriaException;
 import com.varc.brewnetapp.exception.NoAccessAuthoritiesException;
 import com.varc.brewnetapp.exception.OrderNotFound;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -69,15 +70,14 @@ public class OrderQueryServiceImpl implements OrderQueryService {
             String sort,
             String startDate,
             String endDate,
-            OrderSearchDTO orderSearchDTO
+            String inputCriteria,
+            String keyword
     ) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
         int offset = page * size;
 
-        SearchCriteria criteria = orderSearchDTO.getCriteria();
-        String keyword = orderSearchDTO.getSearchWord();
-
+        SearchCriteria criteria = mapStringToSearchCriteria(inputCriteria, keyword);
         List<HQOrderDTO> searchedOrderDTOList;
         int total = 0;
 
@@ -133,11 +133,25 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                         keyword
                 );
             }
-            default -> throw new InvalidCriteriaException(
-                    "Invalid Order Criteria. " +
-                            "entered Criteria: " + criteria + ". " +
-                            " entered keyword: " + keyword + "."
-            );
+            case ALL -> {
+                searchedOrderDTOList = orderMapper.findOrdersForHQBy(
+                        filter,
+                        sort,
+                        size,
+                        offset,
+                        startDate,
+                        endDate
+                );
+                total = orderCounterMapper.countOrdersForHq(
+                        filter,
+                        startDate,
+                        endDate
+                );
+            }
+            default -> {
+                log.error("inputCriteria: {}", inputCriteria);
+                throw new RuntimeException("Invalid Order Criteria");
+            }
         }
 
         return new PageImpl<>(
@@ -153,14 +167,12 @@ public class OrderQueryServiceImpl implements OrderQueryService {
             String startDate,
             String endDate,
             int franchiseCode,
-            OrderSearchDTO orderSearchDTO
+            String inputCriteria,
+            String keyword
     ) {
-        SearchCriteria criteria = orderSearchDTO.getCriteria();
-        String keyword = orderSearchDTO.getSearchWord();
-
         List<HQOrderDTO> searchedOrderDTOList;
 
-        switch (criteria) {
+        switch (mapStringToSearchCriteria(inputCriteria, keyword)) {
             case ORDER_CODE -> searchedOrderDTOList = orderMapper.searchOrdersForHQByOrderCode(
                     null,
                     null,
@@ -188,11 +200,18 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                     endDate,
                     keyword
             );
-            default -> throw new InvalidCriteriaException(
-                    "Invalid Order Criteria. " +
-                            "entered Criteria: " + criteria + ". " +
-                            " entered keyword: " + keyword + "."
+            case ALL -> searchedOrderDTOList = orderMapper.findOrdersForHQBy(
+                    null,
+                    null,
+                    0,
+                    0,
+                    startDate,
+                    endDate
             );
+            default -> {
+                log.error("inputCriteria: {}", inputCriteria);
+                throw new RuntimeException("Invalid Order Criteria");
+            }
         }
 
         return searchedOrderDTOList;
@@ -268,19 +287,17 @@ public class OrderQueryServiceImpl implements OrderQueryService {
             String startDate,
             String endDate,
             int franchiseCode,
-            OrderSearchDTO orderSearchDTO
+            String inputCriteria,
+            String keyword
     ) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
         int offset = page * size;
 
-        SearchCriteria criteria = orderSearchDTO.getCriteria();
-        String keyword = orderSearchDTO.getSearchWord();
-
         List<FranchiseOrderDTO> searchedOrderDTOList;
         int total = 0;
 
-        switch (criteria) {
+        switch (mapStringToSearchCriteria(inputCriteria, keyword)) {
             case ORDER_CODE -> {
                 searchedOrderDTOList = orderMapper.searchOrdersForFranchiseByOrderCode(
                         filter,
@@ -311,6 +328,9 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                         franchiseCode,
                         keyword
                 );
+                searchedOrderDTOList.forEach(
+                        franchiseOrderDTO -> log.debug("franchiseOrderDTO: {}", franchiseOrderDTO)
+                );
                 total = orderCounterMapper.countSearchedOrdersForFranchiseByItemName(
                         filter,
                         startDate,
@@ -319,11 +339,27 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                         keyword
                 );
             }
-            default -> throw new InvalidCriteriaException(
-                    "Invalid Order Criteria. " +
-                            "entered Criteria: " + criteria + ". " +
-                            " entered keyword: " + keyword + "."
-            );
+            case ALL -> {
+                searchedOrderDTOList = orderMapper.findOrdersForFranchise(
+                        filter,
+                        sort,
+                        size,
+                        offset,
+                        startDate,
+                        endDate,
+                        franchiseCode
+                );
+                total = orderCounterMapper.countOrdersForFranchise(
+                        filter,
+                        franchiseCode,
+                        startDate,
+                        endDate
+                );
+            }
+            default -> {
+                log.error("inputCriteria: {}", inputCriteria);
+                throw new RuntimeException("Invalid Order Criteria");
+            }
         }
 
         return new PageImpl<>(
@@ -338,14 +374,11 @@ public class OrderQueryServiceImpl implements OrderQueryService {
             String startDate,
             String endDate,
             int franchiseCode,
-            OrderSearchDTO orderSearchDTO
+            String inputCriteria,
+            String keyword
     ) {
-        SearchCriteria criteria = orderSearchDTO.getCriteria();
-        String keyword = orderSearchDTO.getSearchWord();
-
         List<FranchiseOrderDTO> searchedOrderDTOList;
-
-        switch (criteria) {
+        switch (mapStringToSearchCriteria(inputCriteria, keyword)) {
             case ORDER_CODE -> searchedOrderDTOList = orderMapper.searchOrdersForFranchiseByOrderCode(
                         "",
                         "",
@@ -366,11 +399,19 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                     franchiseCode,
                     keyword
             );
-            default -> throw new InvalidCriteriaException(
-                    "Invalid Order Criteria. " +
-                            "entered Criteria: " + criteria + ". " +
-                            " entered keyword: " + keyword + "."
+            case ALL -> searchedOrderDTOList = orderMapper.findOrdersForFranchise(
+                    null,
+                    null,
+                    0,
+                    0,
+                    startDate,
+                    endDate,
+                    franchiseCode
             );
+            default -> {
+                log.error("inputCriteria: {}", inputCriteria);
+                throw new RuntimeException("Invalid Order Criteria");
+            }
         }
 
         return searchedOrderDTOList;
@@ -418,5 +459,21 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     @Transactional
     public int getFranchiseCodeByLoginId(String loginId) {
         return memberService.getFranchiseInfoByLoginId(loginId).getFranchiseCode();
+    }
+
+    private SearchCriteria mapStringToSearchCriteria(String criteria, String keyword) {
+        if (criteria == null || criteria.isEmpty()) {
+            return SearchCriteria.valueOf("ALL");
+        } else {
+            try {
+                return SearchCriteria.valueOf(criteria);
+            } catch (InvalidCriteriaException e) {
+                throw new InvalidCriteriaException(
+                        "Invalid Order Criteria. " +
+                                "entered Criteria: " + criteria + ". " +
+                                " entered keyword: " + keyword + "."
+                );
+            }
+        }
     }
 }
