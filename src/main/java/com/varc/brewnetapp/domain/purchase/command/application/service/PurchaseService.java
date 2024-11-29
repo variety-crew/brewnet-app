@@ -14,9 +14,9 @@ public interface PurchaseService {
 
     void changeInStockToAvailable(String loginId, ChangeInStockToAvailableRequestDTO bringIn);
 
-    PurchasePrintResponseDTO exportPurchasePrint(String loginId,
-                                                 int letterOfPurchaseCode,
-                                                 ExportPurchasePrintRequestDTO printRequest);
+    void recordPurchasePrint(String loginId, int letterOfPurchaseCode, ExportPurchasePrintRequestDTO printRequest);
+
+    PurchasePrintResponseDTO exportPurchasePrint(int letterOfPurchaseCode);
 
     PurchasePrintResponseDTO takeInHousePurchasePrint(String loginId, int letterOfPurchaseCode);
 
