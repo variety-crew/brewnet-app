@@ -31,4 +31,10 @@ public interface ReturningService {
     void completeStock(String loginId, int returningStockHistoryCode);
 
     void completeRefund(String loginId, int returningRefundHistoryCode);
+
+    void completeAllReturning(Returning returning);
+
+    boolean checkRefundComplete(Returning returning);
+
+    boolean checkStockComplete(Returning returning);
 }

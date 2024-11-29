@@ -25,6 +25,7 @@ import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.Returnin
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningReqVO;
 import com.varc.brewnetapp.domain.returning.command.domain.repository.*;
 import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
+import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
 import com.varc.brewnetapp.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,8 @@ public class ReturningServiceImpl implements ReturningService {
     private final ReturningApproverRepository returningApproverRepository;
     private final ReturningStockHistoryRepository returningStockHistoryRepository;
     private final ReturningRefundHistoryRepository returningRefundHistoryRepository;
+    private final ReturningItemStatusRepository returningItemStatusRepository;
+    private final StockRepository stockRepository;
     private final S3ImageService s3ImageService;
 
 
@@ -374,10 +377,10 @@ public class ReturningServiceImpl implements ReturningService {
 
         // 3. 환불 처리도 완료되었다면, 전체 반품 처리
         // 3-1. 환불 처리도 완료되었는지 확인
-        if(checkRefundComplete(returningStockHistory.getReturning())) {
+        if (checkRefundComplete(returningStockHistory.getReturning())) {
 
             // 3-2. 전체 반품 처리
-
+            completeAllReturning(returningStockHistory.getReturning());
         }
     }
 
@@ -412,174 +415,178 @@ public class ReturningServiceImpl implements ReturningService {
 
         // 3. 재고 처리도 완료되었다면, 전체 반품 처리
         // 3-1. 재고 처리도 완료되었는지 확인
-        if(checkStockComplete(returningRefundHistory.getReturning())) {
+        if (checkStockComplete(returningRefundHistory.getReturning())) {
 
             // 3-2. 전체 반품 처리
-
+            completeAllReturning(returningRefundHistory.getReturning());
         }
     }
 
-    private boolean checkRefundComplete(Returning returning) {
-        if (returningRefundHistoryRepository.findByReturning(returning).getConfirmed() == Confirmed.CONFIRMED) return true;
-        else return false;
+    @Override
+    @Transactional
+    public void completeAllReturning(Returning returning) {
+        /*TODO.
+         * 반품 전체 완료(반품&환불)인 경우 변하는 상태값:
+         * [1] 반품상태                   - tbl_return_status_history : status = COMPLETED (내역 추가됨)
+         * [2] 반품완료된 상품의 재고        - tbl_stock : available_stock 추가 (가용재고 추가됨)
+         * [3] 반품/교환요청 가능여부        - tbl_order_item : available = AVAILABLE
+         * */
+
+        /*
+         * 반품 전체 완료
+         * - 반품 전체 완료가 가능한 조건:
+         *   1. 반품 별 재고 처리 완료 내역(tbl_return_stock_history) 테이블 내역확인여부(confirmed) == CONFIRMED
+         *   2. 반품 별 환불 완료 내역(tbl_return_refund_history) 테이블 내역확인여부(confirmed) == CONFIRMED
+         *
+         * - 추가사항: 반품상태가 SHIPPED 아닐 때에도 완료처리 가능한 예외상황이 있을 수 있다고 판단해 교한상태로 완료가능 판단 X
+         * */
+
+        // 1. 반품 완료가 가능한지 확인
+        ReturningStockHistory returningStockHistory = returningStockHistoryRepository.findByReturning(returning)
+                .orElseThrow(() -> new IllegalArgumentException("타부서의 반품 별 재고 처리 완료 내역이 존재하지 않습니다."));
+        ReturningRefundHistory returningRefundHistory = returningRefundHistoryRepository.findByReturning(returning)
+                .orElseThrow(() -> new IllegalArgumentException("타부서의 반품 별 환불 완료 내역이 존재하지 않습니다."));
+        if (returningStockHistory.getConfirmed() != Confirmed.CONFIRMED) {
+            throw new IllegalArgumentException("반품 전체 완료가 불가합니다. 재고처리(반품)가 완료되지 않았습니다.");
+        } else if (returningRefundHistory.getConfirmed() != Confirmed.CONFIRMED) {
+            throw new IllegalArgumentException("반품 전체 완료가 불가합니다. 환불이 완료되지 않았습니다.");
+        }
+
+        // 2. 반품 상태 이력(tbl_return_status_history) 테이블 반품상태에 반품상태(status) COMPLETED 내역 추가
+        saveReturningStatusHistory(ReturningStatus.COMPLETED, returningStockHistory.getReturning());
+
+
+        // 3. 재고(tbl_stock) 테이블 가용재고(available_stock) 증가
+
+        // 3-1. 반품 별 재고 처리 완료 내역(tbl_return_stock_history) 테이블의 반품완료내역코드(return_stock_history_code)로
+        //      반품 완료 상품 상태(tbl_return_item_status) 조회
+        List<ReturningItemStatus> returningItemStatusList = returningItemStatusRepository
+                .findByReturningItemStatusCode_ReturningStockHistoryCode(returningStockHistory.getReturningStockHistoryCode());
+
+        // 3-2. 반품완료상품상태(tbl_return_item_status) 테이블의 상품코드(item_code)로 재고(tbl_stock) 조회
+        //      창고코드(storage_code)=1인 재고 -> 임시로 창고코드 1인 재고만 조회
+        for (ReturningItemStatus returningItemStatus : returningItemStatusList) {
+            Stock stock = stockRepository.findByStorageCodeAndItemCode(1, returningItemStatus.getReturningItemStatusCode().getItemCode());
+
+            // 4-4. 반품완료상품상태(tbl_return_item_status) 테이블의 재입고수량(restock_quantity) 만큼 재고(tbl_stock) 테이블의 가용재고(available_stock) 증가
+            stock = stock.toBuilder()
+                    .availableStock(stock.getAvailableStock() + returningItemStatus.getRestock_quantity())
+                    .build();
+            stockRepository.save(stock);
+        }
+
+
+        // 4. 주문 별 상품(tbl_order_item) 테이블 반품/교환요청 가능여부(available) AVAILABLE 변경
+        List<ExOrderItem> exOrderItemList = exOrderItemRepository.findByOrderItemCode_orderCode(returningStockHistory.getReturning().getOrder().getOrderCode())
+                .orElseThrow(() -> new OrderNotFound("완료 처리와 연관된 주문 별 상품 내역을 찾을 수 없습니다."));
+        for (
+                ExOrderItem exOrderItem : exOrderItemList) {
+            exOrderItem = exOrderItem.toBuilder()
+                    .available(Available.AVAILABLE)
+                    .build();
+            exOrderItemRepository.save(exOrderItem);
+        }
     }
 
-    private boolean checkStockComplete(Returning returning) {
-        if (returningStockHistoryRepository.findByReturning(returning).getConfirmed() == Confirmed.CONFIRMED) return true;
-        else return false;
-    }
+    @Override
+    @Transactional
+    public void drafterApproveReturning(ReturningDrafterApproveReqVO returningApproveReqVO, Returning returning, Member member) {
+        // [1] 반품(tbl_return) 테이블 '기안자의 반품 승인 여부(drafter_approved)'가 APPROVE 라면
+        //      -> 반품(tbl_return) 테이블 '반품 결재 상태(approval_status)' = UNCONFIRMED (변화 X)
+        //      -> 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = PENDING (내역 추가됨)
+        //      -> 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = APPROVED(기안자) / UNCONFIRMED(그 외 결재자)
 
-//    @Override
-//    @Transactional
-//    public void completeAllReturning(String loginId, int returningStockHistoryCode) {
-//        /*TODO.
-//         * 반품 전체 완료(반품&환불)인 경우 변하는 상태값:
-//         * [1] 반품상태                   - tbl_return_status_history : status = COMPLETED (내역 추가됨)
-//         * [2] 반품완료된 상품의 재고        - tbl_stock : available_stock 추가 (가용재고 추가됨)
-//         * [3] 반품/교환요청 가능여부        - tbl_order_item : available = AVAILABLE
-//         * */
-//
-//        /*
-//         * 반품 전체 완료
-//         * - 반품 전체 완료가 가능한 조건:
-//         *   1. 반품 별 재고 처리 완료 내역(tbl_exchange_stock_history) 테이블 내역확인여부(confirmed) == CONFIRMED
-//         *   2. 반품 별 환불 완료 내역(tbl_return_refund_history) 테이블 내역확인여부(confirmed) == CONFIRMED
-//         *
-//         * - 추가사항: 반품상태가 SHIPPED 아닐 때에도 완료처리 가능한 예외상황이 있을 수 있다고 판단해 교한상태로 완료가능 판단 X
-//         * */
-//
-//        // 1. 반품 완료가 가능한지 확인
-//        ExchangeStockHistory exchangeStockHistory = exchangeStockHistoryRepository.findById(exchangeStockHistoryCode)
-//                .orElseThrow(() -> new IllegalArgumentException("타부서의 반품 별 재고 처리 완료 내역이 존재하지 않습니다."));
-//        if (exchangeStockHistory.getConfirmed() != Confirmed.UNCONFIRMED) {
-//            throw new IllegalArgumentException("반품 완료가 불가합니다. 이미 반품 완료된 내역입니다.");
-//        }
-//
-//        // 2. 반품 상태 이력(tbl_exchange_status_history) 테이블 반품상태에 반품상태(status) COMPLETED 내역 추가
-//        saveExchangeStatusHistory(ExchangeStatus.COMPLETED, exchangeStockHistory.getExchange());
-//
-//        // 3. 반품 별 재고 처리 완료 내역(tbl_exchange_stock_history) 테이블 내역확인여부(confirmed) CONFIRMED 변경
-//        exchangeStockHistory = exchangeStockHistory.toBuilder()  -----------
-//                .confirmed(Confirmed.CONFIRMED)
-//                .build();
-//        exchangeStockHistoryRepository.save(exchangeStockHistory);
-//
-//
-//        // 4. 재고(tbl_stock) 테이블 가용재고(available_stock) 증가
-//
-//        // 4-1. 반품 별 재고 처리 완료 내역(tbl_exchange_stock_history) 테이블의 반품완료내역코드(exchange_stock_history_code)로
-//        //      반품 완료 상품 상태(tbl_exchange_item_status) 조회
-//        List<ExchangeItemStatus> exchangeItemStatusList = exchangeItemStatusRepository
-//                .findByExchangeItemStatusCode_ExchangeStockHistoryCode(exchangeStockHistory.getExchangeStockHistoryCode());
-//
-//        // 4-2. 반품완료상품상태(tbl_exchange_item_status) 테이블의 상품코드(item_code)로 재고(tbl_stock) 조회
-//        //      창고코드(storage_code)=1인 재고 -> 임시로 창고코드 1인 재고만 조회
-//        for (ExchangeItemStatus exchangeItemStatus : exchangeItemStatusList ) {
-//            Stock stock = stockRepository.findByStorageCodeAndItemCode(1, exchangeItemStatus.getExchangeItemStatusCode().getItemCode());
-//
-//            // 4-4. 반품완료상품상태(tbl_exchange_item_status) 테이블의 재입고수량(restock_quantity) 만큼 재고(tbl_stock) 테이블의 가용재고(available_stock) 증가
-//            stock = stock.toBuilder()
-//                    .availableStock(stock.getAvailableStock() + exchangeItemStatus.getRestock_quantity())
-//                    .build();
-//            stockRepository.save(stock);
-//        }
-//
-//
-//    // 5. 주문 별 상품(tbl_order_item) 테이블 반품/교환요청 가능여부(available) AVAILABLE 변경
-//    List<ExOrderItem> exOrderItemList = exOrderItemRepository.findByOrderItemCode_orderCode(exchangeStockHistory.getExchange().getOrder().getOrderCode())
-//            .orElseThrow(() -> new OrderNotFound("완료 처리와 연관된 주문 별 상품 내역을 찾을 수 없습니다."));
-//        for(
-//    ExOrderItem exOrderItem :exOrderItemList)
-//
-//    {
-//        exOrderItem = exOrderItem.toBuilder()
-//                .available(Available.AVAILABLE)
-//                .build();
-//        exOrderItemRepository.save(exOrderItem);
-//    }
-//}
-
-@Override
-@Transactional
-public void drafterApproveReturning(ReturningDrafterApproveReqVO returningApproveReqVO, Returning returning, Member member) {
-    // [1] 반품(tbl_return) 테이블 '기안자의 반품 승인 여부(drafter_approved)'가 APPROVE 라면
-    //      -> 반품(tbl_return) 테이블 '반품 결재 상태(approval_status)' = UNCONFIRMED (변화 X)
-    //      -> 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = PENDING (내역 추가됨)
-    //      -> 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = APPROVED(기안자) / UNCONFIRMED(그 외 결재자)
-
-    returning = returning.toBuilder()
-            .drafterApproved(DrafterApproved.APPROVE)               // [1] 기안자의 반품 승인 여부
+        returning = returning.toBuilder()
+                .drafterApproved(DrafterApproved.APPROVE)               // [1] 기안자의 반품 승인 여부
 //                    .approvalStatus(Approval.UNCONFIRMED)                // [2] 반품 결재 상태 (변화 X)
-            .memberCode(member)                                     // 기안자 등록
-            .comment(returningApproveReqVO.getComment())            // 첨언 등록
-            .build();
-    returningRepository.save(returning);
+                .memberCode(member)                                     // 기안자 등록
+                .comment(returningApproveReqVO.getComment())            // 첨언 등록
+                .build();
+        returningRepository.save(returning);
 
-    // 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = PENDING (내역 추가됨)
-    saveReturningStatusHistory(ReturningStatus.PENDING, returning);
+        // 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = PENDING (내역 추가됨)
+        saveReturningStatusHistory(ReturningStatus.PENDING, returning);
 
-    // 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = APPROVED (기안자만 결재자로 등록됨)
+        // 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = APPROVED (기안자만 결재자로 등록됨)
 //        saveReturningApprover(member.getMemberCode(), returning, Approval.APPROVED, String.valueOf(LocalDateTime.now()), returning.getComment());
 
-    // 3-2. 결재자들 등록
-    for (Integer approverCode : returningApproveReqVO.getApproverCodeList()) {
-        saveReturningApprover(approverCode, returning, Approval.UNCONFIRMED, null, null);
+        // 3-2. 결재자들 등록
+        for (Integer approverCode : returningApproveReqVO.getApproverCodeList()) {
+            saveReturningApprover(approverCode, returning, Approval.UNCONFIRMED, null, null);
+        }
     }
-}
 
-@Override
-@Transactional
-public void drafterRejectReturning(ReturningDrafterApproveReqVO returningApproveReqVO, Returning returning, Member member) {
-    // [1] 반품(tbl_return) 테이블 '기안자의 반품 승인 여부(drafter_approved)'가 REJECT 라면
-    //      -> [2] 반품(tbl_return) 테이블 '반품 결재 상태(approval_status)' = REJECTED
-    //      -> [3] 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = REJECTED (내역 추가됨)
-    //      -> [4] 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = REJECTED (기안자만 결재자로 등록됨)
+    @Override
+    @Transactional
+    public void drafterRejectReturning(ReturningDrafterApproveReqVO returningApproveReqVO, Returning returning, Member member) {
+        // [1] 반품(tbl_return) 테이블 '기안자의 반품 승인 여부(drafter_approved)'가 REJECT 라면
+        //      -> [2] 반품(tbl_return) 테이블 '반품 결재 상태(approval_status)' = REJECTED
+        //      -> [3] 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = REJECTED (내역 추가됨)
+        //      -> [4] 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = REJECTED (기안자만 결재자로 등록됨)
 
-    returning = returning.toBuilder()
-            .drafterApproved(DrafterApproved.REJECT)                // [1] 기안자의 반품 승인 여부
-            .approvalStatus(Approval.REJECTED)                      // [2] 반품 결재 상태
-            .memberCode(member)                                     // 기안자 등록
-            .comment(returningApproveReqVO.getComment())             // 첨언 등록
-            .build();
-    returningRepository.save(returning);
+        returning = returning.toBuilder()
+                .drafterApproved(DrafterApproved.REJECT)                // [1] 기안자의 반품 승인 여부
+                .approvalStatus(Approval.REJECTED)                      // [2] 반품 결재 상태
+                .memberCode(member)                                     // 기안자 등록
+                .comment(returningApproveReqVO.getComment())             // 첨언 등록
+                .build();
+        returningRepository.save(returning);
 
-    // 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = REJECTED (내역 추가됨)
-    saveReturningStatusHistory(ReturningStatus.REJECTED, returning);
+        // 반품 상태 이력(tbl_return_status_history) 테이블 '반품 상태(status)' = REJECTED (내역 추가됨)
+        saveReturningStatusHistory(ReturningStatus.REJECTED, returning);
 
-    // 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = REJECTED (기안자만 결재자로 등록됨)
+        // 반품 별 결재자들(tbl_return_approver) 테이블 '승인여부(approved)' = REJECTED (기안자만 결재자로 등록됨)
 //        saveReturningApprover(member.getMemberCode(), returning, Approval.REJECTED, String.valueOf(LocalDateTime.now()), returning.getComment());
-}
+    }
 
-@Override
-@Transactional
-public void saveReturningApprover(Integer member, Returning returning, Approval approval, String createdAt, String comment) {
-    // 복합키 설정
-    ReturningApproverCode drafterApproverCode = ReturningApproverCode.builder()
-            .memberCode(member)                         // 멤버 코드 설정
-            .returningCode(returning.getReturningCode())   // 반품 코드 설정
-            .build();
+    @Override
+    @Transactional
+    public void saveReturningApprover(Integer member, Returning returning, Approval approval, String createdAt, String comment) {
+        // 복합키 설정
+        ReturningApproverCode drafterApproverCode = ReturningApproverCode.builder()
+                .memberCode(member)                         // 멤버 코드 설정
+                .returningCode(returning.getReturningCode())   // 반품 코드 설정
+                .build();
 
-    // 반품 별 결재자들 객체 생성
-    ReturningApprover approver = ReturningApprover.builder()
-            .returningApproverCode(drafterApproverCode)  // 복합키 설정
-            .approved(approval)                         // [4] 반품 별 결재자들 (기안자)
-            .createdAt(createdAt)
-            .comment(comment)
-            .active(true)
-            .build();
-    returningApproverRepository.save(approver);
-}
+        // 반품 별 결재자들 객체 생성
+        ReturningApprover approver = ReturningApprover.builder()
+                .returningApproverCode(drafterApproverCode)  // 복합키 설정
+                .approved(approval)                         // [4] 반품 별 결재자들 (기안자)
+                .createdAt(createdAt)
+                .comment(comment)
+                .active(true)
+                .build();
+        returningApproverRepository.save(approver);
+    }
 
-@Override
-@Transactional
-public void saveReturningStatusHistory(ReturningStatus status, Returning returning) {
-    ReturningStatusHistory returnStatusHistory = ReturningStatusHistory.builder()
-            .status(status)   // [3] 반품 상태 이력
-            .createdAt(String.valueOf(LocalDateTime.now()))
-            .active(true)
-            .returning(returning)
-            .build();
-    returningStatusHistoryRepository.save(returnStatusHistory);
-}
+    @Override
+    @Transactional
+    public void saveReturningStatusHistory(ReturningStatus status, Returning returning) {
+        ReturningStatusHistory returnStatusHistory = ReturningStatusHistory.builder()
+                .status(status)   // [3] 반품 상태 이력
+                .createdAt(String.valueOf(LocalDateTime.now()))
+                .active(true)
+                .returning(returning)
+                .build();
+        returningStatusHistoryRepository.save(returnStatusHistory);
+    }
+
+    @Override
+    @Transactional
+    public boolean checkRefundComplete(Returning returning) {
+        if (returningRefundHistoryRepository.findByReturning(returning)
+                .orElseThrow(() -> new IllegalArgumentException("반품 별 환불 완료 내역을 찾을 수 없습니다."))
+                .getConfirmed() == Confirmed.CONFIRMED) return true;
+        else return false;
+    }
+
+    @Override
+    @Transactional
+    public boolean checkStockComplete(Returning returning) {
+        if (returningStockHistoryRepository.findByReturning(returning)
+                .orElseThrow(() -> new IllegalArgumentException("반품 별 재고 처리 완료 내역을 찾을 수 없습니다."))
+                .getConfirmed() == Confirmed.CONFIRMED) return true;
+        else return false;
+    }
 
 }

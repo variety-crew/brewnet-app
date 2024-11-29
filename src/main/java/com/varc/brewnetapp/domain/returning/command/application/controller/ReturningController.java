@@ -36,9 +36,9 @@ public class ReturningController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "반품 결재승인 성공", null));
     }
 
-    @PostMapping("/other/returning-complete/{returningStockHistoryCode}")
-    @Operation(summary = "[본사] 타부서 반품처리내역 상세조회 - 1. 반품완료 API")
-    public ResponseEntity<ResponseMessage<Integer>> completeReturning(@RequestAttribute("loginId") String loginId,
+    @PostMapping("/other/stock-complete/{returningStockHistoryCode}")
+    @Operation(summary = "[본사] 타부서 반품처리내역 상세조회 - 1. 재고처리 완료 API")
+    public ResponseEntity<ResponseMessage<Integer>> completeStock(@RequestAttribute("loginId") String loginId,
                                                                      @PathVariable("returningStockHistoryCode") int returningStockHistoryCode) {
         returningService.completeStock(loginId, returningStockHistoryCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "반품완료 성공", null));

@@ -5,7 +5,9 @@ import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.Retu
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository("ReturningRefundHistoryRepositoryCommand")
 public interface ReturningRefundHistoryRepository extends JpaRepository<ReturningRefundHistory, Integer> {
-    ReturningRefundHistory findByReturning(Returning returning);
+    Optional<ReturningRefundHistory> findByReturning(Returning returning);
 }
