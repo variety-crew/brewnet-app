@@ -24,7 +24,8 @@ public interface OrderQueryService {
             String sort,
             String startDate,
             String endDate,
-            OrderSearchDTO orderSearchDTO
+            String criteria,
+            String keyword
     );
     OrderRequestDTO printOrderRequest(int orderCode);
     OrderDetailForHQDTO getOrderDetailForHqBy(int orderCode);
