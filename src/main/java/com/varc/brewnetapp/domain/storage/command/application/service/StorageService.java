@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.storage.command.application.service;
 
 import com.varc.brewnetapp.domain.storage.command.application.dto.ChangeStockRequestDTO;
+import com.varc.brewnetapp.domain.storage.command.application.dto.StorageDeleteRequestDTO;
 import com.varc.brewnetapp.domain.storage.command.application.dto.StorageRequestDTO;
 import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
 
@@ -12,7 +13,7 @@ public interface StorageService {
 
     void editStorage(String loginId, int storageCode, StorageRequestDTO editedStorage);
 
-    void deleteStorage(String loginId, int storageCode);
+    void deleteStorage(String loginId, StorageDeleteRequestDTO deleteRequest);
 
     void changeStock(String loginId, List<ChangeStockRequestDTO> changes);
 

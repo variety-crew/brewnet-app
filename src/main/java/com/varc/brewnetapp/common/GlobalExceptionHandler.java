@@ -65,6 +65,7 @@ public class GlobalExceptionHandler {
     // 404: Not Found
     @ExceptionHandler({
             ExchangeNotFoundException.class,
+            ReturningNotFoundException.class,
             EmptyDataException.class,
             ApprovalNotFoundException.class,
             CorrespondentNotFoundException.class,

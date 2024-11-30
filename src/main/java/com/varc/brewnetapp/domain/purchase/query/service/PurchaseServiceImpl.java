@@ -1,13 +1,10 @@
 package com.varc.brewnetapp.domain.purchase.query.service;
 
-import com.varc.brewnetapp.domain.document.query.dto.ApproverMemberDTO;
-import com.varc.brewnetapp.domain.purchase.common.KindOfApproval;
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseItemCriteria;
 import com.varc.brewnetapp.domain.purchase.query.dto.*;
 import com.varc.brewnetapp.domain.purchase.query.mapper.PurchaseMapper;
-import com.varc.brewnetapp.exception.ApprovalNotFoundException;
 import com.varc.brewnetapp.exception.InvalidConditionException;
 import com.varc.brewnetapp.exception.PurchaseNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
