@@ -38,10 +38,17 @@ public class ExchangeController {
     }
 
     @GetMapping("/excel-data")
-    @Operation(summary = "[본사] 교환요청 엑셀 데이터(전체 교환내역) 조회 API")
-    public ResponseEntity<ResponseMessage<List<ExchangeListVO>>> findExchangeExcelList() {
-        List <ExchangeListVO> result = exchangeService.findAllExchangeList();
-        return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 목록 조회 성공", result));
+    @Operation(summary = "[본사] 교환요청 엑셀 데이터 조회 API",
+            description = "searchFilter에 들어갈 수 있는 값은 exchangeCode(교환번호), franchiseName(교환지점), managerName(교환지점) 3가지<br>" +
+                    "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
+                    "3가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
+    public ResponseEntity<ResponseMessage<List<ExchangeListVO>>> findExcelExchangeList(
+            @RequestParam(required = false) String searchFilter,
+            @RequestParam(required = false) String searchWord,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        List<ExchangeListVO> result = exchangeService.findExcelExchangeList(searchFilter, searchWord, startDate, endDate);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "교환요청 엑셀 데이터 조회 성공", result));
     }
 
     @GetMapping("/status-requested")
@@ -127,20 +134,21 @@ public class ExchangeController {
         List<ExchangeApproverVO> result = exchangeService.findExchangeApprover(exchangeCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재진행상태 조회 성공", result));
     }
-    @GetMapping("/excel")
-    @Operation(summary = "[본사] 교환목록 엑셀출력 API")
-    public ResponseEntity<ResponseMessage<Void>> exportExchangeExcel(HttpServletResponse response) throws NumberFormatException, IOException {
 
-        Workbook wb = exchangeService.exportExchangeExcel();
-
-        // 컨텐츠 타입, 파일명 지정
-        response.setContentType("ms-vnd/excel");
-        response.setHeader("Content-Disposition", "attachment;filename=exchangeList.xlsx");
-
-        // 엑셀파일 저장
-        wb.write(response.getOutputStream());
-        wb.close();
-
-        return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재진행상태 조회 성공", null));
-    }
+//    @GetMapping("/excel")
+//    @Operation(summary = "[본사] 교환목록 엑셀출력 API")
+//    public ResponseEntity<ResponseMessage<Void>> exportExchangeExcel(HttpServletResponse response) throws NumberFormatException, IOException {
+//
+//        Workbook wb = exchangeService.exportExchangeExcel();
+//
+//        // 컨텐츠 타입, 파일명 지정
+//        response.setContentType("ms-vnd/excel");
+//        response.setHeader("Content-Disposition", "attachment;filename=exchangeList.xlsx");
+//
+//        // 엑셀파일 저장
+//        wb.write(response.getOutputStream());
+//        wb.close();
+//
+//        return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재진행상태 조회 성공", null));
+//    }
 }

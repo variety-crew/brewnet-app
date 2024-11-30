@@ -13,7 +13,7 @@ public interface ExchangeMapper {
 
     List<ExchangeListVO> selectExchangeList(long offset, long pageSize);
 
-    List<ExchangeListVO> selectAllExchangeList();
+    List<ExchangeListVO> selectExcelExchangeList(String searchFilter, String searchWord, String startDate, String endDate);
 
     int selectRequestedExchangeListCnt();
 

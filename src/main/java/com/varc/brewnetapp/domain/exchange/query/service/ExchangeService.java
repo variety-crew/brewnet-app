@@ -11,7 +11,7 @@ import java.util.List;
 public interface ExchangeService {
     Page<ExchangeListVO> findExchangeList(Pageable page);
 
-    List<ExchangeListVO> findAllExchangeList();
+    List<ExchangeListVO> findExcelExchangeList(String searchFilter, String searchWord, String startDate, String endDate);
 
     Page<ExchangeListVO> findRequestedExchangeList(Pageable page);
 
@@ -33,7 +33,7 @@ public interface ExchangeService {
 
     List<FranExchangeStatusVO> findFranExchangeStatusBy(String loginId, int exchangeCode);
 
-    Workbook exportExchangeExcel();
+//    Workbook exportExchangeExcel();
 
     ExchangeStatus findExchangeLatestStatus(int exchangeCode);
 
