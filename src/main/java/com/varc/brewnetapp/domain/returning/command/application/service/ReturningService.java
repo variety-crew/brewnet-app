@@ -37,4 +37,6 @@ public interface ReturningService {
     boolean checkRefundComplete(Returning returning);
 
     boolean checkStockComplete(Returning returning);
+
+    void cancelApprove(String loginId, int returningCode);
 }

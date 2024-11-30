@@ -217,7 +217,6 @@ public class ReturningServiceImpl implements ReturningService {
         }
     }
 
-
     @Override
     @Transactional
     public void drafterReturning(String loginId, int returningCode, ReturningDrafterApproveReqVO returningApproveReqVO) {
@@ -344,6 +343,69 @@ public class ReturningServiceImpl implements ReturningService {
         } else {
             throw new IllegalArgumentException("결재자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
         }
+    }
+
+    @Override
+    @Transactional
+    public void cancelApprove(String loginId, int returningCode) {
+        /*TODO.
+         * 반품취소(결재자) 시 변하는 상태값
+         * [1] 반품 결재 상태            - tbl_return : approval_status = UNCONFIRMED -> CANCELED
+         * [1] 기안자의 반품 승인 여부    - tbl_return : drafter_approved = APPROVE -> NONE
+         * [2] 반품상태                 - tbl_return_status_history : status = PENDING -> PENDING (변화 X)
+         * [3] 결재 내역 삭제            - tbl_return_approver : Hard Delete
+         * */
+
+        /*
+         * 반품 결재취소(결재자)
+         * - 결재취소가 가능한 조건:
+         *   1. 반품(tbl_return) 테이블 반품 기안자(member_code) != null
+         *   2. 반품(tbl_return) 테이블 반품 기안자(member_code)가 해당 loginId를 갖는 멤버
+         *   3. 반품(tbl_return) 테이블 기안자의 반품 승인 여부(drafter_approved) == APPROVE
+         *   4. 반품(tbl_return) 테이블 반품결재상태(approval_status) == UNCONFIRMED
+         *   5. 반품 상태 이력(tbl_return_status_history) 테이블 최신 반품상태(status) == PENDING
+         *   6. 반품 별 결재자들(tbl_return_approver) 테이블 승인여부(approved) == UNCONFIRMED
+         *      && 반품 별 결재자들(tbl_return_approver) 테이블 활성화(active) == true
+         * */
+
+        // 1. 결재취소가 가능한지 확인
+        Returning returning = returningRepository.findById(returningCode)
+                .orElseThrow(() -> new ReturningNotFoundException("해당하는 반품 내역을 찾을 수 없습니다."));
+        Member member = returning.getMemberCode();
+        ReturningStatus returningStatus = returningServiceQuery.findReturningLatestStatus(returningCode);
+
+//        ReturningApproverCode returningApproverCode = ReturningApproverCode.builder()
+////                .memberCode(member.getMemberCode())
+//                .returningCode(returningCode)
+//                .build();
+        List<ReturningApprover> returningApproverList = returningApproverRepository.findByReturningCode(returningCode)
+                .orElseThrow(() -> new IllegalArgumentException("반품 별 결재자들을 찾을 수 없습니다"));
+
+        if (member == null) {
+            throw new MemberNotFoundException("반품 결재취소가 불가합니다. 아직 기안자가 없는 반품요청입니다.");
+        } else if (!member.getId().equals(loginId)) {
+            log.info("*** 0. member.getId:{}   loginId:{}", member.getId(), loginId);
+            throw new IllegalArgumentException("반품 결재취소가 불가합니다. 기안자만 결재취소요청을 할 수 있습니다.");
+        } else if (returning.getDrafterApproved() != DrafterApproved.APPROVE) {
+            throw new IllegalArgumentException("반품 결재취소가 불가합니다. 기안자의 반품 승인 여부가 '승인'인 경우에만 결재취소가 가능합니다.");
+        } else if (returning.getApprovalStatus() != Approval.UNCONFIRMED) {
+            throw new IllegalArgumentException("반품 결재취소가 불가합니다. 상급자가 결재 요청을 아직 승인하지 않은 경우에만 결재취소가 가능합니다.");
+        } else if (returningStatus != ReturningStatus.PENDING) {
+            throw new IllegalArgumentException("반품 결재취소가 불가합니다. 반품상태가 '진행중'인 경우에만 결재취소가 가능합니다.");
+        } else if (returningApproverList.get(0).isActive() && returningApproverList.get(0).getApproved() != Approval.UNCONFIRMED) {
+            // 활성화된 '반품 별 결재자들' 내역이 UNCONFIRMED 인 경우 결재취소 불가
+            throw new IllegalArgumentException("반품 결재취소가 불가합니다. 상급자가 결재 요청을 아직 승인하지 않은 경우에만 결재취소가 가능합니다.");
+        }
+
+        // 2. 반품(tbl_return) 테이블 값 변경
+        returning = returning.toBuilder()
+                .approvalStatus(Approval.CANCELED)
+                .drafterApproved(DrafterApproved.NONE)
+                .build();
+        returningRepository.save(returning);
+
+        // 3. 반품 별 결재자들(tbl_return_approver) 테이블 결재 내역 삭제
+        returningApproverRepository.deleteById(returningApproverList.get(0).getReturningApproverCode());
     }
 
     @Override
