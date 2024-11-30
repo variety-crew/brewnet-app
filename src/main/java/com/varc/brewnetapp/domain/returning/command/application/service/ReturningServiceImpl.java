@@ -241,14 +241,15 @@ public class ReturningServiceImpl implements ReturningService {
         Returning returning = returningRepository.findById(returningCode)
                 .orElseThrow(() -> new ReturningNotFoundException("반품 코드가 존재하지 않습니다."));
 
+        // 새로운 요청이거나 본인이 취소한 요청인 경우인지 확인
         ReturningStatus status = returningServiceQuery.findReturningLatestStatus(returning.getReturningCode());
-        if (status != ReturningStatus.REQUESTED) {
+        if (status != ReturningStatus.REQUESTED  && status != ReturningStatus.PENDING) {
             throw new InvalidStatusException("결재신청이 불가능합니다. 반품 상태가 '반품요청'이 아닙니다.");
-        } else if (returning.getApprovalStatus() != Approval.UNCONFIRMED) {
+        } else if (returning.getApprovalStatus() != Approval.UNCONFIRMED  && returning.getApprovalStatus() != Approval.CANCELED) {
             throw new InvalidStatusException("결재신청이 불가능합니다. 반품 결재 상태가 '미확인'이 아닙니다.");
         } else if (returning.getDrafterApproved() != DrafterApproved.NONE) {
             throw new InvalidStatusException("결재신청이 불가능합니다. 이미 다른 관리자가 결재 등록했습니다.");
-        } else if (returning.getMemberCode() != null) {
+        } else if (returning.getMemberCode() != null && !returning.getMemberCode().getId().equals(loginId)) {
             throw new InvalidStatusException("결재신청이 불가능합니다. 이미 다른 관리자가 진행 중인 반품 내역입니다.");
         }
 
