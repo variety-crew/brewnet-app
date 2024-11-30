@@ -27,6 +27,14 @@ public class ExchangeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "교환 결재신청 성공", null));
     }
 
+    @PostMapping("/cancel-approve/{exchangeCode}")
+    @Operation(summary = "[본사] 교환 결재취소(기안자)")
+    public ResponseEntity<ResponseMessage<Integer>> cancelApprove(@RequestAttribute("loginId") String loginId,
+                                                                  @PathVariable("exchangeCode") int exchangeCode) {
+        exchangeService.cancelApprove(loginId, exchangeCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "반품 결재취소 성공", null));
+    }
+
     @PostMapping("/{exchangeCode}/manager-approve")
     @Operation(summary = "[본사] 교환 결재승인(결재자) API")
     public ResponseEntity<ResponseMessage<Integer>> approveExchange(@RequestAttribute("loginId") String loginId,
