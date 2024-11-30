@@ -111,9 +111,8 @@ public class StorageServiceImpl implements StorageService{
             }
         }
 
-        // 창고별 상품 재고가 모두 삭제 처리된 것을 확인하면 창고 삭제 처리
-        List<Stock> stockCheckList = stockRepository.findByStorageCodeAndActiveTrue(deleteRequest.getStorageCode());
-        if (stockCheckList == null) storage.setActive(false);
+        // 창고별 상품 재고가 모두 삭제 처리되면 창고 삭제 처리
+        storage.setActive(false);
     }
 
     @Transactional
