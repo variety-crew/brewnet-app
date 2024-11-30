@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.varc.brewnetapp.domain.order.query.mapper.OrderMapper">
+
+    <resultMap id="MandatoryPurchaseListForHQ" type="com.varc.brewnetapp.domain.item.query.dto.MustBuyItemDTO">
+        <id property="mandatoryPurchaseCode" column="MANDATORY_PURCHASE_CODE"/>
+        <result property="quantity" column="MIN_QUANTITY"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="active" column="ACTIVE"/>
+        <result property="itemCode" column="ITEM_CODE"/>
+        <result property="dueDate" column="DUE_DATE"/>
+        <result property="memberCode" column="MEMBER_CODE"/>
+    </resultMap>
+
+    <select id="getMandatoryPurchaseList" resultMap="MandatoryPurchaseListForHQ">
+        SELECT
+             , mp.MANDATORY_PURCHASE_CODE AS MANDATORY_PURCHASE_CODE
+             , mp.MIN_QUANTITY AS MIN_QUANTITY
+             , mp.CREATED_AT AS CREATED_AT
+             , mp.ACTIVE AS ACTIVE
+             , mp.ITEM_CODE AS ITEM_CODE
+             , mp.DUE_DATE AS DUE_DATE
+             , mp.MEMBER_CODE AS MEMBER_CODE
+          FROM tbl_mandatory_purchase mp
+         WHERE mp.ACTIVE = 1
+    </select>
+
+</mapper>

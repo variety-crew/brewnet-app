@@ -1,7 +1,9 @@
 package com.varc.brewnetapp.domain.item.query.service;
 
 import com.varc.brewnetapp.domain.item.query.dto.ItemDTO;
+import com.varc.brewnetapp.domain.item.query.dto.MustBuyItemDTO;
 import com.varc.brewnetapp.domain.item.query.mapper.ItemMapper;
+import com.varc.brewnetapp.domain.item.query.mapper.MandatoryPurchaseMapper;
 import com.varc.brewnetapp.domain.member.query.dto.MemberDTO;
 import com.varc.brewnetapp.exception.EmptyDataException;
 import java.util.List;
@@ -14,12 +16,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service(value = "queryItemService")
 public class ItemServiceImpl implements ItemService {
-
     private final ItemMapper itemMapper;
+    private final MandatoryPurchaseMapper mandatoryPurchaseMapper;
 
     @Autowired
-    public ItemServiceImpl(ItemMapper itemMapper) {
+    public ItemServiceImpl(
+            ItemMapper itemMapper,
+            MandatoryPurchaseMapper mandatoryPurchaseMapper
+    ) {
         this.itemMapper = itemMapper;
+        this.mandatoryPurchaseMapper = mandatoryPurchaseMapper;
     }
 
     @Override
@@ -66,5 +72,10 @@ public class ItemServiceImpl implements ItemService {
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(itemList, page, count);
+    }
+
+    @Override
+    public List<MustBuyItemDTO> getMustBuyItemsBy() {
+        return mandatoryPurchaseMapper.getMandatoryPurchaseList();
     }
 }
