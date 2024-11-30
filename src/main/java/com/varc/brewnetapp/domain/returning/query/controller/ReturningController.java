@@ -33,10 +33,17 @@ public class ReturningController {
     }
 
     @GetMapping("/excel-data")
-    @Operation(summary = "[본사] 반품요청 엑셀 데이터(전체 반품내역) 조회 API")
-    public ResponseEntity<ResponseMessage<List<ReturningListVO>>> findReturningExcelList() {
-        List <ReturningListVO> result = returningService.findAllReturningList();
-        return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 목록 조회 성공", result));
+    @Operation(summary = "[본사] 반품요청 엑셀 데이터 조회 API",
+            description = "searchFilter에 들어갈 수 있는 값은 returningCode(반품번호), franchiseName(반품지점), managerName(반품지점) 3가지<br>" +
+                    "생성일자로 검색하고 싶은 경우 startDate(검색시작일), endDate(검색마지막일)을 입력<br>" +
+                    "3가지 검색 조건과 생성일자 검색은 AND로 함께 필터링 검색 가능")
+    public ResponseEntity<ResponseMessage<List<ReturningListVO>>> findExcelReturningList(
+            @RequestParam(required = false) String searchFilter,
+            @RequestParam(required = false) String searchWord,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        List<ReturningListVO> result = returningService.findExcelReturningList(searchFilter, searchWord, startDate, endDate);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "반품요청 엑셀 데이터 조회 성공", result));
     }
 
     @GetMapping("/status-requested")

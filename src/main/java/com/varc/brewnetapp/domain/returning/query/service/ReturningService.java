@@ -10,7 +10,7 @@ import java.util.List;
 public interface ReturningService {
     Page<ReturningListVO> findReturningList(Pageable page);
 
-    List<ReturningListVO> findAllReturningList();
+    List<ReturningListVO> findExcelReturningList(String searchFilter, String searchWord, String startDate, String endDate);
 
     Page<ReturningListVO> findRequestedReturningList(Pageable page);
 
@@ -45,5 +45,4 @@ public interface ReturningService {
     RefundHistoryDetailVO findRefundHistoryDetailBy(Integer returningRefundHistoryCode);
 
     List<ReturningApproverVO> findReturningApprover(Integer returningCode);
-
 }

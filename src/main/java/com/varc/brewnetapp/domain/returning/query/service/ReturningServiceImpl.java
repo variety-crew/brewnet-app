@@ -1,9 +1,6 @@
 package com.varc.brewnetapp.domain.returning.query.service;
 
 import com.varc.brewnetapp.common.domain.returning.ReturningStatus;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeApproverVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryDetailVO;
-import com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryVO;
 import com.varc.brewnetapp.domain.returning.query.aggregate.vo.*;
 import com.varc.brewnetapp.domain.returning.query.mapper.ReturningMapper;
 import com.varc.brewnetapp.exception.ReturningNotFoundException;
@@ -48,8 +45,8 @@ public class ReturningServiceImpl implements ReturningService {
     }
 
     @Override
-    public List<ReturningListVO> findAllReturningList() {
-        List<ReturningListVO> returningList = returningMapper.selectAllReturningList();
+    public List<ReturningListVO> findExcelReturningList(String searchFilter, String searchWord, String startDate, String endDate) {
+        List<ReturningListVO> returningList = returningMapper.selectExcelReturningList(searchFilter, searchWord, startDate, endDate);
         return returningList;
     }
 

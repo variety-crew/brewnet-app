@@ -13,7 +13,7 @@ public interface ReturningMapper {
 
     List<ReturningListVO> selectReturningList(long offset, long pageSize);
 
-    List<ReturningListVO> selectAllReturningList();
+    List<ReturningListVO> selectExcelReturningList(String searchFilter, String searchWord, String startDate, String endDate);
 
     int selectRequestedReturningListCnt();
 
@@ -60,6 +60,4 @@ public interface ReturningMapper {
     RefundHistoryDetailVO selectRefundHistoryDetailBy(int returningRefundHistoryCode);
 
     List<ReturningApproverVO> selectReturningApproverBy(int returningCode);
-
-
 }
