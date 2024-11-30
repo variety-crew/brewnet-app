@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -59,10 +60,19 @@ public class MemberController {
     }
 
     @GetMapping("/member/detail")
-    @Operation(summary = "멤버 상세 조회 API / 토큰에 들어 있는 아이디 값에 해당하는 유저의 정보를 보여줌")
+    @Operation(summary = "내 멤버 정보 상세 조회 API / 토큰에 들어 있는 아이디 값에 해당하는 유저의 정보를 보여줌")
     public ResponseEntity<ResponseMessage<MemberDTO>> findMember(@RequestHeader("Authorization") String accessToken) {
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "멤버 조회 성공", memberService.findMember(accessToken)));
+    }
+
+    @GetMapping("/hq/member/detail/{memberCode}")
+    @Operation(summary = "나와 다른 멤버 상세 조회 API / 토큰에 들어 있는 아이디 값에 해당하는 유저의 정보를 보여줌")
+    public ResponseEntity<ResponseMessage<MemberDTO>> findMemberByHqMember(@RequestHeader("Authorization") String accessToken,
+        @PathVariable(value = "memberCode") Integer memberCode) {
+
+        return ResponseEntity.ok(new ResponseMessage<>
+            (200, "멤버 조회 성공", memberService.findMemberByHqMember(memberCode)));
     }
 
     @GetMapping("/company/seal/history")

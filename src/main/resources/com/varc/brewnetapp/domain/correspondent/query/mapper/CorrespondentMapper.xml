@@ -141,4 +141,83 @@
          ORDER BY T.ITEM_UNIQUE_CODE ASC
     </select>
 
+    <!-- 엑셀 파일로 출력될 거래처 목록 -->
+    <select id="printCorrespondentList"
+            parameterType="com.varc.brewnetapp.domain.correspondent.common.SearchCorrespondentCriteria"
+            resultMap="correspondentResultMap">
+        SELECT
+               C.CORRESPONDENT_CODE,
+               C.NAME AS CORRESPONDENT_NAME,
+               C.ADDRESS,
+               C.DETAIL_ADDRESS,
+               C.EMAIL,
+               C.CONTACT,
+               C.MANAGER_NAME
+          FROM tbl_correspondent C
+        <where>
+            C.ACTIVE = TRUE
+            <if test="correspondentCode != null">
+                AND C.CORRESPONDENT_CODE = #{correspondentCode}
+            </if>
+            <if test="correspondentName != null">
+                AND C.NAME LIKE CONCAT('%', #{correspondentName}, '%')
+            </if>
+        </where>
+         ORDER BY C.CORRESPONDENT_CODE ASC
+    </select>
+
+    <!-- 엑셀 파일로 출력될 거래처의 발주 가능 상품 목록 -->
+    <select id="printCorrespondentItemList"
+            parameterType="com.varc.brewnetapp.domain.correspondent.common.SearchCorrespondentItemCriteria"
+            resultMap="correspondentItemResultMap">
+        SELECT
+               I.CORRESPONDENT_CODE,
+               I.ITEM_CODE,
+               G.NAME AS CATEGORY_NAME,
+               T.ITEM_UNIQUE_CODE,
+               T.NAME AS ITEM_NAME,
+               C.NAME AS CORRESPONDENT_NAME,
+               T.SELLING_PRICE,
+               T.PURCHASE_PRICE,
+               T.SAFETY_STOCK,
+               I.ACTIVE
+          FROM tbl_correspondent_item I
+          JOIN tbl_correspondent C ON I.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+          JOIN tbl_item T ON I.ITEM_CODE = T.ITEM_CODE
+          JOIN tbl_sub_category G ON T.CATEGORY_CODE = G.SUB_CATEGORY_CODE
+        <where>
+            I.CORRESPONDENT_CODE = #{correspondentCode}
+            AND I.ACTIVE = TRUE
+            <choose>
+                <when test="itemUniqueCode != null">
+                    AND T.ITEM_UNIQUE_CODE LIKE CONCAT('%', #{itemUniqueCode}, '%')
+                </when>
+                <when test="itemName != null">
+                    AND T.NAME LIKE CONCAT('%', #{itemName}, '%')
+                </when>
+                <otherwise>
+                    AND 1 = 1
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY T.ITEM_UNIQUE_CODE ASC
+    </select>
+
+    <!-- 거래처 상세 정보 조회 -->
+    <select id="selectOneCorrespondent" parameterType="int" resultMap="correspondentResultMap">
+        SELECT
+               C.CORRESPONDENT_CODE,
+               C.NAME AS CORRESPONDENT_NAME,
+               C.ADDRESS,
+               C.DETAIL_ADDRESS,
+               C.EMAIL,
+               C.CONTACT,
+               C.MANAGER_NAME
+          FROM tbl_correspondent C
+        <where>
+            C.CORRESPONDENT_CODE = #{correspondentCode}
+            AND C.ACTIVE = TRUE
+        </where>
+    </select>
+
 </mapper>

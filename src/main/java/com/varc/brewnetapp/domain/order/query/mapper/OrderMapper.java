@@ -14,15 +14,6 @@ public interface OrderMapper {
 // 주문 금액 높은 순
 // 주문 금액 낮은 순
 
-    // test
-    List<HQOrderDTO> findOrdersBy(
-            @Param("filter") String filter,
-            @Param("sort") String sort,
-            @Param("size") int size,
-            @Param("offset") int offset
-    );
-
-
     // for HQ
     List<HQOrderDTO> findOrdersForHQBy(
             @Param("filter") String filter,
@@ -32,15 +23,36 @@ public interface OrderMapper {
             @Param("startDate") String startDate,
             @Param("endDate") String endDate
     );
-
-    int countOrdersForHq(
-            @Param("filter") String filter,
-            @Param("startDate") String startDate,
-            @Param("endDate") String endDate
-    );
-
     OrderDetailForHQDTO findOrderDetailForHqBy(int orderCode);
 
+    // search
+    List<HQOrderDTO> searchOrdersForHQByOrderCode(
+            @Param("filter") String filter,
+            @Param("sort") String sort,
+            @Param("size") int size,
+            @Param("offset") int offset,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("keyword") String keyword
+    );
+    List<HQOrderDTO> searchOrdersForHQByOrderedFranchiseName(
+            @Param("filter") String filter,
+            @Param("sort") String sort,
+            @Param("size") int size,
+            @Param("offset") int offset,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("keyword") String keyword
+    );
+    List<HQOrderDTO> searchOrdersForHQByOrderManager(
+            @Param("filter") String filter,
+            @Param("sort") String sort,
+            @Param("size") int size,
+            @Param("offset") int offset,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("keyword") String keyword
+    );
 
     // for FRANCHISE
     List<FranchiseOrderDTO> findOrdersForFranchise(
@@ -52,24 +64,39 @@ public interface OrderMapper {
             @Param("endDate") String endDate,
             @Param("franchiseCode") int franchiseCode
     );
+    OrderDetailForFranchiseDTO findOrderDetailForFranchiseBy(int orderCode);
 
-    int countOrdersForFranchise(
+    // search
+    List<FranchiseOrderDTO> searchOrdersForFranchiseByOrderCode(
             @Param("filter") String filter,
-            @Param("franchiseCode") int franchiseCode,
+            @Param("sort") String sort,
+            @Param("size") int size,
+            @Param("offset") int offset,
             @Param("startDate") String startDate,
-            @Param("endDate") String endDate
+            @Param("endDate") String endDate,
+            @Param("franchiseCode") int franchiseCode,
+            @Param("keyword") String keyword
     );
 
-    OrderDetailForFranchiseDTO findOrderDetailForFranchiseBy(int orderCode);
+    List<FranchiseOrderDTO> searchOrdersForFranchiseByItemName(
+            @Param("filter") String filter,
+            @Param("sort") String sort,
+            @Param("size") int size,
+            @Param("offset") int offset,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("franchiseCode") int franchiseCode,
+            @Param("keyword") String keyword
+    );
+
+    // excel
 
 
     // common
     List<OrderApprovalHistoryDTO> findOrderApprovalHistoriesBy(int orderCode);
-
     OrderStatusHistory findRecentHistoryByOrderId(
             @Param("orderCode") int orderCode
     );
-
     List<OrderStatusHistory> findOrderHistoriesByOrderId(
             @Param("orderId") int orderId
     );

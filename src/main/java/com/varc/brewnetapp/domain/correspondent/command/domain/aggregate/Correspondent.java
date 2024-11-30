@@ -1,4 +1,4 @@
-package com.varc.brewnetapp.domain.purchase.command.domain.aggregate;
+package com.varc.brewnetapp.domain.correspondent.command.domain.aggregate;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

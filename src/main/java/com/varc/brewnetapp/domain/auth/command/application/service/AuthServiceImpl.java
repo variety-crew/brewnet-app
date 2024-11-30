@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -158,10 +159,18 @@ public class AuthServiceImpl implements AuthService {
             if(!member.getActive())
                 throw new InvalidDataException("권한을 부여하려는 회원이 없습니다");
 
-            Role role = roleRepository.findByRole(grantAuthRequestDTO.getAuthName())
-                .orElseThrow(() -> new InvalidDataException("잘못된 권한 값입니다"));
+            Role role = roleRepository.findByRole(grantAuthRequestDTO.getAuthName()).orElse(null);
+
+            log.info("" + role);
 
             List<MemberRole> existMemberRole = memberRoleRepository.findByMemberCode(member.getMemberCode()).orElse(null);
+
+            if(role == null) {
+                for (MemberRole memberRole : existMemberRole)
+                    memberRoleRepository.delete(memberRole);
+
+                return;
+            }
 
             if(existMemberRole != null && !existMemberRole.isEmpty()){
 

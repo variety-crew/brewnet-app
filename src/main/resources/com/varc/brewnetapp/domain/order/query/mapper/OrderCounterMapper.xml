@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.varc.brewnetapp.domain.order.query.mapper.OrderCounterMapper">
+
+    <!-- for HQ -->
+    <select id="countOrdersForHq" resultType="int">
+        SELECT COUNT(*)
+        FROM tbl_order O
+        WHERE 1=1
+        AND O.ACTIVE = 1
+        <if test="startDate != null and startDate != ''">
+            AND O.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND O.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <if test="filter == 'UNCONFIRMED'">
+            AND O.APPROVED = #{filter}
+        </if>
+    </select>
+    <select id="countSearchedOrdersForHQByOrderCode" resultType="int">
+        SELECT COUNT(*)
+        FROM tbl_order O
+        WHERE 1=1
+        AND O.ACTIVE = 1
+        AND CAST(O.ORDER_CODE AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+        <if test="startDate != null and startDate != ''">
+            AND O.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND O.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <if test="filter == 'UNCONFIRMED'">
+            AND O.APPROVED = #{filter}
+        </if>
+    </select>
+    <select id="countSearchedOrdersForHQByOrderedFranchiseName" resultType="int">
+        SELECT COUNT(*)
+        FROM tbl_order o
+        LEFT JOIN tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
+        WHERE 1=1
+        AND o.ACTIVE = 1
+        AND f.FRANCHISE_NAME LIKE CONCAT('%', #{keyword}, '%')
+        <if test="startDate != null and startDate != ''">
+            AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <if test="filter == 'UNCONFIRMED'">
+            AND o.APPROVED = #{filter}
+        </if>
+    </select>
+    <select id="countSearchedOrdersForHQByOrderManager" resultType="int">
+        SELECT COUNT(*)
+        FROM tbl_order o
+        LEFT JOIN tbl_member m ON o.MEMBER_CODE = m.MEMBER_CODE
+        WHERE 1=1
+        AND o.ACTIVE = 1
+        AND m.NAME LIKE CONCAT('%', #{keyword}, '%')
+        <if test="startDate != null and startDate != ''">
+            AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <if test="filter == 'UNCONFIRMED'">
+            AND o.APPROVED = #{filter}
+        </if>
+    </select>
+
+    <!-- for Franchise -->
+    <select id="countOrdersForFranchise" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM tbl_order O
+        WHERE O.FRANCHISE_CODE = #{franchiseCode}
+        AND O.ACTIVE = 1
+        <if test="startDate != null and startDate != ''">
+            AND O.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND O.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <if test="filter == 'UNCONFIRMED'">
+            AND O.APPROVED = #{filter}
+        </if>
+    </select>
+    <select id="countSearchedOrdersForFranchiseByOrderCode" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM tbl_order O
+        WHERE O.FRANCHISE_CODE = #{franchiseCode}
+        AND CAST(O.ORDER_CODE AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+        AND O.ACTIVE = 1
+        <if test="startDate != null and startDate != ''">
+            AND O.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND O.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+        <if test="filter == 'UNCONFIRMED'">
+            AND O.APPROVED = #{filter}
+        </if>
+    </select>
+    <select id="countSearchedOrdersForFranchiseByItemName" resultType="int">
+        SELECT
+        count(DISTINCT o.ORDER_CODE)
+        FROM tbl_order o
+        LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
+        LEFT JOIN tbl_item i ON oi.ITEM_CODE = i.ITEM_CODE
+        WHERE o.FRANCHISE_CODE = #{franchiseCode}
+        AND o.ACTIVE = 1
+        AND i.NAME LIKE CONCAT('%', #{keyword}, '%')
+        <if test="startDate != null and startDate != ''">
+            AND o.CREATED_AT &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
+        </if>
+    </select>
+
+    <!-- common-->
+
+</mapper>

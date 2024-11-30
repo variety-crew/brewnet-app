@@ -72,4 +72,37 @@ public class CorrespondentServiceImpl implements CorrespondentService{
 
         return response;
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<CorrespondentDTO> printAllCorrespondents(Integer correspondentCode, String correspondentName) {
+
+        SearchCorrespondentCriteria criteria = new SearchCorrespondentCriteria(correspondentCode, correspondentName);
+        List<CorrespondentDTO> correspondentList = correspondentMapper.printCorrespondentList(criteria);
+
+        return correspondentList;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<CorrespondentItemDTO> printCorrespondentActiveItems(Integer correspondentCode,
+                                                                    String itemUniqueCode,
+                                                                    String itemName) {
+
+        SearchCorrespondentItemCriteria criteria = new SearchCorrespondentItemCriteria(
+                                                            correspondentCode, itemUniqueCode, itemName);
+
+        List<CorrespondentItemDTO> itemList = correspondentMapper.printCorrespondentItemList(criteria);
+
+        return itemList;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public CorrespondentDTO getCorrespondentDetail(int correspondentCode) {
+
+        CorrespondentDTO correspondent = correspondentMapper.selectOneCorrespondent(correspondentCode);
+
+        return correspondent;
+    }
 }
