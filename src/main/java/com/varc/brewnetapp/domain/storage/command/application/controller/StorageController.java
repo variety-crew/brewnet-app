@@ -2,6 +2,7 @@ package com.varc.brewnetapp.domain.storage.command.application.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
 import com.varc.brewnetapp.domain.storage.command.application.dto.ChangeStockRequestDTO;
+import com.varc.brewnetapp.domain.storage.command.application.dto.StorageDeleteRequestDTO;
 import com.varc.brewnetapp.domain.storage.command.application.dto.StorageRequestDTO;
 import com.varc.brewnetapp.domain.storage.command.application.service.StorageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,12 +46,12 @@ public class StorageController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "창고 정보 수정 성공", null));
     }
 
-    @DeleteMapping("/delete/{storageCode}")
+    @DeleteMapping("/delete")
     @Operation(summary = "창고 삭제 API - 창고별 상품 재고가 전부 0이 아니면 삭제 불가")
     public ResponseEntity<ResponseMessage<Object>> deleteStorage(@RequestAttribute("loginId") String loginId,
-                                                                 @PathVariable int storageCode) {
+                                                                 @RequestBody StorageDeleteRequestDTO deleteRequest) {
 
-        storageService.deleteStorage(loginId, storageCode);
+        storageService.deleteStorage(loginId, deleteRequest);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "창고 삭제 성공", null));
     }
