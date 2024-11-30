@@ -14,11 +14,11 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("api/v1/hq/items/must-buy")
-public class ItemOrderController {
+public class ItemOrderQueryController {
     private final ItemService queryItemService;
 
     @Autowired
-    public ItemOrderController(ItemService queryItemService) {
+    public ItemOrderQueryController(ItemService queryItemService) {
         this.queryItemService = queryItemService;
     }
 
