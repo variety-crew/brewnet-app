@@ -1,8 +1,6 @@
 package com.varc.brewnetapp.domain.purchase.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
-import com.varc.brewnetapp.domain.document.query.dto.ApproverMemberDTO;
-import com.varc.brewnetapp.domain.purchase.common.KindOfApproval;
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
 import com.varc.brewnetapp.domain.purchase.query.dto.*;
 import com.varc.brewnetapp.domain.purchase.query.service.PurchaseService;

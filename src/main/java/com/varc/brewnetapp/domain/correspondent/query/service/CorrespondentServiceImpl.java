@@ -96,4 +96,13 @@ public class CorrespondentServiceImpl implements CorrespondentService{
 
         return itemList;
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public CorrespondentDTO getCorrespondentDetail(int correspondentCode) {
+
+        CorrespondentDTO correspondent = correspondentMapper.selectOneCorrespondent(correspondentCode);
+
+        return correspondent;
+    }
 }

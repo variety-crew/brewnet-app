@@ -320,9 +320,9 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional
     @Override
-    public PurchasePrintResponseDTO exportPurchasePrint(String loginId,
-                                                        int letterOfPurchaseCode,
-                                                        ExportPurchasePrintRequestDTO printRequest) {
+    public void recordPurchasePrint(String loginId,
+                                    int letterOfPurchaseCode,
+                                    ExportPurchasePrintRequestDTO printRequest) {
 
         LetterOfPurchase letterOfPurchase = letterOfPurchaseRepository
                                             .findByLetterOfPurchaseCodeAndActiveTrue(letterOfPurchaseCode);
@@ -338,7 +338,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         Member member = memberRepository.findById(loginId)
                 .orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
 
-        // 외부용 발주서 출력 내역 먼저 저장
+        // 외부용 발주서 출력 내역 저장
         PurchasePrint purchasePrint = new PurchasePrint();
         purchasePrint.setReason(printRequest.getReason());
         purchasePrint.setPrintedAt(LocalDateTime.now());
@@ -346,6 +346,22 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchasePrint.setMember(member);
         purchasePrint.setLetterOfPurchase(letterOfPurchase);
         purchasePrintRepository.save(purchasePrint);
+    }
+
+    @Transactional
+    @Override
+    public PurchasePrintResponseDTO exportPurchasePrint(int letterOfPurchaseCode) {
+
+        LetterOfPurchase letterOfPurchase = letterOfPurchaseRepository
+                .findByLetterOfPurchaseCodeAndActiveTrue(letterOfPurchaseCode);
+
+        // 발주서가 유효한건지, 결재 승인 처리된 건지 체크
+        if (letterOfPurchase == null) {
+            throw new PurchaseNotFoundException("발주서가 삭제되었거나 존재하지 않습니다.");
+        }
+        else if (!letterOfPurchase.getApproved().equals(IsApproved.APPROVED)) {
+            throw new InvalidDataException("결재 승인되지 않은 발주서입니다.");
+        }
 
         // 외부용이므로 발주서에 법인 인감 코드 set
         PurchaseSeal seal = purchaseSealRepository.findTopByActiveTrueOrderBySealCodeDesc();
@@ -355,26 +371,24 @@ public class PurchaseServiceImpl implements PurchaseService {
         Correspondent correspondent = letterOfPurchase.getCorrespondent();
         Storage storage = letterOfPurchase.getStorage();
 
-        PurchasePosition position = purchasePositionRepository.findById(member.getPositionCode())
+        PurchasePosition position = purchasePositionRepository.findById(letterOfPurchase.getMember().getPositionCode())
                 .orElseThrow(() -> new PositionNotFoundException("존재하지 않는 직급입니다."));
 
         List<PurchasePrintItemDTO> printItems = new ArrayList<>();
         List<LetterOfPurchaseItem> purchaseItems = letterOfPurchaseItemRepository
-                                                    .findByLetterOfPurchaseCode(letterOfPurchaseCode);
+                .findByLetterOfPurchaseCode(letterOfPurchaseCode);
 
         // 발주서의 상품 목록 불러오기
         for (LetterOfPurchaseItem purchaseItem : purchaseItems) {
             PurchaseItem item = purchaseItemRepository.findByItemCodeAndActiveTrue(purchaseItem.getItemCode());
 
             if (item == null) throw new ItemNotFoundException("삭제되었거나 존재하지 않는 상품입니다.");
-            if (correspondentItemRepository.existsByCorrespondentCodeAndItemCodeAndActiveTrue(
-                    correspondent.getCorrespondentCode(), item.getItemCode())) {
-                throw new ItemNotFoundException("해당 거래처에서 취급하는 품목이 아닙니다.");
-            }
 
+            int vatPrice = (item.getPurchasePrice() / 10);
             PurchasePrintItemDTO printItem = new PurchasePrintItemDTO(item.getName(),
                                                                         item.getUniqueCode(),
                                                                         item.getPurchasePrice(),
+                                                                        vatPrice,
                                                                         purchaseItem.getQuantity());
 
             printItems.add(printItem);
@@ -432,7 +446,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         Correspondent correspondent = letterOfPurchase.getCorrespondent();
         Storage storage = letterOfPurchase.getStorage();
 
-        PurchasePosition position = purchasePositionRepository.findById(member.getPositionCode())
+        PurchasePosition position = purchasePositionRepository.findById(letterOfPurchase.getMember().getPositionCode())
                 .orElseThrow(() -> new PositionNotFoundException("존재하지 않는 직급입니다."));
 
         List<PurchasePrintItemDTO> printItems = new ArrayList<>();
@@ -444,14 +458,12 @@ public class PurchaseServiceImpl implements PurchaseService {
             PurchaseItem item = purchaseItemRepository.findByItemCodeAndActiveTrue(purchaseItem.getItemCode());
 
             if (item == null) throw new ItemNotFoundException("삭제되었거나 존재하지 않는 상품입니다.");
-            if (correspondentItemRepository.existsByCorrespondentCodeAndItemCodeAndActiveTrue(
-                    correspondent.getCorrespondentCode(), item.getItemCode())) {
-                throw new ItemNotFoundException("해당 거래처에서 취급하는 품목이 아닙니다.");
-            }
 
+            int vatPrice = (item.getPurchasePrice() / 10);
             PurchasePrintItemDTO printItem = new PurchasePrintItemDTO(item.getName(),
                                                                         item.getUniqueCode(),
                                                                         item.getPurchasePrice(),
+                                                                        vatPrice,
                                                                         purchaseItem.getQuantity());
 
             printItems.add(printItem);

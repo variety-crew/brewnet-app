@@ -18,4 +18,6 @@ public interface FranchiseMapper {
     List<FranchiseMemberDTO> selectFranchiseMemberList(long offset, long pageSize, String franchiseName, List<String> citys, String sort);
 
     int selectFranchiseMemberWhereFranchiseNameAndCitysCnt(String franchiseName, List<String> citys);
+
+    List<FranchiseDTO> selectFranchiseListExcel(String franchiseName, List<String> citys, String sort);
 }

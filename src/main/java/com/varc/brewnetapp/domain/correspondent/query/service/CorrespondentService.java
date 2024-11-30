@@ -26,4 +26,6 @@ public interface CorrespondentService {
     List<CorrespondentItemDTO> printCorrespondentActiveItems(Integer correspondentCode,
                                                              String itemUniqueCode,
                                                              String itemName);
+
+    CorrespondentDTO getCorrespondentDetail(int correspondentCode);
 }
