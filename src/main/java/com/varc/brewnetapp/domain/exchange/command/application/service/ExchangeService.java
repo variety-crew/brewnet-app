@@ -17,4 +17,6 @@ public interface ExchangeService {
     void managerExchange(String loginId, int exchangeCode, ExchangeManagerApproveReqVO exchangeApproveReqVO);
 
     void completeExchange(String loginId, int exchangeStockHistoryCode);
+
+    void cancelApprove(String loginId, int exchangeCode);
 }
