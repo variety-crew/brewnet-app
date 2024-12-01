@@ -112,12 +112,6 @@ public class PurchaseServiceImpl implements PurchaseService {
             PurchaseItem item = purchaseItemRepository.findById(purchaseItem.getItemCode())
                     .orElseThrow(() -> new ItemNotFoundException("존재하지 않는 품목입니다."));
 
-            // 선택한 품목이 선택한 거래처의 품목인지 체크
-            if (correspondentItemRepository.existsByCorrespondentCodeAndItemCodeAndActiveTrue(
-                    newPurchase.getCorrespondentCode(), purchaseItem.getItemCode())) {
-                throw new ItemNotFoundException("해당 거래처에서 취급하는 품목이 아닙니다.");
-            }
-
             // 품목별 총 공급가액 누적 합산
             totalPrice += (item.getPurchasePrice() * purchaseItem.getQuantity());
 

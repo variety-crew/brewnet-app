@@ -117,26 +117,23 @@ public class StorageServiceImpl implements StorageService{
 
     @Transactional
     @Override
-    public void changeStock(String loginId, List<ChangeStockRequestDTO> changes) {
+    public void changeStock(String loginId, ChangeStockRequestDTO changeRequest) {
 
         // 로그인한 사용자 체크
         memberRepository.findById(loginId).orElseThrow(() -> new MemberNotFoundException("존재하지 않는 회원입니다."));
 
-        for (ChangeStockRequestDTO change : changes) {
-            Storage storage = storageRepository.findByStorageCodeAndActiveTrue(change.getStorageCode());
-            if (storage == null) throw new StorageNotFoundException("삭제되었거나 존재하지 않는 창고입니다.");
+        Storage storage = storageRepository.findByStorageCodeAndActiveTrue(changeRequest.getStorageCode());
+        if (storage == null) throw new StorageNotFoundException("삭제되었거나 존재하지 않는 창고입니다.");
 
-            Stock itemStock = stockRepository
-                                .findByStorageCodeAndItemCode(change.getStorageCode(), change.getItemCode());
+        Stock itemStock = stockRepository
+                            .findByStorageCodeAndItemCode(changeRequest.getStorageCode(), changeRequest.getItemCode());
+        
+        if (!(itemStock.getActive()).equals(true)) throw new ItemNotFoundException("창고에서 삭제된 상품입니다.");
+        if (changeRequest.getQuantity() == 0) throw new InvalidDataException("재고에 합산할 수량을 입력해 주세요.");
 
-            if (itemStock == null) throw new ItemNotFoundException("창고에 존재하지 않는 상품입니다.");
-            if (!(itemStock.getActive()).equals(true)) throw new ItemNotFoundException("창고에서 삭제된 상품입니다.");
-            if (change.getQuantity() == 0) throw new InvalidDataException("재고에 합산할 수량을 입력해 주세요.");
-
-            // 가용재고에 재입고된 수량 합산
-            int changedStock = itemStock.getAvailableStock() + change.getQuantity();
-            itemStock.setAvailableStock(changedStock);
-        }
+        // 가용재고에 재입고된 수량 합산
+        int changedStock = itemStock.getAvailableStock() + changeRequest.getQuantity();
+        itemStock.setAvailableStock(changedStock);
     }
 
     @Transactional
