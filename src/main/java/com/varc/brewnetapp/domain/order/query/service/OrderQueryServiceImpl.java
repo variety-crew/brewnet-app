@@ -402,8 +402,8 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 return orderMapper.searchOrdersForFranchiseByOrderCode(
                             null,
                             null,
-                            0,
-                            0,
+                            null,
+                            null,
                             startDate,
                             endDate,
                             franchiseCode,
@@ -414,8 +414,8 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 return orderMapper.searchOrdersForFranchiseByItemName(
                         null,
                         null,
-                        0,
-                        0,
+                        null,
+                        null,
                         startDate,
                         endDate,
                         franchiseCode,
@@ -426,8 +426,8 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 return orderMapper.findOrdersForFranchise(
                         null,
                         null,
-                        0,
-                        0,
+                        null,
+                        null,
                         startDate,
                         endDate,
                         franchiseCode
