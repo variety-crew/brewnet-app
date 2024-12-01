@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,6 +30,16 @@ public class CategoryController {
     public ResponseEntity<ResponseMessage<List<SubCategoryDTO>>> findSubCategory() {
         
         return ResponseEntity.ok(new ResponseMessage<>(200, "서브 카테고리 조회 성공", categoryService.findSubCategory()));
+    }
+
+    @GetMapping("/{superCategoryCode}/sub")
+    @Operation(summary = "특정 슈퍼 카테고리의 서브 카테고리 조회 API")
+    public ResponseEntity<ResponseMessage<List<SubCategoryDTO>>> findSubCategoryBySuperCategory(
+        @PathVariable(value ="superCategoryCode", required = false) int superCategoryCode
+    ) {
+
+        return ResponseEntity.ok(new ResponseMessage<>(
+            200, "서브 카테고리 조회 성공", categoryService.findSubCategoryBySuperCategory(superCategoryCode)));
     }
 
     @GetMapping("")

@@ -19,4 +19,6 @@ public interface ItemMapper {
     int selectHqItemListCnt(String itemName, String itemCode, String categoryCode, String correspondentCode);
 
     List<ItemCategoryDTO> selectItemListWhereCategoryCode(int subCategoryCode);
+
+    ItemDTO selectItem(int itemCode);
 }

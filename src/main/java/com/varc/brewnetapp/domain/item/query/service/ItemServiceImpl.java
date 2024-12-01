@@ -49,6 +49,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public int findItemSellingPriceByItemCode(int itemCode) {
         return itemMapper.findItemPriceById(itemCode);
     }
@@ -75,7 +76,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public List<MustBuyItemDTO> getMustBuyItemsBy() {
         return mandatoryPurchaseMapper.getMandatoryPurchaseList();
+    }
+
+    @Override
+    @Transactional
+    public ItemDTO findItem(int itemCode) {
+
+        ItemDTO item = itemMapper.selectItem(itemCode);
+
+        if(item == null)
+            throw new EmptyDataException("상품 정보가 없습니다");
+        return item;
     }
 }

@@ -8,6 +8,7 @@ import com.varc.brewnetapp.exception.EmptyDataException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service(value = "queryCategoryService")
 public class CategoryService {
@@ -29,6 +30,7 @@ public class CategoryService {
 
     }
 
+    @Transactional
     public List<CategoryDTO> findCategory() {
 
         List<CategoryDTO> CategoryList = categoryMapper.selectCategory();
@@ -38,11 +40,21 @@ public class CategoryService {
         return CategoryList;
     }
 
+    @Transactional
     public List<SuperCategoryDTO> findSuperCategory() {
         List<SuperCategoryDTO> superCategoryList = categoryMapper.selectSuperCategory();
 
         if(superCategoryList == null || superCategoryList.isEmpty())
             throw new EmptyDataException("상위 카테고리가 없습니다");
         return superCategoryList;
+    }
+
+    @Transactional
+    public List<SubCategoryDTO> findSubCategoryBySuperCategory(int superCategoryCode) {
+        List<SubCategoryDTO> subCategoryList = categoryMapper.selectSubCategoryBySuperCategory(superCategoryCode);
+
+        if(subCategoryList == null || subCategoryList.isEmpty())
+            throw new EmptyDataException("서브 카테고리가 없습니다");
+        return subCategoryList;
     }
 }

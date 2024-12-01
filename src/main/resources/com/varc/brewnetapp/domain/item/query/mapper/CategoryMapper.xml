@@ -68,4 +68,13 @@
 
   </select>
 
+  <select id="selectSubCategoryBySuperCategory" resultMap="subCategoryResultMap" >
+    SELECT
+           SC.SUB_CATEGORY_CODE
+         , SC.NAME
+      FROM tbl_sub_category SC
+     WHERE SC.ACTIVE = TRUE AND SC.SUPER_CATEGORY_CODE = #{ superCategoryCode }
+     ORDER BY NAME DESC
+  </select>
+
 </mapper>
