@@ -7,16 +7,74 @@
   <resultMap id="subCategoryResultMap" type="com.varc.brewnetapp.domain.item.query.dto.SubCategoryDTO">
     <id property="subCategoryCode" column="SUB_CATEGORY_CODE"/>
     <result property="name" column="NAME"/>
-
   </resultMap>
 
-  <select id="selectSubCategory" resultMap="subCategoryResultMap" parameterType="map">
+  <resultMap id="CategoryResultMap" type="com.varc.brewnetapp.domain.item.query.dto.CategoryDTO">
+    <result property="superCategoryCode" column="SUPER_CATEGORY_CODE"/>
+    <result property="superCategoryName" column="SUPER_CATEGORY_NAME"/>
+    <result property="subCategoryCode" column="SUB_CATEGORY_CODE"/>
+    <result property="subCategoryName" column="SUB_CATEGORY_NAME"/>
+  </resultMap>
+
+  <resultMap id="superCategoryResultMap" type="com.varc.brewnetapp.domain.item.query.dto.SuperCategoryDTO">
+    <id property="superCategoryCode" column="SUPER_CATEGORY_CODE"/>
+    <result property="name" column="NAME"/>
+  </resultMap>
+
+  <select id="selectSubCategory" resultMap="subCategoryResultMap" >
     SELECT
-           SUB_CATEGORY_CODE
-         , name
-      FROM tbl_sub_category
+           SC.SUB_CATEGORY_CODE
+         , SC.NAME
+      FROM tbl_sub_category SC
+     WHERE SC.ACTIVE = TRUE
      ORDER BY NAME DESC
 
+
+  </select>
+
+  <select id="selectSuperCategory" resultMap="superCategoryResultMap" >
+    SELECT
+    C.SUPER_CATEGORY_CODE
+    , C.NAME
+    FROM tbl_super_category C
+    WHERE C.ACTIVE = TRUE
+    ORDER BY NAME DESC
+
+
+  </select>
+
+  <select id="selectCategory" resultMap="CategoryResultMap">
+    SELECT
+           SC.SUB_CATEGORY_CODE
+         , SC.NAME AS SUB_CATEGORY_NAME
+         , C.SUPER_CATEGORY_CODE
+         , C.NAME AS SUPER_CATEGORY_NAME
+      FROM tbl_sub_category SC
+     INNER JOIN tbl_super_category C ON SC.SUPER_CATEGORY_CODE = C.SUPER_CATEGORY_CODE
+     WHERE SC.ACTIVE = TRUE AND C.ACTIVE = TRUE
+     ORDER BY C.NAME DESC, SC.NAME DESC
+
+  </select>
+
+  <select id="selectSubCategoryWhereSuperCategoryCode" resultMap="CategoryResultMap" parameterType="int">
+    SELECT
+    SC.SUB_CATEGORY_CODE
+    , SC.NAME AS SUB_CATEGORY_NAME
+    , C.SUPER_CATEGORY_CODE
+    , C.NAME AS SUPER_CATEGORY_NAME
+    FROM tbl_sub_category SC
+    INNER JOIN tbl_super_category C ON SC.SUPER_CATEGORY_CODE = C.SUPER_CATEGORY_CODE
+    WHERE SC.SUPER_CATEGORY_CODE = #{ superCategoryCode }
+
+  </select>
+
+  <select id="selectSubCategoryBySuperCategory" resultMap="subCategoryResultMap" >
+    SELECT
+           SC.SUB_CATEGORY_CODE
+         , SC.NAME
+      FROM tbl_sub_category SC
+     WHERE SC.ACTIVE = TRUE AND SC.SUPER_CATEGORY_CODE = #{ superCategoryCode }
+     ORDER BY NAME DESC
   </select>
 
 </mapper>

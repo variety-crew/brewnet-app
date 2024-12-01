@@ -1,6 +1,5 @@
 package com.varc.brewnetapp.domain.item.command.domain.aggregate.entity;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,33 +14,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "tbl_item")
+@Table(name = "tbl_sub_category")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Item {
+public class SubCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 증가 전략
-    @Column(name = "item_code")
-    private Integer itemCode;
+    @Column(name = "sub_category_code")
+    private Integer subCategoryCode;
 
     @Column(name = "name", nullable = false)
     private String name;
-
-    @Column(name = "purchase_price", nullable = false)
-    private Integer purchasePrice;
-
-    @Column(name = "selling_price", nullable = false)
-    private Integer sellingPrice;
-
-    @Column(name = "image_url", length = 500)
-    private String imageUrl;
-
-    @Column(name = "safety_stock", nullable = false)
-    private Integer safetyStock;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -49,9 +36,6 @@ public class Item {
     @Column(name = "active", nullable = false)
     private Boolean active;
 
-    @Column(name = "item_unique_code", nullable = false, length = 255)
-    private String itemUniqueCode;
-
-    @Column(name = "category_code", nullable = false)
-    private Integer categoryCode;
+    @Column(name = "super_category_code", nullable = false)
+    private Integer superCategoryCode;
 }

@@ -15,6 +15,12 @@
     <result property="safetyStock" column="SAFETY_STOCK"/>
     <result property="active" column="ACTIVE"/>
     <result property="categoryName" column="CATEGORY_NAME"/>
+    <result property="categoryCode" column="CATEGORY_CODE"/>
+    <result property="correspondentCode" column="CORRESPONDENT_CODE"/>
+  </resultMap>
+
+  <resultMap id="itemCategoryResultMap" type="com.varc.brewnetapp.domain.item.query.dto.ItemCategoryDTO">
+    <id property="itemCode" column="ITEM_CODE"/>
   </resultMap>
 
   <select id="selectItemList" resultMap="itemResultMap" parameterType="map">
@@ -28,7 +34,9 @@
            I.SAFETY_STOCK,
            I.ACTIVE,
            SC.NAME AS CATEGORY_NAME,
-           C.NAME AS CORRESPONDENT_NAME
+           C.NAME AS CORRESPONDENT_NAME,
+           SC.SUB_CATEGORY_CODE AS CATEGORY_CODE,
+           C.CORRESPONDENT_CODE
       FROM tbl_item I
      INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
      INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
@@ -104,7 +112,9 @@
     I.SAFETY_STOCK,
     I.ACTIVE,
     SC.NAME AS CATEGORY_NAME,
-    C.NAME AS CORRESPONDENT_NAME
+    C.NAME AS CORRESPONDENT_NAME,
+    SC.SUB_CATEGORY_CODE AS CATEGORY_CODE,
+    C.CORRESPONDENT_CODE
     FROM tbl_item I
     INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
     INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
@@ -176,6 +186,34 @@
          WHERE i.ACTIVE = TRUE
            AND i.ITEM_CODE = #{itemCode}
     </select>
+
+  <select id="selectItemListWhereCategoryCode" resultMap="itemCategoryResultMap" parameterType="int">
+    SELECT
+           ITEM_CODE
+      FROM tbl_item
+     WHERE CATEGORY_CODE = #{ subCategoryCode }
+  </select>
+
+  <select id="selectItem" resultMap="itemResultMap" parameterType="int">
+    SELECT
+    I.ITEM_CODE,
+    I.ITEM_UNIQUE_CODE,
+    I.NAME,
+    I.PURCHASE_PRICE,
+    I.SELLING_PRICE,
+    I.IMAGE_URL,
+    I.SAFETY_STOCK,
+    I.ACTIVE,
+    SC.NAME AS CATEGORY_NAME,
+    C.NAME AS CORRESPONDENT_NAME,
+    SC.SUB_CATEGORY_CODE AS CATEGORY_CODE,
+    C.CORRESPONDENT_CODE
+    FROM tbl_item I
+    INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
+    INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+    INNER JOIN tbl_sub_category SC ON SC.SUB_CATEGORY_CODE = I.CATEGORY_CODE
+    WHERE I.ITEM_CODE IS NOT NULL AND I.ACTIVE = TRUE AND I.ITEM_CODE = #{ itemCode }
+  </select>
 
 
 </mapper>

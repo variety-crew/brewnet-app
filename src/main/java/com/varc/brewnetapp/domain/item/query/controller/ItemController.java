@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,6 +56,14 @@ public class ItemController {
         @RequestParam(name = "correspondentCode", required = false) String correspondentCode) {
 
         Page<ItemDTO> result = itemService.findHqItemList(page, itemName, itemCode, sort, categoryCode, correspondentCode);
+        return ResponseEntity.ok(new ResponseMessage<>(200, "상품 목록 조회 성공", result));
+    }
+
+    @GetMapping("/item/{itemCode}")
+    @Operation(summary = "특정 상품 목록 조회 API ")
+    public ResponseEntity<ResponseMessage<ItemDTO>> findItem(@PathVariable int itemCode) {
+
+        ItemDTO result = itemService.findItem(itemCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "상품 목록 조회 성공", result));
     }
 
