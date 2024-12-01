@@ -11,8 +11,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class SubCategoryDTO {
+public class SuperCategoryDTO {
 
-    private int subCategoryCode;
+    private int superCategoryCode;
     private String name;
 }

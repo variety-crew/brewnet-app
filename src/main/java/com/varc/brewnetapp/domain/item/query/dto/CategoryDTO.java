@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.item.query.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,8 +12,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class SubCategoryDTO {
+public class CategoryDTO {
 
+    private int superCategoryCode;
+    private String superCategoryName;
     private int subCategoryCode;
-    private String name;
+    private String subCategoryName;
 }
