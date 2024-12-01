@@ -184,8 +184,8 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 return orderMapper.searchOrdersForHQByOrderCode(
                         null,
                         null,
-                        0,
-                        0,
+                        null,
+                        null,
                         startDate,
                         endDate,
                         keyword
@@ -195,8 +195,8 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 return orderMapper.searchOrdersForHQByOrderedFranchiseName(
                         null,
                         null,
-                        0,
-                        0,
+                        null,
+                        null,
                         startDate,
                         endDate,
                         keyword
@@ -206,8 +206,8 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 return orderMapper.searchOrdersForHQByOrderManager(
                         null,
                         null,
-                        0,
-                        0,
+                        null,
+                        null,
                         startDate,
                         endDate,
                         keyword
@@ -217,8 +217,8 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 return orderMapper.findOrdersForHQBy(
                         null,
                         null,
-                        0,
-                        0,
+                        null,
+                        null,
                         startDate,
                         endDate
                 );
