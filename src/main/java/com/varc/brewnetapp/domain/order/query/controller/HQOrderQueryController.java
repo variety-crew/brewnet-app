@@ -3,7 +3,6 @@ package com.varc.brewnetapp.domain.order.query.controller;
 import com.varc.brewnetapp.common.ResponseMessage;
 
 import com.varc.brewnetapp.common.SearchCriteria;
-import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.query.dto.*;
 import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,15 +21,12 @@ import java.util.List;
 @RequestMapping("api/v1/hq/orders")
 public class HQOrderQueryController {
     private final OrderQueryService orderQueryService;
-    private final MemberService queryMemberService;
 
     @Autowired
     public HQOrderQueryController(
-            OrderQueryService orderQueryService,
-            MemberService queryMemberService
+            OrderQueryService orderQueryService
     ) {
         this.orderQueryService = orderQueryService;
-        this.queryMemberService = queryMemberService;
     }
 
     @GetMapping("/list")
