@@ -6,7 +6,7 @@ public interface PurchaseService {
 
     Integer createLetterOfPurchase(String loginId, PurchaseRequestDTO newPurchase);
 
-    void cancelLetterOfPurchase(String loginId, int letterOfPurchaseCode);
+    void cancelLetterOfPurchase(String loginId, PurchaseCancelRequestDTO cancelRequest);
 
     void approveLetterOfPurchase(String loginId, int letterOfPurchaseCode, PurchaseApprovalRequestDTO request);
 
