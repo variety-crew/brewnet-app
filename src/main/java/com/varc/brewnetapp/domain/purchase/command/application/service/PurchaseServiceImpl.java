@@ -159,9 +159,9 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional
     @Override
-    public void cancelLetterOfPurchase(String loginId, int letterOfPurchaseCode) {
+    public void cancelLetterOfPurchase(String loginId, PurchaseCancelRequestDTO cancelRequest) {
 
-        LetterOfPurchase purchase = letterOfPurchaseRepository.findById(letterOfPurchaseCode)
+        LetterOfPurchase purchase = letterOfPurchaseRepository.findById(cancelRequest.getLetterOfPurchaseCode())
                                     .orElseThrow(() -> new PurchaseNotFoundException("존재하지 않는 구매품의서입니다."));
 
         Member member = memberRepository.findById(loginId)
