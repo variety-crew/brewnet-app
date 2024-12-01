@@ -18,8 +18,8 @@ public interface OrderMapper {
     List<HQOrderDTO> findOrdersForHQBy(
             @Param("filter") String filter,
             @Param("sort") String sort,
-            @Param("size") int size,
-            @Param("offset") int offset,
+            @Param("size") Integer size,
+            @Param("offset") Integer offset,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate
     );
@@ -29,8 +29,8 @@ public interface OrderMapper {
     List<HQOrderDTO> searchOrdersForHQByOrderCode(
             @Param("filter") String filter,
             @Param("sort") String sort,
-            @Param("size") int size,
-            @Param("offset") int offset,
+            @Param("size") Integer size,
+            @Param("offset") Integer offset,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate,
             @Param("keyword") String keyword
@@ -38,8 +38,8 @@ public interface OrderMapper {
     List<HQOrderDTO> searchOrdersForHQByOrderedFranchiseName(
             @Param("filter") String filter,
             @Param("sort") String sort,
-            @Param("size") int size,
-            @Param("offset") int offset,
+            @Param("size") Integer size,
+            @Param("offset") Integer offset,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate,
             @Param("keyword") String keyword
@@ -47,8 +47,8 @@ public interface OrderMapper {
     List<HQOrderDTO> searchOrdersForHQByOrderManager(
             @Param("filter") String filter,
             @Param("sort") String sort,
-            @Param("size") int size,
-            @Param("offset") int offset,
+            @Param("size") Integer size,
+            @Param("offset") Integer offset,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate,
             @Param("keyword") String keyword
@@ -58,8 +58,8 @@ public interface OrderMapper {
     List<FranchiseOrderDTO> findOrdersForFranchise(
             @Param("filter") String filter,
             @Param("sort") String sort,
-            @Param("size") int size,
-            @Param("offset") int offset,
+            @Param("size") Integer size,
+            @Param("offset") Integer offset,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate,
             @Param("franchiseCode") int franchiseCode
@@ -70,8 +70,8 @@ public interface OrderMapper {
     List<FranchiseOrderDTO> searchOrdersForFranchiseByOrderCode(
             @Param("filter") String filter,
             @Param("sort") String sort,
-            @Param("size") int size,
-            @Param("offset") int offset,
+            @Param("size") Integer size,
+            @Param("offset") Integer offset,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate,
             @Param("franchiseCode") int franchiseCode,
@@ -81,8 +81,8 @@ public interface OrderMapper {
     List<FranchiseOrderDTO> searchOrdersForFranchiseByItemName(
             @Param("filter") String filter,
             @Param("sort") String sort,
-            @Param("size") int size,
-            @Param("offset") int offset,
+            @Param("size") Integer size,
+            @Param("offset") Integer offset,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate,
             @Param("franchiseCode") int franchiseCode,

@@ -186,7 +186,9 @@
                         ORDER BY o.CREATED_AT DESC
                     </otherwise>
                 </choose>
-                LIMIT #{size} OFFSET #{offset}
+                <if test="size != null and size != '' and offset != null and offset != ''">
+                    LIMIT #{size} OFFSET #{offset}
+                </if>
                ) filtered_orders
           LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
           LEFT JOIN tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
@@ -290,7 +292,9 @@
                 ORDER BY o.CREATED_AT DESC
             </otherwise>
         </choose>
-        LIMIT #{size} OFFSET #{offset}
+        <if test="size != null and size != '' and offset != null and offset != ''">
+            LIMIT #{size} OFFSET #{offset}
+        </if>
         ) filtered_orders
         LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
         LEFT JOIN tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
@@ -354,7 +358,9 @@
                 ORDER BY o.CREATED_AT DESC
             </otherwise>
         </choose>
-        LIMIT #{size} OFFSET #{offset}
+        <if test="size != null and size != '' and offset != null and offset != ''">
+            LIMIT #{size} OFFSET #{offset}
+        </if>
         ) filtered_orders
         LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
         LEFT JOIN tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
@@ -418,7 +424,9 @@
                 ORDER BY o.CREATED_AT DESC
             </otherwise>
         </choose>
-        LIMIT #{size} OFFSET #{offset}
+        <if test="size != null and size != '' and offset != null and offset != ''">
+            LIMIT #{size} OFFSET #{offset}
+        </if>
         ) filtered_orders
         LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
         LEFT JOIN tbl_franchise f ON o.FRANCHISE_CODE = f.FRANCHISE_CODE
@@ -476,7 +484,9 @@
                 ORDER BY o.CREATED_AT DESC
             </otherwise>
         </choose>
-        LIMIT #{size} OFFSET #{offset}
+        <if test="size != null and size != '' and offset != null and offset != ''">
+            LIMIT #{size} OFFSET #{offset}
+        </if>
         ) filtered_orders
         LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
         LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
@@ -577,8 +587,8 @@
                 ORDER BY o.CREATED_AT DESC
             </otherwise>
         </choose>
-        <if test="size > 0 and offset >= 0">
-        LIMIT #{size} OFFSET #{offset}
+        <if test="size != null and size != '' and offset != null and offset != ''">
+            LIMIT #{size} OFFSET #{offset}
         </if>
         ) filtered_orders
         LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
@@ -641,7 +651,9 @@
                 ORDER BY o.CREATED_AT DESC
             </otherwise>
         </choose>
-        LIMIT #{size} OFFSET #{offset}
+        <if test="size != null and size != '' and offset != null and offset != ''">
+            LIMIT #{size} OFFSET #{offset}
+        </if>
         ) filtered_orders
         LEFT JOIN tbl_order o ON filtered_orders.ORDER_CODE = o.ORDER_CODE
         LEFT JOIN tbl_order_item oi ON o.ORDER_CODE = oi.ORDER_CODE
