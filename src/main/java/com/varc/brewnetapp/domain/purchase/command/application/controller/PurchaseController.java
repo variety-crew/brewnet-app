@@ -32,12 +32,13 @@ public class PurchaseController {
                                     200, "구매품의서 등록 및 결재 요청 성공", newPurchaseCode));
     }
 
-    @PostMapping("/cancel/{letterOfPurchaseCode}")
+    @DeleteMapping("/cancel")
     @Operation(summary = "발주(구매품의서) 결재 요청 취소 API")
-    public ResponseEntity<ResponseMessage<Object>> cancelLetterOfPurchase(@RequestAttribute("loginId") String loginId,
-                                                                          @PathVariable int letterOfPurchaseCode) {
+    public ResponseEntity<ResponseMessage<Object>> cancelLetterOfPurchase(
+                                                        @RequestAttribute("loginId") String loginId,
+                                                        @RequestBody PurchaseCancelRequestDTO cancelRequest) {
 
-        purchaseService.cancelLetterOfPurchase(loginId, letterOfPurchaseCode);
+        purchaseService.cancelLetterOfPurchase(loginId, cancelRequest);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "구매품의서 결재 요청 취소 성공", null));
     }
