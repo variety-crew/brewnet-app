@@ -172,7 +172,6 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     public List<HQOrderDTO> getExcelDataForHQBy(
             String startDate,
             String endDate,
-            int franchiseCode,
             SearchCriteria criteria,
             String keyword
     ) {

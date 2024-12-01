@@ -33,7 +33,6 @@ public interface OrderQueryService {
     List<HQOrderDTO> getExcelDataForHQBy(
             String startDate,
             String endDate,
-            int franchiseCode,
             SearchCriteria criteria,
             String keyword
     );
