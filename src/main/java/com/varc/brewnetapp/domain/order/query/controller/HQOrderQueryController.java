@@ -55,19 +55,14 @@ public class HQOrderQueryController {
     @GetMapping("/excel")
     @Operation(summary = "엑셀 데이터 추출을 위한 주문 리스트 조회")
     public ResponseEntity<ResponseMessage<List<HQOrderDTO>>> getOrderListExcel(
-            @RequestAttribute("loginId") String loginId,
             @RequestParam(name = "startDate", required = false) String startDate,
             @RequestParam(name = "endDate", required = false) String endDate,
             @RequestParam(name = "criteria", required = false) SearchCriteria criteria,
             @RequestParam(name = "searchWord", required = false) String searchWord
     ) {
-        int franchiseCode = queryMemberService.getFranchiseInfoByLoginId(loginId)
-                .getFranchiseCode();
-
         List<HQOrderDTO> resultOrderDataDTO = orderQueryService.getExcelDataForHQBy(
                 startDate,
                 endDate,
-                franchiseCode,
                 criteria,
                 searchWord
         );
