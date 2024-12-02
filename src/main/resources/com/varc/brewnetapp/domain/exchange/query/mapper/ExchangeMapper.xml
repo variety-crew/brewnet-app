@@ -53,6 +53,7 @@
         <result property="confirmed" column="confirmed"/>
         <result property="exchangeCode" column="exchange_code"/>
         <result property="exchangeManager" column="exchange_manager"/>
+        <result property="exchangeCreatedAt" column="exchange_created_at"/>
     </resultMap>
 
     <!-- 타부서 교환처리완료내역 상세조회 ResultMap -->
@@ -482,6 +483,7 @@
             , A.confirmed
             , A.exchange_code
             , C.name AS exchange_manager
+            , B.created_at AS exchange_created_at
          FROM tbl_exchange_stock_history A
               JOIN tbl_exchange B ON A.exchange_code = B.exchange_code
               JOIN tbl_member C ON B.member_code = C.member_code
@@ -517,6 +519,7 @@
             , A.confirmed
             , A.exchange_code
             , C.name AS exchange_manager
+            , B.created_at AS exchange_created_at
          FROM tbl_exchange_stock_history A
               JOIN tbl_exchange B ON A.exchange_code = B.exchange_code
               JOIN tbl_member C ON B.member_code = C.member_code
