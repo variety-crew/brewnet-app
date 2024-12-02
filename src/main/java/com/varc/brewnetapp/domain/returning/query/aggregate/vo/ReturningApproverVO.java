@@ -13,4 +13,5 @@ public class ReturningApproverVO {
     private Position position;          // 직급
     private Approval approval;          // 결재 처리 상태
     private String createdAt;           // 처리일자
+    private String comment;             // 비고사항
 }
