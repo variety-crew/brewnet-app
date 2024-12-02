@@ -16,7 +16,7 @@
 
     <select id="getMandatoryPurchaseList" resultMap="MandatoryPurchaseListForHQ">
         SELECT
-             , mp.MANDATORY_PURCHASE_CODE AS MANDATORY_PURCHASE_CODE
+               mp.MANDATORY_PURCHASE_CODE AS MANDATORY_PURCHASE_CODE
              , mp.MIN_QUANTITY AS MIN_QUANTITY
              , mp.CREATED_AT AS CREATED_AT
              , mp.ACTIVE AS ACTIVE
