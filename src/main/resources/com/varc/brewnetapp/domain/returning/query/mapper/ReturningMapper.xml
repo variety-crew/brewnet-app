@@ -111,6 +111,7 @@
         <result property="confirmed" column="confirmed"/>
         <result property="returningCode" column="return_code"/>
         <result property="returningManager" column="return_manager"/>
+        <result property="returningCreatedAt" column="return_created_at"/>
     </resultMap>
 
     <!-- 타부서 환불요청 조회/검색 ResultMap  -->
@@ -122,6 +123,7 @@
         <result property="confirmed" column="confirmed"/>
         <result property="returningCode" column="return_code"/>
         <result property="returningManager" column="return_manager"/>
+        <result property="returningCreatedAt" column="return_created_at"/>
     </resultMap>
 
     <!-- 타부서 반품요청 상세조회 -->
@@ -548,6 +550,7 @@
         , A.confirmed
         , A.return_code
         , C.name AS return_manager
+        , B.created_at AS return_created_at
         FROM tbl_return_stock_history A
         JOIN tbl_return B ON A.return_code = B.return_code
         JOIN tbl_member C ON B.member_code = C.member_code
@@ -658,6 +661,7 @@
         , A.confirmed
         , A.return_code
         , C.name AS return_manager
+        , B.created_at AS return_created_at
         FROM tbl_return_refund_history A
         JOIN tbl_return B ON A.return_code = B.return_code
         JOIN tbl_member C ON B.member_code = C.member_code
