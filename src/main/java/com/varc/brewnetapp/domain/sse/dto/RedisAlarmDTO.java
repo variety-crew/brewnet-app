@@ -11,7 +11,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class AlarmDTO {
+public class RedisAlarmDTO {
 
-    private String message;
+    private Object alarmData;
+    private String eventName;
+    private Integer senderMemberCode;
 }

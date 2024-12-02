@@ -1,4 +1,4 @@
-package com.varc.brewnetapp.domain.sse.dto;
+package com.varc.brewnetapp.domain.notice.command.application.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class AlarmDTO {
+public class NoticeAlarmDTO {
 
+    private int senderMemberCode;
     private String message;
 }

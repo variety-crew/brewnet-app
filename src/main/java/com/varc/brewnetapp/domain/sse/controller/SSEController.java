@@ -37,18 +37,18 @@ public class SSEController {
     @PostMapping("/send-test/{memberCode}")
     @Operation(summary = "SSE 알림 전송 테스트 API. 서버에서 테스트를 위해 사용. 프론트에서 사용 X")
     public void sendToMember(@PathVariable Integer memberCode, @RequestBody AlarmDTO alarmDTO) {
-        sseService.sendToMember(memberCode, alarmDTO);
+        sseService.sendToMember(null, "특정 회원 테스트", memberCode, alarmDTO);
     }
 
     @PostMapping("/send-test/franchise")
     @Operation(summary = "SSE 알림 전송 테스트 API. 서버에서 테스트를 위해 사용. 프론트에서 사용 X")
     public void sendToFranchise(@RequestBody AlarmDTO alarmDTO) {
-        sseService.sendToFranchise(alarmDTO);
+        sseService.sendToFranchise(null, "가맹점 알림 테스트", alarmDTO);
     }
 
     @PostMapping("/send-test/hq")
     @Operation(summary = "SSE 알림 전송 테스트 API. 서버에서 테스트를 위해 사용. 프론트에서 사용 X")
     public void sendToHq(@RequestBody AlarmDTO alarmDTO) {
-        sseService.sendToHq(alarmDTO);
+        sseService.sendToHq(null, "본사 알림 테스트",alarmDTO);
     }
 }
