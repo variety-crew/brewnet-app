@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.exchange.query.aggregate.vo;
 
+import com.varc.brewnetapp.common.domain.exchange.ExchangeStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,4 +22,5 @@ public class ExchangeDetailVO {
     private List<ExchangeItemVO> exchangeItemList;  // 교환 상품 리스트
     private List<String> exchangeImageList;         // 교환 이미지 리스트
     private String explanation;                     // 교환 상세사유
+    private ExchangeStatus status        ;          // 교환상태
 }
