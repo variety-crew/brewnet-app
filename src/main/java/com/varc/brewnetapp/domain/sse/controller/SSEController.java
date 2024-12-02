@@ -27,7 +27,7 @@ public class SSEController {
     /**
      * 클라이언트의 이벤트 구독을 수락한다. text/event-stream은 SSE를 위한 Mime Type이다. 서버 -> 클라이언트로 이벤트를 보낼 수 있게된다.
      */
-    @GetMapping(value = "/subscribe/{memberCode}", produces = "text/event-stream")
+    @GetMapping(value = "/subscribe", produces = "text/event-stream")
     @Operation(summary = "SSE 구독 API. 처음 구독을 진행하면 구독완료 되었다는 알림 발송(시스템에서 보낸거라 안보여주셔야 합니다) "
         + " / 구독완료 시, 알림을 발송하지 않으면 해당 API 호출 시 무한 로딩됨.")
     public SseEmitter subscribe( @RequestHeader("Authorization") String accessToken) {
