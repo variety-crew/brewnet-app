@@ -40,6 +40,6 @@ public class SSEController {
     @PostMapping("/send-test/{memberCode}")
     @Operation(summary = "SSE 알림 전송 테스트 API. 서버에서 테스트를 위해 사용. 프론트에서 사용 X")
     public void broadcast(@PathVariable Integer memberCode, @RequestBody AlarmDTO alarmDTO) {
-        sseService.sendToClient(memberCode, alarmDTO);
+        sseService.sendToMember(memberCode, alarmDTO);
     }
 }

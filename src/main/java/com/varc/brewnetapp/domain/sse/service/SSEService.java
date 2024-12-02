@@ -1,5 +1,8 @@
 package com.varc.brewnetapp.domain.sse.service;
 
+import com.varc.brewnetapp.domain.franchise.command.domain.aggregate.entity.FranchiseMember;
+import com.varc.brewnetapp.domain.franchise.command.domain.repository.FranchiseMemberRepository;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.domain.sse.dto.AlarmDTO;
 import com.varc.brewnetapp.domain.sse.repository.FailedAlarmRepository;
@@ -19,17 +22,19 @@ public class SSEService {
     private final JwtUtil jwtUtil;
     private final MemberRepository memberRepository;
     private final FailedAlarmRepository failedAlarmRepository;
+    private final FranchiseMemberRepository franchiseMemberRepository;
 
     @Autowired
     public SSEService(SSERepository sseRepository, JwtUtil jwtUtil,
         MemberRepository memberRepository,
-        FailedAlarmRepository failedAlarmRepository) {
+        FailedAlarmRepository failedAlarmRepository,
+        FranchiseMemberRepository franchiseMemberRepository) {
         this.sseRepository = sseRepository;
         this.jwtUtil = jwtUtil;
         this.memberRepository = memberRepository;
         this.failedAlarmRepository = failedAlarmRepository;
+        this.franchiseMemberRepository = franchiseMemberRepository;
     }
-
 
     /**
      * 클라이언트의 이벤트 구독을 허용하는 메서드
@@ -53,12 +58,12 @@ public class SSEService {
 
         // 첫 구독시에 이벤트를 발생시킨다.
         // sse 연결이 이루어진 후, 하나의 데이터로 전송되지 않는다면 sse의 유효 시간이 만료되고 503 에러가 발생한다.
-        sendToClient(memberCode, "Start Subscribe event, memberCode : " + memberCode);
+        sendToMember(memberCode, "Start Subscribe event, memberCode : " + memberCode);
 
         // 저장된 알람 전송
         List<Object> failedAlarms = failedAlarmRepository.getFailedAlarms(memberCode);
         for (Object alarm : failedAlarms) {
-            sendToClient(memberCode, alarm);
+            sendToMember(memberCode, alarm);
         }
 
         // 전송 후 삭제
@@ -68,7 +73,9 @@ public class SSEService {
     }
     
 
-    public void sendToClient(Integer recipientMemberCode, Object data) {
+    // 특정 회원 1명에게 알림 발송하는 method
+    public void sendToMember(Integer recipientMemberCode, Object data) {
+
         SseEmitter sseEmitter = sseRepository.findById(recipientMemberCode);
 
         if (sseEmitter == null) {
@@ -90,7 +97,49 @@ public class SSEService {
         } catch (IOException ex) {
             failedAlarmRepository.saveFailedAlarm(recipientMemberCode, data);
             sseRepository.deleteById(recipientMemberCode);
-//            throw new RuntimeException("연결 오류 발생");
+        }
+    }
+
+    // 가맹점 유저들에게 알림 발송하는 method
+    public void sendToFranchise(Object data) {
+
+        List<FranchiseMember> franchiseMemberList = franchiseMemberRepository.findByActiveTrue();
+
+        for (FranchiseMember franchiseMember : franchiseMemberList) {
+            SseEmitter sseEmitter = sseRepository.findById(franchiseMember.getMemberCode());
+
+            try {
+                sseEmitter.send(
+                    SseEmitter.event()
+                        .id(franchiseMember.getMemberCode().toString())
+                        .data(data)
+                );
+            } catch (IOException ex) {
+                failedAlarmRepository.saveFailedAlarm(franchiseMember.getMemberCode(), data);
+                sseRepository.deleteById(franchiseMember.getMemberCode());
+            }
+        }
+
+    }
+
+    // 본사 유저들에게 알림 발송하는 method
+    public void sendToHq(Object data) {
+
+        List<Member> memberList = memberRepository.findByActiveTrueAndPositionCodeIsNotNull();
+
+        for (Member member : memberList) {
+            SseEmitter sseEmitter = sseRepository.findById(member.getMemberCode());
+
+            try {
+                sseEmitter.send(
+                    SseEmitter.event()
+                        .id(member.getMemberCode().toString())
+                        .data(data)
+                );
+            } catch (IOException ex) {
+                failedAlarmRepository.saveFailedAlarm(member.getMemberCode(), data);
+                sseRepository.deleteById(member.getMemberCode());
+            }
         }
     }
 
