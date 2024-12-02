@@ -9,6 +9,7 @@
     <resultMap id="OrderDetailForHQ" type="com.varc.brewnetapp.domain.order.query.dto.OrderDetailForHQDTO">
         <id property="orderCode" column="ORDER_CODE"/>
         <result property="createdAt" column="ORDER_CREATED_AT"/>
+        <result property="franchiseCode" column="ORDER_FRANCHISE_CODE" />
         <result property="franchiseName" column="ORDER_FRANCHISE_NAME" />
         <result property="comment" column="ORDER_COMMENT" />
         <result property="managerName" column="ORDER_MANAGER_NAME"/>
@@ -202,6 +203,7 @@
         SELECT
                o.ORDER_CODE as ORDER_CODE
              , o.CREATED_AT as ORDER_CREATED_AT
+             , f.FRANCHISE_CODE as ORDER_FRANCHISE_CODE
              , f.FRANCHISE_NAME as ORDER_FRANCHISE_NAME
              , o.COMMENT as ORDER_COMMENT
              , m.NAME as ORDER_MANAGER_NAME
