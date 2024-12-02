@@ -73,7 +73,7 @@ public class SSEService {
     }
     
 
-    // 특정 회원 1명에게 알림 발송하는 method
+    /** 특정 회원 1명에게 알림 발송하는 method */
     public void sendToMember(Integer recipientMemberCode, Object data) {
 
         SseEmitter sseEmitter = sseRepository.findById(recipientMemberCode);
@@ -100,13 +100,19 @@ public class SSEService {
         }
     }
 
-    // 가맹점 유저들에게 알림 발송하는 method
+    /** 가맹점 유저들에게 알림 발송하는 method */
     public void sendToFranchise(Object data) {
 
         List<FranchiseMember> franchiseMemberList = franchiseMemberRepository.findByActiveTrue();
 
         for (FranchiseMember franchiseMember : franchiseMemberList) {
             SseEmitter sseEmitter = sseRepository.findById(franchiseMember.getMemberCode());
+
+            if (sseEmitter == null) {
+                // SSE 연결이 없으므로 알람을 Redis에 저장
+                failedAlarmRepository.saveFailedAlarm(franchiseMember.getMemberCode(), data);
+                continue;
+            }
 
             try {
                 sseEmitter.send(
@@ -122,13 +128,19 @@ public class SSEService {
 
     }
 
-    // 본사 유저들에게 알림 발송하는 method
+    /** 본사 유저들에게 알림 발송하는 method */
     public void sendToHq(Object data) {
 
         List<Member> memberList = memberRepository.findByActiveTrueAndPositionCodeIsNotNull();
 
         for (Member member : memberList) {
             SseEmitter sseEmitter = sseRepository.findById(member.getMemberCode());
+
+            if (sseEmitter == null) {
+                // SSE 연결이 없으므로 알람을 Redis에 저장
+                failedAlarmRepository.saveFailedAlarm(member.getMemberCode(), data);
+                continue;
+            }
 
             try {
                 sseEmitter.send(

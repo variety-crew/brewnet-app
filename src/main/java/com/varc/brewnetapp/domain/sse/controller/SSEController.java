@@ -34,12 +34,21 @@ public class SSEController {
         return sseService.subscribe(accessToken);
     }
 
-    /**
-     * 이벤트를 구독 중인 클라이언트에게 데이터를 전송한다.
-     */
     @PostMapping("/send-test/{memberCode}")
     @Operation(summary = "SSE 알림 전송 테스트 API. 서버에서 테스트를 위해 사용. 프론트에서 사용 X")
-    public void broadcast(@PathVariable Integer memberCode, @RequestBody AlarmDTO alarmDTO) {
+    public void sendToMember(@PathVariable Integer memberCode, @RequestBody AlarmDTO alarmDTO) {
         sseService.sendToMember(memberCode, alarmDTO);
+    }
+
+    @PostMapping("/send-test/franchise")
+    @Operation(summary = "SSE 알림 전송 테스트 API. 서버에서 테스트를 위해 사용. 프론트에서 사용 X")
+    public void sendToFranchise(@RequestBody AlarmDTO alarmDTO) {
+        sseService.sendToFranchise(alarmDTO);
+    }
+
+    @PostMapping("/send-test/hq")
+    @Operation(summary = "SSE 알림 전송 테스트 API. 서버에서 테스트를 위해 사용. 프론트에서 사용 X")
+    public void sendToHq(@RequestBody AlarmDTO alarmDTO) {
+        sseService.sendToHq(alarmDTO);
     }
 }
