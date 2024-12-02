@@ -786,6 +786,7 @@
             , C.name AS position
             , A.approved AS approval
             , A.created_at
+            , A.comment
           FROM tbl_exchange_approver A
                JOIN tbl_member B ON A.member_code = B.member_code
                JOIN tbl_position C ON B.position_code = C.position_code
