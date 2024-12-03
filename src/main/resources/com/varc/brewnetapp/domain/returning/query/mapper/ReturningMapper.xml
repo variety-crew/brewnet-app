@@ -910,7 +910,7 @@
         JOIN tbl_order C ON B.order_code = C.order_code
         JOIN tbl_order_item D ON C.order_code = D.order_code
         JOIN tbl_item E ON A.item_code = E.item_code
-        WHERE A.return_code = #{ returningCode };
+        WHERE A.return_code = #{ returningCode } AND A.item_code = D.item_code;
     </select>
 
     <!-- 가맹점 반품내역 상태조회 쿼리 -->
