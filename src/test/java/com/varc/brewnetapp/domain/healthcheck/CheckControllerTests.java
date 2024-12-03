@@ -7,7 +7,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -29,13 +28,13 @@ class CheckControllerTests {
                 .andDo(print());
     }
 
-//    @DisplayName("데이터베이스 회사정보 확인")
-//    @Test
-//    void checkDBCompanyNameTest() throws Exception {
-//        mockMvc.perform(get("/api/v1/check/company"))
-//                .andExpect(status().isOk())
-////                .andExpect(content().string("메가 커피"))
-//                .andExpect(content().string("Alpha Corp"))
-//                .andDo(print());
-//    }
+    @DisplayName("데이터베이스 회사정보 확인")
+    @Test
+    void checkDBCompanyNameTest() throws Exception {
+        mockMvc.perform(get("/api/v1/check/company"))
+                .andExpect(status().isOk())
+//                .andExpect(content().string("메가 커피"))
+                .andExpect(content().string("Alpha Corp"))
+                .andDo(print());
+    }
 }
