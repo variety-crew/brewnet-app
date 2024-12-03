@@ -34,6 +34,7 @@
         <result property="memberName" column="member_name"/>
         <result property="comment" column="comment"/>
         <result property="explanation" column="explanation"/>
+        <result property="status" column="status"/>
 
         <!-- 교환 물품 리스트 매핑 -->
         <collection property="exchangeItemList" ofType="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeItemVO"
@@ -52,6 +53,7 @@
         <result property="confirmed" column="confirmed"/>
         <result property="exchangeCode" column="exchange_code"/>
         <result property="exchangeManager" column="exchange_manager"/>
+        <result property="exchangeCreatedAt" column="exchange_created_at"/>
     </resultMap>
 
     <!-- 타부서 교환처리완료내역 상세조회 ResultMap -->
@@ -132,6 +134,7 @@
         <result property="position" column="position"/>
         <result property="approval" column="approval"/>
         <result property="createdAt" column="created_at"/>
+        <result property="comment" column="comment"/>
     </resultMap>
 
 
@@ -393,17 +396,24 @@
     <!-- 교환내역 상세조회 쿼리 -->
     <select id="selectExchangeDetailBy" resultMap="exchangeDetailResultMap">
         SELECT
-              A.exchange_code
-            , A.created_at
-            , C.franchise_name
-            , A.reason
-            , D.name AS member_name
-            , A.comment
-            , A.explanation
-         FROM tbl_exchange A
-              JOIN tbl_order B ON A.order_code = B.order_code
-              JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
-              LEFT JOIN tbl_member D ON A.member_code = D.member_code
+        A.exchange_code
+        , A.created_at
+        , C.franchise_name
+        , A.reason
+        , D.name AS member_name
+        , A.comment
+        , A.explanation
+        , E.status
+        FROM tbl_exchange A
+        JOIN tbl_order B ON A.order_code = B.order_code
+        JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
+        LEFT JOIN tbl_member D ON A.member_code = D.member_code
+        JOIN tbl_exchange_status_history E ON A.exchange_code = E.exchange_code
+        JOIN (
+        SELECT exchange_code, MAX(created_at) AS max_created_at
+        FROM tbl_exchange_status_history
+        GROUP BY exchange_code
+        ) latest_status ON A.exchange_code = latest_status.exchange_code AND E.created_at = latest_status.max_created_at
         WHERE A.exchange_code = #{ exchangeCode };
     </select>
 
@@ -473,6 +483,7 @@
             , A.confirmed
             , A.exchange_code
             , C.name AS exchange_manager
+            , B.created_at AS exchange_created_at
          FROM tbl_exchange_stock_history A
               JOIN tbl_exchange B ON A.exchange_code = B.exchange_code
               JOIN tbl_member C ON B.member_code = C.member_code
@@ -508,6 +519,7 @@
             , A.confirmed
             , A.exchange_code
             , C.name AS exchange_manager
+            , B.created_at AS exchange_created_at
          FROM tbl_exchange_stock_history A
               JOIN tbl_exchange B ON A.exchange_code = B.exchange_code
               JOIN tbl_member C ON B.member_code = C.member_code
