@@ -226,4 +226,3 @@ gradle-app.setting
 application.yml
 application-secret.yml
 application-dev.yml
-application-prod.yml
