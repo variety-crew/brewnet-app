@@ -3,4 +3,3 @@ spring:
     active: dev
   config:
     import: "application-secret.yml"
-
