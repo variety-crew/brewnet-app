@@ -49,6 +49,7 @@
 
     <!-- 본사 반품 결재진행상황 조회 ResultMap-->
     <resultMap id="returningApproverResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningApproverVO">
+        <result property="approverCode" column="approver_code"/>
         <result property="approverName" column="approver_name"/>
         <result property="position" column="position"/>
         <result property="approval" column="approval"/>
@@ -261,7 +262,7 @@
         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
         JOIN tbl_return_item D ON A.return_code = D.return_code
         JOIN tbl_item E ON D.item_code = E.item_code
-        JOIN tbl_member F ON A.member_code = F.member_code
+        LEFT JOIN tbl_member F ON A.member_code = F.member_code
         JOIN tbl_return_status_history G ON A.return_code = G.return_code
         JOIN (
         SELECT return_code, MAX(created_at) AS max_created_at
@@ -363,7 +364,7 @@
         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
         JOIN tbl_return_item D ON A.return_code = D.return_code
         JOIN tbl_item E ON D.item_code = E.item_code
-        JOIN tbl_member F ON A.member_code = F.member_code
+        LEFT JOIN tbl_member F ON A.member_code = F.member_code
         JOIN tbl_return_status_history G ON A.return_code = G.return_code
         JOIN (
         SELECT return_code, MAX(created_at) AS max_created_at
@@ -406,7 +407,7 @@
         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
         JOIN tbl_return_item D ON A.return_code = D.return_code
         JOIN tbl_item E ON D.item_code = E.item_code
-        JOIN tbl_member F ON A.member_code = F.member_code
+        LEFT JOIN tbl_member F ON A.member_code = F.member_code
         JOIN tbl_return_status_history G ON A.return_code = G.return_code
         JOIN (
         SELECT return_code, MAX(created_at) AS max_created_at
@@ -488,7 +489,8 @@
     <!-- (본사)반품상세보기 페이지 - '결재진행상황' 버튼 클릭 시 사용 -->
     <select id="selectReturningApproverBy" resultMap="returningApproverResultMap">
         SELECT
-        B.name AS approver_name
+          B.member_code AS approver_code
+        , B.name AS approver_name
         , C.name AS position
         , A.approved AS approval
         , A.created_at
