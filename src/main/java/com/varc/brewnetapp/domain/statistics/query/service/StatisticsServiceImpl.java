@@ -117,7 +117,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                 else
                     minPurchaseCount = safeStockStatisticsDTO.getAvailableMinusSafeStock() - unApprovedItemCount;
 
-
                 if(minPurchaseCount < 0)
                     safeStockStatisticsDTO.setMinPurchaseCount(minPurchaseCount);
                 else
