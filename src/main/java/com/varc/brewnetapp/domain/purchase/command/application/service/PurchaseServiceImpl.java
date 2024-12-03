@@ -252,7 +252,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 .orElseThrow(()-> new MemberNotFoundException("존재하지 않는 회원입니다."));
 
         // 결재자가 맞는지 체크
-        if (member.getMemberCode().equals(approver.getMemberCode()))
+        if (!member.getMemberCode().equals(approver.getMemberCode()))
             throw new InvalidDataException("해당 구매품의서의 결재자가 아닙니다.");
 
         // 아직 결재 전인 내역이 맞는지 체크

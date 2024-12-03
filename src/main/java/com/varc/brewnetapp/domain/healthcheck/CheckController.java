@@ -29,7 +29,7 @@ public class CheckController {
 
     @GetMapping
     public String check() {
-        return "Good";
+        return "Server is working good!";
     }
 
     @GetMapping("/company")
