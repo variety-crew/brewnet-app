@@ -261,7 +261,7 @@
         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
         JOIN tbl_return_item D ON A.return_code = D.return_code
         JOIN tbl_item E ON D.item_code = E.item_code
-        JOIN tbl_member F ON A.member_code = F.member_code
+        LEFT JOIN tbl_member F ON A.member_code = F.member_code
         JOIN tbl_return_status_history G ON A.return_code = G.return_code
         JOIN (
         SELECT return_code, MAX(created_at) AS max_created_at
@@ -363,7 +363,7 @@
         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
         JOIN tbl_return_item D ON A.return_code = D.return_code
         JOIN tbl_item E ON D.item_code = E.item_code
-        JOIN tbl_member F ON A.member_code = F.member_code
+        LEFT JOIN tbl_member F ON A.member_code = F.member_code
         JOIN tbl_return_status_history G ON A.return_code = G.return_code
         JOIN (
         SELECT return_code, MAX(created_at) AS max_created_at
@@ -406,7 +406,7 @@
         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
         JOIN tbl_return_item D ON A.return_code = D.return_code
         JOIN tbl_item E ON D.item_code = E.item_code
-        JOIN tbl_member F ON A.member_code = F.member_code
+        LEFT JOIN tbl_member F ON A.member_code = F.member_code
         JOIN tbl_return_status_history G ON A.return_code = G.return_code
         JOIN (
         SELECT return_code, MAX(created_at) AS max_created_at
