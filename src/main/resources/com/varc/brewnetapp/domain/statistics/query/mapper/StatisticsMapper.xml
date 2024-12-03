@@ -157,7 +157,10 @@
            O.order_code
          , F.franchise_name
          , F.franchise_code
-         , CONCAT(I.name, ' 외 ', COUNT(OI.item_code) - 1, '개') AS item_name
+         , CASE
+           WHEN COUNT(OI.item_code) = 1 THEN I.name
+           ELSE CONCAT(I.name, ' 외 ', COUNT(OI.item_code) - 1, '개')
+           END AS item_name
          , O.sum_price AS total_price
          , DATE_FORMAT(O.created_at, '%Y-%m-%d') AS created_at
       FROM tbl_order O
