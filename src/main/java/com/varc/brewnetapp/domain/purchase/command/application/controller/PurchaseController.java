@@ -32,12 +32,13 @@ public class PurchaseController {
                                     200, "구매품의서 등록 및 결재 요청 성공", newPurchaseCode));
     }
 
-    @PostMapping("/cancel/{letterOfPurchaseCode}")
+    @DeleteMapping("/cancel")
     @Operation(summary = "발주(구매품의서) 결재 요청 취소 API")
-    public ResponseEntity<ResponseMessage<Object>> cancelLetterOfPurchase(@RequestAttribute("loginId") String loginId,
-                                                                          @PathVariable int letterOfPurchaseCode) {
+    public ResponseEntity<ResponseMessage<Object>> cancelLetterOfPurchase(
+                                                        @RequestAttribute("loginId") String loginId,
+                                                        @RequestBody PurchaseCancelRequestDTO cancelRequest) {
 
-        purchaseService.cancelLetterOfPurchase(loginId, letterOfPurchaseCode);
+        purchaseService.cancelLetterOfPurchase(loginId, cancelRequest);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "구매품의서 결재 요청 취소 성공", null));
     }
@@ -77,21 +78,30 @@ public class PurchaseController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "발주한 상품 입고 처리 성공", null));
     }
 
-    @PostMapping("/print-export/{letterOfPurchaseCode}")
-    @Operation(summary = "외부용 발주서 출력 및 출력 내역 저장 API (응답으로 발주서에 출력될 데이터 전달)")
-    public ResponseEntity<ResponseMessage<PurchasePrintResponseDTO>> exportPurchasePrint(
+    @PostMapping("/print-record/{letterOfPurchaseCode}")
+    @Operation(summary = "외부용 발주서 출력 내역 저장 API")
+    public ResponseEntity<ResponseMessage<Object>> recordPurchasePrint(
                                                         @RequestAttribute("loginId") String loginId,
                                                         @PathVariable int letterOfPurchaseCode,
                                                         @RequestBody ExportPurchasePrintRequestDTO printRequest) {
 
-        PurchasePrintResponseDTO responsePrint = purchaseService
-                                                    .exportPurchasePrint(loginId, letterOfPurchaseCode, printRequest);
+        purchaseService.recordPurchasePrint(loginId, letterOfPurchaseCode, printRequest);
 
-        return ResponseEntity.ok(new ResponseMessage<>(200, "외부용 발주서 출력 성공", responsePrint));
+        return ResponseEntity.ok(new ResponseMessage<>(200, "외부용 발주서 출력 내역 저장 성공", null));
+    }
+
+    @PutMapping("/print-export/{letterOfPurchaseCode}")
+    @Operation(summary = "외부용 발주서 출력 미리보기 API (인감코드 연결하고, 응답으로 발주서에 출력될 데이터 전달)")
+    public ResponseEntity<ResponseMessage<PurchasePrintResponseDTO>> exportPurchasePrint(
+                                                                        @PathVariable int letterOfPurchaseCode) {
+
+        PurchasePrintResponseDTO response = purchaseService.exportPurchasePrint(letterOfPurchaseCode);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "외부용 발주서 출력 미리보기 성공", response));
     }
 
     @PutMapping("/print-in-house/{letterOfPurchaseCode}")
-    @Operation(summary = "내부용 발주서 출력 API (응답으로 발주서에 출력될 데이터 전달)")
+    @Operation(summary = "내부용 발주서 출력 미리보기 API (연결된 인감코드 빼고, 응답으로 발주서에 출력될 데이터 전달)")
     public ResponseEntity<ResponseMessage<PurchasePrintResponseDTO>> takeInHousePurchasePrint(
                                                                         @RequestAttribute("loginId") String loginId,
                                                                         @PathVariable int letterOfPurchaseCode) {

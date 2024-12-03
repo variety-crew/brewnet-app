@@ -11,11 +11,13 @@ public interface FranchiseMapper {
 
     Optional<FranchiseDTO> selectFranchise(Integer franchiseCode);
 
-    List<FranchiseDTO> selectFranchiseList(long offset, long pageSize, String franchiseName, List<String> citys);
+    List<FranchiseDTO> selectFranchiseList(long offset, long pageSize, String franchiseName, List<String> citys, String sort);
 
     int selectFranchiseWhereFranchiseNameAndCitysCnt(String franchiseName, List<String> citys);
 
-    List<FranchiseMemberDTO> selectFranchiseMemberList(long offset, long pageSize, String franchiseName, List<String> citys);
+    List<FranchiseMemberDTO> selectFranchiseMemberList(long offset, long pageSize, String franchiseName, List<String> citys, String sort);
 
     int selectFranchiseMemberWhereFranchiseNameAndCitysCnt(String franchiseName, List<String> citys);
+
+    List<FranchiseDTO> selectFranchiseListExcel(String franchiseName, List<String> citys, String sort);
 }

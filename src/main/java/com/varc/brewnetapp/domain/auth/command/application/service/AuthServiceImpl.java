@@ -25,6 +25,10 @@ import com.varc.brewnetapp.security.service.RefreshTokenService;
 import com.varc.brewnetapp.security.utility.JwtUtil;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,15 +98,19 @@ public class AuthServiceImpl implements AuthService {
         member.setCreatedAt(LocalDateTime.now());
         member.setActive(true);
 
-        if(signUpRequestDto.getPositionName() != null && signUpRequestDto.getFranchiseName() != null)
+        if(signUpRequestDto.getPositionName() != null && signUpRequestDto.getFranchiseCode() != null)
             throw new InvalidDataException("회원가입 시, 가맹점과 직급이 한꺼번에 설정될 수 없습니다");
         else if(signUpRequestDto.getPositionName() != null){
+            int positionCode = positionRepository.findByName(signUpRequestDto.getPositionName())
+                .orElseThrow(() -> new InvalidDataException("직급명을 잘못 입력하였습니다")).getPositionCode();
+
+            member.setPositionCode(positionCode);
             memberRepository.save(member);
         }
-        else if(signUpRequestDto.getFranchiseName() != null){
+        else if(signUpRequestDto.getFranchiseCode() != null){
             memberRepository.save(member);
 
-            Franchise franchise = franchiseRepository.findByFranchiseName(signUpRequestDto.getFranchiseName())
+            Franchise franchise = franchiseRepository.findById(signUpRequestDto.getFranchiseCode())
                 .orElseThrow(() -> new InvalidDataException("잘못된 가맹점 이름을 입력했습니다"));
 
             FranchiseMember franchiseMember = FranchiseMember.builder()
@@ -151,20 +159,38 @@ public class AuthServiceImpl implements AuthService {
             if(!member.getActive())
                 throw new InvalidDataException("권한을 부여하려는 회원이 없습니다");
 
-            Role role = roleRepository.findByRole(grantAuthRequestDTO.getAuthName())
-                .orElseThrow(() -> new InvalidDataException("잘못된 권한 값입니다"));
+            Role role = roleRepository.findByRole(grantAuthRequestDTO.getAuthName()).orElse(null);
 
-            MemberRolePK memberRolePK = new MemberRolePK(member.getMemberCode(), role.getRoleCode());
-            MemberRole existMemberRole = memberRoleRepository.findById(memberRolePK).orElse(null);
+            log.info("" + role);
 
-            if(existMemberRole != null){
-                existMemberRole.setRoleCode(role.getRoleCode());
-                memberRoleRepository.save(existMemberRole);
+            List<MemberRole> existMemberRole = memberRoleRepository.findByMemberCode(member.getMemberCode()).orElse(null);
+
+            if(role == null) {
+                for (MemberRole memberRole : existMemberRole)
+                    memberRoleRepository.delete(memberRole);
+
+                return;
+            }
+
+            if(existMemberRole != null && !existMemberRole.isEmpty()){
+
+                for(MemberRole memberRole : existMemberRole)
+                    memberRoleRepository.delete(memberRole);
+
+                memberRoleRepository.save(MemberRole.builder()
+                    .memberCode(member.getMemberCode())
+                    .roleCode(role.getRoleCode())
+                    .createdAt(LocalDateTime.now())
+                    .active(true)
+                    .build());
             }
             else
                 memberRoleRepository.save(MemberRole.builder()
-                .memberCode(member.getMemberCode()).roleCode(role.getRoleCode())
-                .createdAt(LocalDateTime.now()).active(true).build());
+                    .memberCode(member.getMemberCode())
+                    .roleCode(role.getRoleCode())
+                    .createdAt(LocalDateTime.now())
+                    .active(true)
+                    .build());
         } else
             throw new UnauthorizedAccessException("마스터 권한이 없는 사용자입니다");
 

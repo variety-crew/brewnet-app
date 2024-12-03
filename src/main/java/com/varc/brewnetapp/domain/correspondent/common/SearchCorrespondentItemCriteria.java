@@ -16,4 +16,10 @@ public class SearchCorrespondentItemCriteria {
     private int pageNumber;                 // 현재 페이지 번호
     private int pageSize;                   // 페이지 크기
     private int offset;                     // (현재 페이지 번호 - 1) * 페이지 크기
+
+    public SearchCorrespondentItemCriteria(Integer correspondentCode, String itemUniqueCode, String itemName) {
+        this.correspondentCode = correspondentCode;
+        this.itemUniqueCode = itemUniqueCode;
+        this.itemName = itemName;
+    }
 }

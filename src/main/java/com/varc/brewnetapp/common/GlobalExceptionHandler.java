@@ -28,6 +28,12 @@ public class GlobalExceptionHandler {
             OrderDraftAlreadyApproved.class,
             UnexpectedOrderStatus.class,
             IllegalArgumentException.class,
+            InvalidCriteriaException.class,
+            ApprovalAlreadyCompleted.class,
+            UnableToCancelApproval.class,
+            InvalidItemException.class,
+            MustBuyItemAlreadySet.class,
+            MandatoryPurchaseNotFound.class,
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -49,9 +55,9 @@ public class GlobalExceptionHandler {
             NoAccessAuthoritiesException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleNoAccessException(Exception e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ResponseMessage<>(
-                        HttpStatus.UNAUTHORIZED.value(),
+                        HttpStatus.FORBIDDEN.value(),
                         e.getMessage(),
                         null));
     }
@@ -59,6 +65,7 @@ public class GlobalExceptionHandler {
     // 404: Not Found
     @ExceptionHandler({
             ExchangeNotFoundException.class,
+            ReturningNotFoundException.class,
             EmptyDataException.class,
             ApprovalNotFoundException.class,
             CorrespondentNotFoundException.class,
@@ -73,6 +80,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseMessage<Object>> handleNotFoundException(Exception e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ResponseMessage<>(404, e.getMessage(), null));
+    }
+
+    // Unexpected Exception
+    @ExceptionHandler({
+            RuntimeException.class
+    })
+    public ResponseEntity<ResponseMessage<Object>> handleUnexpectedException(Exception e) {
+        log.error(e.getMessage(), e);
+        return ResponseEntity.internalServerError()
+                .body(new ResponseMessage<>(500, "Server Error: 관리자에게 문의하세요.", null));
     }
 }
 

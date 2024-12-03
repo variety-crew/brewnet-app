@@ -22,5 +22,5 @@ public class ExchangeItemStatus {
     private int quantity;               // 총수량
 
     @Column(name = "restock_quantity", nullable = false)
-    private int restock_quantity;       // 총수량
+    private int restock_quantity;       // 재입고수량
 }

@@ -15,6 +15,12 @@
     <result property="safetyStock" column="SAFETY_STOCK"/>
     <result property="active" column="ACTIVE"/>
     <result property="categoryName" column="CATEGORY_NAME"/>
+    <result property="categoryCode" column="CATEGORY_CODE"/>
+    <result property="correspondentCode" column="CORRESPONDENT_CODE"/>
+  </resultMap>
+
+  <resultMap id="itemCategoryResultMap" type="com.varc.brewnetapp.domain.item.query.dto.ItemCategoryDTO">
+    <id property="itemCode" column="ITEM_CODE"/>
   </resultMap>
 
   <select id="selectItemList" resultMap="itemResultMap" parameterType="map">
@@ -28,12 +34,14 @@
            I.SAFETY_STOCK,
            I.ACTIVE,
            SC.NAME AS CATEGORY_NAME,
-           C.NAME AS CORRESPONDENT_NAME
+           C.NAME AS CORRESPONDENT_NAME,
+           SC.SUB_CATEGORY_CODE AS CATEGORY_CODE,
+           C.CORRESPONDENT_CODE
       FROM tbl_item I
      INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
      INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
      INNER JOIN tbl_sub_category SC ON SC.SUB_CATEGORY_CODE = I.CATEGORY_CODE
-    WHERE I.ITEM_CODE IS NOT NULL
+    WHERE I.ITEM_CODE IS NOT NULL AND I.ACTIVE = TRUE AND CI.ACTIVE = TRUE
     <if test="itemName != null and itemName != ''">
       AND I.NAME LIKE CONCAT('%', #{itemName}, '%')
     </if>
@@ -77,7 +85,85 @@
      INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
      INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
      INNER JOIN tbl_sub_category SC ON SC.SUB_CATEGORY_CODE = I.CATEGORY_CODE
-     WHERE I.ITEM_CODE IS NOT NULL
+     WHERE I.ITEM_CODE IS NOT NULL AND I.ACTIVE = TRUE AND CI.ACTIVE = TRUE
+    <if test="itemName != null and itemName != ''">
+      AND I.NAME LIKE CONCAT('%', #{itemName}, '%')
+    </if>
+    <if test="itemCode != null and itemCode != ''">
+      AND I.ITEM_UNIQUE_CODE LIKE CONCAT('%', #{itemCode}, '%')
+    </if>
+    <if test="categoryCode != null and categoryCode != ''">
+      AND SC.SUB_CATEGORY_CODE = ${categoryCode}
+    </if>
+    <if test="correspondentCode != null and correspondentCode != ''">
+      AND C.CORRESPONDENT_CODE = #{correspondentCode}
+    </if>
+
+  </select>
+
+  <select id="selectHqItemList" resultMap="itemResultMap" parameterType="map">
+    SELECT
+    I.ITEM_CODE,
+    I.ITEM_UNIQUE_CODE,
+    I.NAME,
+    I.PURCHASE_PRICE,
+    I.SELLING_PRICE,
+    I.IMAGE_URL,
+    I.SAFETY_STOCK,
+    I.ACTIVE,
+    SC.NAME AS CATEGORY_NAME,
+    C.NAME AS CORRESPONDENT_NAME,
+    SC.SUB_CATEGORY_CODE AS CATEGORY_CODE,
+    C.CORRESPONDENT_CODE
+    FROM tbl_item I
+    INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
+    INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+    INNER JOIN tbl_sub_category SC ON SC.SUB_CATEGORY_CODE = I.CATEGORY_CODE
+    WHERE I.ITEM_CODE IS NOT NULL AND CI.ACTIVE = TRUE
+    <if test="itemName != null and itemName != ''">
+      AND I.NAME LIKE CONCAT('%', #{itemName}, '%')
+    </if>
+    <if test="itemCode != null and itemCode != ''">
+      AND I.ITEM_UNIQUE_CODE LIKE CONCAT('%', #{itemCode}, '%')
+    </if>
+    <if test="categoryCode != null and categoryCode != ''">
+      AND SC.SUB_CATEGORY_CODE = ${categoryCode}
+    </if>
+    <if test="correspondentCode != null and correspondentCode != ''">
+      AND C.CORRESPONDENT_CODE = #{correspondentCode}
+    </if>
+    <choose>
+      <when test="sort == 'codeASC'">
+        ORDER BY I.ITEM_UNIQUE_CODE ASC
+      </when>
+      <when test="sort == 'codeDESC'">
+        ORDER BY I.ITEM_UNIQUE_CODE DESC
+      </when>
+      <when test="sort == 'nameASC'">
+        ORDER BY I.NAME ASC
+      </when>
+      <when test="sort == 'nameDESC'">
+        ORDER BY I.NAME DESC
+      </when>
+      <otherwise>
+
+        <!-- 기본 정렬 -->
+        ORDER BY I.CREATED_AT DESC
+      </otherwise>
+    </choose>
+    LIMIT #{ pageSize }
+    OFFSET #{ offset };
+  </select>
+
+
+  <select id="selectHqItemListCnt" resultType="int" parameterType="map">
+    SELECT
+    COUNT(*)
+    FROM tbl_item I
+    INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
+    INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+    INNER JOIN tbl_sub_category SC ON SC.SUB_CATEGORY_CODE = I.CATEGORY_CODE
+    WHERE I.ITEM_CODE IS NOT NULL AND CI.ACTIVE = TRUE
     <if test="itemName != null and itemName != ''">
       AND I.NAME LIKE CONCAT('%', #{itemName}, '%')
     </if>
@@ -97,9 +183,39 @@
         SELECT
                i.SELLING_PRICE
           FROM tbl_item i
-         WHERE i.ACTIVE = 1
+         WHERE i.ACTIVE = TRUE
            AND i.ITEM_CODE = #{itemCode}
     </select>
+
+  <select id="selectItemListWhereCategoryCode" resultMap="itemCategoryResultMap" parameterType="int">
+    SELECT
+           ITEM_CODE
+      FROM tbl_item
+     WHERE CATEGORY_CODE = #{ subCategoryCode }
+  </select>
+
+  <select id="selectItem" resultMap="itemResultMap" parameterType="int">
+    SELECT
+    I.ITEM_CODE,
+    I.ITEM_UNIQUE_CODE,
+    I.NAME,
+    I.PURCHASE_PRICE,
+    I.SELLING_PRICE,
+    I.IMAGE_URL,
+    I.SAFETY_STOCK,
+    I.ACTIVE,
+    SC.NAME AS CATEGORY_NAME,
+    C.NAME AS CORRESPONDENT_NAME,
+    SC.SUB_CATEGORY_CODE AS CATEGORY_CODE,
+    C.CORRESPONDENT_CODE
+    FROM tbl_item I
+    INNER JOIN tbl_correspondent_item CI ON CI.ITEM_CODE = I.ITEM_CODE
+    INNER JOIN tbl_correspondent C ON CI.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
+    INNER JOIN tbl_sub_category SC ON SC.SUB_CATEGORY_CODE = I.CATEGORY_CODE
+    WHERE I.ITEM_CODE IS NOT NULL AND I.ACTIVE = TRUE AND CI.ACTIVE = TRUE AND I.ITEM_CODE = #{ itemCode }
+    ORDER BY CI.CREATED_AT DESC
+    LIMIT 1
+  </select>
 
 
 </mapper>

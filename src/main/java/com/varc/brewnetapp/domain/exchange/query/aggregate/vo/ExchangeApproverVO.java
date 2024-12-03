@@ -10,8 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class ExchangeApproverVO {
+    private String approverCode;
     private String approverName;        // 결재자(기안자)
     private Position position;          // 직급
-    private Approval approval;  // 결재 처리 상태
+    private Approval approval;          // 결재 처리 상태
     private String createdAt;           // 처리일자
+    private String comment;             // 비고사항
 }

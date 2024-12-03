@@ -9,16 +9,19 @@ import org.springframework.data.domain.Pageable;
 
 public interface MemberService {
 
-    Page<MemberDTO> findMemberList(Pageable page, String search);
+    Page<MemberDTO> findMemberList(Pageable page, String search, String sort);
 
     MemberDTO findMember(String accessToken);
 
-    Page<OrderPrintDTO> findSealHistory(Pageable page, String startDate, String endDate);
+    Page<OrderPrintDTO> findSealHistory(Pageable page, String startDate, String endDate, String sort);
 
     FranchiseDTO getFranchiseInfoByLoginId(String loginId);
 
     Page<ApprovalDTO> findMyDraft(Pageable page, String dateSort, String approval, String startDate, String endDate, String accessToken);
 
     Page<ApprovalDTO> findMyApproval(Pageable page, String dateSort, String approval, String startDate, String endDate, String accessToken);
+
     MemberDTO getMemberByLoginId(String loginId);
+
+    MemberDTO findMemberByHqMember(Integer memberCode);
 }

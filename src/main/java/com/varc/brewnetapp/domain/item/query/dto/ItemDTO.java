@@ -29,5 +29,7 @@ public class ItemDTO {
     private Boolean active;
     private String itemUniqueCode;
     private String categoryName;
+    private Integer categoryCode;
+    private Integer correspondentCode;
 
 }

@@ -66,4 +66,42 @@ public class CorrespondentController {
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "거래처의 취급 상품 목록 조회 성공", response));
     }
+
+    @GetMapping("/print")
+    @Operation(summary = "거래처 목록을 엑셀 파일로 출력할 때 사용하는 API")
+    public ResponseEntity<ResponseMessage<List<CorrespondentDTO>>> printAllCorrespondents(
+                                                    @RequestParam(required = false) Integer correspondentCode,
+                                                    @RequestParam(required = false) String correspondentName) {
+
+        List<CorrespondentDTO> correspondentList = correspondentService
+                                                    .printAllCorrespondents(correspondentCode, correspondentName);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "거래처 목록 파일 출력 성공", correspondentList));
+    }
+
+    @GetMapping("/print-items")
+    @Operation(summary = "거래처의 활성화된 상품 목록을 엑셀 파일로 출력할 때 사용하는 API (거래처코드는 필수)")
+    public ResponseEntity<ResponseMessage<List<CorrespondentItemDTO>>> printCorrespondentActiveItems(
+                                                    @RequestParam Integer correspondentCode,
+                                                    @RequestParam(required = false) String itemUniqueCode,
+                                                    @RequestParam(required = false) String itemName) {
+
+        List<CorrespondentItemDTO> itemList = correspondentService
+                                                .printCorrespondentActiveItems(correspondentCode,
+                                                                                itemUniqueCode,
+                                                                                itemName);
+
+        return ResponseEntity.ok(new ResponseMessage<>(
+                                    200, "거래처의 발주 가능 상품 목록 파일 출력 성공", itemList));
+    }
+
+    @GetMapping("/{correspondentCode}")
+    @Operation(summary = "거래처 코드로 거래처 상세 정보 불러오는 API")
+    public ResponseEntity<ResponseMessage<CorrespondentDTO>> getCorrespondentDetail(
+                                                                @PathVariable int correspondentCode) {
+
+        CorrespondentDTO correspondentInfo = correspondentService.getCorrespondentDetail(correspondentCode);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "거래처 상세 정보 조회 성공", correspondentInfo));
+    }
 }

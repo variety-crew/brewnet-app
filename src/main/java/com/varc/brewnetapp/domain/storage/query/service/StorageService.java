@@ -18,4 +18,6 @@ public interface StorageService {
 
     PageResponse<List<StockDTO>> selectAllStock(
                                     String loginId, Integer storageCode, String itemName, int pageNumber, int pageSize);
+
+    List<StockDTO> printItemStocks(Integer storageCode, String itemName);
 }

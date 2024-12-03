@@ -26,7 +26,7 @@ public class HQOrderController {
 
     @PostMapping("/request/{orderCode}")
     @Operation(summary = "가맹점 주문 요청건에 대한 일반 관리자의 상신")
-    public ResponseEntity<ResponseMessage<Object>> requestApproveOrder(
+    public ResponseEntity<ResponseMessage<Object>> orderRequestApproval(
             @PathVariable(name = "orderCode") Integer orderCode,
             @RequestAttribute(name = "loginId") String loginId,
             @RequestBody OrderApproveRequestDTO orderApproveRequestDTO
@@ -39,18 +39,33 @@ public class HQOrderController {
         );
     }
 
-    @PostMapping("/reject/{orderCode}/reject")
+    @DeleteMapping("/request/cancel/{orderCode}")
+    @Operation(summary = "가맹점 주문 요청건에 대한 일반 관리자의 상신에 대한 결재 취소")
+    public ResponseEntity<ResponseMessage<Object>> cancelOrderRequestApproval(
+            @PathVariable(name = "orderCode") Integer orderCode,
+            @RequestAttribute(name = "loginId") String loginId
+    ) {
+        int memberCode = memberService.getMemberByLoginId(loginId).getMemberCode();
+
+        boolean isCanceled = orderService.cancelOrderApproval(orderCode, memberCode);
+        return ResponseEntity.ok(
+                new ResponseMessage<>(200, "order approval canceled successfully", null)
+        );
+    }
+
+    @PostMapping("/reject/{orderCode}")
     @Operation(summary = "가맹점 주문 요청건에 대한 일반 관리자의 반려")
     public ResponseEntity<ResponseMessage<Object>> drafterReject(
             @PathVariable("orderCode") Integer orderCode,
             @RequestAttribute("loginId") String loginId,
             @RequestBody DrafterRejectOrderRequestDTO rejectOrderRequestDTO
     ) {
-
         orderService.rejectOrderByDrafter(orderCode, rejectOrderRequestDTO, loginId);
 
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "order request successfully rejected", null)
         );
     }
+
+
 }

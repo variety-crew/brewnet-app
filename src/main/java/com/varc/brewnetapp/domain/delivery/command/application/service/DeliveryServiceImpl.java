@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.delivery.command.application.service;
 
 
+import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.domain.delivery.command.application.dto.CreateDeliveryStatusRequestDTO;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.DeliveryKind;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.DeliveryStatus;
@@ -93,8 +94,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(createDeliveryStatusRequestDTO.getDeliveryKind().equals(DeliveryKind.ORDER)){
             DeliveryOrderStatusHistory.OrderStatus status = null;
 
-            if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED)))
+            if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED))){
                 status = DeliveryOrderStatusHistory.OrderStatus.SHIPPED;
+
+                List<OrderItem> orderItems = orderItemRepository.findByOrderItemCode_OrderCode(createDeliveryStatusRequestDTO.getCode());
+
+                if(orderItems.isEmpty() || orderItems == null)
+                    throw new EmptyDataException("주문 건에 대한 상품이 없습니다");
+
+                for (OrderItem orderItem : orderItems) {
+                    orderItem.setAvailable(Available.AVAILABLE);
+                    orderItemRepository.save(orderItem);
+                }
+            }
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING))){
                 status = DeliveryOrderStatusHistory.OrderStatus.SHIPPING;
                 DeliveryOrder order = deliveryOrderRepository.findById(createDeliveryStatusRequestDTO.getCode())

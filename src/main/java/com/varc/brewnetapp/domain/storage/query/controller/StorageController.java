@@ -82,4 +82,15 @@ public class StorageController {
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "창고별 상품 재고 리스트 조회 성공", response));
     }
+
+    @GetMapping("/print-stock")
+    @Operation(summary = "창고의 상품 재고 리스트를 엑셀 파일로 출력할 때 사용하는 API (창고 코드는 필수(default 1))")
+    public ResponseEntity<ResponseMessage<List<StockDTO>>> printItemStocks(
+                                        @RequestParam(value = "storageCode", defaultValue = "1") Integer storageCode,
+                                        @RequestParam(required = false, value = "itemName") String itemName) {
+
+        List<StockDTO> stockList = storageService.printItemStocks(storageCode, itemName);
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "창고의 상품 재고 목록 파일 출력 성공", stockList));
+    }
 }

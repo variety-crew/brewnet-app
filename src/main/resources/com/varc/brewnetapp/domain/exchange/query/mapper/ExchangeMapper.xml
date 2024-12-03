@@ -6,6 +6,7 @@
 
     <!-- ========== resultMap ========== -->
 
+    <!-- 본사 교환요청 목록조회 ResultMap -->
     <resultMap id="exchangeListResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeListVO">
         <result property="exchangeCode" column="exchange_code"/>
         <result property="franchiseName" column="franchise_name"/>
@@ -33,6 +34,7 @@
         <result property="memberName" column="member_name"/>
         <result property="comment" column="comment"/>
         <result property="explanation" column="explanation"/>
+        <result property="status" column="status"/>
 
         <!-- 교환 물품 리스트 매핑 -->
         <collection property="exchangeItemList" ofType="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeItemVO"
@@ -51,6 +53,7 @@
         <result property="confirmed" column="confirmed"/>
         <result property="exchangeCode" column="exchange_code"/>
         <result property="exchangeManager" column="exchange_manager"/>
+        <result property="exchangeCreatedAt" column="exchange_created_at"/>
     </resultMap>
 
     <!-- 타부서 교환처리완료내역 상세조회 ResultMap -->
@@ -106,7 +109,7 @@
         <id property="exchangeCode" column="exchange_code" />
         <result property="createdAt" column="created_at"/>
         <result property="status" column="status"/>
-        <result property="orderCode" column="orderCode"/>
+        <result property="orderCode" column="order_code"/>
         <result property="reason" column="reason"/>
         <result property="explanation" column="explanation"/>
 
@@ -127,10 +130,12 @@
 
     <!-- 본사 교환 결재진행상황 조회 ResultMap -->
     <resultMap id="exchangeApproverResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeApproverVO">
+        <result property="approverCode" column="approver_code"/>
         <result property="approverName" column="approver_name"/>
         <result property="position" column="position"/>
         <result property="approval" column="approval"/>
         <result property="createdAt" column="created_at"/>
+        <result property="comment" column="comment"/>
     </resultMap>
 
 
@@ -200,31 +205,79 @@
     </select>
 
     <!-- 엑셀출력용 전체 교환내역 목록조회 쿼리 -->
-    <select id="selectAllExchangeList" resultMap="exchangeListResultMap">
+    <select id="selectExcelExchangeList" resultMap="exchangeListResultMap">
         SELECT
-              A.exchange_code
-            , C.franchise_name
-            , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
-            , A.reason
-            , F.name AS member_name
-            , A.created_at
-            , G.status
-            , A.approval_status
-         FROM tbl_exchange A
-              JOIN tbl_order B ON A.order_code = B.order_code
-              JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
-              JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
-              JOIN tbl_item E ON D.item_code = E.item_code
-              LEFT JOIN tbl_member F ON A.member_code = F.member_code
-              JOIN tbl_exchange_status_history G ON A.exchange_code = G.exchange_code
-              JOIN (
-                    SELECT exchange_code, MAX(created_at) AS max_created_at
-                    FROM tbl_exchange_status_history
-                    GROUP BY exchange_code
-                    ) latest_status ON G.exchange_code = latest_status.exchange_code
-          AND G.created_at = latest_status.max_created_at
-        GROUP BY A.exchange_code, A.created_at
-        ORDER BY A.created_at DESC;
+        A.exchange_code
+        , C.franchise_name
+        , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
+        , A.reason
+        , F.name AS member_name
+        , A.created_at
+        , G.status
+        , A.approval_status
+        FROM tbl_exchange A
+        JOIN tbl_order B ON A.order_code = B.order_code
+        JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
+        JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
+        JOIN tbl_item E ON D.item_code = E.item_code
+        LEFT JOIN tbl_member F ON A.member_code = F.member_code
+        JOIN tbl_exchange_status_history G ON A.exchange_code = G.exchange_code
+        JOIN (
+        SELECT exchange_code, MAX(created_at) AS max_created_at
+        FROM tbl_exchange_status_history
+        GROUP BY exchange_code
+        ) latest_status ON G.exchange_code = latest_status.exchange_code
+        AND G.created_at = latest_status.max_created_at
+        <where>
+            <choose>
+                <when test="searchFilter == 'exchangeCode'">
+                    AND CAST(A.exchange_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'franchiseName'">
+                    AND C.franchise_name LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'managerName'">
+                    AND F.name LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+            </choose>
+            <if test="startDate != null and endDate != null">
+                AND A.created_at BETWEEN #{ startDate } AND CONCAT(#{ endDate }, ' 23:59:59')
+            </if>
+        </where>
+        GROUP BY A.exchange_code, C.franchise_name, A.reason, F.name, A.created_at, G.status, A.approval_status
+        ORDER BY A.created_at DESC
+    </select>
+
+    <!-- 미결재된 교환내역 목록조회용 cnt 쿼리 -->
+    <select id="selectRequestedExchangeListCnt" resultType="int">
+        SELECT
+              COUNT(*)
+          FROM (
+                 SELECT
+                        A.exchange_code
+                      , C.franchise_name
+                      , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
+                      , A.reason
+                      , F.name AS member_name
+                      , A.created_at
+                      , G.status
+                      , A.approval_status
+                   FROM tbl_exchange A
+                        JOIN tbl_order B ON A.order_code = B.order_code
+                        JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
+                        JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
+                        JOIN tbl_item E ON D.item_code = E.item_code
+                        LEFT JOIN tbl_member F ON A.member_code = F.member_code
+                        JOIN tbl_exchange_status_history G ON A.exchange_code = G.exchange_code
+                        JOIN (
+                               SELECT exchange_code, MAX(created_at) AS max_created_at
+                               FROM tbl_exchange_status_history
+                               GROUP BY exchange_code
+                               ) latest_status ON G.exchange_code = latest_status.exchange_code
+                          AND G.created_at = latest_status.max_created_at
+                    WHERE G.status = 'REQUESTED'
+                    GROUP BY A.exchange_code
+                  ) AS grouped_result
     </select>
 
     <!-- 미결재된 교환내역 목록조회 쿼리 -->
@@ -257,6 +310,52 @@
         LIMIT #{ offset }, #{ pageSize };
     </select>
 
+    <!-- 교환내역 검색 페이지네이션용 cnt 쿼리 -->
+    <select id="selectSearchExchangeListCnt" resultType="int">
+        SELECT COUNT(*)
+        FROM (
+        SELECT
+              A.exchange_code
+            , C.franchise_name
+            , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
+            , A.reason
+            , F.name AS member_name
+            , A.created_at
+            , G.status
+            , A.approval_status
+         FROM tbl_exchange A
+              JOIN tbl_order B ON A.order_code = B.order_code
+              JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
+              JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
+              JOIN tbl_item E ON D.item_code = E.item_code
+              LEFT JOIN tbl_member F ON A.member_code = F.member_code
+              JOIN tbl_exchange_status_history G ON A.exchange_code = G.exchange_code
+              JOIN (
+                    SELECT exchange_code, MAX(created_at) AS max_created_at
+                    FROM tbl_exchange_status_history
+                    GROUP BY exchange_code
+                    ) latest_status ON G.exchange_code = latest_status.exchange_code
+          AND G.created_at = latest_status.max_created_at
+        <where>
+            <choose>
+                <when test="searchFilter == 'exchangeCode'">
+                    AND CAST(A.exchange_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'franchiseName'">
+                    AND C.franchise_name LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'managerName'">
+                    AND F.name LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+            </choose>
+            <if test="startDate != null and endDate != null">
+                AND A.created_at BETWEEN #{ startDate } AND CONCAT(#{ endDate }, ' 23:59:59')
+            </if>
+        </where>
+        GROUP BY A.exchange_code, C.franchise_name, A.reason, F.name, A.created_at, G.status, A.approval_status
+        ) AS grouped_result;
+    </select>
+
     <!-- 교환내역 검색 쿼리 -->
     <select id="selectSearchExchangeList" resultMap="exchangeListResultMap">
         SELECT
@@ -273,7 +372,7 @@
               JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
               JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
               JOIN tbl_item E ON D.item_code = E.item_code
-              JOIN tbl_member F ON A.member_code = F.member_code
+              LEFT JOIN tbl_member F ON A.member_code = F.member_code
               JOIN tbl_exchange_status_history G ON A.exchange_code = G.exchange_code
               JOIN (
                     SELECT exchange_code, MAX(created_at) AS max_created_at
@@ -305,17 +404,24 @@
     <!-- 교환내역 상세조회 쿼리 -->
     <select id="selectExchangeDetailBy" resultMap="exchangeDetailResultMap">
         SELECT
-              A.exchange_code
-            , A.created_at
-            , C.franchise_name
-            , A.reason
-            , D.name AS member_name
-            , A.comment
-            , A.explanation
-         FROM tbl_exchange A
-              JOIN tbl_order B ON A.order_code = B.order_code
-              JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
-              LEFT JOIN tbl_member D ON A.member_code = D.member_code
+        A.exchange_code
+        , A.created_at
+        , C.franchise_name
+        , A.reason
+        , D.name AS member_name
+        , A.comment
+        , A.explanation
+        , E.status
+        FROM tbl_exchange A
+        JOIN tbl_order B ON A.order_code = B.order_code
+        JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
+        LEFT JOIN tbl_member D ON A.member_code = D.member_code
+        JOIN tbl_exchange_status_history E ON A.exchange_code = E.exchange_code
+        JOIN (
+        SELECT exchange_code, MAX(created_at) AS max_created_at
+        FROM tbl_exchange_status_history
+        GROUP BY exchange_code
+        ) latest_status ON A.exchange_code = latest_status.exchange_code AND E.created_at = latest_status.max_created_at
         WHERE A.exchange_code = #{ exchangeCode };
     </select>
 
@@ -346,16 +452,72 @@
 
     <!-- ===== Query 2. 타부서 교환처리완료내역 ===== -->
 
-    <!--  타부서 교환처리완료내역 목록조회용 cnt 쿼리 -->
+<!--    &lt;!&ndash;  타부서 교환처리완료내역 목록조회용 cnt 쿼리 &ndash;&gt;-->
+<!--    <select id="selectExchangeHistoryListCnt" resultType="int">-->
+<!--        SELECT-->
+<!--              count(*)-->
+<!--         FROM tbl_exchange_stock_history A-->
+<!--              JOIN tbl_exchange B ON A.exchange_code = B.exchange_code-->
+<!--              JOIN tbl_member C ON B.member_code = C.member_code;-->
+<!--    </select>-->
+
+<!--    &lt;!&ndash; 타부서 교환처리완료내역 목록조회 쿼리 &ndash;&gt;-->
+<!--    <select id="selectExchangeHistoryList" resultMap="exchangeHistoryListResultMap">-->
+<!--        SELECT-->
+<!--              A.exchange_stock_history_code-->
+<!--            , A.status-->
+<!--            , A.manager-->
+<!--            , A.created_at-->
+<!--            , A.confirmed-->
+<!--            , A.exchange_code-->
+<!--            , C.name AS exchange_manager-->
+<!--         FROM tbl_exchange_stock_history A-->
+<!--              JOIN tbl_exchange B ON A.exchange_code = B.exchange_code-->
+<!--              JOIN tbl_member C ON B.member_code = C.member_code-->
+<!--        ORDER BY A.created_at DESC-->
+<!--        LIMIT #{ offset }, #{ pageSize };-->
+<!--    </select>-->
+
+    <!-- 타부서 교환처리완료내역 조회/검색 페이지네이션용 cnt 쿼리 -->
     <select id="selectExchangeHistoryListCnt" resultType="int">
         SELECT
-              count(*)
+          COUNT(*)
+        FROM (
+        SELECT
+              A.exchange_stock_history_code
+            , A.status
+            , A.manager
+            , A.created_at
+            , A.confirmed
+            , A.exchange_code
+            , C.name AS exchange_manager
+            , B.created_at AS exchange_created_at
          FROM tbl_exchange_stock_history A
               JOIN tbl_exchange B ON A.exchange_code = B.exchange_code
-              JOIN tbl_member C ON B.member_code = C.member_code;
+              JOIN tbl_member C ON B.member_code = C.member_code
+        <where>
+            <choose>
+                <when test="searchFilter == 'code'">
+                    AND CAST(A.exchange_stock_history_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'manager'">
+                    AND A.manager LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'exchangeCode'">
+                    AND CAST(A.exchange_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'exchangeManager'">
+                    AND C.name LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+            </choose>
+            <if test="startDate != null and endDate != null">
+                AND A.created_at BETWEEN #{ startDate } AND CONCAT(#{ endDate }, ' 23:59:59')
+            </if>
+        </where>
+       ) AS grouped_result;
     </select>
 
-    <!-- 타부서 교환처리완료내역 목록조회 쿼리 -->
+    <!-- 타부서 교환처리완료내역 조회/검색 쿼리 -->
     <select id="selectExchangeHistoryList" resultMap="exchangeHistoryListResultMap">
         SELECT
               A.exchange_stock_history_code
@@ -365,23 +527,7 @@
             , A.confirmed
             , A.exchange_code
             , C.name AS exchange_manager
-         FROM tbl_exchange_stock_history A
-              JOIN tbl_exchange B ON A.exchange_code = B.exchange_code
-              JOIN tbl_member C ON B.member_code = C.member_code
-        ORDER BY A.created_at DESC
-        LIMIT #{ offset }, #{ pageSize };
-    </select>
-
-    <!-- 타부서 교환처리완료내역 검색 쿼리 -->
-    <select id="selectSearchExchangeHistoryList" resultMap="exchangeHistoryListResultMap">
-        SELECT
-              A.exchange_stock_history_code
-            , A.status
-            , A.manager
-            , A.created_at
-            , A.confirmed
-            , A.exchange_code
-            , C.name AS exchange_manager
+            , B.created_at AS exchange_created_at
          FROM tbl_exchange_stock_history A
               JOIN tbl_exchange B ON A.exchange_code = B.exchange_code
               JOIN tbl_member C ON B.member_code = C.member_code
@@ -413,9 +559,9 @@
         SELECT
               A.exchange_stock_history_code
             , B.created_at AS exchange_created_at
-        , D.franchise_name
+            , D.franchise_name
             , B.reason
-            , B.member_code AS exchange_manager
+            , E.name AS exchange_manager
             , A.comment
             , A.created_at
             , A.status
@@ -424,6 +570,7 @@
               JOIN tbl_exchange B ON A.exchange_code = B.exchange_code
               JOIN tbl_order C ON B.order_code = C.order_code
               JOIN tbl_franchise D ON C.franchise_code = D.franchise_code
+              JOIN tbl_member E ON B.member_code = E.member_code
         WHERE A.exchange_stock_history_code = #{ exchangeStockHistoryCode };
     </select>
 
@@ -496,9 +643,51 @@
               JOIN tbl_item E ON D.item_code = E.item_code
               JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
         WHERE F.franchise_code = ( SELECT B.franchise_code FROM tbl_member A JOIN tbl_franchise_member B ON A.member_code = B.member_code WHERE A.id = #{ loginId } )
-        GROUP BY A.exchange_code
+        GROUP BY A.exchange_code, A.created_at
         ORDER BY A.created_at DESC
         LIMIT #{ offset }, #{ pageSize };
+    </select>
+
+    <!--  가맹점 교환내역 페이지네이션용 cnt 쿼리 -->
+    <select id="selectSearchFranExchangeListCnt" resultType="int">
+        SELECT
+          COUNT(*)
+         FROM (
+           SELECT
+              A.exchange_code
+            , B.status
+            , C.order_code
+            , GROUP_CONCAT(E.name SEPARATOR ', ') AS item_name
+            , A.sum_price
+            , A.created_at
+            , CASE WHEN B.status = 'COMPLETED' THEN B.created_at ELSE NULL END AS completed_at
+        FROM tbl_exchange A
+              JOIN tbl_exchange_status_history B ON A.exchange_code = B.exchange_code
+              JOIN (
+                     SELECT exchange_code, MAX(created_at) AS max_created_at
+                     FROM tbl_exchange_status_history
+                     GROUP BY exchange_code
+                   ) latest_status ON B.exchange_code = latest_status.exchange_code
+              AND B.created_at = latest_status.max_created_at
+              JOIN tbl_order C ON A.order_code = C.order_code
+              JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
+              JOIN tbl_item E ON D.item_code = E.item_code
+              JOIN tbl_franchise F ON C.franchise_code = F.franchise_code
+        <where>
+            F.franchise_code = ( SELECT B.franchise_code FROM tbl_member A JOIN tbl_franchise_member B ON A.member_code = B.member_code WHERE A.id = #{ loginId } )
+            <choose>
+                <when test="searchFilter == 'exchangeCode'">
+                    AND CAST(A.exchange_code AS CHAR) LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+                <when test="searchFilter == 'itemName'">
+                    AND E.name LIKE CONCAT('%', #{ searchWord }, '%')
+                </when>
+            </choose>
+            <if test="startDate != null and endDate != null">
+                AND A.created_at BETWEEN #{ startDate } AND CONCAT(#{ endDate }, ' 23:59:59')
+            </if>
+        </where>
+        GROUP BY A.exchange_code) AS grouped_list
     </select>
 
     <!--  가맹점 교환내역 검색 쿼리 -->
@@ -578,7 +767,7 @@
               JOIN tbl_order C ON B.order_code = C.order_code
               JOIN tbl_order_item D ON C.order_code = D.order_code
               JOIN tbl_item E ON A.item_code = E.item_code
-        WHERE A.exchange_code = #{ exchangeCode };
+        WHERE A.exchange_code = #{ exchangeCode } AND A.item_code = D.item_code;
     </select>
 
     <!-- 가맹점 교환내역 상태조회 쿼리 -->
@@ -613,10 +802,12 @@
     <!-- (본사)교환상세보기 페이지 - '결재진행상황' 버튼 클릭 시 사용 -->
     <select id="selectExchangeApproverBy" resultMap="exchangeApproverResultMap">
         SELECT
-              B.name AS approver_name
+              B.code AS approver_code
+            , B.name AS approver_name
             , C.name AS position
             , A.approved AS approval
             , A.created_at
+            , A.comment
           FROM tbl_exchange_approver A
                JOIN tbl_member B ON A.member_code = B.member_code
                JOIN tbl_position C ON B.position_code = C.position_code
