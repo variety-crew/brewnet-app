@@ -759,7 +759,7 @@
               JOIN tbl_order C ON B.order_code = C.order_code
               JOIN tbl_order_item D ON C.order_code = D.order_code
               JOIN tbl_item E ON A.item_code = E.item_code
-        WHERE A.exchange_code = #{ exchangeCode };
+        WHERE A.exchange_code = #{ exchangeCode } AND A.item_code = D.item_code;;
     </select>
 
     <!-- 가맹점 교환내역 상태조회 쿼리 -->
