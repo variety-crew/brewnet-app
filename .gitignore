@@ -223,7 +223,6 @@ gradle-app.setting
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,intellij+all,macos,windows,gradle,java
 
 # application-profile
-application.yml
 application-secret.yml
-application-prod.yml
 application-dev.yml
+application-prod.yml
