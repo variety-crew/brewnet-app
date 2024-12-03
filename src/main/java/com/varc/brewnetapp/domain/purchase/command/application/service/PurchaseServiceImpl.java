@@ -216,6 +216,15 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 발주 품목의 입고예정재고가 발주 수량만큼 증가
         for (LetterOfPurchaseItem item : items) {
             Stock stock = stockRepository.findByStorageCodeAndItemCode(storage.getStorageCode(), item.getItemCode());
+
+            // 창고 생성 이후에 새로 등록된 상품이면 창고별 재고에 추가
+            if (stock == null) {
+                stock = new Stock(storage.getStorageCode(), item.getItemCode(),
+                                    0, 0, item.getQuantity(), LocalDateTime.now(), true);
+                stockRepository.save(stock);
+                continue;
+            }
+
             int inStock = stock.getInStock() + item.getQuantity();
             stock.setInStock(inStock);
         }

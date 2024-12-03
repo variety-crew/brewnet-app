@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.returning.query.aggregate.vo;
 
 import com.varc.brewnetapp.common.domain.returning.ReturningReason;
+import com.varc.brewnetapp.common.domain.returning.ReturningStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,4 +23,5 @@ public class ReturningDetailVO {
     private List<ReturningItemVO> returningItemList; // 반품 상품 리스트
     private List<String> returningImageList;         // 반품 이미지 리스트
     private String explanation;                      // 반품 상세사유
+    private ReturningStatus status;                  // 반품상태
 }
