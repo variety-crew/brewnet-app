@@ -187,7 +187,7 @@
                         ORDER BY o.CREATED_AT DESC
                     </otherwise>
                 </choose>
-                <if test="size != null and size != '' and offset != null and offset != ''">
+                <if test="size != null and offset != null">
                     LIMIT #{size} OFFSET #{offset}
                 </if>
                ) filtered_orders
@@ -294,7 +294,7 @@
                 ORDER BY o.CREATED_AT DESC
             </otherwise>
         </choose>
-        <if test="size != null and size != '' and offset != null and offset != ''">
+        <if test="size != null and offset != null">
             LIMIT #{size} OFFSET #{offset}
         </if>
         ) filtered_orders
@@ -360,7 +360,7 @@
                 ORDER BY o.CREATED_AT DESC
             </otherwise>
         </choose>
-        <if test="size != null and size != '' and offset != null and offset != ''">
+        <if test="size != null and offset != null">
             LIMIT #{size} OFFSET #{offset}
         </if>
         ) filtered_orders
@@ -426,7 +426,7 @@
                 ORDER BY o.CREATED_AT DESC
             </otherwise>
         </choose>
-        <if test="size != null and size != '' and offset != null and offset != ''">
+        <if test="size != null and offset != null">
             LIMIT #{size} OFFSET #{offset}
         </if>
         ) filtered_orders
@@ -486,7 +486,7 @@
                 ORDER BY o.CREATED_AT DESC
             </otherwise>
         </choose>
-        <if test="size != null and size != '' and offset != null and offset != ''">
+        <if test="size != null and offset != null">
             LIMIT #{size} OFFSET #{offset}
         </if>
         ) filtered_orders
@@ -589,7 +589,7 @@
                 ORDER BY o.CREATED_AT DESC
             </otherwise>
         </choose>
-        <if test="size != null and size != '' and offset != null and offset != ''">
+        <if test="size != null and offset != null">
             LIMIT #{size} OFFSET #{offset}
         </if>
         ) filtered_orders
@@ -653,7 +653,7 @@
                 ORDER BY o.CREATED_AT DESC
             </otherwise>
         </choose>
-        <if test="size != null and size != '' and offset != null and offset != ''">
+        <if test="size != null and offset != null">
             LIMIT #{size} OFFSET #{offset}
         </if>
         ) filtered_orders
