@@ -219,7 +219,7 @@
         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
         JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
         JOIN tbl_item E ON D.item_code = E.item_code
-        JOIN tbl_member F ON A.member_code = F.member_code
+        LEFT JOIN tbl_member F ON A.member_code = F.member_code
         JOIN tbl_exchange_status_history G ON A.exchange_code = G.exchange_code
         JOIN (
         SELECT exchange_code, MAX(created_at) AS max_created_at
@@ -325,7 +325,7 @@
               JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
               JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
               JOIN tbl_item E ON D.item_code = E.item_code
-              JOIN tbl_member F ON A.member_code = F.member_code
+              LEFT JOIN tbl_member F ON A.member_code = F.member_code
               JOIN tbl_exchange_status_history G ON A.exchange_code = G.exchange_code
               JOIN (
                     SELECT exchange_code, MAX(created_at) AS max_created_at
@@ -365,7 +365,7 @@
                      JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
                      JOIN tbl_exchange_item D ON A.exchange_code = D.exchange_code
                      JOIN tbl_item E ON D.item_code = E.item_code
-                     JOIN tbl_member F ON A.member_code = F.member_code
+                     LEFT JOIN tbl_member F ON A.member_code = F.member_code
                      JOIN tbl_exchange_status_history G ON A.exchange_code = G.exchange_code
                      JOIN (
                            SELECT exchange_code, MAX(created_at) AS max_created_at
@@ -759,7 +759,7 @@
               JOIN tbl_order C ON B.order_code = C.order_code
               JOIN tbl_order_item D ON C.order_code = D.order_code
               JOIN tbl_item E ON A.item_code = E.item_code
-        WHERE A.exchange_code = #{ exchangeCode } AND A.item_code = D.item_code;;
+        WHERE A.exchange_code = #{ exchangeCode } AND A.item_code = D.item_code;
     </select>
 
     <!-- 가맹점 교환내역 상태조회 쿼리 -->
