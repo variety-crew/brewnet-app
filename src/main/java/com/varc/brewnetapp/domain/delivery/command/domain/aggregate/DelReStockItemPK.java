@@ -1,5 +1,7 @@
 package com.varc.brewnetapp.domain.delivery.command.domain.aggregate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -11,8 +13,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class DelExStockItemPK {
+public class DelReStockItemPK {
 
-    private int exchangeStockHistoryCode;
-    private int itemCode;
+    private Integer returnStockHistoryCode;
+    private Integer itemCode;
 }
