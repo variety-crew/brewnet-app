@@ -146,12 +146,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED))){
                 status = ExchangeStatus.SHIPPED;
 
-                DeliveryExchange exchange = deliveryExchangeRepository.findById(createDeliveryStatusRequestDTO.getCode())
-                    .orElseThrow(() -> new InvalidDataException("교환 코드를 잘못 입력했습니다"));
 
-                exchange.setDeliveryCode(null);
-
-                deliveryExchangeRepository.save(exchange);
             }
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING))){
                 status = ExchangeStatus.SHIPPING;
@@ -178,8 +173,16 @@ public class DeliveryServiceImpl implements DeliveryService {
                     stockRepository.save(stock);
                 }
             }
-            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKED)))
+            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKED))){
                 status = ExchangeStatus.PICKED;
+
+                DeliveryExchange exchange = deliveryExchangeRepository.findById(createDeliveryStatusRequestDTO.getCode())
+                    .orElseThrow(() -> new InvalidDataException("교환 코드를 잘못 입력했습니다"));
+
+                exchange.setDeliveryCode(null);
+
+                deliveryExchangeRepository.save(exchange);
+            }
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKING)))
                 status = ExchangeStatus.PICKING;
             else
