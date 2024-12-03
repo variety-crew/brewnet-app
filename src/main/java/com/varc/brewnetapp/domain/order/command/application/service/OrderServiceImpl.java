@@ -553,7 +553,6 @@ public class OrderServiceImpl implements OrderService {
                 OrderStatusHistory.builder()
                         .status(newStatus)
                         .createdAt(LocalDateTime.now())
-                        .active(true)
                         .orderCode(orderCode)
                         .build()
         );
