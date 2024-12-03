@@ -49,6 +49,7 @@
 
     <!-- 본사 반품 결재진행상황 조회 ResultMap-->
     <resultMap id="returningApproverResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningApproverVO">
+        <result property="approverCode" column="approver_code"/>
         <result property="approverName" column="approver_name"/>
         <result property="position" column="position"/>
         <result property="approval" column="approval"/>
@@ -488,7 +489,8 @@
     <!-- (본사)반품상세보기 페이지 - '결재진행상황' 버튼 클릭 시 사용 -->
     <select id="selectReturningApproverBy" resultMap="returningApproverResultMap">
         SELECT
-        B.name AS approver_name
+          B.member_code AS approver_code
+        , B.name AS approver_name
         , C.name AS position
         , A.approved AS approval
         , A.created_at

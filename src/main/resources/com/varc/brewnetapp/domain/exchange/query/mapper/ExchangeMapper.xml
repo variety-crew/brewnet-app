@@ -130,6 +130,7 @@
 
     <!-- 본사 교환 결재진행상황 조회 ResultMap -->
     <resultMap id="exchangeApproverResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeApproverVO">
+        <result property="approverCode" column="approver_code"/>
         <result property="approverName" column="approver_name"/>
         <result property="position" column="position"/>
         <result property="approval" column="approval"/>
@@ -801,7 +802,8 @@
     <!-- (본사)교환상세보기 페이지 - '결재진행상황' 버튼 클릭 시 사용 -->
     <select id="selectExchangeApproverBy" resultMap="exchangeApproverResultMap">
         SELECT
-              B.name AS approver_name
+              B.code AS approver_code
+            , B.name AS approver_name
             , C.name AS position
             , A.approved AS approval
             , A.created_at
