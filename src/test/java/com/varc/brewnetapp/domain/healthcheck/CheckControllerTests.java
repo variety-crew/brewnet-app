@@ -33,8 +33,8 @@ class CheckControllerTests {
     void checkDBCompanyNameTest() throws Exception {
         mockMvc.perform(get("/api/v1/check/company"))
                 .andExpect(status().isOk())
-//                .andExpect(content().string("메가 커피"))
-                .andExpect(content().string("Alpha Corp"))
+                .andExpect(content().string("메가 커피"))
+//                .andExpect(content().string("Alpha Corp"))
                 .andDo(print());
     }
 }
