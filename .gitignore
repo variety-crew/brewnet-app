@@ -224,4 +224,5 @@ gradle-app.setting
 
 # application-profile
 application-secret.yml
+application-dev.yml
 application-prod.yml
