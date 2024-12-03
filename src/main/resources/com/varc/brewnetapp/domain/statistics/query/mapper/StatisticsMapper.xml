@@ -136,7 +136,6 @@
     FROM tbl_stock S
     INNER JOIN tbl_item I ON (I.item_code = S.item_code)
     WHERE I.active = true AND S.active = true AND (S.available_stock - I.safety_stock) &lt; 0
-    ORDER BY available_minus_safe_stock
   </select>
 
 
