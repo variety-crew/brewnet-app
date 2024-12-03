@@ -181,4 +181,4 @@ jobs:
           deployment_package: deploy/deploy.zip
           use_existing_version_if_available: false
           wait_for_deployment: true
-          wait_for_environment_recovery: 11
+          wait_for_environment_recovery: 100
