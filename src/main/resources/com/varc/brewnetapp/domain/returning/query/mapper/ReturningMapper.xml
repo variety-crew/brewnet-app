@@ -131,6 +131,7 @@
     <resultMap id="ReturningHistoryDetailResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningHistoryDetailVO">
         <id property="returningStockHistoryCode" column="return_stock_history_code"/>
         <result property="returningCreatedAt" column="return_created_at"/>
+        <result property="returningCode" column="return_code"/>
         <result property="franchiseName" column="franchise_name"/>
         <result property="reason" column="reason"/>
         <result property="returningManager" column="return_manager"/>
@@ -157,6 +158,7 @@
     <!-- 타부서 환불요청 상세조회 -->
     <resultMap id="RefundHistoryDetailResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.RefundHistoryDetailVO">
         <id property="returningRefundHistoryCode" column="return_refund_history_code"/>
+        <result property="returningCode" column="return_code"/>
         <result property="returningCreatedAt" column="return_created_at"/>
         <result property="franchiseName" column="franchise_name"/>
         <result property="reason" column="reason"/>
@@ -583,6 +585,7 @@
     <select id="selectReturningHistoryDetailBy" resultMap="ReturningHistoryDetailResultMap">
         SELECT
              A.return_stock_history_code
+            , B.return_code
             , B.created_at AS return_created_at
             , D.franchise_name
             , B.reason
@@ -694,6 +697,7 @@
     <select id="selectRefundHistoryDetailBy" resultMap="RefundHistoryDetailResultMap">
         SELECT
             A.return_refund_history_code
+            , B.return_code
             , B.created_at AS return_created_at
             , D.franchise_name
             , B.reason

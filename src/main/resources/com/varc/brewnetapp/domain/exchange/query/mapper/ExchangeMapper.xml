@@ -59,6 +59,7 @@
     <!-- 타부서 교환처리완료내역 상세조회 ResultMap -->
     <resultMap id="exchangeHistoryDetailResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeHistoryDetailVO">
         <id property="exchangeStockHistoryCode" column="exchange_stock_history_code"/>
+        <result property="exchangeCode" column="exchange_code"/>
         <result property="exchangeCreatedAt" column="exchange_created_at"/>
         <result property="franchiseName" column="franchise_name"/>
         <result property="reason" column="reason"/>
@@ -558,6 +559,7 @@
     <select id="selectExchangeHistoryDetailBy" resultMap="exchangeHistoryDetailResultMap">
         SELECT
               A.exchange_stock_history_code
+            , B.exchange_code
             , B.created_at AS exchange_created_at
             , D.franchise_name
             , B.reason
@@ -802,7 +804,7 @@
     <!-- (본사)교환상세보기 페이지 - '결재진행상황' 버튼 클릭 시 사용 -->
     <select id="selectExchangeApproverBy" resultMap="exchangeApproverResultMap">
         SELECT
-              B.code AS approver_code
+              B.member_code AS approver_code
             , B.name AS approver_name
             , C.name AS position
             , A.approved AS approval
