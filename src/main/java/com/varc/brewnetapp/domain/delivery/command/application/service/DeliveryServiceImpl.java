@@ -10,6 +10,10 @@ import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelEx
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelExStockItem;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelReStock;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelReStock.StockStatus;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelReStockItem;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelRefund;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelRefund.RefundStatus;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelRefundItem;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryExchange;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryExchangeStatusHistory;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryExchangeStatusHistory.ExchangeStatus;
@@ -251,8 +255,17 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 deliveryExchangeRepository.save(exchange);
             }
-            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKING)))
+            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKING))){
                 status = ExchangeStatus.PICKING;
+
+                DeliveryExchange exchange = deliveryExchangeRepository.findById(createDeliveryStatusRequestDTO.getCode())
+                    .orElseThrow(() -> new InvalidDataException("교환 코드를 잘못 입력했습니다"));
+
+                exchange.setDeliveryCode(member.getMemberCode());
+
+                deliveryExchangeRepository.save(exchange);
+            }
+
             else
                 throw new InvalidDataException("잘못된 상태값을 입력하셨습니다");
 
@@ -290,10 +303,36 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 DelReStock newDelReStock = delReStockRepository.save(delReStock);
 
+                DelRefund delRefund = DelRefund.builder()
+                    .status(DelRefund.RefundStatus.TOTAL_REFUND)
+                    .createdAt(LocalDateTime.now())
+                    .manager("이수희")
+                    .comment("전체 환불입니다")
+                    .active(true)
+                    .confirmed(DelRefund.ConfirmationStatus.UNCONFIRMED)
+                    .returnCode(createDeliveryStatusRequestDTO.getCode())
+                    .build();
+
+                DelRefund newDelRefund = delRefundRepository.save(delRefund);
+
                 List<ReturningItem> returningItemList = returningItemRepository.findByReturningItemCode_ReturningCode(createDeliveryStatusRequestDTO.getCode());
 
                 for (ReturningItem returningItem : returningItemList){
+                    DelRefundItem delRefundItem = DelRefundItem.builder()
+                        .completed(true)
+                        .itemCode(returningItem.getReturningItemCode().getItemCode())
+                        .returnRefundHistoryCode(newDelRefund.getReturnRefundHistoryCode())
+                        .build();
 
+                    DelReStockItem delReStockItem = DelReStockItem.builder()
+                        .itemCode(returningItem.getReturningItemCode().getItemCode())
+                        .returnStockHistoryCode(newDelReStock.getReturnStockHistoryCode())
+                        .quantity(returningItem.getQuantity())
+                        .restockQuantity(returningItem.getQuantity())
+                        .build();
+
+                    delReStockItemRepository.save(delReStockItem);
+                    delRefundItemRepository.save(delRefundItem);
                 }
 
                 status = ReturnStatus.PICKED;
