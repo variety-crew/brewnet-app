@@ -30,6 +30,7 @@
     <!-- 본사 반품요청 상세조회 ResultMap -->
     <resultMap id="returningDetailResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO">
         <id property="returningCode" column="return_code" />
+        <result property="franchiseCode" column="franchise_code"/>
         <result property="createdAt" column="created_at"/>
         <result property="franchiseName" column="franchise_name"/>
         <result property="reason" column="reason"/>
@@ -445,6 +446,7 @@
     <select id="selectReturningDetailBy" resultMap="returningDetailResultMap">
         SELECT
         A.return_code
+        , C.franchise_code
         , A.created_at
         , C.franchise_name
         , A.reason
