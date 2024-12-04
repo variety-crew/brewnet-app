@@ -15,6 +15,7 @@ import java.util.List;
 @Setter // 품목 조회 위해 필요
 public class ExchangeHistoryDetailVO {
     private int exchangeStockHistoryCode;
+    private int exchangeCode;
     private String exchangeCreatedAt;       // 교환요청일자
     private String franchiseName;           // 교환요청지점
     private ExchangeReason reason;          // 교환사유

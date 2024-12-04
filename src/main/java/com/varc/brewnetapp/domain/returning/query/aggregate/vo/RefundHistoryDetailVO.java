@@ -15,6 +15,7 @@ import java.util.List;
 @Setter // 품목 조회 위해 필요
 public class RefundHistoryDetailVO {
     private int returningRefundHistoryCode;
+    private int returningCode;
     private String returningCreatedAt;      // 환불(반품)요청일자
     private String franchiseName;           // 환불(반품)요청지점
     private ReturningReason reason;         // 환불(반품)사유
