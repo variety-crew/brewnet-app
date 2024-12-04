@@ -314,7 +314,7 @@ public class ExchangeServiceImpl implements ExchangeService {
             exchangeApprover = exchangeApprover.toBuilder()
                     .approved(Approval.APPROVED)
                     .createdAt(String.valueOf(LocalDateTime.now()))
-                    .comment(exchangeApprover.getComment())
+                    .comment(exchangeApproveReqVO.getComment())
                     .build();
             exchangeApproverRepository.save(exchangeApprover);
 
@@ -333,7 +333,7 @@ public class ExchangeServiceImpl implements ExchangeService {
             exchangeApprover = exchangeApprover.toBuilder()
                     .approved(Approval.REJECTED)
                     .createdAt(String.valueOf(LocalDateTime.now()))
-                    .comment(exchangeApprover.getComment())
+                    .comment(exchangeApproveReqVO.getComment())
                     .build();
             exchangeApproverRepository.save(exchangeApprover);
         } else {
