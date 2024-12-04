@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.exchange.query.aggregate.vo;
 
+import com.varc.brewnetapp.common.domain.approve.Confirmed;
 import com.varc.brewnetapp.common.domain.exchange.ExchangeHistoryStatus;
 import com.varc.brewnetapp.common.domain.exchange.ExchangeReason;
 import lombok.AllArgsConstructor;
@@ -24,5 +25,6 @@ public class ExchangeHistoryDetailVO {
     private String createdAt;               // 처리완료일자
     private ExchangeHistoryStatus status;   // 처리상태
     private String manager;                 // 처리담당자
+    private Confirmed confirmed;            // 처리완료내역
     private List<ExchangeHistoryItemVO> exchangeHistoryItemList;    // 교환완료내역의 상품 리스트
 }
