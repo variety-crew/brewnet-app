@@ -321,6 +321,7 @@ public class ReturningServiceImpl implements ReturningService {
             returningApprover = returningApprover.toBuilder()
                     .approved(Approval.APPROVED)
                     .createdAt(String.valueOf(LocalDateTime.now()))
+                    .comment(returningApproveReqVO.getComment())
                     .build();
             returningApproverRepository.save(returningApprover);
 
@@ -339,6 +340,7 @@ public class ReturningServiceImpl implements ReturningService {
             returningApprover = returningApprover.toBuilder()
                     .approved(Approval.REJECTED)
                     .createdAt(String.valueOf(LocalDateTime.now()))
+                    .comment(returningApproveReqVO.getComment())
                     .build();
             returningApproverRepository.save(returningApprover);
         } else {
