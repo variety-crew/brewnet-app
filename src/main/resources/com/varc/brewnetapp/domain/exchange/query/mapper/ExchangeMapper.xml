@@ -802,7 +802,7 @@
     <!-- (본사)교환상세보기 페이지 - '결재진행상황' 버튼 클릭 시 사용 -->
     <select id="selectExchangeApproverBy" resultMap="exchangeApproverResultMap">
         SELECT
-              B.code AS approver_code
+              B.member_code AS approver_code
             , B.name AS approver_name
             , C.name AS position
             , A.approved AS approval
