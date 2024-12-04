@@ -28,6 +28,7 @@
 
     <resultMap id="exchangeDetailResultMap" type="com.varc.brewnetapp.domain.exchange.query.aggregate.vo.ExchangeDetailVO">
         <id property="exchangeCode" column="exchange_code" />
+        <result property="franchiseCode" column="franchise_code"/>
         <result property="createdAt" column="created_at"/>
         <result property="franchiseName" column="franchise_name"/>
         <result property="reason" column="reason"/>
@@ -407,6 +408,7 @@
     <select id="selectExchangeDetailBy" resultMap="exchangeDetailResultMap">
         SELECT
         A.exchange_code
+        , C.franchise_code
         , A.created_at
         , C.franchise_name
         , A.reason
