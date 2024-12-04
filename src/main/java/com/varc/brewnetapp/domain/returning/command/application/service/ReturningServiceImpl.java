@@ -561,7 +561,7 @@ public class ReturningServiceImpl implements ReturningService {
 
         returning = returning.toBuilder()
                 .drafterApproved(DrafterApproved.APPROVE)               // [1] 기안자의 반품 승인 여부
-//                    .approvalStatus(Approval.UNCONFIRMED)                // [2] 반품 결재 상태 (변화 X)
+                .approvalStatus(Approval.UNCONFIRMED)                   // [2] 반품 결재 상태 (CANCELED 인 경우 UNCONFIRMED로 변경)
                 .memberCode(member)                                     // 기안자 등록
                 .comment(returningApproveReqVO.getComment())            // 첨언 등록
                 .build();
