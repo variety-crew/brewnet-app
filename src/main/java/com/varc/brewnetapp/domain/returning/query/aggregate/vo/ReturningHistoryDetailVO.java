@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.returning.query.aggregate.vo;
 
+import com.varc.brewnetapp.common.domain.approve.Confirmed;
 import com.varc.brewnetapp.common.domain.returning.ReturningHistoryStatus;
 import com.varc.brewnetapp.common.domain.returning.ReturningReason;
 import lombok.AllArgsConstructor;
@@ -24,5 +25,6 @@ public class ReturningHistoryDetailVO {
     private String createdAt;               // 처리완료일자
     private ReturningHistoryStatus status;  // 처리상태
     private String manager;                 // 처리담당자
+    private Confirmed confirmed;            // 처리완료여부
     private List<ReturningHistoryItemVO> returningHistoryItemList;    // 반품완료내역의 상품 리스트
 }
