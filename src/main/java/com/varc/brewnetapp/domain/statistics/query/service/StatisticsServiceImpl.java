@@ -111,9 +111,11 @@ public class StatisticsServiceImpl implements StatisticsService {
 
                 safeStockStatisticsDTO.setUnApprovedOrderCount(unApprovedItemCount);
 
-                minPurchaseCount = safeStockStatisticsDTO.getAvailableStock()
-                    - safeStockStatisticsDTO.getSafeStock()
-                    - unApprovedItemCount;
+                if(safeStockStatisticsDTO.getAvailableMinusSafeStock() < 0)
+                    minPurchaseCount = -(Math.abs(safeStockStatisticsDTO.getAvailableMinusSafeStock()) + unApprovedItemCount);
+                else
+                    minPurchaseCount = safeStockStatisticsDTO.getAvailableMinusSafeStock() - unApprovedItemCount;
+
 
                 if(minPurchaseCount < 0)
                     safeStockStatisticsDTO.setMinPurchaseCount(minPurchaseCount);
