@@ -139,7 +139,7 @@
   </select>
 
 
-  <select id="selectUnApprovedItemCount" resultType="int" parameterType="int">
+  <select id="selectUnApprovedItemCount" resultType="java.lang.Integer" parameterType="int">
     SELECT
     COALESCE(SUM(OI.quantity), 0) AS quantity
     FROM tbl_order_item OI

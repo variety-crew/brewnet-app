@@ -18,19 +18,19 @@ public interface StatisticsMapper {
 
     List<OrderItemStatisticsDTO> selectOrderItemStatistics(String startDate, String endDate);
 
-    int selectOrderItemStatisticsCnt(String startDate, String endDate);
+    Integer selectOrderItemStatisticsCnt(String startDate, String endDate);
 
     List<SafeStockStatisticsDTO> selectSafeStock(long offset, long pageSize);
 
-    int selectUnApprovedItemCount(int itemCode);
+    Integer selectUnApprovedItemCount(int itemCode);
 
-    int selectSafeStockCnt();
+    Integer selectSafeStockCnt();
 
     List<newOrderDTO> selectNewOrder(long offset, long pageSize);
 
-    int selectNewOrderCnt();
+    Integer selectNewOrderCnt();
 
     List<MyWaitApprovalDTO> selectApprovalList(long pageSize, long offset, Integer memberCode);
 
-    int selectApprovalListCnt(Integer memberCode);
+    Integer selectApprovalListCnt(Integer memberCode);
 }

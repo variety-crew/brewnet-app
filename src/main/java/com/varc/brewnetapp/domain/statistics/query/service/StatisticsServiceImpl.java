@@ -110,6 +110,10 @@ public class StatisticsServiceImpl implements StatisticsService {
             for(SafeStockStatisticsDTO safeStockStatisticsDTO : safeStockStatisticsList){
                 Integer unApprovedItemCount = statisticsMapper.selectUnApprovedItemCount(safeStockStatisticsDTO.getItemCode());
 
+                // null 처리
+                if (unApprovedItemCount == null)
+                    unApprovedItemCount = 0;
+
                 safeStockStatisticsDTO.setUnApprovedOrderCount(unApprovedItemCount);
 
                 if(safeStockStatisticsDTO.getAvailableMinusSafeStock() < 0)
