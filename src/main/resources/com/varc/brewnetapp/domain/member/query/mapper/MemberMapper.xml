@@ -219,6 +219,25 @@
     WHERE M.ACTIVE = TRUE AND M.MEMBER_CODE = #{ memberCode }
   </select>
 
+  <select id="selectDeliveryMemberByHqMEmber" resultMap="memberResultMap" parameterType="_int">
+    SELECT
+    M.MEMBER_CODE,
+    M.ID,
+    M.NAME,
+    M.EMAIL,
+    M.CONTACT,
+    M.SIGNATURE_URL,
+    (SELECT R.ROLE
+    FROM tbl_member_role MR
+    INNER JOIN tbl_role R
+    ON MR.ROLE_CODE = R.ROLE_CODE
+    WHERE MR.MEMBER_CODE = M.MEMBER_CODE
+    ORDER BY R.ROLE_CODE ASC
+    LIMIT 1) AS ROLE
+    FROM tbl_member M
+    WHERE M.ACTIVE = TRUE AND M.MEMBER_CODE = #{ memberCode }
+  </select>
+
   <select id="selectOrderPrintList" resultMap="orderPrintResultMap" parameterType="map">
     SELECT
            OP.ORDER_PRINT_CODE

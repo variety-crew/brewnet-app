@@ -39,4 +39,6 @@ public interface MemberMapper {
     MemberDTO selectMemberByHqMember(Integer memberCode);
 
     MemberDTO selectFranchiseMemberByHqMember(Integer memberCode);
+
+    MemberDTO selectDeliveryMemberByHqMEmber(Integer memberCode);
 }
