@@ -106,6 +106,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         List<SafeStockStatisticsDTO> safeStockStatisticsList = statisticsMapper.selectSafeStock(offset, pageSize);
 
         if(safeStockStatisticsList != null && safeStockStatisticsList.size() > 0){
+
             for(SafeStockStatisticsDTO safeStockStatisticsDTO : safeStockStatisticsList){
                 Integer unApprovedItemCount = statisticsMapper.selectUnApprovedItemCount(safeStockStatisticsDTO.getItemCode());
 
