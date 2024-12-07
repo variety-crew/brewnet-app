@@ -264,6 +264,11 @@ public class ExchangeServiceImpl implements ExchangeService {
 
         } else if (exchangeApproveReqVO.getApproval() == DrafterApproved.APPROVE) {
             drafterApproveExchange(exchangeApproveReqVO, exchange, member);
+
+            // 본사 기안자가 본사 결재자에게 알림
+            sseService.sendToMember(member.getMemberCode(), "교환 결재 요청", exchangeApproveReqVO.getApproverCodeList().get(0)
+                    , "교환 결재 요청이 도착했습니다.");
+
         } else {
             throw new InvalidStatusException("최초 기안자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
         }
