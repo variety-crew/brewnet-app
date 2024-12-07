@@ -150,7 +150,7 @@
             ORDER BY R.ROLE_CODE ASC
             LIMIT 1) AS ROLE
       FROM tbl_member M
-     INNER JOIN tbl_position P ON M.POSITION_CODE = P.POSITION_CODE
+     LEFT JOIN tbl_position P ON M.POSITION_CODE = P.POSITION_CODE
      WHERE M.ACTIVE = TRUE AND M.ID = #{ loginId }
   </select>
 
@@ -174,6 +174,49 @@
     INNER JOIN tbl_franchise_member FM ON M.MEMBER_CODE = FM.MEMBER_CODE
     INNER JOIN tbl_franchise F ON FM.FRANCHISE_CODE = F.FRANCHISE_CODE
     WHERE M.ACTIVE = TRUE AND M.ID = #{ loginId }
+  </select>
+
+  <select id="selectMemberByHqMember" resultMap="memberResultMap" parameterType="_int">
+    SELECT
+    M.MEMBER_CODE,
+    M.ID,
+    M.NAME,
+    M.EMAIL,
+    M.CONTACT,
+    M.SIGNATURE_URL,
+    P.NAME AS POSITION_NAME,
+    (SELECT R.ROLE
+    FROM tbl_member_role MR
+    INNER JOIN tbl_role R
+    ON MR.ROLE_CODE = R.ROLE_CODE
+    WHERE MR.MEMBER_CODE = M.MEMBER_CODE
+    ORDER BY R.ROLE_CODE ASC
+    LIMIT 1) AS ROLE
+    FROM tbl_member M
+    LEFT JOIN tbl_position P ON M.POSITION_CODE = P.POSITION_CODE
+    WHERE M.ACTIVE = TRUE AND M.MEMBER_CODE = #{ memberCode }
+  </select>
+
+  <select id="selectFranchiseMemberByHqMember" resultMap="memberResultMap" parameterType="_int">
+    SELECT
+    M.MEMBER_CODE,
+    M.ID,
+    M.NAME,
+    M.EMAIL,
+    M.CONTACT,
+    M.SIGNATURE_URL,
+    F.FRANCHISE_NAME,
+    (SELECT R.ROLE
+    FROM tbl_member_role MR
+    INNER JOIN tbl_role R
+    ON MR.ROLE_CODE = R.ROLE_CODE
+    WHERE MR.MEMBER_CODE = M.MEMBER_CODE
+    ORDER BY R.ROLE_CODE ASC
+    LIMIT 1) AS ROLE
+    FROM tbl_member M
+    INNER JOIN tbl_franchise_member FM ON M.MEMBER_CODE = FM.MEMBER_CODE
+    INNER JOIN tbl_franchise F ON FM.FRANCHISE_CODE = F.FRANCHISE_CODE
+    WHERE M.ACTIVE = TRUE AND M.MEMBER_CODE = #{ memberCode }
   </select>
 
   <select id="selectOrderPrintList" resultMap="orderPrintResultMap" parameterType="map">
