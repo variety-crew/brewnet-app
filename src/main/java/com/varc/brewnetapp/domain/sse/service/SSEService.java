@@ -68,13 +68,11 @@ public class SSEService {
         for (RedisAlarmDTO alarm : failedAlarms)
             sendToMember(alarm.getSenderMemberCode(), "Past", memberCode, alarm.getMessage());
 
-
         // 전송 후 삭제
         failedAlarmRepository.clearFailedAlarms(memberCode);
 
         return sseEmitter;
     }
-    
 
     /** 특정 회원 1명에게 알림 발송하는 method */
     public void sendToMember(Integer senderMemberCode, String eventName, Integer recipientMemberCode, String data) {
@@ -100,7 +98,7 @@ public class SSEService {
                 SseEmitter.event()
                     .id(recipientMemberCode.toString())
                     .name(eventName)
-                    .data(redisAlarmDTO)
+                    .data(data)
             );
         } catch (IOException ex) {
             failedAlarmRepository.saveFailedAlarm(recipientMemberCode, redisAlarmDTO);
