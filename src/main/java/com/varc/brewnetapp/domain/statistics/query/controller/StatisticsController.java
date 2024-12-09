@@ -5,7 +5,7 @@ import com.varc.brewnetapp.domain.statistics.query.dto.MyWaitApprovalDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderCountPriceDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderStatisticsDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.SafeStockStatisticsDTO;
-import com.varc.brewnetapp.domain.statistics.query.dto.newOrderDTO;
+import com.varc.brewnetapp.domain.statistics.query.dto.NewOrderDTO;
 import com.varc.brewnetapp.domain.statistics.query.service.StatisticsService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
@@ -61,7 +61,7 @@ public class StatisticsController {
 
     @GetMapping("/new-order")
     @Operation(summary = "신규 주문 목록 API")
-    public ResponseEntity<ResponseMessage<Page<newOrderDTO>>> findNewOrder(
+    public ResponseEntity<ResponseMessage<Page<NewOrderDTO>>> findNewOrder(
         @PageableDefault(size = 10, page = 0) Pageable page) {
 
         return ResponseEntity.ok(new ResponseMessage<>(
