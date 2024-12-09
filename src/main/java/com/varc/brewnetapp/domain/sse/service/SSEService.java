@@ -116,6 +116,9 @@ public class SSEService {
         RedisAlarmDTO redisAlarmDTO = new RedisAlarmDTO(data, eventName, senderMemberCode);
 
         for (FranchiseMember franchiseMember : franchiseMemberList) {
+            if(senderMemberCode == franchiseMember.getMemberCode())
+                continue;
+
             SseEmitter sseEmitter = sseRepository.findById(franchiseMember.getMemberCode());
 
             if (sseEmitter == null) {
@@ -142,6 +145,7 @@ public class SSEService {
     /** 본사 유저들에게 알림 발송하는 method */
     public void sendToHq(Integer senderMemberCode, String eventName, Object data) {
 
+
         List<Member> memberList = memberRepository.findByActiveTrueAndPositionCodeIsNotNull();
 
         if(data == null)
@@ -151,6 +155,9 @@ public class SSEService {
         RedisAlarmDTO redisAlarmDTO = new RedisAlarmDTO(data, eventName, senderMemberCode);
 
         for (Member member : memberList) {
+            if(senderMemberCode == member.getMemberCode())
+                continue;
+
             SseEmitter sseEmitter = sseRepository.findById(member.getMemberCode());
 
             if (sseEmitter == null) {
