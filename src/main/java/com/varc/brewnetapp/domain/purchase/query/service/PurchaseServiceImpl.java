@@ -64,6 +64,45 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional(readOnly = true)
     @Override
+    public PageResponse<List<LetterOfPurchaseDTO>> selectUnconfirmedPurchase(String loginId,
+                                                                             Integer purchaseCode,
+                                                                             String memberName,
+                                                                             String correspondentName,
+                                                                             String storageName,
+                                                                             String startDate,
+                                                                             String endDate,
+                                                                             int pageNumber,
+                                                                             int pageSize) {
+
+        SearchPurchaseCriteria criteria = new SearchPurchaseCriteria();
+        criteria.setPurchaseCode(purchaseCode);
+        criteria.setMemberName(memberName);
+        criteria.setCorrespondentName(correspondentName);
+        criteria.setStorageName(storageName);
+        criteria.setStartDate(startDate);
+        criteria.setEndDate(endDate);
+        criteria.setPageNumber(pageNumber);
+        criteria.setPageSize(pageSize);
+
+        int offset = (pageNumber - 1) * pageSize;
+        criteria.setOffset(offset);
+
+        if (criteria.getStartDate() != null && criteria.getEndDate() == null) {
+            throw new InvalidConditionException("종료일을 입력해 주세요.");
+        } else if (criteria.getStartDate() == null && criteria.getEndDate() != null) {
+            throw new InvalidConditionException("시작일을 입력해 주세요.");
+        }
+
+        List<LetterOfPurchaseDTO> unconfirmedList = purchaseMapper.searchUnconfirmedPurchase(criteria);
+        int totalCount = purchaseMapper.getUnconfirmedPurchaseCount(criteria);
+        PageResponse<List<LetterOfPurchaseDTO>> response = new PageResponse<>(
+                                                            unconfirmedList, pageNumber, pageSize, totalCount);
+
+        return response;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public LetterOfPurchaseDetailDTO selectOneLetterOfPurchase(String loginId, int letterOfPurchaseCode) {
 
         LetterOfPurchaseDetailDTO letterOfPurchase = purchaseMapper

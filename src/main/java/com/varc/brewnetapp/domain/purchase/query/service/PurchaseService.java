@@ -40,4 +40,14 @@ public interface PurchaseService {
                                                                                   String endDate,
                                                                                   int pageNumber,
                                                                                   int pageSize);
+
+    PageResponse<List<LetterOfPurchaseDTO>> selectUnconfirmedPurchase(String loginId,
+                                                                      Integer purchaseCode,
+                                                                      String memberName,
+                                                                      String correspondentName,
+                                                                      String storageName,
+                                                                      String startDate,
+                                                                      String endDate,
+                                                                      int pageNumber,
+                                                                      int pageSize);
 }
