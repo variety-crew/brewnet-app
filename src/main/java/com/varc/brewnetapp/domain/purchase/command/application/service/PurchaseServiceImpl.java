@@ -1,9 +1,9 @@
 package com.varc.brewnetapp.domain.purchase.command.application.service;
 
 import com.varc.brewnetapp.domain.correspondent.command.domain.aggregate.Correspondent;
-import com.varc.brewnetapp.domain.correspondent.command.domain.repository.CorrespondentItemRepository;
 import com.varc.brewnetapp.domain.correspondent.command.domain.repository.CorrespondentRepository;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
+import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Position;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.domain.member.command.domain.repository.PositionRepository;
 import com.varc.brewnetapp.domain.purchase.command.application.dto.*;
@@ -11,6 +11,7 @@ import com.varc.brewnetapp.domain.purchase.command.domain.aggregate.*;
 import com.varc.brewnetapp.domain.purchase.command.domain.repository.*;
 import com.varc.brewnetapp.domain.purchase.common.IsApproved;
 import com.varc.brewnetapp.domain.purchase.common.Status;
+import com.varc.brewnetapp.domain.sse.service.SSEService;
 import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
 import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Storage;
 import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
@@ -38,14 +39,14 @@ public class PurchaseServiceImpl implements PurchaseService {
     private final CorrespondentRepository correspondentRepository;
     private final StorageRepository storageRepository;
     private final PurchaseItemRepository purchaseItemRepository;
-    private final CorrespondentItemRepository correspondentItemRepository;
     private final LetterOfPurchaseItemRepository letterOfPurchaseItemRepository;
     private final LetterOfPurchaseApproverRepository letterOfPurchaseApproverRepository;
     private final PurchaseSealRepository purchaseSealRepository;
     private final PurchasePrintRepository purchasePrintRepository;
     private final CompanyTempRepository companyTempRepository;
     private final MemberRepository memberRepository;
-    private final PurchasePositionRepository purchasePositionRepository;
+    private final PositionRepository positionRepository;
+    private final SSEService sseService;
 
     @Autowired
     public PurchaseServiceImpl(ModelMapper modelMapper,
@@ -55,13 +56,14 @@ public class PurchaseServiceImpl implements PurchaseService {
                                CorrespondentRepository correspondentRepository,
                                StorageRepository storageRepository,
                                PurchaseItemRepository purchaseItemRepository,
-                               CorrespondentItemRepository correspondentItemRepository,
                                LetterOfPurchaseItemRepository letterOfPurchaseItemRepository,
                                LetterOfPurchaseApproverRepository letterOfPurchaseApproverRepository,
                                PurchaseSealRepository purchaseSealRepository,
                                PurchasePrintRepository purchasePrintRepository,
                                CompanyTempRepository companyTempRepository,
-                               MemberRepository memberRepository, PositionRepository positionRepository, PurchasePositionRepository purchasePositionRepository) {
+                               MemberRepository memberRepository,
+                               PositionRepository positionRepository,
+                               SSEService sseService) {
         this.modelMapper = modelMapper;
         this.letterOfPurchaseRepository = letterOfPurchaseRepository;
         this.purchaseStatusHistoryRepository = purchaseStatusHistoryRepository;
@@ -69,14 +71,14 @@ public class PurchaseServiceImpl implements PurchaseService {
         this.correspondentRepository = correspondentRepository;
         this.storageRepository = storageRepository;
         this.purchaseItemRepository = purchaseItemRepository;
-        this.correspondentItemRepository = correspondentItemRepository;
         this.letterOfPurchaseItemRepository = letterOfPurchaseItemRepository;
         this.letterOfPurchaseApproverRepository = letterOfPurchaseApproverRepository;
         this.purchaseSealRepository = purchaseSealRepository;
         this.purchasePrintRepository = purchasePrintRepository;
         this.companyTempRepository = companyTempRepository;
         this.memberRepository = memberRepository;
-        this.purchasePositionRepository = purchasePositionRepository;
+        this.positionRepository = positionRepository;
+        this.sseService = sseService;
     }
 
     @Transactional
@@ -146,6 +148,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchaseStatusHistory.setActive(true);
         purchaseStatusHistory.setLetterOfPurchase(savedPurchase);
         purchaseStatusHistoryRepository.save(purchaseStatusHistory);
+
+        // 결재자에게 발주 결재 요청 알림 발송
+        sseService.sendToMember(member.getMemberCode(), "request approval of purchase",
+                                approver.getMemberCode(), member.getName() + "님이 구매품의서 결재를 요청하였습니다.");
 
         // 새로 등록된 구매품의서의 구매품의서 코드 반환
         return savedPurchase.getLetterOfPurchaseCode();
@@ -236,6 +242,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         history.setCreatedAt(LocalDateTime.now());
         history.setActive(true);
         purchaseStatusHistoryRepository.save(history);
+
+        // 기안자에게 결재 승인 알림 발송
+        sseService.sendToMember(member.getMemberCode(), "approve purchase",
+                                requestedPurchase.getMember().getMemberCode(), "구매품의서 결재가 승인되었습니다.");
     }
 
     @Transactional
@@ -272,6 +282,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         history.setCreatedAt(LocalDateTime.now());
         history.setActive(true);
         purchaseStatusHistoryRepository.save(history);
+
+        // 기안자에게 결재 반려 알림 발송
+        sseService.sendToMember(member.getMemberCode(), "reject purchase",
+                                requestedPurchase.getMember().getMemberCode(), "구매품의서 결재가 반려되었습니다.");
     }
 
     @Transactional
@@ -374,7 +388,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         Correspondent correspondent = letterOfPurchase.getCorrespondent();
         Storage storage = letterOfPurchase.getStorage();
 
-        PurchasePosition position = purchasePositionRepository.findById(letterOfPurchase.getMember().getPositionCode())
+        Position position = positionRepository.findById(letterOfPurchase.getMember().getPositionCode())
                 .orElseThrow(() -> new PositionNotFoundException("존재하지 않는 직급입니다."));
 
         List<PurchasePrintItemDTO> printItems = new ArrayList<>();
@@ -449,7 +463,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         Correspondent correspondent = letterOfPurchase.getCorrespondent();
         Storage storage = letterOfPurchase.getStorage();
 
-        PurchasePosition position = purchasePositionRepository.findById(letterOfPurchase.getMember().getPositionCode())
+        Position position = positionRepository.findById(letterOfPurchase.getMember().getPositionCode())
                 .orElseThrow(() -> new PositionNotFoundException("존재하지 않는 직급입니다."));
 
         List<PurchasePrintItemDTO> printItems = new ArrayList<>();
