@@ -97,4 +97,17 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         return myDelivery;
     }
+
+    @Override
+    @Transactional
+    public List<Integer> findDeliveryFranchiseMemberCode(int code) {
+
+        List<Integer> franchiseMemberCodeList = deliveryMapper.selectDeliveryFranchiseMemberCode(code);
+        
+        if(franchiseMemberCodeList.isEmpty())
+            throw new EmptyDataException("주문을 한 가맹점의 회원 코드가 없습니다");
+
+        return franchiseMemberCodeList;
+    }
+
 }

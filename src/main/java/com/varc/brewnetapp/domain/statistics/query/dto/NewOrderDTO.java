@@ -11,7 +11,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class newOrderDTO {
+public class NewOrderDTO {
     private int orderCode;
     private int franchiseCode;
     private String franchiseName;
