@@ -13,7 +13,7 @@ import lombok.ToString;
 @ToString
 public class RedisAlarmDTO {
 
-    private String alarmData;
+    private String message;
     private String eventName;
     private Integer senderMemberCode;
 }
