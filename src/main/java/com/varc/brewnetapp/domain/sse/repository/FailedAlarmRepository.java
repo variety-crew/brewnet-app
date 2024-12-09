@@ -1,6 +1,5 @@
 package com.varc.brewnetapp.domain.sse.repository;
 
-import com.varc.brewnetapp.domain.sse.dto.AlarmDTO;
 import com.varc.brewnetapp.domain.sse.dto.RedisAlarmDTO;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
