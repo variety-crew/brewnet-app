@@ -64,7 +64,7 @@ public class SSEService {
         // 저장된 알람 전송
         List<RedisAlarmDTO> failedAlarms = failedAlarmRepository.getFailedAlarms(memberCode);
         for (RedisAlarmDTO alarm : failedAlarms) {
-            sendToMember(alarm.getSenderMemberCode(), "[Past]" + alarm.getEventName(), memberCode, alarm.getAlarmData());
+            sendToMember(alarm.getSenderMemberCode(), "Past", memberCode, alarm.getAlarmData());
         }
 
         // 전송 후 삭제
