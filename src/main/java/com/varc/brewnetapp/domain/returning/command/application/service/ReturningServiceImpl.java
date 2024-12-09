@@ -350,20 +350,6 @@ public class ReturningServiceImpl implements ReturningService {
                     .build();
             returningApproverRepository.save(returningApprover);
 
-            // 5. 재고 변동
-            // 해당 상품의 출고예정재고 증가, 가용재고 감소
-            List<ReturningItem> returningItemList = returningItemRepository.findByReturningItemCode_ReturningCode(returning.getReturningCode());
-            for (ReturningItem returningItem : returningItemList) {
-                Stock stock = stockRepository.findByStorageCodeAndItemCode(1, returningItem.getReturningItemCode().getItemCode());
-
-                // 가용재고 감소
-                stock = stock.toBuilder()
-                        .outStock(stock.getOutStock() + returningItem.getQuantity())
-                        .availableStock(stock.getAvailableStock() - returningItem.getQuantity())
-                        .build();
-                stockRepository.save(stock);
-            }
-
         } else if (returningApproveReqVO.getApproval() == Approval.REJECTED) {
             // 2. 반품(tbl_return) 테이블 '반품 결재 상태(approval_status)' 변경
             returning = returning.toBuilder()
