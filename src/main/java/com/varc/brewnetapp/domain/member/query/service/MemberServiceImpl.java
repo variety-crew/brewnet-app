@@ -103,9 +103,13 @@ public class MemberServiceImpl implements MemberService {
 
         if(member.getPositionCode() != null)
             memberDTO = memberMapper.selectMemberByHqMember(memberCode);
-        else
+        else{
             memberDTO = memberMapper.selectFranchiseMemberByHqMember(memberCode);
 
+            if(memberDTO == null)
+                memberDTO = memberMapper.selectDeliveryMemberByHqMEmber(memberCode);
+        }
+        
         if(memberDTO == null)
             throw new MemberNotFoundException("조회하려는 멤버 정보가 없습니다");
 

@@ -39,7 +39,7 @@
     <result property="printedAt" column="PRINTED_AT"/>
     <result property="memberCode" column="MEMBER_CODE"/>
     <result property="memberName" column="NAME"/>
-    <result property="memberSignature" column="SIGNATURE"/>
+    <result property="memberSignature" column="SIGNATURE_URL"/>
     <result property="letterOfPurchaseCode" column="LETTER_OF_PURCHASE_CODE"/>
   </resultMap>
 

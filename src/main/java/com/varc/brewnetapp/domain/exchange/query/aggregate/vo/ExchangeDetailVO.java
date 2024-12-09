@@ -14,6 +14,7 @@ import java.util.List;
 @Setter // 품목 조회 위해 필요
 public class ExchangeDetailVO {
     private int exchangeCode;
+    private int franchiseCode;
     private String createdAt;                       // 교환요청일자
     private String franchiseName;                   // 교환요청 지점명
     private String reason;                          // 교환사유

@@ -32,7 +32,7 @@
     <result property="minPurchaseCount" column="min_purchase_count"/>
   </resultMap>
 
-  <resultMap id="NewOrderResultMap" type="com.varc.brewnetapp.domain.statistics.query.dto.newOrderDTO">
+  <resultMap id="NewOrderResultMap" type="com.varc.brewnetapp.domain.statistics.query.dto.NewOrderDTO">
     <id property="orderCode" column="order_code" />
     <result property="franchiseName" column="franchise_name" />
     <result property="franchiseCode" column="franchise_code" />
@@ -139,7 +139,7 @@
   </select>
 
 
-  <select id="selectUnApprovedItemCount" resultType="int" parameterType="int">
+  <select id="selectUnApprovedItemCount" resultType="java.lang.Integer" parameterType="int">
     SELECT
     COALESCE(SUM(OI.quantity), 0) AS quantity
     FROM tbl_order_item OI
@@ -152,6 +152,15 @@
 
 
   <select id="selectNewOrder" resultMap="NewOrderResultMap" parameterType="map">
+    WITH LatestOrderStatus AS (
+    SELECT
+    ORDER_CODE
+    , STATUS
+    , CREATED_AT
+    , ROW_NUMBER() OVER (PARTITION BY ORDER_CODE ORDER BY CREATED_AT DESC) AS RN
+    FROM tbl_order_status_history
+    WHERE ACTIVE = TRUE
+    )
     SELECT
            O.order_code
          , F.franchise_name
@@ -164,9 +173,10 @@
          , DATE_FORMAT(O.created_at, '%Y-%m-%d') AS created_at
       FROM tbl_order O
      INNER JOIN tbl_order_item OI ON O.order_code = OI.order_code
+     INNER JOIN LatestOrderStatus OH ON O.ORDER_CODE = OH.ORDER_CODE
      INNER JOIN tbl_item I ON OI.item_code = I.item_code
      INNER JOIN tbl_franchise F ON O.franchise_code = F.franchise_code
-     WHERE O.active = TRUE AND O.member_code IS NULL
+     WHERE OH.RN = 1 AND O.active = TRUE AND O.member_code IS NULL AND OH.status IN ('REQUESTED')
      GROUP BY O.order_code
      ORDER BY O.created_at DESC
      LIMIT #{ pageSize }
@@ -174,6 +184,15 @@
   </select>
 
   <select id="selectNewOrderCnt" resultType="int" parameterType="map">
+    WITH LatestOrderStatus AS (
+    SELECT
+    ORDER_CODE
+    , STATUS
+    , CREATED_AT
+    , ROW_NUMBER() OVER (PARTITION BY ORDER_CODE ORDER BY CREATED_AT DESC) AS RN
+    FROM tbl_order_status_history
+    WHERE ACTIVE = TRUE
+    )
     SELECT
            COUNT(*) AS group_count
       FROM (
@@ -182,7 +201,8 @@
              INNER JOIN tbl_order_item OI ON O.order_code = OI.order_code
              INNER JOIN tbl_item I ON OI.item_code = I.item_code
              INNER JOIN tbl_franchise F ON O.franchise_code = F.franchise_code
-             WHERE O.active = TRUE AND O.member_code IS NULL
+             INNER JOIN LatestOrderStatus OH ON O.ORDER_CODE = OH.ORDER_CODE
+             WHERE OH.RN = 1 AND O.active = TRUE AND O.member_code IS NULL AND OH.status IN ('REQUESTED')
              GROUP BY O.order_code
       ) grouped_data;
   </select>

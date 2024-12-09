@@ -232,7 +232,7 @@
     SELECT
            I.NAME AS ITEM_NAME
          , RI.QUANTITY AS QUANTITY
-      FROM tbl_RETURN R
+      FROM tbl_return R
      INNER JOIN tbl_return_item RI ON RI.RETURN_CODE = R.RETURN_CODE
      INNER JOIN tbl_item I ON RI.ITEM_CODE = I.ITEM_CODE
      WHERE R.RETURN_CODE = #{ code }
@@ -246,6 +246,15 @@
      INNER JOIN tbl_order_item OI ON OI.ORDER_CODE = O.ORDER_CODE
      INNER JOIN tbl_item I ON OI.ITEM_CODE = I.ITEM_CODE
      WHERE O.ORDER_CODE = #{ code }
+  </select>
+
+  <select id="selectDeliveryFranchiseMemberCode" resultType="java.lang.Integer" parameterType="_int">
+    SELECT
+          FM.MEMBER_CODE
+      FROM tbl_order O
+     INNER JOIN tbl_franchise F ON O.FRANCHISE_CODE = F.FRANCHISE_CODE
+     INNER JOIN tbl_franchise_member FM ON F.FRANCHISE_CODE = FM.FRANCHISE_CODE
+     WHERE O.ORDER_CODE = #{ code } AND FM.ACTIVE = TRUE AND F.ACTIVE = TRUE
   </select>
 
 </mapper>
