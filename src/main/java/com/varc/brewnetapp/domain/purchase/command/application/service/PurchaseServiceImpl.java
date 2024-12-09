@@ -150,8 +150,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchaseStatusHistoryRepository.save(purchaseStatusHistory);
 
         // 결재자에게 발주 결재 요청 알림 발송
-        sseService.sendToMember(member.getMemberCode(), "발주 결재 요청", approver.getMemberCode(),
-                                member.getName() + "님이 구매품의서 결재를 요청하였습니다.");
+        sseService.sendToMember(member.getMemberCode(), "request approval of purchase",
+                                approver.getMemberCode(), member.getName() + "님이 구매품의서 결재를 요청하였습니다.");
 
         // 새로 등록된 구매품의서의 구매품의서 코드 반환
         return savedPurchase.getLetterOfPurchaseCode();
@@ -244,7 +244,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchaseStatusHistoryRepository.save(history);
 
         // 기안자에게 결재 승인 알림 발송
-        sseService.sendToMember(member.getMemberCode(), "발주 결재 승인",
+        sseService.sendToMember(member.getMemberCode(), "approve purchase",
                                 requestedPurchase.getMember().getMemberCode(), "구매품의서 결재가 승인되었습니다.");
     }
 
@@ -284,7 +284,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchaseStatusHistoryRepository.save(history);
 
         // 기안자에게 결재 반려 알림 발송
-        sseService.sendToMember(member.getMemberCode(), "발주 결재 반려",
+        sseService.sendToMember(member.getMemberCode(), "reject purchase",
                                 requestedPurchase.getMember().getMemberCode(), "구매품의서 결재가 반려되었습니다.");
     }
 
