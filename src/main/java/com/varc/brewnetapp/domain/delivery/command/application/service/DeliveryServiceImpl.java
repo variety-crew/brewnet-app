@@ -45,6 +45,7 @@ import com.varc.brewnetapp.domain.order.command.domain.repository.OrderItemRepos
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderRepository;
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.ReturningItem;
 import com.varc.brewnetapp.domain.returning.command.domain.repository.ReturningItemRepository;
+import com.varc.brewnetapp.domain.sse.service.SSEService;
 import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
 import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
 import com.varc.brewnetapp.exception.DuplicateException;
@@ -81,6 +82,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final DelReStockRepository delReStockRepository;
     private final DelReStockItemRepository delReStockItemRepository;
     private final ReturningItemRepository returningItemRepository;
+    private final SSEService sseService;
+    private final com.varc.brewnetapp.domain.delivery.query.service.DeliveryService queryDeliveryService;
 
     @Autowired
     public DeliveryServiceImpl(
@@ -96,7 +99,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         DelExStockItemRepository delExStockItemRepository, DelRefundRepository delRefundRepository,
         DelRefundItemRepository delRefundItemRepository, DelReStockRepository delReStockRepository,
         DelReStockItemRepository delReStockItemRepository,
-        ReturningItemRepository returningItemRepository) {
+        ReturningItemRepository returningItemRepository, SSEService sseService,
+        com.varc.brewnetapp.domain.delivery.query.service.DeliveryService queryDeliveryService) {
         this.deliveryOrderStatusHistoryRepository = deliveryOrderStatusHistoryRepository;
         this.deliveryExchangeStatusHistoryRepository = deliveryExchangeStatusHistoryRepository;
         this.deliveryReturnStatusHistoryRepository = deliveryReturnStatusHistoryRepository;
@@ -115,10 +119,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         this.delReStockRepository = delReStockRepository;
         this.delReStockItemRepository = delReStockItemRepository;
         this.returningItemRepository = returningItemRepository;
+        this.sseService = sseService;
+        this.queryDeliveryService = queryDeliveryService;
     }
-
-
-
 
     @Transactional
     @Override
@@ -144,6 +147,13 @@ public class DeliveryServiceImpl implements DeliveryService {
                     orderItem.setAvailable(Available.AVAILABLE);
                     orderItemRepository.save(orderItem);
                 }
+
+                List<Integer> franchiseMemberCodeList = queryDeliveryService.findDeliveryFranchiseMemberCode(createDeliveryStatusRequestDTO.getCode());
+
+                for(Integer franchiseMemberCode : franchiseMemberCodeList)
+                    sseService.sendToMember(member.getMemberCode(), "Order Delivery Completed"
+                        , franchiseMemberCode
+                        , "주문 배송이 완료 되었습니다");
             }
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING))){
                 status = DeliveryOrderStatusHistory.OrderStatus.SHIPPING;

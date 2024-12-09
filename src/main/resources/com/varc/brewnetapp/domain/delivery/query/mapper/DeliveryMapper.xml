@@ -248,4 +248,13 @@
      WHERE O.ORDER_CODE = #{ code }
   </select>
 
+  <select id="selectDeliveryFranchiseMemberCode" resultType="java.lang.Integer" parameterType="_int">
+    SELECT
+          FM.MEMBER_CODE
+      FROM tbl_order O
+     INNER JOIN tbl_franchise F ON O.FRANCHISE_CODE = F.FRANCHISE_CODE
+     INNER JOIN tbl_franchise_member FM ON F.FRANCHISE_CODE = FM.FRANCHISE_CODE
+     WHERE O.ORDER_CODE = #{ code } AND FM.ACTIVE = TRUE AND F.ACTIVE = TRUE
+  </select>
+
 </mapper>

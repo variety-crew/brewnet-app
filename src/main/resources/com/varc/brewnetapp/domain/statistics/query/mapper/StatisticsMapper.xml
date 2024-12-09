@@ -32,7 +32,7 @@
     <result property="minPurchaseCount" column="min_purchase_count"/>
   </resultMap>
 
-  <resultMap id="NewOrderResultMap" type="com.varc.brewnetapp.domain.statistics.query.dto.newOrderDTO">
+  <resultMap id="NewOrderResultMap" type="com.varc.brewnetapp.domain.statistics.query.dto.NewOrderDTO">
     <id property="orderCode" column="order_code" />
     <result property="franchiseName" column="franchise_name" />
     <result property="franchiseCode" column="franchise_code" />
