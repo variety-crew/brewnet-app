@@ -357,12 +357,10 @@ public class ReturningServiceImpl implements ReturningService {
                 Stock stock = stockRepository.findByStorageCodeAndItemCode(1, returningItem.getReturningItemCode().getItemCode());
 
                 // 가용재고 감소
-                log.info("*** before stock.getOutStock(): {}", stock.getOutStock());
                 stock = stock.toBuilder()
                         .outStock(stock.getOutStock() + returningItem.getQuantity())
                         .availableStock(stock.getAvailableStock() - returningItem.getQuantity())
                         .build();
-                log.info("*** after stock.getOutStock(): {}", stock.getOutStock());
                 stockRepository.save(stock);
             }
 
