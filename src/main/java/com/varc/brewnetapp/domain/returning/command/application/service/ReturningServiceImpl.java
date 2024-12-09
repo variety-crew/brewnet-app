@@ -8,6 +8,7 @@ import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.common.domain.returning.ReturningStatus;
 import com.varc.brewnetapp.domain.exchange.command.application.repository.ExOrderItemRepository;
 import com.varc.brewnetapp.domain.exchange.command.application.repository.ExOrderRepository;
+import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity.ExchangeItem;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrder;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrderItem;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrderItemCode;
@@ -298,6 +299,7 @@ public class ReturningServiceImpl implements ReturningService {
          * [2] 반품상태                 - tbl_return_status_history : status = APPROVED / REJECTED (내역 추가됨)
          * [3] 승인여부                 - tbl_return_approver : approved = APPROVED / REJECTED
          * [4] 결재일시                 - tbl_return_approver : created_at = 현재일시
+         * [5] 재고
          * */
 
         /*
@@ -348,6 +350,21 @@ public class ReturningServiceImpl implements ReturningService {
                     .build();
             returningApproverRepository.save(returningApprover);
 
+            // 5. 재고 변동
+            // 해당 상품의 출고예정재고 증가, 가용재고 감소
+            List<ReturningItem> returningItemList = returningItemRepository.findByReturningItemCode_ReturningCode(returning.getReturningCode());
+            for (ReturningItem returningItem : returningItemList) {
+                Stock stock = stockRepository.findByStorageCodeAndItemCode(1, returningItem.getReturningItemCode().getItemCode());
+
+                // 가용재고 감소
+                log.info("*** before stock.getOutStock(): {}", stock.getOutStock());
+                stock = stock.toBuilder()
+                        .outStock(stock.getOutStock() + returningItem.getQuantity())
+                        .availableStock(stock.getAvailableStock() - returningItem.getQuantity())
+                        .build();
+                log.info("*** after stock.getOutStock(): {}", stock.getOutStock());
+                stockRepository.save(stock);
+            }
 
         } else if (returningApproveReqVO.getApproval() == Approval.REJECTED) {
             // 2. 반품(tbl_return) 테이블 '반품 결재 상태(approval_status)' 변경
