@@ -263,29 +263,29 @@ public class ReturningServiceImpl implements ReturningService {
             drafterRejectReturning(returningApproveReqVO, returning, member);
 
             // 본사에서 반품신청한 가맹점 회원들에게 알림
-            sendToReturningFranchiseMember(returning.getOrder().getFranchiseCode(), returning.getReturningCode());
+            sendToReturningFranchiseMember(returning.getOrder().getFranchiseCode(), "ReturnRejectionEvent",
+                    returning.getReturningCode() + "번 요청이 반려되었습니다.");
 
         } else if (returningApproveReqVO.getApproval() == DrafterApproved.APPROVE) {
             drafterApproveReturning(returningApproveReqVO, returning, member);
-        } else {
 
             // 본사 기안자가 본사 결재자에게 알림
-            sseService.sendToMember(member.getMemberCode(), "반품 결재 요청", returningApproveReqVO.getApproverCodeList().get(0)
+            sseService.sendToMember(member.getMemberCode(), "ReturnApprovalReqEvent", returningApproveReqVO.getApproverCodeList().get(0)
                     , "반품 결재 요청이 도착했습니다.");
 
+        } else {
             throw new InvalidStatusException("최초 기안자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
         }
     }
 
 
-    private void sendToReturningFranchiseMember(int franchiseCode, int returningCode) {
+    private void sendToReturningFranchiseMember(int franchiseCode, String eventName, String message) {
         List<FranchiseMember> franchiseMemberList = franchiseMemberRepository.findByFranchiseCode(franchiseCode)
                 .orElseThrow(() -> new MemberNotFoundException("가맹점 회원을 찾을 수 없습니다"));
 
         // 가맹점 모든 회원들에게 알림
         for (FranchiseMember franchiseMember : franchiseMemberList) {
-            sseService.sendToMember(franchiseMember.getMemberCode(), "교환 요청 반려", franchiseMember.getMemberCode()
-                    , returningCode + "번 반품 요청이 반려되었습니다.");
+            sseService.sendToMember(franchiseMember.getMemberCode(), eventName, franchiseMember.getMemberCode(), message);
         }
     }
 
@@ -369,7 +369,8 @@ public class ReturningServiceImpl implements ReturningService {
 
 
             // 본사에서 교환신청한 가맹점 회원들에게 알림
-            sendToReturningFranchiseMember(returning.getOrder().getFranchiseCode(), returning.getReturningCode());
+            sendToReturningFranchiseMember(returning.getOrder().getFranchiseCode(),"ReturnRejectionEvent",
+                    returning.getReturningCode() + "번 요청이 반려되었습니다");
 
         } else {
             throw new IllegalArgumentException("결재자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
@@ -582,7 +583,8 @@ public class ReturningServiceImpl implements ReturningService {
 
         // 4. 가맹점에 알림
         // 본사에서 반품신청한 가맹점 회원들에게 알림
-        sendToReturningFranchiseMember(returningStockHistory.getReturning().getOrder().getFranchiseCode(), returning.getReturningCode());
+        sendToReturningFranchiseMember(returningStockHistory.getReturning().getOrder().getFranchiseCode(),
+                "ReturnApprovedEvent", returning.getReturningCode() + "번 반품이 완료되었습니다.");
 
     }
 
