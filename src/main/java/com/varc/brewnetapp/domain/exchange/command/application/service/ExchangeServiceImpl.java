@@ -294,6 +294,7 @@ public class ExchangeServiceImpl implements ExchangeService {
          * [2] 교환상태                 - tbl_exchange_status_history : status = APPROVED / REJECTED (내역 추가됨)
          * [3] 승인여부                 - tbl_exchange_approver : approved = APPROVED / REJECTED
          * [4] 결재일시                 - tbl_exchange_approver : created_at = 현재일시
+         * [5] 재고 변동
          * */
 
         /*
@@ -302,7 +303,7 @@ public class ExchangeServiceImpl implements ExchangeService {
          *   1. 교환 별 결재자들(tbl_exchange_approver) 테이블 회원코드(member_code) == 현재 회원 코드
          *   2. 교환 별 결재자들(tbl_exchange_approver) 테이블 교환코드(exchange_code) == 교환 코드
          *   3. 교환 상태 이력 (tbl_exchange_status_history) 테이블 교환상태(status) == PENDING
-         *   3. 교환 별 결재자들(tbl_exchange_approver) 테이블 승인여부(approved) == UNCONFIRMED
+         *   4. 교환 별 결재자들(tbl_exchange_approver) 테이블 승인여부(approved) == UNCONFIRMED
          * */
 
         // 1. 교환 결재가 가능한지 확인
@@ -344,6 +345,20 @@ public class ExchangeServiceImpl implements ExchangeService {
                     .build();
             exchangeApproverRepository.save(exchangeApprover);
 
+
+            // 5. 재고 변동
+            // 해당 상품의 출고예정재고 증가, 가용재고 감소
+            List<ExchangeItem> exchangeItemList = exchangeItemRepository.findByExchangeItemCode_ExchangeCode(exchange.getExchangeCode());
+            for (ExchangeItem exchangeItem : exchangeItemList) {
+                Stock stock = stockRepository.findByStorageCodeAndItemCode(1, exchangeItem.getExchangeItemCode().getItemCode());
+
+                // 가용재고 감소
+                stock = stock.toBuilder()
+                        .outStock(stock.getOutStock() + exchangeItem.getQuantity())
+                        .availableStock(stock.getAvailableStock() - exchangeItem.getQuantity())
+                        .build();
+                stockRepository.save(stock);
+            }
 
         } else if (exchangeApproveReqVO.getApproval() == Approval.REJECTED) {
             // 2. 교환(tbl_exchange) 테이블 '교환 결재 상태(approval_status)' 변경
