@@ -25,4 +25,6 @@ public interface DeliveryMapper {
     List<ItemDTO> selectReturnDelivery(int code);
 
     Optional<DeliveryDetailDTO> selectMyDeliveryDetail(int deliveryMemberCode);
+
+    List<Integer> selectDeliveryFranchiseMemberCode(int code);
 }

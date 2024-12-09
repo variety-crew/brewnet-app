@@ -64,7 +64,7 @@ public class SSEService {
         // 저장된 알람 전송
         List<RedisAlarmDTO> failedAlarms = failedAlarmRepository.getFailedAlarms(memberCode);
         for (RedisAlarmDTO alarm : failedAlarms) {
-            sendToMember(alarm.getSenderMemberCode(), alarm.getEventName(), memberCode, alarm.getAlarmData());
+            sendToMember(alarm.getSenderMemberCode(), "Past", memberCode, alarm.getAlarmData());
         }
 
         // 전송 후 삭제
@@ -75,13 +75,15 @@ public class SSEService {
     
 
     /** 특정 회원 1명에게 알림 발송하는 method */
-    public void sendToMember(Integer senderMemberCode, String eventName, Integer recipientMemberCode, Object data) {
+    public void sendToMember(Integer senderMemberCode, String eventName, Integer recipientMemberCode, String data) {
+
+        if(senderMemberCode == recipientMemberCode)
+            return;
 
         SseEmitter sseEmitter = sseRepository.findById(recipientMemberCode);
 
         if(data == null)
-        data = new AlarmDTO
-            (senderMemberCode + "번 회원이" + recipientMemberCode + "번 회원에게 " + eventName + "알람을 발송하였습니다");
+            data = senderMemberCode + "번 회원이" + recipientMemberCode + "번 회원에게 " + eventName + "알람을 발송하였습니다";
 
         RedisAlarmDTO redisAlarmDTO = new RedisAlarmDTO(data, eventName, senderMemberCode);
 
@@ -105,17 +107,19 @@ public class SSEService {
     }
 
     /** 가맹점 유저들에게 알림 발송하는 method */
-    public void sendToFranchise(Integer senderMemberCode, String eventName, Object data) {
+    public void sendToFranchise(Integer senderMemberCode, String eventName, String data) {
 
         List<FranchiseMember> franchiseMemberList = franchiseMemberRepository.findByActiveTrue();
 
         if(data == null)
-            data = new AlarmDTO
-                (senderMemberCode + "번 회원이 가맹점 회원들에게 " + eventName + "알람을 발송하였습니다");
+            data = senderMemberCode + "번 회원이 가맹점 회원들에게 " + eventName + "알람을 발송하였습니다";
 
         RedisAlarmDTO redisAlarmDTO = new RedisAlarmDTO(data, eventName, senderMemberCode);
 
         for (FranchiseMember franchiseMember : franchiseMemberList) {
+            if(senderMemberCode == franchiseMember.getMemberCode())
+                continue;
+
             SseEmitter sseEmitter = sseRepository.findById(franchiseMember.getMemberCode());
 
             if (sseEmitter == null) {
@@ -140,17 +144,20 @@ public class SSEService {
     }
 
     /** 본사 유저들에게 알림 발송하는 method */
-    public void sendToHq(Integer senderMemberCode, String eventName, Object data) {
+    public void sendToHq(Integer senderMemberCode, String eventName, String data) {
+
 
         List<Member> memberList = memberRepository.findByActiveTrueAndPositionCodeIsNotNull();
 
         if(data == null)
-            data = new AlarmDTO
-                (senderMemberCode + "번 회원이 본사 회원들에게 " + eventName + "알람을 발송하였습니다");
+            data = senderMemberCode + "번 회원이 본사 회원들에게 " + eventName + "알람을 발송하였습니다";
 
         RedisAlarmDTO redisAlarmDTO = new RedisAlarmDTO(data, eventName, senderMemberCode);
 
         for (Member member : memberList) {
+            if(senderMemberCode == member.getMemberCode())
+                continue;
+
             SseEmitter sseEmitter = sseRepository.findById(member.getMemberCode());
 
             if (sseEmitter == null) {

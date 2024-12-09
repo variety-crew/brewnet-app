@@ -4,7 +4,7 @@ import com.varc.brewnetapp.domain.statistics.query.dto.MyWaitApprovalDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderCountPriceDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderStatisticsDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.SafeStockStatisticsDTO;
-import com.varc.brewnetapp.domain.statistics.query.dto.newOrderDTO;
+import com.varc.brewnetapp.domain.statistics.query.dto.NewOrderDTO;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +17,7 @@ public interface StatisticsService {
 
     Page<SafeStockStatisticsDTO> findSafeStock(Pageable page);
 
-    Page<newOrderDTO> findNewOrder(Pageable page);
+    Page<NewOrderDTO> findNewOrder(Pageable page);
 
     Page<MyWaitApprovalDTO> findMyWaitApproval(Pageable page, String accessToken);
 }
