@@ -86,6 +86,7 @@ public class NoticeService {
         }
 
         sseService.sendToHq(memberCode, "Create Notice", notice.getTitle() + " 공지를 올렸으니 확인바랍니다");
+        sseService.sendToFranchise(memberCode,"Create Notice", notice.getTitle() + " 공지를 올렸으니 확인바랍니다" );
 
     }
 

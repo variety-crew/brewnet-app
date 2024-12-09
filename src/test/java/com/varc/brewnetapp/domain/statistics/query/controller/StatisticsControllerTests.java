@@ -4,6 +4,8 @@
 //
 //import com.varc.brewnetapp.domain.statistics.query.dto.NewOrderDTO;
 //import com.varc.brewnetapp.domain.statistics.query.service.StatisticsService;
+//import java.time.LocalDateTime;
+//import java.util.ArrayList;
 //import java.util.List;
 //import org.junit.jupiter.api.DisplayName;
 //import org.junit.jupiter.api.Test;
@@ -13,8 +15,10 @@
 //import org.springframework.boot.test.mock.mockito.MockBean;
 //import org.springframework.data.domain.Page;
 //import org.springframework.data.domain.PageImpl;
+//import org.springframework.data.domain.PageRequest;
 //import org.springframework.data.domain.Pageable;
 //import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+//import org.springframework.data.web.PageableDefault;
 //import org.springframework.test.web.servlet.MockMvc;
 //
 //@WebMvcTest(StatisticsController.class)
@@ -43,16 +47,13 @@
 //                Member.MemberStatus.MEMBER_ACTIVE,
 //                new Stamp());
 //
-//        private int orderCode;
-//        private int franchiseCode;
-//        private String franchiseName;
-//        private String itemName;
-//        private int totalPrice;
-//        private String createdAt;
-//        List<NewOrderDTO> newOrderList;
-//        NewOrderDTO newOrder = new NewOrderDTO(1, 1, "테스트 프랜차이즈", "고구마", 1000, )
-//        Page<NewOrderDTO> orderPage = new PageImpl<>(newOrderList, page, count);
-//        given(statisticsService.findNewOrder(Mockito.any(Pageable.class))).willReturn(new Page<NewOrderDTO>());
+//        Pageable page = PageRequest.of(0, 10);
+//        List<NewOrderDTO> newOrderList = new ArrayList<>();
+//        newOrderList.add(new NewOrderDTO(1, 1, "테스트 프랜차이즈", "고구마", 1000, "2024-12-12"));
+//        Page<NewOrderDTO> orderPage = new PageImpl<>(newOrderList, page, 1);
+//
+//
+//        given(statisticsService.findNewOrder(Mockito.any(Pageable.class))).willReturn(orderPage);
 //        given(mapper.memberPostToMember(Mockito.any(MemberDto.Post.class))).willReturn(new Member());
 //
 //        given(memberService.createMember(Mockito.any(Member.class))).willReturn(new Member());
