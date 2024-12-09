@@ -15,8 +15,12 @@ import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeR
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.vo.ExchangeReqVO;
 import com.varc.brewnetapp.common.domain.approve.Approval;
 import com.varc.brewnetapp.common.domain.exchange.ExchangeStatus;
+import com.varc.brewnetapp.domain.franchise.command.domain.aggregate.entity.Franchise;
+import com.varc.brewnetapp.domain.franchise.command.domain.aggregate.entity.FranchiseMember;
+import com.varc.brewnetapp.domain.franchise.command.domain.repository.FranchiseMemberRepository;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
+import com.varc.brewnetapp.domain.sse.service.SSEService;
 import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
 import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
 import com.varc.brewnetapp.exception.*;
@@ -40,6 +44,7 @@ public class ExchangeServiceImpl implements ExchangeService {
     private final ExOrderRepository exOrderRepository;  // 임시
     private final ExOrderItemRepository exOrderItemRepository; // 임시
     private final MemberRepository memberRepository;
+    private final FranchiseMemberRepository franchiseMemberRepository;
     private final ExchangeItemRepository exchangeItemRepository;
     private final ExchangeStatusHistoryRepository exchangeStatusHistoryRepository;
     private final com.varc.brewnetapp.domain.exchange.query.service.ExchangeServiceImpl exchangeServiceQuery;
@@ -49,6 +54,7 @@ public class ExchangeServiceImpl implements ExchangeService {
     private final StockRepository stockRepository;
     private final ExchangeImgRepository exchangeImgRepository;
     private final S3ImageService s3ImageService;
+    private final SSEService sseService;
 
     @Override
     @Transactional
@@ -252,10 +258,30 @@ public class ExchangeServiceImpl implements ExchangeService {
 
         if (exchangeApproveReqVO.getApproval() == DrafterApproved.REJECT) {
             drafterRejectExchange(exchangeApproveReqVO, exchange, member);
+
+            // 본사에서 교환신청한 가맹점 회원들에게 알림
+            sendToExchangeFranchiseMember(exchange.getOrder().getFranchiseCode(), exchange.getExchangeCode());
+
         } else if (exchangeApproveReqVO.getApproval() == DrafterApproved.APPROVE) {
             drafterApproveExchange(exchangeApproveReqVO, exchange, member);
+
+            // 본사 기안자가 본사 결재자에게 알림
+            sseService.sendToMember(member.getMemberCode(), "교환 결재 요청", exchangeApproveReqVO.getApproverCodeList().get(0)
+                    , "교환 결재 요청이 도착했습니다.");
+
         } else {
             throw new InvalidStatusException("최초 기안자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
+        }
+    }
+
+    private void sendToExchangeFranchiseMember(int franchiseCode, int exchangeCode) {
+        List<FranchiseMember> franchiseMemberList = franchiseMemberRepository.findByFranchiseCode(franchiseCode)
+                .orElseThrow(() -> new MemberNotFoundException("가맹점 회원을 찾을 수 없습니다"));
+
+        // 가맹점 모든 회원들에게 알림
+        for (FranchiseMember franchiseMember : franchiseMemberList) {
+            sseService.sendToMember(franchiseMember.getMemberCode(), "교환 요청 반려", franchiseMember.getMemberCode()
+                    , exchangeCode + "번 교환 요청이 반려되었습니다.");
         }
     }
 
@@ -336,6 +362,11 @@ public class ExchangeServiceImpl implements ExchangeService {
                     .comment(exchangeApproveReqVO.getComment())
                     .build();
             exchangeApproverRepository.save(exchangeApprover);
+
+
+            // 본사에서 교환신청한 가맹점 회원들에게 알림
+            sendToExchangeFranchiseMember(exchange.getOrder().getFranchiseCode(), exchange.getExchangeCode());
+
         } else {
             throw new IllegalArgumentException("결재자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
         }
@@ -406,6 +437,10 @@ public class ExchangeServiceImpl implements ExchangeService {
                     .build();
             exOrderItemRepository.save(exOrderItem);
         }
+
+        // 6. 가맹점에 알림
+        // 본사에서 교환신청한 가맹점 회원들에게 알림
+        sendToExchangeFranchiseMember(exchangeStockHistory.getExchange().getOrder().getFranchiseCode(), exchangeStockHistory.getExchange().getExchangeCode());
     }
 
 
