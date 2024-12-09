@@ -18,6 +18,7 @@ public class WebCORSConfiguration {
                 List.of(
                         "http://localhost:5173",
                         "http://www.brewnet.store",
+                        "https://brewnet.store",
                         "http://localhost:8080"
                 )
         );
