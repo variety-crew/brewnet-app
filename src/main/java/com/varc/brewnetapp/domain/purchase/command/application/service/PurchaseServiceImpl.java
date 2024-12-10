@@ -46,7 +46,6 @@ public class PurchaseServiceImpl implements PurchaseService {
     private final CompanyTempRepository companyTempRepository;
     private final MemberRepository memberRepository;
     private final PositionRepository positionRepository;
-    private final SSEService sseService;
 
     @Autowired
     public PurchaseServiceImpl(ModelMapper modelMapper,
@@ -62,8 +61,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                                PurchasePrintRepository purchasePrintRepository,
                                CompanyTempRepository companyTempRepository,
                                MemberRepository memberRepository,
-                               PositionRepository positionRepository,
-                               SSEService sseService) {
+                               PositionRepository positionRepository) {
         this.modelMapper = modelMapper;
         this.letterOfPurchaseRepository = letterOfPurchaseRepository;
         this.purchaseStatusHistoryRepository = purchaseStatusHistoryRepository;
@@ -78,7 +76,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         this.companyTempRepository = companyTempRepository;
         this.memberRepository = memberRepository;
         this.positionRepository = positionRepository;
-        this.sseService = sseService;
     }
 
     @Transactional
@@ -148,10 +145,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchaseStatusHistory.setActive(true);
         purchaseStatusHistory.setLetterOfPurchase(savedPurchase);
         purchaseStatusHistoryRepository.save(purchaseStatusHistory);
-
-        // 결재자에게 발주 결재 요청 알림 발송
-        sseService.sendToMember(member.getMemberCode(), "request approval of purchase",
-                                approver.getMemberCode(), member.getName() + "님이 구매품의서 결재를 요청하였습니다.");
 
         // 새로 등록된 구매품의서의 구매품의서 코드 반환
         return savedPurchase.getLetterOfPurchaseCode();
@@ -242,10 +235,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         history.setCreatedAt(LocalDateTime.now());
         history.setActive(true);
         purchaseStatusHistoryRepository.save(history);
-
-        // 기안자에게 결재 승인 알림 발송
-        sseService.sendToMember(member.getMemberCode(), "approve purchase",
-                                requestedPurchase.getMember().getMemberCode(), "구매품의서 결재가 승인되었습니다.");
     }
 
     @Transactional
@@ -282,10 +271,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         history.setCreatedAt(LocalDateTime.now());
         history.setActive(true);
         purchaseStatusHistoryRepository.save(history);
-
-        // 기안자에게 결재 반려 알림 발송
-        sseService.sendToMember(member.getMemberCode(), "reject purchase",
-                                requestedPurchase.getMember().getMemberCode(), "구매품의서 결재가 반려되었습니다.");
     }
 
     @Transactional
