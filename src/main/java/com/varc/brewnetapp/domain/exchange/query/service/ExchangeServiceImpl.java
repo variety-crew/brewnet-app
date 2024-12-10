@@ -49,8 +49,8 @@ public class ExchangeServiceImpl implements ExchangeService {
     }
 
     @Override
-    public List<ExchangeListVO> findExcelExchangeList(String searchFilter, String searchWord, String startDate, String endDate) {
-        List<ExchangeListVO> exchangeList = exchangeMapper.selectExcelExchangeList(searchFilter, searchWord, startDate, endDate);
+    public List<ExchangeListVO> findExcelExchangeList(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed) {
+        List<ExchangeListVO> exchangeList = exchangeMapper.selectExcelExchangeList(searchFilter, searchWord, startDate, endDate, getConfirmed);
         return exchangeList;
     }
 

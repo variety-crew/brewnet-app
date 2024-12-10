@@ -11,7 +11,7 @@ import java.util.List;
 public interface ExchangeService {
     Page<ExchangeListVO> findExchangeList(Pageable page);
 
-    List<ExchangeListVO> findExcelExchangeList(String searchFilter, String searchWord, String startDate, String endDate);
+    List<ExchangeListVO> findExcelExchangeList(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed);
 
     Page<ExchangeListVO> findRequestedExchangeList(Pageable page);
 
