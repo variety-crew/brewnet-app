@@ -15,7 +15,7 @@ public interface ExchangeService {
 
     Page<ExchangeListVO> findRequestedExchangeList(Pageable page);
 
-    Page<ExchangeListVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
+    Page<ExchangeListVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed, Pageable page);
 
     ExchangeDetailVO findExchangeDetailBy(Integer exchangeCode);
 

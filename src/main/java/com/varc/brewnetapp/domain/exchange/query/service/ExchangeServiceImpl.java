@@ -71,17 +71,16 @@ public class ExchangeServiceImpl implements ExchangeService {
     }
 
     @Override
-    public Page<ExchangeListVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page) {
+    public Page<ExchangeListVO> searchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed, Pageable page) {
         // 페이징 정보 추가
         long offset = page.getOffset();
         long pageSize = page.getPageSize();
 
         // DB에서 교환 목록 조회
-        List<ExchangeListVO> exchangeList = exchangeMapper.selectSearchExchangeList(searchFilter, searchWord, startDate, endDate, offset, pageSize);
-
+        List<ExchangeListVO> exchangeList = exchangeMapper.selectSearchExchangeList(searchFilter, searchWord, startDate, endDate, getConfirmed, offset, pageSize);
 
         // 전체 데이터 개수 조회
-        int count = exchangeMapper.selectSearchExchangeListCnt(searchFilter, searchWord, startDate, endDate);
+        int count = exchangeMapper.selectSearchExchangeListCnt(searchFilter, searchWord, startDate, endDate, getConfirmed);
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(exchangeList, page, count);
