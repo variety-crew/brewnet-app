@@ -13,7 +13,7 @@ public interface ExchangeMapper {
 
     List<ExchangeListVO> selectExchangeList(long offset, long pageSize);
 
-    List<ExchangeListVO> selectExcelExchangeList(String searchFilter, String searchWord, String startDate, String endDate);
+    List<ExchangeListVO> selectExcelExchangeList(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed);
 
     int selectRequestedExchangeListCnt();
 
@@ -21,7 +21,7 @@ public interface ExchangeMapper {
 
 //    int selectSearchExchangeHistoryListCnt(String searchFilter, String searchWord, String startDate, String endDate);
 
-    List<ExchangeListVO> selectSearchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
+    List<ExchangeListVO> selectSearchExchangeList(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed, long offset, long pageSize);
 
     ExchangeDetailVO selectExchangeDetailBy(int exchangeCode);
 
@@ -57,5 +57,5 @@ public interface ExchangeMapper {
 
     List<FranExchangeItemVO> selectAvailableExchangeItemBy(int orderCode);
 
-    int selectSearchExchangeListCnt(String searchFilter, String searchWord, String startDate, String endDate);
+    int selectSearchExchangeListCnt(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed);
 }
