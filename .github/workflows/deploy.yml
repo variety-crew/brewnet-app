@@ -50,6 +50,7 @@ jobs:
 
             jpa:
               generate-ddl: false
+              open-in-view: false
               show-sql: true
               database: mysql
               properties:
