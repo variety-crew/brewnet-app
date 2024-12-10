@@ -13,7 +13,7 @@ public interface ReturningMapper {
 
     List<ReturningListVO> selectReturningList(long offset, long pageSize);
 
-    List<ReturningListVO> selectExcelReturningList(String searchFilter, String searchWord, String startDate, String endDate);
+    List<ReturningListVO> selectExcelReturningList(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed);
 
     int selectRequestedReturningListCnt();
 

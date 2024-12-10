@@ -10,7 +10,7 @@ import java.util.List;
 public interface ReturningService {
     Page<ReturningListVO> findReturningList(Pageable page);
 
-    List<ReturningListVO> findExcelReturningList(String searchFilter, String searchWord, String startDate, String endDate);
+    List<ReturningListVO> findExcelReturningList(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed);
 
     Page<ReturningListVO> findRequestedReturningList(Pageable page);
 

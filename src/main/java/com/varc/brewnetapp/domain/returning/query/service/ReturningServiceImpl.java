@@ -45,8 +45,8 @@ public class ReturningServiceImpl implements ReturningService {
     }
 
     @Override
-    public List<ReturningListVO> findExcelReturningList(String searchFilter, String searchWord, String startDate, String endDate) {
-        List<ReturningListVO> returningList = returningMapper.selectExcelReturningList(searchFilter, searchWord, startDate, endDate);
+    public List<ReturningListVO> findExcelReturningList(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed) {
+        List<ReturningListVO> returningList = returningMapper.selectExcelReturningList(searchFilter, searchWord, startDate, endDate, getConfirmed);
         return returningList;
     }
 
