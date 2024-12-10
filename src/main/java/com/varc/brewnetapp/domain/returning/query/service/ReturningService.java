@@ -10,11 +10,11 @@ import java.util.List;
 public interface ReturningService {
     Page<ReturningListVO> findReturningList(Pageable page);
 
-    List<ReturningListVO> findExcelReturningList(String searchFilter, String searchWord, String startDate, String endDate);
+    List<ReturningListVO> findExcelReturningList(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed);
 
     Page<ReturningListVO> findRequestedReturningList(Pageable page);
 
-    Page<ReturningListVO> searchReturningList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
+    Page<ReturningListVO> searchReturningList(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed, Pageable page);
 
     ReturningDetailVO findReturningDetailBy(Integer returningCode);
 
