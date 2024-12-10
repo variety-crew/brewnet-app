@@ -3,3 +3,7 @@ spring:
     active: prod
   config:
     import: "application-secret.yml"
+
+  mvc:
+    async:
+      request-timeout: 5000

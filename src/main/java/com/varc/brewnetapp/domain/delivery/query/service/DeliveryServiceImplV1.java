@@ -23,16 +23,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service("queryDeliveryService")
+@Service("queryDeliveryServiceV1")
 @Slf4j
-public class DeliveryServiceImpl implements DeliveryService {
+@Primary
+public class DeliveryServiceImplV1 implements DeliveryService {
 
     private final DeliveryMapper deliveryMapper;
     private final JwtUtil jwtUtil;
     private final MemberRepository memberRepository;
 
     @Autowired
-    public DeliveryServiceImpl(DeliveryMapper deliveryMapper, JwtUtil jwtUtil, MemberRepository memberRepository) {
+    public DeliveryServiceImplV1(DeliveryMapper deliveryMapper, JwtUtil jwtUtil, MemberRepository memberRepository) {
         this.deliveryMapper = deliveryMapper;
         this.jwtUtil = jwtUtil;
         this.memberRepository = memberRepository;
@@ -41,8 +42,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     @Transactional
     public Page<DeliveryDTO> findDeliveryList(DeliveryKind deliveryKind, Pageable page) {
-
-
         long pageSize = page.getPageSize();
         long pageNumber = page.getPageNumber();
         long offset = pageNumber * pageSize;
@@ -71,7 +70,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(deliveryList == null || deliveryList.size() == 0)
             throw new EmptyDataException("배송 가능한 주문이 없습니다");
 
-
         return new PageImpl<>(deliveryList, page, count);
     }
 
@@ -86,7 +84,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         int deliveryMemberCode = member.getMemberCode();
 
-        DeliveryDetailDTO myDelivery = deliveryMapper.selectMyDeliveryDetail(deliveryMemberCode)
+        DeliveryDetailDTO myDelivery = deliveryMapper.selectMyDeliveryDetailV1(deliveryMemberCode)
             .orElseThrow(() -> new EmptyDataException("배송 가능한 주문이 없습니다"));
 
         List<ItemDTO> items = null;
@@ -103,7 +101,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         myDelivery.setItems(items);
 
         long endTime = System.nanoTime();
-        log.info("내 배송 수행 시간 측정 : " + (endTime - startTime) + "ns");
+        log.info("V1 내 배송 수행 시간 측정 : " + (endTime - startTime) + "ns");
+
         return myDelivery;
     }
 

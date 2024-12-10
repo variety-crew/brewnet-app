@@ -96,7 +96,6 @@
     OFFSET #{ offset }
   </select>
 
-
   <select id="selectMemberListWhereSearchCnt" resultType="int" parameterType="string">
     SELECT COUNT(*)
     FROM tbl_member

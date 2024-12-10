@@ -27,4 +27,6 @@ public interface DeliveryMapper {
     Optional<DeliveryDetailDTO> selectMyDeliveryDetail(int deliveryMemberCode);
 
     List<Integer> selectDeliveryFranchiseMemberCode(int code);
+
+    Optional<DeliveryDetailDTO> selectMyDeliveryDetailV1(int deliveryMemberCode);
 }

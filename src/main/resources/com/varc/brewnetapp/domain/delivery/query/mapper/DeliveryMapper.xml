@@ -257,4 +257,17 @@
      WHERE O.ORDER_CODE = #{ code } AND FM.ACTIVE = TRUE AND F.ACTIVE = TRUE
   </select>
 
+  <select id="selectMyDeliveryDetailV1" resultMap="deliveryDetailMap" parameterType="_int">
+    SELECT
+           KIND
+         , CODE
+         , STATUS
+         , CREATED_AT
+      FROM OrderExchangeReturnStatusView
+     WHERE DELIVERY_CODE = #{deliveryMemberCode}
+       AND STATUS IN ('SHIPPING', 'PICKING')
+     ORDER BY CREATED_AT
+     LIMIT 1;
+  </select>
+
 </mapper>

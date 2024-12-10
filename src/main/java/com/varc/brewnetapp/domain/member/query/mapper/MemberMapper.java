@@ -41,4 +41,6 @@ public interface MemberMapper {
     MemberDTO selectFranchiseMemberByHqMember(Integer memberCode);
 
     MemberDTO selectDeliveryMemberByHqMEmber(Integer memberCode);
+
+    List<MemberDTO> selectMemberListV1(long offset, long pageSize, String search, String sort);
 }

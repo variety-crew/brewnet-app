@@ -1,6 +1,5 @@
 package com.varc.brewnetapp.domain.member.query.service;
 
-import com.varc.brewnetapp.domain.member.command.domain.aggregate.ApprovalStatus;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.domain.member.query.dto.*;
@@ -11,25 +10,20 @@ import com.varc.brewnetapp.exception.MemberNotFoundException;
 import com.varc.brewnetapp.exception.MemberNotInFranchiseException;
 import com.varc.brewnetapp.security.utility.JwtUtil;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service(value = "queryMemberService")
 @Slf4j
+@Primary
 public class MemberServiceImpl implements MemberService {
 
     private final MemberMapper memberMapper;

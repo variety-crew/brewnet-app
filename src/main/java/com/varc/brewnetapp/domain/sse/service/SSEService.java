@@ -48,8 +48,16 @@ public class SSEService {
             .orElseThrow(() -> new MemberNotFoundException("해당 토큰으로 회원 정보를 조회할 수 없습니다"))
             .getMemberCode();
 
-        // sse의 유효 시간이 만료되면, 클라이언트에서 다시 서버로 이벤트 구독을 시도한다.
-        SseEmitter sseEmitter = sseRepository.save(memberCode, new SseEmitter(60L * 1000 * 60));
+        log.info("SSE 연결 시작입니다아ㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏ");
+        SseEmitter sseEmitter = sseRepository.findById(memberCode);
+
+        if(sseEmitter == null)
+            sseEmitter = sseRepository.save(memberCode, new SseEmitter(60L * 1000 * 60));
+
+        /**
+         // sse의 유효 시간이 만료되면, 클라이언트에서 다시 서버로 이벤트 구독을 시도한다.
+         SseEmitter sseEmitter = sseRepository.save(memberCode, new SseEmitter(60L * 1000 * 60));
+         */
 
         // 사용자에게 모든 데이터가 전송되었다면 emitter 삭제
         sseEmitter.onCompletion(() -> sseRepository.deleteById(memberCode));
@@ -62,21 +70,28 @@ public class SSEService {
         // sse 연결이 이루어진 후, 하나의 데이터로 전송되지 않는다면 sse의 유효 시간이 만료되고 503 에러가 발생한다.
         sendToMember(null, "SSE 구독 시작", memberCode, "Start Subscribe event, memberCode : " + memberCode);
 
+        log.info("sse emitter입니다 " + sseEmitter.toString());
+
         // 저장된 알람 전송
         List<RedisAlarmDTO> failedAlarms = failedAlarmRepository.getFailedAlarms(memberCode);
 
-        for (RedisAlarmDTO alarm : failedAlarms)
+        for (RedisAlarmDTO alarm : failedAlarms){
+            log.info("for문 내부 sse emitter입니다 " + sseEmitter.toString());
             sendToMember(alarm.getSenderMemberCode(), "Past", memberCode, alarm.getMessage());
+        }
+
 
         // 전송 후 삭제
         failedAlarmRepository.clearFailedAlarms(memberCode);
 
+        log.info("모든 알림 전송완료입니다아아아아앙");
         return sseEmitter;
     }
 
     /** 특정 회원 1명에게 알림 발송하는 method */
     public void sendToMember(Integer senderMemberCode, String eventName, Integer recipientMemberCode, String data) {
 
+        log.info("send to member 실행됨");
         if(senderMemberCode == recipientMemberCode)
             return;
 
@@ -89,6 +104,7 @@ public class SSEService {
 
         if (sseEmitter == null) {
             // SSE 연결이 없으므로 알람을 Redis에 저장
+            log.info("알림입니다 " + data);
             failedAlarmRepository.saveFailedAlarm(recipientMemberCode, redisAlarmDTO);
             return;
         }
@@ -146,7 +162,6 @@ public class SSEService {
     /** 본사 유저들에게 알림 발송하는 method */
     public void sendToHq(Integer senderMemberCode, String eventName, String data) {
 
-
         List<Member> memberList = memberRepository.findByActiveTrueAndPositionCodeIsNotNull();
 
         if(data == null)
@@ -180,4 +195,49 @@ public class SSEService {
         }
     }
 
+    public SseEmitter subscribeTest(int memberCode) {
+
+        log.info("SSE 연결 시작입니다아ㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏ");
+        SseEmitter sseEmitter = sseRepository.findById(memberCode);
+
+        if(sseEmitter == null)
+            sseEmitter = sseRepository.save(memberCode, new SseEmitter(60L * 1000 * 60));
+
+        /**
+         // sse의 유효 시간이 만료되면, 클라이언트에서 다시 서버로 이벤트 구독을 시도한다.
+         SseEmitter sseEmitter = sseRepository.save(memberCode, new SseEmitter(60L * 1000 * 60));
+         */
+
+        // 사용자에게 모든 데이터가 전송되었다면 emitter 삭제
+        sseEmitter.onCompletion(() -> sseRepository.deleteById(memberCode));
+
+        // Emitter의 유효 시간이 만료되면 emitter 삭제
+        // 유효 시간이 만료되었다는 것은 클라이언트와 서버가 연결된 시간동안 아무런 이벤트가 발생하지 않은 것을 의미한다.
+        sseEmitter.onTimeout(() -> sseRepository.deleteById(memberCode));
+
+        // 첫 구독시에 이벤트를 발생시킨다.
+        // sse 연결이 이루어진 후, 하나의 데이터로 전송되지 않는다면 sse의 유효 시간이 만료되고 503 에러가 발생한다.
+        sendToMember(null, "SSE 구독 시작", memberCode, "Start Subscribe event, memberCode : " + memberCode);
+
+        log.info("sse emitter입니다 " + sseEmitter.toString());
+
+        // 저장된 알람 전송
+        List<RedisAlarmDTO> failedAlarms = failedAlarmRepository.getFailedAlarms(memberCode);
+
+        for (RedisAlarmDTO alarm : failedAlarms){
+            log.info("for문 내부 sse emitter입니다 " + sseEmitter.toString());
+            sendToMember(alarm.getSenderMemberCode(), "Past", memberCode, alarm.getMessage());
+        }
+
+
+        // 전송 후 삭제
+        failedAlarmRepository.clearFailedAlarms(memberCode);
+
+        log.info("모든 알림 전송완료입니다아아아아앙");
+        return sseEmitter;
+    }
+
+    public String hash() {
+        return sseRepository.emitters();
+    }
 }

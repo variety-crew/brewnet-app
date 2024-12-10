@@ -54,6 +54,9 @@ public class SecurityConfiguration {
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/email/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/sse/subscribeTest/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/sse/hash")).permitAll()
+
 
                         // 가맹점
                         .requestMatchers(new AntPathRequestMatcher("/api/v1/franchise/**")).hasAnyRole("FRANCHISE", "MASTER")

@@ -34,6 +34,22 @@ public class SSEController {
         return sseService.subscribe(accessToken);
     }
 
+    @GetMapping(value = "/subscribeTest/{memberCode}", produces = "text/event-stream")
+    @Operation(summary = "SSE 구독 API. 처음 구독을 진행하면 구독완료 되었다는 알림 발송(시스템에서 보낸거라 안보여주셔야 합니다) "
+        + " / 구독완료 시, 알림을 발송하지 않으면 해당 API 호출 시 무한 로딩됨.")
+    public SseEmitter subscribeTest(@PathVariable(value = "memberCode") int memberCode)
+        throws InterruptedException {
+        return sseService.subscribeTest(memberCode);
+    }
+
+    @GetMapping(value = "/hash")
+    @Operation(summary = "SSE 구독 API. 처음 구독을 진행하면 구독완료 되었다는 알림 발송(시스템에서 보낸거라 안보여주셔야 합니다) "
+        + " / 구독완료 시, 알림을 발송하지 않으면 해당 API 호출 시 무한 로딩됨.")
+    public String hash()
+        throws InterruptedException {
+        return sseService.hash();
+    }
+
     @PostMapping("/send-test/{memberCode}")
     @Operation(summary = "SSE 알림 전송 테스트 API. 서버에서 테스트를 위해 사용. 프론트에서 사용 X")
     public void sendToMember(@PathVariable Integer memberCode, @RequestBody String message) {
