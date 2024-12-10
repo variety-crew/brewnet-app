@@ -10,7 +10,6 @@ import com.varc.brewnetapp.domain.notice.command.domain.aggregate.entity.Notice;
 import com.varc.brewnetapp.domain.notice.command.domain.aggregate.entity.NoticeImage;
 import com.varc.brewnetapp.domain.notice.command.domain.repository.NoticeImageRepository;
 import com.varc.brewnetapp.domain.notice.command.domain.repository.NoticeRepositiory;
-import com.varc.brewnetapp.domain.sse.service.SSEService;
 import com.varc.brewnetapp.exception.InvalidDataException;
 import com.varc.brewnetapp.exception.MemberNotFoundException;
 import com.varc.brewnetapp.security.utility.JwtUtil;
@@ -29,18 +28,16 @@ public class NoticeService {
     private final JwtUtil jwtUtil;
     private final S3ImageService s3ImageService;
     private final MemberRepository memberRepository;
-    private final SSEService sseService;
 
     @Autowired
     public NoticeService(NoticeRepositiory noticeRepositiory,
         NoticeImageRepository noticeImageRepository, JwtUtil jwtUtil, S3ImageService s3ImageService,
-        MemberRepository memberRepository, SSEService sseService) {
+        MemberRepository memberRepository) {
         this.noticeRepositiory = noticeRepositiory;
         this.noticeImageRepository = noticeImageRepository;
         this.jwtUtil = jwtUtil;
         this.s3ImageService = s3ImageService;
         this.memberRepository = memberRepository;
-        this.sseService = sseService;
     }
 
 
@@ -85,8 +82,7 @@ public class NoticeService {
             }
         }
 
-        sseService.sendToHq(memberCode, "Create Notice", notice.getTitle() + " 공지를 올렸으니 확인바랍니다");
-        sseService.sendToFranchise(memberCode,"Create Notice", notice.getTitle() + " 공지를 올렸으니 확인바랍니다" );
+
 
     }
 
