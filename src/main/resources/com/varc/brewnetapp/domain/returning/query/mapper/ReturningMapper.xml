@@ -393,6 +393,9 @@
             <if test="startDate != null and endDate != null">
                 AND A.created_at BETWEEN #{ startDate } AND CONCAT(#{ endDate }, ' 23:59:59')
             </if>
+            <if test="getConfirmed == true">
+                AND G.status = 'REQUESTED'
+            </if>
         </where>
         GROUP BY A.return_code)  AS grouped_results;
     </select>
@@ -435,6 +438,9 @@
             </choose>
             <if test="startDate != null and endDate != null">
                 AND A.created_at BETWEEN #{ startDate } AND CONCAT(#{ endDate }, ' 23:59:59')
+            </if>
+            <if test="getConfirmed == true">
+                AND G.status = 'REQUESTED'
             </if>
         </where>
         GROUP BY A.return_code, C.franchise_name, A.reason, F.name, A.created_at, G.status, A.approval_status

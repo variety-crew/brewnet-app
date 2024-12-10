@@ -19,9 +19,9 @@ public interface ReturningMapper {
 
     List<ReturningListVO> selectRequestedReturningList(long offset, long pageSize);
 
-    int selectSearchReturningListCnt(String searchFilter, String searchWord, String startDate, String endDate);
+    int selectSearchReturningListCnt(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed);
 
-    List<ReturningListVO> selectSearchReturningList(String searchFilter, String searchWord, String startDate, String endDate, long offset, long pageSize);
+    List<ReturningListVO> selectSearchReturningList(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed, long offset, long pageSize);
 
     ReturningDetailVO selectReturningDetailBy(int returningCode);
 

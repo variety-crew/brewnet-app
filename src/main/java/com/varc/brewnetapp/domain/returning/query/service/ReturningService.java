@@ -14,7 +14,7 @@ public interface ReturningService {
 
     Page<ReturningListVO> findRequestedReturningList(Pageable page);
 
-    Page<ReturningListVO> searchReturningList(String searchFilter, String searchWord, String startDate, String endDate, Pageable page);
+    Page<ReturningListVO> searchReturningList(String searchFilter, String searchWord, String startDate, String endDate, boolean getConfirmed, Pageable page);
 
     ReturningDetailVO findReturningDetailBy(Integer returningCode);
 
