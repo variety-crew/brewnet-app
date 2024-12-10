@@ -24,7 +24,6 @@ import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.Returnin
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningReqItemVO;
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningReqVO;
 import com.varc.brewnetapp.domain.returning.command.domain.repository.*;
-import com.varc.brewnetapp.domain.sse.service.SSEService;
 import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
 import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
 import com.varc.brewnetapp.exception.*;
@@ -58,7 +57,7 @@ public class ReturningServiceImpl implements ReturningService {
     private final ReturningItemStatusRepository returningItemStatusRepository;
     private final StockRepository stockRepository;
     private final S3ImageService s3ImageService;
-    private final SSEService sseService;
+//    private final SSEService sseService;
 
 
     @Override
@@ -264,15 +263,15 @@ public class ReturningServiceImpl implements ReturningService {
             drafterRejectReturning(returningApproveReqVO, returning, member);
 
             // 본사에서 반품신청한 가맹점 회원들에게 알림
-            sendToReturningFranchiseMember(returning.getOrder().getFranchiseCode(), "ReturnRejectionEvent",
-                    returning.getReturningCode() + "번 요청이 반려되었습니다.");
+//            sendToReturningFranchiseMember(returning.getOrder().getFranchiseCode(), "ReturnRejectionEvent",
+//                    returning.getReturningCode() + "번 요청이 반려되었습니다.");
 
         } else if (returningApproveReqVO.getApproval() == DrafterApproved.APPROVE) {
             drafterApproveReturning(returningApproveReqVO, returning, member);
 
             // 본사 기안자가 본사 결재자에게 알림
-            sseService.sendToMember(member.getMemberCode(), "ReturnApprovalReqEvent", returningApproveReqVO.getApproverCodeList().get(0)
-                    , "반품 결재 요청이 도착했습니다.");
+//            sseService.sendToMember(member.getMemberCode(), "ReturnApprovalReqEvent", returningApproveReqVO.getApproverCodeList().get(0)
+//                    , "반품 결재 요청이 도착했습니다.");
 
         } else {
             throw new InvalidStatusException("최초 기안자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
@@ -280,15 +279,15 @@ public class ReturningServiceImpl implements ReturningService {
     }
 
 
-    private void sendToReturningFranchiseMember(int franchiseCode, String eventName, String message) {
-        List<FranchiseMember> franchiseMemberList = franchiseMemberRepository.findByFranchiseCode(franchiseCode)
-                .orElseThrow(() -> new MemberNotFoundException("가맹점 회원을 찾을 수 없습니다"));
-
-        // 가맹점 모든 회원들에게 알림
-        for (FranchiseMember franchiseMember : franchiseMemberList) {
-            sseService.sendToMember(franchiseMember.getMemberCode(), eventName, franchiseMember.getMemberCode(), message);
-        }
-    }
+//    private void sendToReturningFranchiseMember(int franchiseCode, String eventName, String message) {
+//        List<FranchiseMember> franchiseMemberList = franchiseMemberRepository.findByFranchiseCode(franchiseCode)
+//                .orElseThrow(() -> new MemberNotFoundException("가맹점 회원을 찾을 수 없습니다"));
+//
+//        // 가맹점 모든 회원들에게 알림
+//        for (FranchiseMember franchiseMember : franchiseMemberList) {
+//            sseService.sendToMember(franchiseMember.getMemberCode(), eventName, franchiseMember.getMemberCode(), message);
+//        }
+//    }
 
     @Override
     @Transactional
@@ -370,8 +369,8 @@ public class ReturningServiceImpl implements ReturningService {
 
 
             // 본사에서 교환신청한 가맹점 회원들에게 알림
-            sendToReturningFranchiseMember(returning.getOrder().getFranchiseCode(),"ReturnRejectionEvent",
-                    returning.getReturningCode() + "번 요청이 반려되었습니다");
+//            sendToReturningFranchiseMember(returning.getOrder().getFranchiseCode(),"ReturnRejectionEvent",
+//                    returning.getReturningCode() + "번 요청이 반려되었습니다");
 
         } else {
             throw new IllegalArgumentException("결재자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
@@ -584,8 +583,8 @@ public class ReturningServiceImpl implements ReturningService {
 
         // 4. 가맹점에 알림
         // 본사에서 반품신청한 가맹점 회원들에게 알림
-        sendToReturningFranchiseMember(returningStockHistory.getReturning().getOrder().getFranchiseCode(),
-                "ReturnApprovedEvent", returning.getReturningCode() + "번 반품이 완료되었습니다.");
+//        sendToReturningFranchiseMember(returningStockHistory.getReturning().getOrder().getFranchiseCode(),
+//                "ReturnApprovedEvent", returning.getReturningCode() + "번 반품이 완료되었습니다.");
 
     }
 
