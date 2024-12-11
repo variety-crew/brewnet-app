@@ -12,6 +12,6 @@ public class HealthCheckController {
     @GetMapping
     @Operation(summary = "배포 테스트 처리 API")
     public ResponseEntity<String> healthCheck() {
-        return ResponseEntity.ok("good!!! - beta");
+        return ResponseEntity.ok("good!!! - beta twin");
     }
 }
