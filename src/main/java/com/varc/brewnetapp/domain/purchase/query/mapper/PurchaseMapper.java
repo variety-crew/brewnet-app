@@ -25,8 +25,4 @@ public interface PurchaseMapper {
     List<ApprovedPurchaseItemDTO> selectApprovedPurchaseItemUncheck(SearchPurchaseItemCriteria criteria);
 
     int getApprovedPurchaseItemUncheckCount(SearchPurchaseItemCriteria criteria);
-
-    List<LetterOfPurchaseDTO> searchUnconfirmedPurchase(SearchPurchaseCriteria criteria);
-
-    int getUnconfirmedPurchaseCount(SearchPurchaseCriteria criteria);
 }

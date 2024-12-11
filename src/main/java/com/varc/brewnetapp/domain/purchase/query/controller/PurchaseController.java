@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.purchase.query.controller;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import com.varc.brewnetapp.domain.purchase.common.IsApproved;
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
 import com.varc.brewnetapp.domain.purchase.query.dto.*;
 import com.varc.brewnetapp.domain.purchase.query.service.PurchaseService;
@@ -25,14 +26,16 @@ public class PurchaseController {
     }
 
     @GetMapping("")
-    @Operation(summary = "발주 내역(구매품의서) 목록 조회 API (구매품의서 코드, 기안자명, 거래처명, 창고명, 기간으로 검색 가능)" +
-            " - pageNumber의 default값은 1, pageSize의 default값은 10")
+    @Operation(summary = "발주 내역(구매품의서) 목록 조회 API (구매품의서 코드, 기안자명, 거래처명, 창고명, 기간으로 검색 가능 /" +
+            " 결재상태로 필터링 가능(APPROVED, REJECTED, UNCONFIRMED 중 하나)) - pageNumber의 default값은 1, " +
+            "pageSize의 default값은 10")
     public ResponseEntity<ResponseMessage<PageResponse<List<LetterOfPurchaseDTO>>>> selectLettersOfPurchase(
                                             @RequestAttribute("loginId") String loginId,
                                             @RequestParam(required = false) Integer purchaseCode,
                                             @RequestParam(required = false) String memberName,
                                             @RequestParam(required = false) String correspondentName,
                                             @RequestParam(required = false) String storageName,
+                                            @RequestParam(required = false) IsApproved approved,
                                             @RequestParam(required = false) String startDate,
                                             @RequestParam(required = false) String endDate,
                                             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
@@ -40,30 +43,9 @@ public class PurchaseController {
 
         PageResponse<List<LetterOfPurchaseDTO>> pageResponse = purchaseService
                 .selectLettersOfPurchase(loginId, purchaseCode, memberName, correspondentName, storageName,
-                                            startDate, endDate, pageNumber, pageSize);
+                                            approved, startDate, endDate, pageNumber, pageSize);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "발주 내역 목록 조회 성공", pageResponse));
-    }
-
-    @GetMapping("/unconfirmed")
-    @Operation(summary = "미결재 발주 내역(구매품의서) 목록 조회 API (구매품의서 코드, 기안자명, 거래처명, 창고명, 기간으로" +
-            " 검색 가능) - pageNumber의 default값은 1, pageSize의 default값은 10")
-    public ResponseEntity<ResponseMessage<PageResponse<List<LetterOfPurchaseDTO>>>> selectUnconfirmedPurchase(
-                                            @RequestAttribute("loginId") String loginId,
-                                            @RequestParam(required = false) Integer purchaseCode,
-                                            @RequestParam(required = false) String memberName,
-                                            @RequestParam(required = false) String correspondentName,
-                                            @RequestParam(required = false) String storageName,
-                                            @RequestParam(required = false) String startDate,
-                                            @RequestParam(required = false) String endDate,
-                                            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
-                                            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-
-        PageResponse<List<LetterOfPurchaseDTO>> pageResponse = purchaseService
-                .selectUnconfirmedPurchase(loginId, purchaseCode, memberName, correspondentName, storageName,
-                                            startDate, endDate, pageNumber, pageSize);
-
-        return ResponseEntity.ok(new ResponseMessage<>(200, "미결재 발주 내역 목록 조회 성공", pageResponse));
     }
 
     @GetMapping("/{letterOfPurchaseCode}")

@@ -94,6 +94,9 @@
           JOIN tbl_correspondent C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
         <where>
             P.ACTIVE = TRUE
+            <if test="approved != null">
+                AND P.APPROVED = #{approved}
+            </if>
             <if test="purchaseCode != null">
                 AND P.LETTER_OF_PURCHASE_CODE = #{purchaseCode}
             </if>
@@ -128,6 +131,9 @@
           JOIN tbl_correspondent C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
         <where>
             P.ACTIVE = TRUE
+            <if test="approved != null">
+                AND P.APPROVED = #{approved}
+            </if>
             <if test="purchaseCode != null">
                 AND P.LETTER_OF_PURCHASE_CODE = #{purchaseCode}
             </if>
@@ -146,82 +152,6 @@
             </if>
         </where>
          ORDER BY P.LETTER_OF_PURCHASE_CODE DESC
-    </select>
-
-    <!-- 미결재 발주 내역(구매품의서) 목록 조회 및 검색 -->
-    <select id="searchUnconfirmedPurchase"
-            parameterType="com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria"
-            resultMap="letterOfPurchaseResultMap">
-        SELECT
-        P.LETTER_OF_PURCHASE_CODE,
-        P.APPROVED,
-        P.CREATED_AT,
-        P.SUM_PRICE,
-        M.NAME AS MEMBER_NAME,
-        A.APPROVED_AT,
-        S.NAME AS STORAGE_NAME,
-        C.NAME AS CORRESPONDENT_NAME
-        FROM tbl_letter_of_purchase P
-        JOIN tbl_letter_of_purchase_approver A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
-        JOIN tbl_storage S ON P.STORAGE_CODE = S.STORAGE_CODE
-        JOIN tbl_member M ON P.MEMBER_CODE = M.MEMBER_CODE
-        JOIN tbl_correspondent C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
-        <where>
-            P.ACTIVE = TRUE
-            AND P.APPROVED = 'UNCONFIRMED'
-            <if test="purchaseCode != null">
-                AND P.LETTER_OF_PURCHASE_CODE = #{purchaseCode}
-            </if>
-            <if test="memberName != null">
-                AND M.NAME LIKE CONCAT('%', #{memberName}, '%')
-            </if>
-            <if test="correspondentName != null">
-                AND C.NAME LIKE CONCAT('%', #{correspondentName}, '%')
-            </if>
-            <if test="storageName != null">
-                AND S.NAME LIKE CONCAT('%', #{storageName}, '%')
-            </if>
-            <if test="startDate != null and endDate != null">
-                AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
-            </if>
-        </where>
-        ORDER BY P.LETTER_OF_PURCHASE_CODE DESC
-        LIMIT #{pageSize} OFFSET #{offset}
-    </select>
-
-    <!-- 미결재 발주 내역 목록 페이지네이션을 위한 발주 내역(구매품의서) 총 개수 -->
-    <select id="getUnconfirmedPurchaseCount"
-            parameterType="com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria"
-            resultType="int">
-        SELECT
-        COUNT(P.LETTER_OF_PURCHASE_CODE)
-        FROM tbl_letter_of_purchase P
-        JOIN tbl_letter_of_purchase_approver A ON P.LETTER_OF_PURCHASE_CODE = A.LETTER_OF_PURCHASE_CODE
-        JOIN tbl_storage S ON P.STORAGE_CODE = S.STORAGE_CODE
-        JOIN tbl_member M ON P.MEMBER_CODE = M.MEMBER_CODE
-        JOIN tbl_correspondent C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
-        <where>
-            P.ACTIVE = TRUE
-            AND P.APPROVED = 'UNCONFIRMED'
-            <if test="purchaseCode != null">
-                AND P.LETTER_OF_PURCHASE_CODE = #{purchaseCode}
-            </if>
-            <if test="memberName != null">
-                AND M.NAME LIKE CONCAT('%', #{memberName}, '%')
-            </if>
-            <if test="correspondentName != null">
-                AND C.NAME LIKE CONCAT('%', #{correspondentName}, '%')
-            </if>
-            <if test="storageName != null">
-                AND S.NAME LIKE CONCAT('%', #{storageName}, '%')
-            </if>
-            <if test="startDate != null and endDate != null">
-                AND P.CREATED_AT BETWEEN STR_TO_DATE(#{startDate}, '%Y-%m-%d 00:00:00')
-                AND DATE_ADD(STR_TO_DATE(#{endDate}, '%Y-%m-%d 00:00:00'), INTERVAL 1 DAY)
-            </if>
-        </where>
-        ORDER BY P.LETTER_OF_PURCHASE_CODE DESC
     </select>
 
     <!-- 하나의 발주 내역(구매품의서) 상세 조회 -->
