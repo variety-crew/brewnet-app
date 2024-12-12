@@ -286,7 +286,7 @@ public class ReturningServiceImpl implements ReturningService {
 
         // 가맹점 모든 회원들에게 알림
         for (FranchiseMember franchiseMember : franchiseMemberList) {
-            sseService.sendToMember(franchiseMember.getMemberCode(), eventName, franchiseMember.getMemberCode(), message);
+            sseService.sendToMember(null, eventName, franchiseMember.getMemberCode(), message);
         }
     }
 
