@@ -5,6 +5,8 @@ import com.varc.brewnetapp.common.domain.order.ApprovalStatus;
 import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.common.domain.order.OrderHistoryStatus;
 import com.varc.brewnetapp.common.domain.order.OrderApprovalStatus;
+import com.varc.brewnetapp.domain.franchise.command.domain.aggregate.entity.FranchiseMember;
+import com.varc.brewnetapp.domain.franchise.command.domain.repository.FranchiseMemberRepository;
 import com.varc.brewnetapp.domain.item.query.service.ItemService;
 import com.varc.brewnetapp.domain.member.query.service.MemberService;
 import com.varc.brewnetapp.domain.order.command.application.dto.DrafterRejectOrderRequestDTO;
@@ -23,6 +25,7 @@ import com.varc.brewnetapp.domain.order.command.domain.repository.OrderRepositor
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderStatusHistoryRepository;
 import com.varc.brewnetapp.domain.order.query.service.OrderQueryService;
 import com.varc.brewnetapp.domain.order.query.service.OrderValidateService;
+import com.varc.brewnetapp.domain.sse.service.SSEService;
 import com.varc.brewnetapp.domain.storage.command.application.service.StorageService;
 import com.varc.brewnetapp.exception.*;
 import lombok.extern.slf4j.Slf4j;
@@ -42,34 +45,40 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private final OrderApprovalRepository orderApprovalRepository;
+    private final FranchiseMemberRepository franchiseMemberRepository;
 
     private final MemberService memberService;
     private final OrderQueryService orderQueryService;
     private final OrderValidateService orderValidateService;
     private final ItemService itemService;
     private final StorageService storageService;
+    private final SSEService sseService;
 
     @Autowired
     public OrderServiceImpl(
             OrderRepository orderRepository,
             OrderItemRepository orderItemRepository,
             OrderStatusHistoryRepository orderStatusHistoryRepository,
+            FranchiseMemberRepository franchiseMemberRepository,
             OrderApprovalRepository orderApprovalRepository,
             MemberService memberService,
             OrderQueryService orderQueryService,
             OrderValidateService orderValidateService,
             ItemService itemService,
-            StorageService storageService
+            StorageService storageService,
+            SSEService sseService
     ) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.orderStatusHistoryRepository = orderStatusHistoryRepository;
+        this.franchiseMemberRepository = franchiseMemberRepository;
         this.orderApprovalRepository = orderApprovalRepository;
         this.memberService = memberService;
         this.orderQueryService = orderQueryService;
         this.orderValidateService = orderValidateService;
         this.itemService = itemService;
         this.storageService = storageService;
+        this.sseService = sseService;
     }
 
     // 가맹점의 주문요청
@@ -252,6 +261,11 @@ public class OrderServiceImpl implements OrderService {
                         .active(true)
                         .build()
         );
+
+        // 상신받은 책임 결재자에게 알림
+        sseService.sendToMember(memberCode, "OrderApprovalReqEvent", targetManagerMemberCode
+                , "주문 결재 요청이 도착했습니다.");
+
         return true;
     }
 
@@ -443,6 +457,10 @@ public class OrderServiceImpl implements OrderService {
         );
         recordOrderStatusHistory(orderCode, OrderHistoryStatus.REJECTED);
 
+        // 본사에서 주문신청한 가맹점 회원들에게 알림
+        sendToOrderFranchiseMember(order.getFranchiseCode(), "OrderRejectionEvent"
+                , order.getOrderCode() + "번 요청이 반려되었습니다.");
+
         return true;
     }
 
@@ -485,6 +503,10 @@ public class OrderServiceImpl implements OrderService {
         );
         recordOrderStatusHistory(orderCode, OrderHistoryStatus.REJECTED);
         updateOrderedItemListStatusTo(orderItemList, Available.UNAVAILABLE);
+
+        // 본사에서 주문신청한 가맹점 회원들에게 알림
+        sendToOrderFranchiseMember(targetOrder.getFranchiseCode(), "OrderRejectionEvent"
+                , targetOrder.getOrderCode() + "번 요청이 반려되었습니다.");
     }
 
     // TODO: 필수 구매 품목 지정
@@ -592,6 +614,16 @@ public class OrderServiceImpl implements OrderService {
             throw new ApprovalAlreadyCompleted("해당 주문 기안은 이미 처리되었습니다. 처리자 memberCode: " + memberCode + "해당 결재 승인 상태: " + presentOrderApprovalStatus);
         } else if (!orderApprover.isActive()) {
             throw new InvalidOrderApproval("유효하지 않은 기안입니다. " + "orderCode: " + orderCode + " memberCode: " + memberCode + "active: " + "false");
+        }
+    }
+
+    private void sendToOrderFranchiseMember(int franchiseCode, String eventName, String message) {
+        List<FranchiseMember> franchiseMemberList = franchiseMemberRepository.findByFranchiseCode(franchiseCode)
+                .orElseThrow(() -> new MemberNotFoundException("가맹점 회원을 찾을 수 없습니다"));
+
+        // 가맹점 모든 회원들에게 알림
+        for (FranchiseMember franchiseMember : franchiseMemberList) {
+            sseService.sendToMember(null, eventName, franchiseMember.getMemberCode(), message);
         }
     }
 }
