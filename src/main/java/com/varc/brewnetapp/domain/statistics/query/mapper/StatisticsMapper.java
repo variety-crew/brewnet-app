@@ -5,7 +5,7 @@ import com.varc.brewnetapp.domain.statistics.query.dto.OrderCountPriceDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderItemStatisticsDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderStatisticsDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.SafeStockStatisticsDTO;
-import com.varc.brewnetapp.domain.statistics.query.dto.newOrderDTO;
+import com.varc.brewnetapp.domain.statistics.query.dto.NewOrderDTO;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -18,19 +18,19 @@ public interface StatisticsMapper {
 
     List<OrderItemStatisticsDTO> selectOrderItemStatistics(String startDate, String endDate);
 
-    int selectOrderItemStatisticsCnt(String startDate, String endDate);
+    Integer selectOrderItemStatisticsCnt(String startDate, String endDate);
 
     List<SafeStockStatisticsDTO> selectSafeStock(long offset, long pageSize);
 
-    int selectUnApprovedItemCount(int itemCode);
+    Integer selectUnApprovedItemCount(int itemCode);
 
-    int selectSafeStockCnt();
+    Integer selectSafeStockCnt();
 
-    List<newOrderDTO> selectNewOrder(long offset, long pageSize);
+    List<NewOrderDTO> selectNewOrder(long offset, long pageSize);
 
-    int selectNewOrderCnt();
+    Integer selectNewOrderCnt();
 
     List<MyWaitApprovalDTO> selectApprovalList(long pageSize, long offset, Integer memberCode);
 
-    int selectApprovalListCnt(Integer memberCode);
+    Integer selectApprovalListCnt(Integer memberCode);
 }

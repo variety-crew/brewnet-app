@@ -12,4 +12,6 @@ public interface DeliveryService {
     Page<DeliveryDTO> findDeliveryList(DeliveryKind deliveryKind, Pageable page);
 
     DeliveryDetailDTO findDeliveryDetail(String accessToken);
+
+    List<Integer> findDeliveryFranchiseMemberCode(int code);
 }

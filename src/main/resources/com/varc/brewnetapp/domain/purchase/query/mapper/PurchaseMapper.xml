@@ -94,6 +94,9 @@
           JOIN tbl_correspondent C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
         <where>
             P.ACTIVE = TRUE
+            <if test="approved != null">
+                AND P.APPROVED = #{approved}
+            </if>
             <if test="purchaseCode != null">
                 AND P.LETTER_OF_PURCHASE_CODE = #{purchaseCode}
             </if>
@@ -128,6 +131,9 @@
           JOIN tbl_correspondent C ON P.CORRESPONDENT_CODE = C.CORRESPONDENT_CODE
         <where>
             P.ACTIVE = TRUE
+            <if test="approved != null">
+                AND P.APPROVED = #{approved}
+            </if>
             <if test="purchaseCode != null">
                 AND P.LETTER_OF_PURCHASE_CODE = #{purchaseCode}
             </if>

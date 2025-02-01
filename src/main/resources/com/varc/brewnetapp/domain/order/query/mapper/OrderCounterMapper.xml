@@ -17,7 +17,7 @@
             AND O.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
         </if>
         <if test="filter == 'UNCONFIRMED'">
-            AND O.APPROVED = #{filter}
+            AND O.APPROVAL_STATUS = #{filter}
         </if>
     </select>
     <select id="countSearchedOrdersForHQByOrderCode" resultType="int">
@@ -33,7 +33,7 @@
             AND O.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
         </if>
         <if test="filter == 'UNCONFIRMED'">
-            AND O.APPROVED = #{filter}
+            AND O.APPROVAL_STATUS = #{filter}
         </if>
     </select>
     <select id="countSearchedOrdersForHQByOrderedFranchiseName" resultType="int">
@@ -50,7 +50,7 @@
             AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
         </if>
         <if test="filter == 'UNCONFIRMED'">
-            AND o.APPROVED = #{filter}
+            AND o.APPROVAL_STATUS = #{filter}
         </if>
     </select>
     <select id="countSearchedOrdersForHQByOrderManager" resultType="int">
@@ -67,7 +67,7 @@
             AND o.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
         </if>
         <if test="filter == 'UNCONFIRMED'">
-            AND o.APPROVED = #{filter}
+            AND o.APPROVAL_STATUS = #{filter}
         </if>
     </select>
 
@@ -85,7 +85,7 @@
             AND O.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
         </if>
         <if test="filter == 'UNCONFIRMED'">
-            AND O.APPROVED = #{filter}
+            AND O.APPROVAL_STATUS = #{filter}
         </if>
     </select>
     <select id="countSearchedOrdersForFranchiseByOrderCode" resultType="int">
@@ -102,7 +102,7 @@
             AND O.CREATED_AT &lt; STR_TO_DATE(#{endDate}, '%Y-%m-%d') + INTERVAL 1 DAY
         </if>
         <if test="filter == 'UNCONFIRMED'">
-            AND O.APPROVED = #{filter}
+            AND O.APPROVAL_STATUS = #{filter}
         </if>
     </select>
     <select id="countSearchedOrdersForFranchiseByItemName" resultType="int">

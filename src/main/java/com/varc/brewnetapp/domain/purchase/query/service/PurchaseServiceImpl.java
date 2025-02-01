@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.purchase.query.service;
 
+import com.varc.brewnetapp.domain.purchase.common.IsApproved;
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseCriteria;
 import com.varc.brewnetapp.domain.purchase.common.SearchPurchaseItemCriteria;
@@ -30,6 +31,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                                                                            String memberName,
                                                                            String correspondentName,
                                                                            String storageName,
+                                                                           IsApproved approved,
                                                                            String startDate,
                                                                            String endDate,
                                                                            int pageNumber,
@@ -40,6 +42,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         criteria.setMemberName(memberName);
         criteria.setCorrespondentName(correspondentName);
         criteria.setStorageName(storageName);
+        criteria.setApproved(approved);
         criteria.setStartDate(startDate);
         criteria.setEndDate(endDate);
         criteria.setPageNumber(pageNumber);

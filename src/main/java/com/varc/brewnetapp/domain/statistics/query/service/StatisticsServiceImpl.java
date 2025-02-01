@@ -2,16 +2,14 @@ package com.varc.brewnetapp.domain.statistics.query.service;
 
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
-import com.varc.brewnetapp.domain.member.query.dto.ApprovalDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.MyWaitApprovalDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderCountPriceDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderItemStatisticsDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.OrderStatisticsDTO;
 import com.varc.brewnetapp.domain.statistics.query.dto.SafeStockStatisticsDTO;
-import com.varc.brewnetapp.domain.statistics.query.dto.newOrderDTO;
+import com.varc.brewnetapp.domain.statistics.query.dto.NewOrderDTO;
 import com.varc.brewnetapp.domain.statistics.query.mapper.StatisticsMapper;
 import com.varc.brewnetapp.exception.EmptyDataException;
-import com.varc.brewnetapp.exception.InvalidDataException;
 import com.varc.brewnetapp.exception.MemberNotFoundException;
 import com.varc.brewnetapp.security.utility.JwtUtil;
 import java.math.BigDecimal;
@@ -106,14 +104,20 @@ public class StatisticsServiceImpl implements StatisticsService {
         List<SafeStockStatisticsDTO> safeStockStatisticsList = statisticsMapper.selectSafeStock(offset, pageSize);
 
         if(safeStockStatisticsList != null && safeStockStatisticsList.size() > 0){
+
             for(SafeStockStatisticsDTO safeStockStatisticsDTO : safeStockStatisticsList){
                 Integer unApprovedItemCount = statisticsMapper.selectUnApprovedItemCount(safeStockStatisticsDTO.getItemCode());
 
+                // null 처리
+                if (unApprovedItemCount == null)
+                    unApprovedItemCount = 0;
+
                 safeStockStatisticsDTO.setUnApprovedOrderCount(unApprovedItemCount);
 
-                minPurchaseCount = safeStockStatisticsDTO.getAvailableStock()
-                    - safeStockStatisticsDTO.getSafeStock()
-                    - unApprovedItemCount;
+                if(safeStockStatisticsDTO.getAvailableMinusSafeStock() < 0)
+                    minPurchaseCount = -(Math.abs(safeStockStatisticsDTO.getAvailableMinusSafeStock()) + unApprovedItemCount);
+                else
+                    minPurchaseCount = safeStockStatisticsDTO.getAvailableMinusSafeStock() - unApprovedItemCount;
 
                 if(minPurchaseCount < 0)
                     safeStockStatisticsDTO.setMinPurchaseCount(minPurchaseCount);
@@ -132,13 +136,13 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     @Transactional
-    public Page<newOrderDTO> findNewOrder(Pageable page) {
+    public Page<NewOrderDTO> findNewOrder(Pageable page) {
         long pageSize = page.getPageSize();
         long pageNumber = page.getPageNumber();
         long offset = pageNumber * pageSize;
         int count = 0;
 
-        List<newOrderDTO> newOrderList = statisticsMapper.selectNewOrder(offset, pageSize);
+        List<NewOrderDTO> newOrderList = statisticsMapper.selectNewOrder(offset, pageSize);
 
         if(newOrderList != null && newOrderList.size() > 0)
             count = statisticsMapper.selectNewOrderCnt();

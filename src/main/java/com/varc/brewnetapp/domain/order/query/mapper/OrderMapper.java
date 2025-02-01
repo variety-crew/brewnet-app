@@ -88,9 +88,7 @@ public interface OrderMapper {
             @Param("franchiseCode") int franchiseCode,
             @Param("keyword") String keyword
     );
-
-    // excel
-
+    
 
     // common
     List<OrderApprovalHistoryDTO> findOrderApprovalHistoriesBy(int orderCode);

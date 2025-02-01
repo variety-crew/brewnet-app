@@ -4,16 +4,16 @@ import com.varc.brewnetapp.common.S3ImageService;
 import com.varc.brewnetapp.common.domain.approve.Approval;
 import com.varc.brewnetapp.common.domain.approve.Confirmed;
 import com.varc.brewnetapp.common.domain.drafter.DrafterApproved;
-import com.varc.brewnetapp.common.domain.exchange.ExchangeStatus;
 import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.common.domain.returning.ReturningStatus;
 import com.varc.brewnetapp.domain.exchange.command.application.repository.ExOrderItemRepository;
 import com.varc.brewnetapp.domain.exchange.command.application.repository.ExOrderRepository;
-import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity.ExchangeItemStatus;
-import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity.ExchangeStockHistory;
+import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.entity.ExchangeItem;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrder;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrderItem;
 import com.varc.brewnetapp.domain.exchange.command.domain.aggregate.ex_entity.ExOrderItemCode;
+import com.varc.brewnetapp.domain.franchise.command.domain.aggregate.entity.FranchiseMember;
+import com.varc.brewnetapp.domain.franchise.command.domain.repository.FranchiseMemberRepository;
 import com.varc.brewnetapp.domain.member.command.domain.aggregate.entity.Member;
 import com.varc.brewnetapp.domain.member.command.domain.repository.MemberRepository;
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.*;
@@ -24,6 +24,7 @@ import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.Returnin
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningReqItemVO;
 import com.varc.brewnetapp.domain.returning.command.domain.aggregate.vo.ReturningReqVO;
 import com.varc.brewnetapp.domain.returning.command.domain.repository.*;
+import com.varc.brewnetapp.domain.sse.service.SSEService;
 import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
 import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
 import com.varc.brewnetapp.exception.*;
@@ -47,6 +48,7 @@ public class ReturningServiceImpl implements ReturningService {
     private final ExOrderRepository exOrderRepository;  // 임시
     private final ExOrderItemRepository exOrderItemRepository; // 임시
     private final MemberRepository memberRepository;
+    private final FranchiseMemberRepository franchiseMemberRepository;
     private final ReturningItemRepository returningItemRepository;
     private final ReturningStatusHistoryRepository returningStatusHistoryRepository;
     private final ReturningImgRepository returningImgRepository;
@@ -56,6 +58,7 @@ public class ReturningServiceImpl implements ReturningService {
     private final ReturningItemStatusRepository returningItemStatusRepository;
     private final StockRepository stockRepository;
     private final S3ImageService s3ImageService;
+    private final SSEService sseService;
 
 
     @Override
@@ -259,10 +262,31 @@ public class ReturningServiceImpl implements ReturningService {
 
         if (returningApproveReqVO.getApproval() == DrafterApproved.REJECT) {
             drafterRejectReturning(returningApproveReqVO, returning, member);
+
+            // 본사에서 반품신청한 가맹점 회원들에게 알림
+            sendToReturningFranchiseMember(returning.getOrder().getFranchiseCode(), "ReturnRejectionEvent",
+                    returning.getReturningCode() + "번 요청이 반려되었습니다.");
+
         } else if (returningApproveReqVO.getApproval() == DrafterApproved.APPROVE) {
             drafterApproveReturning(returningApproveReqVO, returning, member);
+
+            // 본사 기안자가 본사 결재자에게 알림
+            sseService.sendToMember(member.getMemberCode(), "ReturnApprovalReqEvent", returningApproveReqVO.getApproverCodeList().get(0)
+                    , "반품 결재 요청이 도착했습니다.");
+
         } else {
             throw new InvalidStatusException("최초 기안자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
+        }
+    }
+
+
+    private void sendToReturningFranchiseMember(int franchiseCode, String eventName, String message) {
+        List<FranchiseMember> franchiseMemberList = franchiseMemberRepository.findByFranchiseCode(franchiseCode)
+                .orElseThrow(() -> new MemberNotFoundException("가맹점 회원을 찾을 수 없습니다"));
+
+        // 가맹점 모든 회원들에게 알림
+        for (FranchiseMember franchiseMember : franchiseMemberList) {
+            sseService.sendToMember(null, eventName, franchiseMember.getMemberCode(), message);
         }
     }
 
@@ -275,6 +299,7 @@ public class ReturningServiceImpl implements ReturningService {
          * [2] 반품상태                 - tbl_return_status_history : status = APPROVED / REJECTED (내역 추가됨)
          * [3] 승인여부                 - tbl_return_approver : approved = APPROVED / REJECTED
          * [4] 결재일시                 - tbl_return_approver : created_at = 현재일시
+         * [5] 재고
          * */
 
         /*
@@ -321,9 +346,9 @@ public class ReturningServiceImpl implements ReturningService {
             returningApprover = returningApprover.toBuilder()
                     .approved(Approval.APPROVED)
                     .createdAt(String.valueOf(LocalDateTime.now()))
+                    .comment(returningApproveReqVO.getComment())
                     .build();
             returningApproverRepository.save(returningApprover);
-
 
         } else if (returningApproveReqVO.getApproval() == Approval.REJECTED) {
             // 2. 반품(tbl_return) 테이블 '반품 결재 상태(approval_status)' 변경
@@ -339,8 +364,15 @@ public class ReturningServiceImpl implements ReturningService {
             returningApprover = returningApprover.toBuilder()
                     .approved(Approval.REJECTED)
                     .createdAt(String.valueOf(LocalDateTime.now()))
+                    .comment(returningApproveReqVO.getComment())
                     .build();
             returningApproverRepository.save(returningApprover);
+
+
+            // 본사에서 교환신청한 가맹점 회원들에게 알림
+            sendToReturningFranchiseMember(returning.getOrder().getFranchiseCode(),"ReturnRejectionEvent",
+                    returning.getReturningCode() + "번 요청이 반려되었습니다");
+
         } else {
             throw new IllegalArgumentException("결재자의 결재승인여부 값이 잘못되었습니다. 승인 또는 반려여야 합니다.");
         }
@@ -492,7 +524,7 @@ public class ReturningServiceImpl implements ReturningService {
          * 반품 전체 완료(반품&환불)인 경우 변하는 상태값:
          * [1] 반품상태                   - tbl_return_status_history : status = COMPLETED (내역 추가됨)
          * [2] 반품완료된 상품의 재고        - tbl_stock : available_stock 추가 (가용재고 추가됨)
-         * [3] 반품/교환요청 가능여부        - tbl_order_item : available = AVAILABLE
+         * [3] 반품/교환요청 가능여부        - tbl_order_item : available = AVAILABLE -> XXXXX
          * */
 
         /*
@@ -539,16 +571,22 @@ public class ReturningServiceImpl implements ReturningService {
         }
 
 
-        // 4. 주문 별 상품(tbl_order_item) 테이블 반품/교환요청 가능여부(available) AVAILABLE 변경
-        List<ExOrderItem> exOrderItemList = exOrderItemRepository.findByOrderItemCode_orderCode(returningStockHistory.getReturning().getOrder().getOrderCode())
-                .orElseThrow(() -> new OrderNotFound("완료 처리와 연관된 주문 별 상품 내역을 찾을 수 없습니다."));
-        for (
-                ExOrderItem exOrderItem : exOrderItemList) {
-            exOrderItem = exOrderItem.toBuilder()
-                    .available(Available.AVAILABLE)
-                    .build();
-            exOrderItemRepository.save(exOrderItem);
-        }
+//        // 4. 주문 별 상품(tbl_order_item) 테이블 반품/교환요청 가능여부(available) AVAILABLE 변경
+//        List<ExOrderItem> exOrderItemList = exOrderItemRepository.findByOrderItemCode_orderCode(returningStockHistory.getReturning().getOrder().getOrderCode())
+//                .orElseThrow(() -> new OrderNotFound("완료 처리와 연관된 주문 별 상품 내역을 찾을 수 없습니다."));
+//        for (
+//                ExOrderItem exOrderItem : exOrderItemList) {
+//            exOrderItem = exOrderItem.toBuilder()
+//                    .available(Available.AVAILABLE)
+//                    .build();
+//            exOrderItemRepository.save(exOrderItem);
+//        }
+
+        // 4. 가맹점에 알림
+        // 본사에서 반품신청한 가맹점 회원들에게 알림
+        sendToReturningFranchiseMember(returningStockHistory.getReturning().getOrder().getFranchiseCode(),
+                "ReturnApprovedEvent", returning.getReturningCode() + "번 반품이 완료되었습니다.");
+
     }
 
     @Override
@@ -561,7 +599,7 @@ public class ReturningServiceImpl implements ReturningService {
 
         returning = returning.toBuilder()
                 .drafterApproved(DrafterApproved.APPROVE)               // [1] 기안자의 반품 승인 여부
-//                    .approvalStatus(Approval.UNCONFIRMED)                // [2] 반품 결재 상태 (변화 X)
+                .approvalStatus(Approval.UNCONFIRMED)                   // [2] 반품 결재 상태 (CANCELED 인 경우 UNCONFIRMED로 변경)
                 .memberCode(member)                                     // 기안자 등록
                 .comment(returningApproveReqVO.getComment())            // 첨언 등록
                 .build();

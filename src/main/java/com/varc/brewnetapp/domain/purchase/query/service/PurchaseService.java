@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.domain.purchase.query.service;
 
+import com.varc.brewnetapp.domain.purchase.common.IsApproved;
 import com.varc.brewnetapp.domain.purchase.common.PageResponse;
 import com.varc.brewnetapp.domain.purchase.query.dto.*;
 
@@ -12,6 +13,7 @@ public interface PurchaseService {
                                                                     String memberName,
                                                                     String correspondentName,
                                                                     String storageName,
+                                                                    IsApproved approved,
                                                                     String startDate,
                                                                     String endDate,
                                                                     int pageNumber,

@@ -13,6 +13,7 @@ public class SearchPurchaseCriteria {
     private String memberName;              // 기안자
     private String correspondentName;       // 거래처명
     private String storageName;             // 창고명
+    private IsApproved approved;            // 결재 상태
     private String startDate;               // 시작일(언제부터)
     private String endDate;                 // 종료일(언제까지)
 
